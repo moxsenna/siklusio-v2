@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Siklusio",
+  "description": "Super-App Gaya Hidup \u0026 Persiapan Keluarga (Fertility \u0026 Pregnancy Planning)",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

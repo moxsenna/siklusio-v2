@@ -1,0 +1,367 @@
+{
+  "D:\\Coding\\remix_-siklusio\\metadata.json": {
+    "mtime": 1779242656.0,
+    "ast_hash": "46f4d0ec17918ba4570bd95d3f84f45b",
+    "semantic_hash": "46f4d0ec17918ba4570bd95d3f84f45b"
+  },
+  "D:\\Coding\\remix_-siklusio\\package.json": {
+    "mtime": 1779282731.1102498,
+    "ast_hash": "49137e98a86019bab7d950fc35991752",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\test-api.js": {
+    "mtime": 1779242656.0,
+    "ast_hash": "c544936968fd690754d52ed0978a5d76",
+    "semantic_hash": "c544936968fd690754d52ed0978a5d76"
+  },
+  "D:\\Coding\\remix_-siklusio\\tsconfig.json": {
+    "mtime": 1779242656.0,
+    "ast_hash": "b6ea1c1ded55cc6663c013d692754853",
+    "semantic_hash": "b6ea1c1ded55cc6663c013d692754853"
+  },
+  "D:\\Coding\\remix_-siklusio\\backend\\index.ts": {
+    "mtime": 1779282716.352534,
+    "ast_hash": "3ebb49442edbdf115a8e07e7bbd31f71",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\supabase\\schema.sql": {
+    "mtime": 1779242656.0,
+    "ast_hash": "9b77f3cf4f1cc5798fed22b4e953640e",
+    "semantic_hash": "9b77f3cf4f1cc5798fed22b4e953640e"
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app.json": {
+    "mtime": 1779270215.0539587,
+    "ast_hash": "9be5c716f837e794d96eaceea8498432",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\babel.config.js": {
+    "mtime": 1779270305.0290263,
+    "ast_hash": "d55d9f8b252c8c5ae6fc1448a83e84b5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\expo-env.d.ts": {
+    "mtime": 1779276978.6421106,
+    "ast_hash": "0dd9dccdb4b08595bc83df70d6a154d3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\metro.config.js": {
+    "mtime": 1779270307.1447344,
+    "ast_hash": "887df1d17a96b9d0aa6144879f079d33",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\nativewind-env.d.ts": {
+    "mtime": 1779270309.2152834,
+    "ast_hash": "b02bcf4fde15f746f6e5248537d0b156",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\package.json": {
+    "mtime": 1779270297.3156686,
+    "ast_hash": "bbed84aaa853179008e7e25765207704",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\tailwind.config.js": {
+    "mtime": 1779274389.6256216,
+    "ast_hash": "8d5da78e940d476f5acc0fc9effe49e8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\tsconfig.json": {
+    "mtime": 1779270789.767244,
+    "ast_hash": "3f8ad2303aa79fefe25fce0648a11f29",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.expo\\devices.json": {
+    "mtime": 1779270790.9743404,
+    "ast_hash": "e5f6eb13c875f326cfd5915d3364614f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.expo\\types\\router.d.ts": {
+    "mtime": 1779282694.335108,
+    "ast_hash": "df7c7ece806c0e1d065be8590bfeddc6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.vscode\\extensions.json": {
+    "mtime": 1779270214.990062,
+    "ast_hash": "b2354ba0225f5689d13651ec0fac0de0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.vscode\\settings.json": {
+    "mtime": 1779270214.993403,
+    "ast_hash": "6b9302c1f72c315e90233c7539c48c9f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+html.tsx": {
+    "mtime": 1779273655.8860319,
+    "ast_hash": "84dc477f80bf8f38c9d9f784c3c8e3cc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+not-found.tsx": {
+    "mtime": 1779270215.0242367,
+    "ast_hash": "38550dbc30757ea8dc43a4601c2b1d4f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\auth.tsx": {
+    "mtime": 1779273644.1393957,
+    "ast_hash": "6a3985a39a7bcf56d8d375a57212066d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\index.tsx": {
+    "mtime": 1779270541.4950082,
+    "ast_hash": "fe3f7f8ceb683a66730ae2bcf29e2b45",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\modal.tsx": {
+    "mtime": 1779270215.034753,
+    "ast_hash": "e621c49637832d1848fe4b8fc7007ad0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\onboarding.tsx": {
+    "mtime": 1779273647.098207,
+    "ast_hash": "bdec2ec1ba40e08d8699d78d35a8ea0f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\_layout.tsx": {
+    "mtime": 1779273873.533245,
+    "ast_hash": "e798ce0d1fbc3f0f5d3a77af1b2e4cd4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\calendar.tsx": {
+    "mtime": 1779275164.778992,
+    "ast_hash": "d33d964310ab514d3daa139f64a0c10d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\dashboard.tsx": {
+    "mtime": 1779280209.100066,
+    "ast_hash": "efc149cfe530b4269a1e2ad56eb46da7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\habits.tsx": {
+    "mtime": 1779274406.7814252,
+    "ast_hash": "bc7854c27af42c4b0abc15be356db950",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\settings.tsx": {
+    "mtime": 1779275180.7828226,
+    "ast_hash": "7e3cd63d82540be6001231bdf57aa3c3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\_layout.tsx": {
+    "mtime": 1779280184.1024258,
+    "ast_hash": "f9568ae8a6bda89cb6f56ce87775c7c8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\EditScreenInfo.tsx": {
+    "mtime": 1779270215.0267632,
+    "ast_hash": "76cdebe72bb7987a876a19cfafbe2f55",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\ExternalLink.tsx": {
+    "mtime": 1779270913.7105248,
+    "ast_hash": "570f6fb1bb2ca27eb3a0244d6b895c42",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\StyledText.tsx": {
+    "mtime": 1779270215.0367644,
+    "ast_hash": "c50b6e360fa81e992b0edb46473bfbb4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\Themed.tsx": {
+    "mtime": 1779270215.038269,
+    "ast_hash": "322ede734ffc8f86ed2dc540b50a2752",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\useClientOnlyValue.ts": {
+    "mtime": 1779270215.0072331,
+    "ast_hash": "1cac2ad5842f4258c04fde5f72d99a06",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\useClientOnlyValue.web.ts": {
+    "mtime": 1779270215.0092337,
+    "ast_hash": "89b7d949967750bf9187d0a2c68dd525",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\useColorScheme.ts": {
+    "mtime": 1779270215.011232,
+    "ast_hash": "6f3444fcb9c7013a839a7832be518831",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\useColorScheme.web.ts": {
+    "mtime": 1779270215.013237,
+    "ast_hash": "114ae1ab68038f77c94c9353ba8f706f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\calendar\\AiReportModal.tsx": {
+    "mtime": 1779270600.0733445,
+    "ast_hash": "7e295f94f387da415a5999bf684973dc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\calendar\\CalendarGrid.tsx": {
+    "mtime": 1779274394.0036523,
+    "ast_hash": "92f184fe14ee9e2d31ff843aa0aae055",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\ActionCard.tsx": {
+    "mtime": 1779274415.0390723,
+    "ast_hash": "232ef6e159a113184e8903e084a74f23",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\AffirmationCard.tsx": {
+    "mtime": 1779270572.6437113,
+    "ast_hash": "b2746764e6aa5eb3b43d8efdba399a7c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\CycleCard.tsx": {
+    "mtime": 1779274420.1340013,
+    "ast_hash": "ceabe0f1f760348734c67ec9a16cea0b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\MessageModal.tsx": {
+    "mtime": 1779270579.524932,
+    "ast_hash": "b8251c859dbd0578b0ebdd8a163a593e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\SavingsCard.tsx": {
+    "mtime": 1779274118.4594135,
+    "ast_hash": "7b93f73c665ed9588a3232b06b39a36a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\habits\\AiRecommendationSection.tsx": {
+    "mtime": 1779270612.5726922,
+    "ast_hash": "0623483bdf8eca86a712186e3f7fa057",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\habits\\HistoryView.tsx": {
+    "mtime": 1779270615.471071,
+    "ast_hash": "61ff990beb9c5dc96286d26eed9eed6a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\__tests__\\StyledText-test.js": {
+    "mtime": 1779270214.9858654,
+    "ast_hash": "4be1bd384f743fab176f40db82e2f4de",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\constants\\Colors.ts": {
+    "mtime": 1779270558.1948447,
+    "ast_hash": "271f7a153c3396b3655acda0413e429d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\context\\AuthContext.tsx": {
+    "mtime": 1779270422.440474,
+    "ast_hash": "3c9eb0d92618b426b25cb28873374e33",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\context\\CycleContext.tsx": {
+    "mtime": 1779270707.680803,
+    "ast_hash": "70c3b58b6b39ddc37775b3c5e93e8102",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\cycleUtils.ts": {
+    "mtime": 1779275158.5917544,
+    "ast_hash": "d09bcd83ed87fe1d2b7a3248a9da1a1b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\dateUtils.ts": {
+    "mtime": 1779270320.7240849,
+    "ast_hash": "2048a48ca267fc6656d56ce6e56c6188",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\storage.ts": {
+    "mtime": 1779270319.0531337,
+    "ast_hash": "61a85cf094c1efa0dc9aa9b0a6e7325c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\supabase.ts": {
+    "mtime": 1779270996.991382,
+    "ast_hash": "5a5b77c8eb43103bd1275c36fe8a1f2c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\ARCHITECTURE.md": {
+    "mtime": 1779242656.0,
+    "ast_hash": "f46f274d8de8a6031bb9779ff1ede4bc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\README.md": {
+    "mtime": 1779242656.0,
+    "ast_hash": "de8ae909d24d92b08e17028cfb7ebbb0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\rules\\graphify.md": {
+    "mtime": 1778817704.3675296,
+    "ast_hash": "56d322bc02e948acf8a5abc7fd5d20ff",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\workflows\\graphify.md": {
+    "mtime": 1778817704.3706336,
+    "ast_hash": "84de69efd46ab0b8430393bd4188f8f2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.expo\\README.md": {
+    "mtime": 1779270790.9588292,
+    "ast_hash": "2d3a37a405a8f9ffb72ff12bdd3b0adf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\.expo\\web\\cache\\production\\images\\favicon\\favicon-24272cdaeff82cc5facdaccd982a6f05b60c4504704bbf94c19a6388659880bb-contain-transparent\\favicon-48.png": {
+    "mtime": 1779270841.2314558,
+    "ast_hash": "affc53a4024a0f3d0867c5231b535a63",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\assets\\images\\adaptive-icon.png": {
+    "mtime": 1779270214.9974022,
+    "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\assets\\images\\favicon.png": {
+    "mtime": 1779270214.9988892,
+    "ast_hash": "4f1cb2cac2370cd5050681232e8575a8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\assets\\images\\icon.png": {
+    "mtime": 1779270215.0012307,
+    "ast_hash": "4e3f888fc8475f69fd5fa32f1ad5216a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\assets\\images\\splash-icon.png": {
+    "mtime": 1779270215.00323,
+    "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.vscode\\settings.json": {
+    "mtime": 1779282314.616283,
+    "ast_hash": "73792b9af3fc811b105441cc773526b1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\community.tsx": {
+    "mtime": 1779280172.3448448,
+    "ast_hash": "9aed8c6501473d7394c572ab3c0baa5b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\communityTypes.ts": {
+    "mtime": 1779280404.98459,
+    "ast_hash": "193f34c4f07cfc3810820c5ad70b19de",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\supabase\\community.sql": {
+    "mtime": 1779280379.7052042,
+    "ast_hash": "31918b8f1d93bb29bc910fac94872506",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\supabase\\community_admin.sql": {
+    "mtime": 1779282066.1741185,
+    "ast_hash": "1a4eaedbe129fb32f8666351b765ad36",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\supabase\\community_verify.sql": {
+    "mtime": 1779280949.992003,
+    "ast_hash": "e2503a8f2839fceab34154563cae52fb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\supabase\\setup_admin.md": {
+    "mtime": 1779280975.3081734,
+    "ast_hash": "d15e647a07c16b40341a35d049117168",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\admin.tsx": {
+    "mtime": 1779282693.217934,
+    "ast_hash": "4c01ba20c146e221e3cfb00c0a5b91bb",
+    "semantic_hash": ""
+  }
+}

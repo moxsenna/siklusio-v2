@@ -61,15 +61,15 @@ html, body {
 
 /* Desktop: pakai phone-frame look */
 @media (min-width: 600px) {
-  body {
+  body:not(.admin-page-fullwidth) {
     background: linear-gradient(135deg, #fce7f3 0%, #ccfbf1 100%);
   }
-  #root {
+  body:not(.admin-page-fullwidth) #root {
     align-items: center;
     justify-content: center;
   }
   /* Anak langsung dari #root = wrapper yang dibuat expo-router untuk Stack */
-  #root > div {
+  body:not(.admin-page-fullwidth) #root > div {
     width: 100%;
     max-width: 520px;
     height: 100vh;

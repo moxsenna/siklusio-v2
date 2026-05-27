@@ -164,6 +164,16 @@ export default function AdminDashboard() {
   const [actingKey, setActingKey] = useState<string | null>(null);
   const [expandedQueueKey, setExpandedQueueKey] = useState<string | null>(null);
 
+  // Dynamic full-width for web
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      document.body.classList.add('admin-page-fullwidth');
+      return () => {
+        document.body.classList.remove('admin-page-fullwidth');
+      };
+    }
+  }, []);
+
   // 1. Authenticate & Authorize Admin
   useEffect(() => {
     const checkAdmin = async () => {

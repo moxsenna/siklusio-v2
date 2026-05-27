@@ -20,8 +20,8 @@
     "semantic_hash": "b6ea1c1ded55cc6663c013d692754853"
   },
   "D:\\Coding\\remix_-siklusio\\backend\\index.ts": {
-    "mtime": 1779900705.4098432,
-    "ast_hash": "73601cf9798b195e7c78218f77166c46",
+    "mtime": 1779911767.8886256,
+    "ast_hash": "a3968e62015104b5389bc53d1a5dfcd7",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\supabase\\schema.sql": {
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+html.tsx": {
-    "mtime": 1779862468.3636646,
-    "ast_hash": "9cf5a48947e3561066c8f0dd4083ac69",
+    "mtime": 1779908433.4309354,
+    "ast_hash": "737de0b4d724cfe96f4f6e8304775e20",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+not-found.tsx": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\admin.tsx": {
-    "mtime": 1779900777.4786236,
-    "ast_hash": "bb896ff3c3f4ff3b98126e16199c1030",
+    "mtime": 1779908901.5034082,
+    "ast_hash": "61fe13596cbda48ffa483dcf365a46da",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\community\\CommentsModal.tsx": {
@@ -790,8 +790,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\TwwSanctuaryModal.tsx": {
-    "mtime": 1779852517.06202,
-    "ast_hash": "7605c72c904ee93b95a1805b659ee568",
+    "mtime": 1779912952.1922147,
+    "ast_hash": "9062953752d0dc848856e24268d50aec",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\api.ts": {
@@ -800,8 +800,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\supabase\\community_admin_rpc.sql": {
-    "mtime": 1779726894.980997,
-    "ast_hash": "21df37f4e371a9a8c604aad89ef8db21",
+    "mtime": 1779908863.9081452,
+    "ast_hash": "0cafbb029b2730a170949aeff3382d01",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\supabase\\community_comments_rpc.sql": {
@@ -2830,8 +2830,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\landing\\checkout.html": {
-    "mtime": 1779900804.1798718,
-    "ast_hash": "7a0fb4ee878bbc250f208b68ed05b98a",
+    "mtime": 1779911750.8281524,
+    "ast_hash": "60c910c742a5f44f6854bfea1e77f542",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-smdz8z\\middleware-insertion-facade.js": {
@@ -2852,6 +2852,21 @@
   "D:\\Coding\\remix_-siklusio\\supabase\\coupons.sql": {
     "mtime": 1779900653.211339,
     "ast_hash": "8786127cee27a09fdb9e6fc27967a789",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\scratch\\check-moderation.js": {
+    "mtime": 1779908823.2647939,
+    "ast_hash": "c4b58e3ec36276498caca304b143822d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\scratch\\test-mayar-payment.json": {
+    "mtime": 1779911147.506096,
+    "ast_hash": "13f43d534b3c307fc99ff6148fbf5c5e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\PRD.md": {
+    "mtime": 1779906968.5642192,
+    "ast_hash": "c7a1f4ed192ffeb1c5b4a64f38cd9387",
     "semantic_hash": ""
   }
 }

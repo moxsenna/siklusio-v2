@@ -19,10 +19,10 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
   
   // Animation and Audio
   const [isBreathing, setIsBreathing] = useState(false);
+  const [breathPhase, setBreathPhase] = useState<'tarik' | 'tahan' | 'hembus' | 'idle'>('idle');
+  const [countdown, setCountdown] = useState(4);
   const breatheAnim = useRef(new Animated.Value(1)).current;
   const soundRef = useRef<Audio.Sound | null>(null);
-
-
 
   const loadAudio = async () => {
     try {
@@ -45,11 +45,84 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     };
   }, []);
 
+  // Drive animation and countdown second-by-second, perfectly synced
+  useEffect(() => {
+    let intervalId: any;
+    let timeoutId: any;
+
+    if (!isBreathing) {
+      setBreathPhase('idle');
+      breatheAnim.setValue(1);
+      return;
+    }
+
+    const runCycle = (phase: 'tarik' | 'tahan' | 'hembus') => {
+      setBreathPhase(phase);
+      let durationSeconds = 4;
+      let targetScale = 1.0;
+
+      if (phase === 'tarik') {
+        durationSeconds = 4;
+        targetScale = 1.5;
+        Animated.timing(breatheAnim, {
+          toValue: targetScale,
+          duration: 4000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }).start();
+      } else if (phase === 'tahan') {
+        durationSeconds = 2;
+        targetScale = 1.5;
+        Animated.timing(breatheAnim, {
+          toValue: targetScale,
+          duration: 0,
+          useNativeDriver: true,
+        }).start();
+      } else if (phase === 'hembus') {
+        durationSeconds = 4;
+        targetScale = 1.0;
+        Animated.timing(breatheAnim, {
+          toValue: targetScale,
+          duration: 4000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }).start();
+      }
+
+      setCountdown(durationSeconds);
+
+      let secondsPassed = 0;
+      intervalId = setInterval(() => {
+        secondsPassed++;
+        const remaining = durationSeconds - secondsPassed;
+        if (remaining >= 0) {
+          setCountdown(remaining);
+        }
+      }, 1000);
+
+      timeoutId = setTimeout(() => {
+        clearInterval(intervalId);
+        if (phase === 'tarik') {
+          runCycle('tahan');
+        } else if (phase === 'tahan') {
+          runCycle('hembus');
+        } else {
+          runCycle('tarik');
+        }
+      }, durationSeconds * 1000);
+    };
+
+    runCycle('tarik');
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, [isBreathing]);
+
   const toggleBreathing = async () => {
     if (isBreathing) {
       setIsBreathing(false);
-      breatheAnim.stopAnimation();
-      breatheAnim.setValue(1);
       if (soundRef.current) {
         await soundRef.current.pauseAsync();
       }
@@ -58,28 +131,6 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
       if (soundRef.current) {
         await soundRef.current.playAsync();
       }
-      
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(breatheAnim, {
-            toValue: 1.5,
-            duration: 4000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(breatheAnim, {
-            toValue: 1.5,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(breatheAnim, {
-            toValue: 1,
-            duration: 4000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          })
-        ])
-      ).start();
     }
   };
 
@@ -152,22 +203,103 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
               <Animated.View 
                 style={{
                   transform: [{ scale: breatheAnim }],
-                  opacity: isBreathing ? 0.3 : 0.1
+                  opacity: isBreathing ? 0.35 : 0.1
                 }}
                 className="absolute w-24 h-24 bg-purple-400 rounded-full"
               />
               <TouchableOpacity 
                 onPress={toggleBreathing}
-                className="w-24 h-24 bg-purple-600 rounded-full items-center justify-center shadow-md z-10"
+                className="w-24 h-24 bg-purple-600 rounded-full items-center justify-center shadow-md z-10 active:scale-95"
               >
-                <Text className="text-white font-bold text-xs text-center px-2">
-                  {isBreathing ? "Jeda" : "Mulai Napas"}
-                </Text>
+                {isBreathing ? (
+                  <View className="items-center justify-center">
+                    <Text className="text-white font-extrabold text-2xl">{countdown}</Text>
+                    <Text className="text-white/80 font-bold text-[8px] uppercase tracking-wider mt-0.5">Jeda</Text>
+                  </View>
+                ) : (
+                  <Text className="text-white font-bold text-[10px] uppercase tracking-wider text-center px-2">
+                    Mulai Napas
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
-            <Text className="text-purple-800 text-xs font-bold mt-4 uppercase tracking-widest">
-              {isBreathing ? "Tarik... Tahan... Hembuskan..." : "Stop Cemas & Tarik Napas Dulu"}
-            </Text>
+
+            {isBreathing ? (
+              <View className="items-center mt-4 w-full px-4">
+                {/* Large animated instructions text */}
+                <View className="h-10 items-center justify-center mb-4">
+                  {breathPhase === 'tarik' && (
+                    <Text className="text-purple-900 text-base font-extrabold tracking-wide text-center">
+                      🌬️ Tarik Napas Dalam-Dalam...
+                    </Text>
+                  )}
+                  {breathPhase === 'tahan' && (
+                    <Text className="text-purple-900 text-base font-extrabold tracking-wide text-center">
+                      🛑 Tahan Napas... Heningkan Pikiran
+                    </Text>
+                  )}
+                  {breathPhase === 'hembus' && (
+                    <Text className="text-purple-900 text-base font-extrabold tracking-wide text-center">
+                      💨 Hembuskan Perlahan-Lahan...
+                    </Text>
+                  )}
+                </View>
+
+                {/* Pills representing the three phases */}
+                <View className="flex-row items-center justify-center w-full gap-2">
+                  <View 
+                    className={`px-3 py-1.5 rounded-full border items-center justify-center ${
+                      breathPhase === 'tarik' 
+                        ? 'bg-purple-600 border-purple-600 shadow-sm' 
+                        : 'bg-purple-50 border-purple-100 opacity-50'
+                    }`}
+                  >
+                    <Text className={`text-[9px] font-bold uppercase tracking-wider ${
+                      breathPhase === 'tarik' ? 'text-white' : 'text-purple-700'
+                    }`}>
+                      Tarik (4s)
+                    </Text>
+                  </View>
+
+                  <View 
+                    className={`px-3 py-1.5 rounded-full border items-center justify-center ${
+                      breathPhase === 'tahan' 
+                        ? 'bg-purple-600 border-purple-600 shadow-sm' 
+                        : 'bg-purple-50 border-purple-100 opacity-50'
+                    }`}
+                  >
+                    <Text className={`text-[9px] font-bold uppercase tracking-wider ${
+                      breathPhase === 'tahan' ? 'text-white' : 'text-purple-700'
+                    }`}>
+                      Tahan (2s)
+                    </Text>
+                  </View>
+
+                  <View 
+                    className={`px-3 py-1.5 rounded-full border items-center justify-center ${
+                      breathPhase === 'hembus' 
+                        ? 'bg-purple-600 border-purple-600 shadow-sm' 
+                        : 'bg-purple-50 border-purple-100 opacity-50'
+                    }`}
+                  >
+                    <Text className={`text-[9px] font-bold uppercase tracking-wider ${
+                      breathPhase === 'hembus' ? 'text-white' : 'text-purple-700'
+                    }`}>
+                      Hembus (4s)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View className="items-center mt-4">
+                <Text className="text-purple-800 text-xs font-bold uppercase tracking-widest text-center px-4 leading-relaxed">
+                  🧘‍♀️ Ambil jeda 1 menit saja untuk tenang
+                </Text>
+                <Text className="text-purple-600/70 text-[10px] text-center mt-1">
+                  Ketuk tombol di atas untuk memulai bimbingan napas & suara meditasi
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Journal Section */}

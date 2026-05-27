@@ -13,6 +13,7 @@ import { useCycle } from '../src/context/CycleContext';
 import { useAuth } from '../src/context/AuthContext';
 import { supabase } from '../src/lib/supabase';
 import { format } from 'date-fns';
+import { DatePickerField } from '../components/common/DatePickerField';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface DropdownOption {
@@ -237,8 +238,37 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }} style={{ flex: 1 }} className="bg-black/40">
-      <View className="bg-surface rounded-[32px] w-full max-w-md shadow-xl overflow-hidden min-h-[500px] border border-outline-variant flex-col justify-between">
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: 'transparent',
+      }}
+      style={{
+        flex: 1,
+        backgroundColor: 'transparent',
+      }}
+    >
+      <View
+        style={{
+          width: '100%',
+          maxWidth: 448,
+          backgroundColor: '#ffffff',
+          borderRadius: 32,
+          borderWidth: 1,
+          borderColor: '#fbcfe8',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          elevation: 5,
+          minHeight: 500,
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
         
         {/* Header */}
         <View className="flex-row items-center justify-between p-6">
@@ -400,32 +430,24 @@ export default function OnboardingScreen() {
               <View className="space-y-4">
                 <View>
                   <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Tanggal Haid Terakhir</Text>
-                  <View className="flex-row gap-2">
-                    <TextInput
-                      value={periodDay}
-                      onChangeText={setPeriodDay}
-                      placeholder="Hari (DD)"
-                      keyboardType="number-pad"
-                      placeholderTextColor="#ec489950"
-                      className="flex-1 bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-background"
-                    />
-                    <TextInput
-                      value={periodMonth}
-                      onChangeText={setPeriodMonth}
-                      placeholder="Bulan (MM)"
-                      keyboardType="number-pad"
-                      placeholderTextColor="#ec489950"
-                      className="flex-1 bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-background"
-                    />
-                    <TextInput
-                      value={periodYear}
-                      onChangeText={setPeriodYear}
-                      placeholder="Tahun (YYYY)"
-                      keyboardType="number-pad"
-                      placeholderTextColor="#ec489950"
-                      className="flex-1 bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-background"
-                    />
-                  </View>
+                  <DatePickerField
+                    value={(() => {
+                      const d = Number(periodDay);
+                      const m = Number(periodMonth);
+                      const y = Number(periodYear);
+                      if (!d || !m || !y) return null;
+                      const dt = new Date(y, m - 1, d);
+                      return isNaN(dt.getTime()) ? null : dt;
+                    })()}
+                    onChange={(dt) => {
+                      setPeriodDay(dt.getDate().toString());
+                      setPeriodMonth((dt.getMonth() + 1).toString());
+                      setPeriodYear(dt.getFullYear().toString());
+                    }}
+                    minYear={new Date().getFullYear() - 5}
+                    maxYear={new Date().getFullYear()}
+                    placeholder="Pilih tanggal haid terakhir"
+                  />
                 </View>
                 <View className="flex-row gap-4 mt-4">
                   <View className="flex-1">

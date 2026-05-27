@@ -49,6 +49,8 @@ export interface CommunityFeedItem {
   id: string;
   content: string;
   display_name: string;
+  /** URL avatar (preset:<id> atau https://). NULL kalau anonim/tidak set. */
+  avatar_url: string | null;
   is_anonymous: boolean;
   phase_tag: PhaseTag | null;
   comment_count: number;

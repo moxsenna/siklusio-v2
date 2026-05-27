@@ -195,7 +195,29 @@ CREATE OR REPLACE FUNCTION public.community_reports_after_insert()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE
   new_count INTEGER;
+  v_reviewed_at TIMESTAMPTZ;
+  v_review_status TEXT;
 BEGIN
+  -- Get existing admin review state
+  IF NEW.target_type = 'post' THEN
+    SELECT admin_reviewed_at, admin_review_status INTO v_reviewed_at, v_review_status
+    FROM public.community_posts WHERE id = NEW.target_id;
+  ELSE
+    SELECT admin_reviewed_at, admin_review_status INTO v_reviewed_at, v_review_status
+    FROM public.community_comments WHERE id = NEW.target_id;
+  END IF;
+
+  -- 1. If already reviewed, auto-resolve report based on past action instead of leaving it pending
+  IF v_reviewed_at IS NOT NULL THEN
+    UPDATE public.community_reports
+       SET status = CASE WHEN v_review_status = 'kept' THEN 'resolved_keep' ELSE 'resolved_hide' END,
+           resolved_at = NOW(),
+           resolver_id = NEW.reporter_id
+     WHERE id = NEW.id;
+     RETURN NULL;
+  END IF;
+
+  -- 2. Otherwise proceed with standard increment & auto-hide
   IF NEW.target_type = 'post' THEN
     UPDATE public.community_posts
       SET report_count = report_count + 1

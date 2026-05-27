@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { format, subDays, eachDayOfInterval, startOfDay } from 'date-fns';
 import { parseLocalDate } from '../../src/lib/dateUtils';
 
@@ -54,28 +54,26 @@ export function HistoryView({ historyFilter, setHistoryFilter, activityHistory }
       </View>
       
       {/* Dynamic CSS Bar Chart */}
-      <ScrollView horizontal contentContainerStyle={{ paddingHorizontal: 10 }} className="py-4">
-        <View className="flex-row items-end gap-3 h-[180px]">
-          {chartData.map((day, index) => {
-            const barHeight = (day.percent / 100) * chartHeight;
-            return (
-              <View key={index} className="items-center w-8">
-                {/* Percent indicator */}
-                <Text className="text-[9px] font-bold text-primary mb-1">{day.percent}%</Text>
-                {/* Bar fill */}
-                <View 
-                  style={{ height: Math.max(barHeight, 6) }} 
-                  className={`w-3.5 rounded-t-full ${
-                    day.isPeriod ? 'bg-primary' : 'bg-pink-200'
-                  }`} 
-                />
-                {/* Date label */}
-                <Text className="text-[9px] text-on-surface-variant font-bold mt-2">{day.name}</Text>
-              </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+      <FlatList
+        horizontal
+        nestedScrollEnabled
+        data={chartData}
+        keyExtractor={(_, i) => String(i)}
+        contentContainerStyle={{ paddingHorizontal: 10, paddingVertical: 16 }}
+        showsHorizontalScrollIndicator={true}
+        renderItem={({ item: day }) => {
+          const barHeight = (day.percent / 100) * chartHeight;
+          return (
+            <View style={{ alignItems: 'center', width: 36, marginHorizontal: 4 }}>
+              <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#ec4899', marginBottom: 4 }}>{day.percent}%</Text>
+              <View
+                style={{ height: Math.max(barHeight, 6), width: 14, borderTopLeftRadius: 99, borderTopRightRadius: 99, backgroundColor: day.isPeriod ? '#ec4899' : '#fbcfe8' }}
+              />
+              <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#64748b', marginTop: 8 }}>{day.name}</Text>
+            </View>
+          );
+        }}
+      />
       
       <View className="flex-row justify-center gap-4 mt-4">
         <View className="flex-row items-center gap-2">

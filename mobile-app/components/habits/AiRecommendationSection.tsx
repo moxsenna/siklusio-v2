@@ -1,30 +1,404 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  Alert,
+} from 'react-native';
+import { format, subDays } from 'date-fns';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { apiPostJson } from '../../src/lib/api';
 
-export function AiRecommendationSection({ currentPhase }: any) {
-  const getRecommendation = () => {
-    switch (currentPhase) {
-      case 'Menstrual':
-        return "Disarankan mengonsumsi teh jahe atau chamomile untuk meredakan kram. Hindari kafein berlebih hari ini.";
-      case 'Ovulasi':
-        return "Waktu terbaik untuk mencoba konsepsi! Jangan lupa jaga mood dan asupan protein.";
-      case 'Masa Subur':
-        return "Peluang hamil sedang meningkat. Tetap aktif dan perhatikan pola tidur.";
-      default:
-        return "Tetap konsisten dengan rutinitas harianmu. Setiap langkah kecil sangat berharga.";
+interface WeeklyDayData {
+  date: string;
+  tasks: { text: string; done: boolean }[];
+  symptoms: string[];
+}
+
+interface AiInsightResult {
+  summary: string;
+  symptomAnalysis: string;
+  tips: string[];
+  motivation: string;
+}
+
+interface Props {
+  currentPhase: string;
+  activityHistory: Record<string, any>;
+  nickname: string;
+}
+
+export function AiRecommendationSection({
+  currentPhase,
+  activityHistory,
+  nickname,
+}: Props) {
+  const [result, setResult] = useState<AiInsightResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const collectWeeklyData = (): WeeklyDayData[] => {
+    const data: WeeklyDayData[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = subDays(new Date(), i);
+      const key = format(d, 'yyyy-MM-dd');
+      const record = activityHistory[key];
+      data.push({
+        date: key,
+        tasks: (record?.tasks || []).map((t: any) => ({
+          text: t.text || t.emoji || '',
+          done: Boolean(t.done),
+        })),
+        symptoms: record?.symptoms || [],
+      });
+    }
+    return data;
+  };
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const weeklyData = collectWeeklyData();
+      const json = await apiPostJson<AiInsightResult>('/api/generate-habits-insight', {
+        weeklyData,
+        currentPhase,
+        nickname,
+      });
+      setResult(json);
+    } catch (e: any) {
+      const msg = e?.message || 'Gagal menghasilkan insight.';
+      setError(msg);
+      if (Platform.OS === 'web') {
+        // silent, shown in UI
+      } else {
+        Alert.alert('Gagal', msg);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <View className="bg-indigo-50 rounded-[32px] p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
-      <View className="z-10">
-        <Text className="text-sm font-bold tracking-wide text-indigo-900 mb-2">
-          ✨ Insight AI untuk Kamu
+  // Belum pernah generate — tampilkan tombol
+  if (!result && !loading && !error) {
+    return (
+      <TouchableOpacity
+        onPress={handleGenerate}
+        activeOpacity={0.8}
+        style={{
+          backgroundColor: '#eef2ff',
+          borderRadius: 24,
+          padding: 20,
+          borderWidth: 1,
+          borderColor: '#e0e7ff',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <View
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            backgroundColor: '#c7d2fe',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <FontAwesome name="magic" size={20} color="#4f46e5" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: 'bold',
+              color: '#312e81',
+              marginBottom: 2,
+            }}
+          >
+            ✨ Minta Insight AI
+          </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              color: '#6366f1',
+              lineHeight: 17,
+            }}
+          >
+            Analisis aktivitas & gejala 7 hari terakhirmu untuk saran personal.
+          </Text>
+        </View>
+        <FontAwesome name="chevron-right" size={14} color="#a5b4fc" />
+      </TouchableOpacity>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <View
+        style={{
+          backgroundColor: '#eef2ff',
+          borderRadius: 24,
+          padding: 24,
+          borderWidth: 1,
+          borderColor: '#e0e7ff',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text
+          style={{
+            fontSize: 12,
+            color: '#6366f1',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+          }}
+        >
+          Menganalisis data 7 hari...
         </Text>
-        <Text className="text-sm font-medium text-indigo-800 leading-relaxed italic">
-          {getRecommendation()}
+        <Text style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+          AI sedang membaca pola aktivitas dan gejala kamu
         </Text>
       </View>
+    );
+  }
+
+  // Error state
+  if (error && !result) {
+    return (
+      <View
+        style={{
+          backgroundColor: '#fef2f2',
+          borderRadius: 24,
+          padding: 20,
+          borderWidth: 1,
+          borderColor: '#fee2e2',
+          gap: 10,
+        }}
+      >
+        <Text style={{ fontSize: 13, color: '#b91c1c', fontWeight: 'bold' }}>
+          ⚠️ Gagal menghasilkan insight
+        </Text>
+        <Text style={{ fontSize: 12, color: '#dc2626', lineHeight: 18 }}>
+          {error}
+        </Text>
+        <TouchableOpacity
+          onPress={handleGenerate}
+          style={{
+            marginTop: 4,
+            backgroundColor: '#ef4444',
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            borderRadius: 14,
+            alignSelf: 'flex-start',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: 'bold',
+              color: '#fff',
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+            }}
+          >
+            Coba Lagi
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Result state
+  return (
+    <View
+      style={{
+        backgroundColor: '#eef2ff',
+        borderRadius: 24,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: '#e0e7ff',
+        gap: 14,
+      }}
+    >
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: 'bold',
+            color: '#312e81',
+          }}
+        >
+          ✨ Insight AI Mingguan
+        </Text>
+        <TouchableOpacity
+          onPress={handleGenerate}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 10,
+            backgroundColor: '#c7d2fe',
+          }}
+        >
+          <FontAwesome name="refresh" size={10} color="#4f46e5" />
+          <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#4f46e5' }}>
+            Refresh
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Summary */}
+      {result?.summary && (
+        <View style={{ gap: 4 }}>
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: 'bold',
+              color: '#6366f1',
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+            }}
+          >
+            Ringkasan 7 Hari
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: '#1e1b4b',
+              lineHeight: 20,
+            }}
+          >
+            {result.summary}
+          </Text>
+        </View>
+      )}
+
+      {/* Symptom Analysis */}
+      {result?.symptomAnalysis && result.symptomAnalysis.trim() !== '' && (
+        <View style={{ gap: 4 }}>
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: 'bold',
+              color: '#6366f1',
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+            }}
+          >
+            Analisis Gejala
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: '#1e1b4b',
+              lineHeight: 20,
+            }}
+          >
+            {result.symptomAnalysis}
+          </Text>
+        </View>
+      )}
+
+      {/* Tips */}
+      {result?.tips && result.tips.length > 0 && (
+        <View style={{ gap: 6 }}>
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: 'bold',
+              color: '#6366f1',
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+            }}
+          >
+            Saran Minggu Depan
+          </Text>
+          {result.tips.map((tip, i) => (
+            <View
+              key={i}
+              style={{
+                flexDirection: 'row',
+                gap: 8,
+                alignItems: 'flex-start',
+              }}
+            >
+              <View
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  backgroundColor: '#c7d2fe',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 1,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 'bold',
+                    color: '#4f46e5',
+                  }}
+                >
+                  {i + 1}
+                </Text>
+              </View>
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 13,
+                  color: '#1e1b4b',
+                  lineHeight: 19,
+                }}
+              >
+                {tip}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Motivation */}
+      {result?.motivation && (
+        <View
+          style={{
+            backgroundColor: '#c7d2fe',
+            borderRadius: 14,
+            padding: 12,
+            marginTop: 4,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 13,
+              color: '#312e81',
+              fontStyle: 'italic',
+              lineHeight: 19,
+              textAlign: 'center',
+            }}
+          >
+            💜 {result.motivation}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

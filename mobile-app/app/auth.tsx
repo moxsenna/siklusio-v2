@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, SafeAreaView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
@@ -77,8 +77,42 @@ export default function AuthScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }} style={{ flex: 1 }} className="bg-background">
-      <View className="w-full max-w-md bg-surface p-8 rounded-[32px] shadow-sm border border-outline-variant">
+    <SafeAreaView
+      style={{
+        flex: 1,
+        width: '100%',
+        backgroundColor: '#fdf2f8',
+        minHeight: Platform.OS === 'web' ? ('100%' as any) : undefined,
+      }}
+    >
+      <ScrollView
+        style={{ flex: 1, width: '100%' }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        padding: 24,
+        backgroundColor: '#fdf2f8',
+      }}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View
+        style={{
+          width: '100%',
+          maxWidth: 448,
+          backgroundColor: '#ffffff',
+          borderRadius: 32,
+          padding: 32,
+          borderWidth: 1,
+          borderColor: '#fbcfe8',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.05,
+          shadowRadius: 2,
+          elevation: 1,
+        }}
+      >
           {/* Logo & Header */}
           <View className="items-center mb-8">
             <View className="w-16 h-16 bg-secondary rounded-2xl items-center justify-center mb-4 shadow-sm">
@@ -195,7 +229,8 @@ export default function AuthScreen() {
               </Text>
             </Text>
           </View>
-        </View>
-      </ScrollView>
+      </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }

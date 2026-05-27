@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 // Load env vars from .env.local first (highest priority), then fall back to .env
 dotenv.config({ path: ".env.local" });
@@ -15,6 +16,63 @@ async function startServer() {
 
   app.use(express.json());
 
+  const getSupabaseAdmin = () => {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("Missing Supabase config");
+    }
+
+    return createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  };
+
+  const listAllAuthUsers = async (supabaseAdmin: ReturnType<typeof getSupabaseAdmin>) => {
+    const perPage = 1000;
+    const users: any[] = [];
+
+    for (let page = 1; ; page += 1) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+      if (error) throw error;
+
+      users.push(...data.users);
+
+      const total = "total" in data ? data.total : 0;
+      if (data.users.length < perPage || (typeof total === "number" && users.length >= total)) {
+        break;
+      }
+    }
+
+    return users;
+  };
+
+  const requireUser = async (req: express.Request, res: express.Response) => {
+    const authHeader = req.headers.authorization || "";
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : null;
+
+    if (!token) {
+      res.status(401).json({ error: "Missing access token" });
+      return null;
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
+
+    if (userErr || !userData?.user) {
+      res.status(401).json({ error: "Invalid or expired session" });
+      return null;
+    }
+
+    return { supabaseAdmin, user: userData.user };
+  };
+
   // API Route for generating recipes and groceries
   app.post("/api/generate-recipes", async (req, res) => {
     console.log("--> [BACKEND] Received request /api/generate-recipes");
@@ -24,6 +82,9 @@ async function startServer() {
         console.error("<-- [BACKEND] No API key!");
         return res.status(500).json({ error: "GEMINI_API_KEY is not defined" });
       }
+
+      const auth = await requireUser(req, res);
+      if (!auth) return;
 
       const { phase } = req.body;
       console.log("--> [BACKEND] Phase requested:", phase);
@@ -79,6 +140,9 @@ async function startServer() {
         return res.status(500).json({ error: "GEMINI_API_KEY is not defined" });
       }
 
+      const auth = await requireUser(req, res);
+      if (!auth) return;
+
       const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow } = req.body;
 
       const ai = new GoogleGenAI({
@@ -123,45 +187,139 @@ async function startServer() {
     }
   });
 
-  // API Route for Admin to fetch all profiles
-  app.get("/api/admin/users", async (req, res) => {
+  // API Route for generating AI habits insight based on 7-day data
+  app.post("/api/generate-habits-insight", async (req, res) => {
+    console.log("--> [BACKEND] Received request /api/generate-habits-insight");
     try {
-      const supabaseUrl = process.env.VITE_SUPABASE_URL;
-      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-      if (!supabaseUrl || !serviceRoleKey) {
-        return res.status(500).json({ error: "Missing Supabase config. Make sure VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in settings/secrets." });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "GEMINI_API_KEY is not defined" });
       }
 
-      // Initialize Supabase with the service_role key to bypass RLS
-      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
+      const auth = await requireUser(req, res);
+      if (!auth) return;
+
+      const { weeklyData, currentPhase, nickname } = req.body;
+      // weeklyData: array of { date, tasks: [{text, done}], symptoms: [string] }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
         }
       });
 
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: `Kamu adalah asisten kesehatan reproduksi wanita yang hangat dan suportif. Analisis data aktivitas dan gejala 7 hari terakhir pengguna, lalu berikan insight dan saran yang actionable.
+
+Konteks:
+- Nama panggilan: ${nickname || 'Bunda'}
+- Fase siklus saat ini: ${currentPhase}
+- Data 7 hari terakhir: ${JSON.stringify(weeklyData)}
+
+Berdasarkan data di atas, buatkan analisis dalam Bahasa Indonesia yang:
+1. Ringkas pola aktivitas (berapa persen target tercapai, konsistensi)
+2. Analisis gejala yang muncul (frekuensi, korelasi dengan fase)
+3. Berikan 3 saran spesifik dan praktis untuk minggu depan
+4. Tutup dengan kalimat motivasi yang personal
+
+PENTING:
+- Gunakan bahasa yang hangat, suportif, dan tidak menggurui
+- Saran harus realistis dan mudah dilakukan
+- Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus
+
+Return ONLY raw JSON (tanpa markdown blocks) dengan format:
+{
+  "summary": "string (ringkasan pola 7 hari, 2-3 kalimat)",
+  "symptomAnalysis": "string (analisis gejala, 1-2 kalimat. Kosongkan jika tidak ada gejala)",
+  "tips": ["string", "string", "string"] (3 saran praktis),
+  "motivation": "string (kalimat motivasi personal)"
+}`,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      let text = response.text || "";
+      text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+      const result = JSON.parse(text);
+      res.json(result);
+    } catch (error: any) {
+      console.error(error.stack || error);
+      res.status(500).json({ error: error instanceof Error ? (error.stack || error.message) : "Gagal membuat insight" });
+    }
+  });
+
+  // API Route for TWW Sanctuary AI Reassurance
+  app.post("/api/generate-calming-reassurance", async (req, res) => {
+    console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "GEMINI_API_KEY is not defined" });
+      }
+
+      const { nickname, userJournal } = req.body;
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-flash-latest",
+        contents: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
+Masa ini sangat rentan memicu kecemasan (symptom spotting).
+Ini adalah curahan hatinya (jurnal emosi): "${userJournal}"
+
+Berikan balasan surat yang:
+1. Menvalidasi perasaannya (tidak meremehkan).
+2. Sangat hangat, empatis, dan menyemangati.
+3. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
+4. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
+
+Return ONLY raw JSON (tanpa markdown blocks) dengan format:
+{
+  "reassurance": "string (surat balasan hangat 2-3 paragraf singkat)",
+  "breathingTip": "string (satu kalimat instruksi napas sederhana yang relevan)"
+}`,
+        config: {
+          responseMimeType: "application/json",
+        }
+      });
+
+      let text = response.text || "";
+      text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+      const result = JSON.parse(text);
+      res.json(result);
+    } catch (error: any) {
+      console.error(error.stack || error);
+      res.status(500).json({ error: error instanceof Error ? (error.stack || error.message) : "Gagal membuat pesan penenang" });
+    }
+  });
+
+  // API Route for Admin to fetch all profiles
+
+  app.get("/api/admin/users", async (req, res) => {
+    try {
       // ---- AUTH GATE ----
       // Caller must send Authorization: Bearer <supabase access token>.
       // We then verify the token, look up the user's profile, and require is_admin = true.
-      const authHeader = req.headers.authorization || "";
-      const token = authHeader.startsWith("Bearer ")
-        ? authHeader.slice("Bearer ".length)
-        : null;
-
-      if (!token) {
-        return res.status(401).json({ error: "Missing access token" });
-      }
-
-      const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
-      if (userErr || !userData?.user) {
-        return res.status(401).json({ error: "Invalid or expired session" });
-      }
+      const auth = await requireUser(req, res);
+      if (!auth) return;
+      const { supabaseAdmin, user } = auth;
 
       const { data: profile, error: profileErr } = await supabaseAdmin
         .from("profiles")
         .select("is_admin")
-        .eq("id", userData.user.id)
+        .eq("id", user.id)
         .maybeSingle();
 
       if (profileErr) {
@@ -173,17 +331,15 @@ async function startServer() {
       }
       // ---- /AUTH GATE ----
 
-      // Example: Fetch from Auth users if needed using supabaseAdmin.auth.admin.listUsers()
-      // But for now, just fetch from the public.profiles table
-      const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-      if (authError) throw authError;
+      const authUsers = await listAllAuthUsers(supabaseAdmin);
+      const authUsersById = new Map(authUsers.map((authUser: any) => [authUser.id, authUser]));
 
       const { data: profiles, error: profileError } = await supabaseAdmin.from('profiles').select('*').order('created_at', { ascending: false });
       if (profileError) throw profileError;
 
       // Merge data
       const usersData = profiles.map(p => {
-        const authUser = authUsers.users.find((u: any) => u.id === p.id);
+        const authUser = authUsersById.get(p.id);
         return {
           ...p,
           email: authUser?.email,
@@ -198,14 +354,87 @@ async function startServer() {
     }
   });
 
+  // ============================================================
+  // Avatar Upload to Cloudflare R2
+  // ============================================================
+
+  const getR2Client = () => {
+    const accountId = process.env.R2_ACCOUNT_ID;
+    const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+
+    if (!accountId || !accessKeyId || !secretAccessKey) {
+      throw new Error("Missing R2 configuration (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)");
+    }
+
+    return new S3Client({
+      region: "auto",
+      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+    });
+  };
+
+  app.post("/api/upload-avatar", async (req, res) => {
+    console.log("--> [BACKEND] Received request /api/upload-avatar");
+    try {
+      const auth = await requireUser(req, res);
+      if (!auth) return;
+
+      const { base64 } = req.body;
+      if (!base64 || typeof base64 !== "string") {
+        return res.status(400).json({ error: "Missing or invalid 'base64' field" });
+      }
+
+      // Validate size (base64 is ~33% larger than raw bytes)
+      const estimatedBytes = Math.ceil(base64.length * 0.75);
+      const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+      if (estimatedBytes > MAX_BYTES) {
+        return res.status(400).json({ error: "Ukuran gambar maksimal 5 MB" });
+      }
+
+      const buffer = Buffer.from(base64, "base64");
+      const bucketName = process.env.R2_BUCKET_NAME || "siklusio-avatars";
+      const publicUrl = (process.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
+
+      if (!publicUrl) {
+        return res.status(500).json({ error: "R2_PUBLIC_URL is not configured" });
+      }
+
+      // Generate unique key: avatars/{userId}/{timestamp}.webp
+      const key = `avatars/${auth.user.id}/${Date.now()}.webp`;
+
+      const r2 = getR2Client();
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+          Body: buffer,
+          ContentType: "image/webp",
+        })
+      );
+
+      const url = `${publicUrl}/${key}`;
+      console.log("<-- [BACKEND] Avatar uploaded:", url);
+      res.json({ url });
+    } catch (error: any) {
+      console.error("<-- [BACKEND] Avatar upload error:", error.stack || error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Gagal mengunggah avatar",
+      });
+    }
+  });
+
   // Serve static frontend (production) or API landing page (no frontend bundled).
   // Vite middleware was removed because the standalone web frontend has been
   // retired in favour of the universal Expo `mobile-app/` codebase.
-  const distPath = path.join(process.cwd(), 'dist');
-  if (fs.existsSync(distPath)) {
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+  const landingPath = path.join(process.cwd(), 'landing');
+  if (fs.existsSync(landingPath) && fs.existsSync(path.join(landingPath, 'index.html'))) {
+    app.use(express.static(landingPath));
+    app.get('/', (req, res) => {
+      res.sendFile(path.join(landingPath, 'index.html'));
     });
   } else {
     app.get('/', (req, res) => {

@@ -1,13 +1,51 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
+import React, { useState, useMemo, useTransition } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
 import { format, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
 import { HistoryView } from '../../components/habits/HistoryView';
 
+// Error boundary wrapper untuk HistoryView yang crash di native
+class HistoryErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ padding: 16, alignItems: 'center', gap: 8 }}>
+          <Text style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center' }}>
+            Grafik histori tidak tersedia di perangkat ini.
+          </Text>
+          <TouchableOpacity
+            onPress={() => this.setState({ hasError: false })}
+            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, backgroundColor: '#fce7f3' }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#ec4899' }}>Coba Lagi</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function HistoryViewSafe(props: any) {
+  return (
+    <HistoryErrorBoundary>
+      <HistoryView {...props} />
+    </HistoryErrorBoundary>
+  );
+}
+
 export default function HabitsScreen() {
   const { currentPhase, activityHistory, setActivityHistory, userNickname } = useCycle();
+  const [, startTransition] = useTransition();
   
   const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
   const [historyFilter, setHistoryFilter] = useState<7 | 14 | 30>(7);
@@ -62,28 +100,36 @@ export default function HabitsScreen() {
   };
 
   const toggleTask = (id: number) => {
-    updateCurrentDay({
-      tasks: tasks.map(t => t.id === id ? { ...t, done: !t.done } : t)
+    startTransition(() => {
+      updateCurrentDay({
+        tasks: tasks.map(t => t.id === id ? { ...t, done: !t.done } : t)
+      });
     });
   };
 
   const toggleSymptom = (id: string) => {
-    if (symptoms.includes(id)) {
-      updateCurrentDay({ symptoms: symptoms.filter(s => s !== id) });
-    } else {
-      updateCurrentDay({ symptoms: [...symptoms, id] });
-    }
+    startTransition(() => {
+      if (symptoms.includes(id)) {
+        updateCurrentDay({ symptoms: symptoms.filter(s => s !== id) });
+      } else {
+        updateCurrentDay({ symptoms: [...symptoms, id] });
+      }
+    });
   };
 
   const handlePrevDay = () => {
     if (viewedDateOffset > -60) {
-      setViewedDateOffset(prev => prev - 1);
+      startTransition(() => {
+        setViewedDateOffset(prev => prev - 1);
+      });
     }
   };
 
   const handleNextDay = () => {
     if (viewedDateOffset < 0) {
-      setViewedDateOffset(prev => prev + 1);
+      startTransition(() => {
+        setViewedDateOffset(prev => prev + 1);
+      });
     }
   };
 
@@ -105,7 +151,7 @@ export default function HabitsScreen() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-center border-b border-primary/20 pb-4">
@@ -124,7 +170,7 @@ export default function HabitsScreen() {
         {/* Tab Toggle Daily vs History */}
         <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
           <TouchableOpacity 
-            onPress={() => setViewMode('daily')}
+            onPress={() => startTransition(() => setViewMode('daily'))}
             className={`flex-1 py-3 rounded-xl items-center ${
               viewMode === 'daily' ? 'bg-surface shadow-sm' : ''
             }`}
@@ -135,7 +181,7 @@ export default function HabitsScreen() {
           </TouchableOpacity>
           
           <TouchableOpacity 
-            onPress={() => setViewMode('history')}
+            onPress={() => startTransition(() => setViewMode('history'))}
             className={`flex-1 py-3 rounded-xl items-center ${
               viewMode === 'history' ? 'bg-surface shadow-sm' : ''
             }`}
@@ -250,12 +296,16 @@ export default function HabitsScreen() {
 
             {/* AI Recommendation Section */}
             <View className="mt-4">
-              <AiRecommendationSection currentPhase={currentPhase} />
+              <AiRecommendationSection
+                currentPhase={currentPhase}
+                activityHistory={activityHistory}
+                nickname={userNickname}
+              />
             </View>
           </View>
         ) : (
           <View className="bg-white rounded-[32px] p-6 shadow-sm border border-outline-variant">
-            <HistoryView 
+            <HistoryViewSafe 
               historyFilter={historyFilter} 
               setHistoryFilter={setHistoryFilter} 
               activityHistory={activityHistory} 

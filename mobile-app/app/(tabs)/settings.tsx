@@ -7,16 +7,22 @@ import {
   ScrollView, 
   SafeAreaView, 
   Alert, 
-  Modal 
+  Modal,
+  Image,
+  Platform
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useCycle } from '../../src/context/CycleContext';
 import { useAuth } from '../../src/context/AuthContext';
 import { format } from 'date-fns';
+import { router } from 'expo-router';
 import { supabase } from '../../src/lib/supabase';
+import { AvatarPicker } from '../../components/common/AvatarPicker';
+import { useUserAvatar } from '../../src/hooks/useUserAvatar';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
+  const { avatarUrl, avatarKind, updateAvatar } = useUserAvatar();
   
   const { 
     lastPeriodDate, setLastPeriodDate,
@@ -103,6 +109,37 @@ export default function SettingsScreen() {
     }
   }, [effectiveLastPeriod]);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.replace('/auth');
+    } catch (err: any) {
+      const message = err?.message || 'Gagal keluar dari akun. Coba lagi.';
+      if (Platform.OS === 'web') {
+        window.alert(message);
+      } else {
+        Alert.alert('Gagal Keluar', message);
+      }
+    }
+  };
+
+  const confirmSignOut = () => {
+    const title = 'Keluar';
+    const message = 'Apakah Anda yakin ingin keluar dari akun ini?';
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${title}\n\n${message}`)) {
+        void handleSignOut();
+      }
+      return;
+    }
+
+    Alert.alert(title, message, [
+      { text: 'Batal', style: 'cancel' },
+      { text: 'Keluar', style: 'destructive', onPress: () => void handleSignOut() },
+    ]);
+  };
+
   const handleCycleSubmit = () => {
     const cl = Number(cycleInput);
     const pl = Number(periodInput);
@@ -139,15 +176,30 @@ export default function SettingsScreen() {
 
     // Set this date as manually logged period to make it priority
     const dateStr = format(changes.lastDate, 'yyyy-MM-dd');
-    setActivityHistory(prev => ({
-      ...prev,
-      [dateStr]: {
-        ...prev[dateStr],
-        symptoms: prev[dateStr]?.symptoms || [],
-        tasks: prev[dateStr]?.tasks || [],
+    setActivityHistory(prev => {
+      const updated = { ...prev };
+      
+      // Hapus status isPeriod untuk semua tanggal setelah HPHT baru
+      // agar tidak me-override perhitungan di cycleUtils (yang mengambil latestManual)
+      Object.keys(updated).forEach(key => {
+        const d = new Date(key);
+        if (d > changes.lastDate && updated[key]) {
+          updated[key] = {
+            ...updated[key],
+            isPeriod: false
+          };
+        }
+      });
+
+      updated[dateStr] = {
+        ...updated[dateStr],
+        symptoms: updated[dateStr]?.symptoms || [],
+        tasks: updated[dateStr]?.tasks || [],
         isPeriod: true
-      }
-    }));
+      };
+
+      return updated;
+    });
 
     setShowOverrideWarning(false);
     setPendingChanges(null);
@@ -224,7 +276,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         
         {/* Header */}
@@ -236,9 +288,18 @@ export default function SettingsScreen() {
               <Text className="text-[12px] font-mono font-bold mt-1 text-primary break-all">{user.email}</Text>
             )}
           </View>
-          <View className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20 shrink-0">
-            <FontAwesome name="user" size={24} color="#ec4899" />
-          </View>
+          <AvatarPicker
+            value={avatarUrl}
+            kind={avatarKind}
+            onChange={async (next) => {
+              try {
+                await updateAvatar(next);
+              } catch (e: any) {
+                Alert.alert('Gagal', e?.message || 'Tidak bisa menyimpan avatar.');
+              }
+            }}
+            size={64}
+          />
         </View>
 
         {/* Content Area */}
@@ -452,16 +513,7 @@ export default function SettingsScreen() {
 
           {/* Log Out Button */}
           <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                'Keluar',
-                'Apakah Anda yakin ingin keluar dari akun ini?',
-                [
-                  { text: 'Batal', style: 'cancel' },
-                  { text: 'Keluar', style: 'destructive', onPress: signOut }
-                ]
-              );
-            }}
+            onPress={confirmSignOut}
             className="w-full mt-4 flex-row items-center justify-center gap-2 py-4 bg-error/10 rounded-2xl border border-error/20"
           >
             <FontAwesome name="sign-out" size={18} color="#ef4444" />

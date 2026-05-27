@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useCycle } from '../../src/context/CycleContext';
@@ -10,6 +10,8 @@ import { AffirmationCard } from '../../components/dashboard/AffirmationCard';
 import { SavingsCard } from '../../components/dashboard/SavingsCard';
 import { ActionCard } from '../../components/dashboard/ActionCard';
 import { MessageModal } from '../../components/dashboard/MessageModal';
+import { TwwActionCard } from '../../components/dashboard/TwwActionCard';
+import { TwwSanctuaryModal } from '../../components/dashboard/TwwSanctuaryModal';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -31,6 +33,7 @@ export default function DashboardScreen() {
   const isStrictOvulation = displayPhase === 'Ovulasi';
   
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [isTwwModalOpen, setIsTwwModalOpen] = useState(false);
 
   // Completion metric for today
   const completionPercent = useMemo(() => {
@@ -52,7 +55,7 @@ export default function DashboardScreen() {
   }, [completionPercent, currentPhase, isFertile, isStrictOvulation]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Custom Header */}
         <View className="mb-6 pt-4 border-b border-primary/20 pb-4 flex-row justify-between items-end">
@@ -84,11 +87,15 @@ export default function DashboardScreen() {
           </View>
           
           <View className="mt-4">
-            <ActionCard 
-              onOpenMessageModal={() => setIsMessageModalOpen(true)} 
-              isFertile={isFertile} 
-              isStrictOvulation={isStrictOvulation} 
-            />
+            {currentPhase === 'Luteal' ? (
+              <TwwActionCard onOpenSanctuary={() => setIsTwwModalOpen(true)} />
+            ) : (
+              <ActionCard 
+                onOpenMessageModal={() => setIsMessageModalOpen(true)} 
+                isFertile={isFertile} 
+                isStrictOvulation={isStrictOvulation} 
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -96,6 +103,11 @@ export default function DashboardScreen() {
       {/* Message Template Bottom Sheet */}
       {isMessageModalOpen && (
         <MessageModal onClose={() => setIsMessageModalOpen(false)} />
+      )}
+
+      {/* TWW Sanctuary Modal */}
+      {isTwwModalOpen && (
+        <TwwSanctuaryModal onClose={() => setIsTwwModalOpen(false)} />
       )}
     </SafeAreaView>
   );

@@ -218,6 +218,9 @@
         <a href="#keamanan" class="nav-link py-2 px-3 rounded-lg hover:text-white hover:bg-white/5 transition-all flex items-center gap-3">
           <i class="fa-solid fa-shield-halved w-5 text-emerald-500"></i> RLS & Moderasi RPC
         </a>
+        <a href="#komunitas-detail" class="nav-link py-2 px-3 rounded-lg hover:text-white hover:bg-white/5 transition-all flex items-center gap-3">
+          <i class="fa-solid fa-users w-5 text-brand-500"></i> Komunitas & Avatar
+        </a>
         <a href="#milestone" class="nav-link py-2 px-3 rounded-lg hover:text-white hover:bg-white/5 transition-all flex items-center gap-3">
           <i class="fa-solid fa-list-check w-5 text-rose-400"></i> Progres & Verifikasi QA
         </a>
@@ -251,7 +254,7 @@
               <i class="fa-solid fa-certificate text-[9px] animate-pulse"></i> Master Architecture Specification
             </span>
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/5 text-slate-300 border border-white/10">
-              Expo SDK 51 & Node Express
+              Expo SDK 54 & Node Express
             </span>
           </div>
           <h1 class="font-outfit font-black text-3xl md:text-5xl lg:text-6xl text-white leading-none tracking-tight">
@@ -318,7 +321,7 @@
                 <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center shrink-0">3</span>
                 <div>
                   <strong class="text-white block mb-0.5">Safe & Moderate Community Queue:</strong>
-                  Ruang diskusi bebas anonimitas bagi para calon ibu yang dilindungi oleh sistem moderasi konten admin mutakhir berbasis PostgreSQL RPC yang diamankan dari manipulasi client.
+                  Ruang diskusi bebas anonimitas bagi para calon ibu yang dilindungi oleh sistem moderasi konten admin mutakhir berbasis PostgreSQL RPC yang diamankan dari manipulasi client. Dilengkapi rate limiting (30 detik cooldown + 5 post/jam), avatar system (preset + upload ImgBB), dan admin reset avatar untuk konten tidak pantas.
                 </div>
               </li>
             </ul>
@@ -419,7 +422,7 @@
             </div>
             <div class="glass-panel rounded-xl p-5 border border-white/5 space-y-2">
               <strong class="text-white text-sm block"><i class="fa-solid fa-server text-blue-500 mr-2"></i>2. Backend Tier (Express REST Engine)</strong>
-              Beroperasi secara mandiri pasca pembongkaran bundel Vite client web. Menyediakan endpoint restfull cerdas yang berinteraksi langsung dengan Google Gemini SDK untuk penyusunan resep makanan ramah anggaran lokal dan analisis audit siklus medis.
+              Beroperasi secara mandiri pasca pembongkaran bundel Vite client web. Menyediakan endpoint RESTful cerdas yang berinteraksi langsung dengan Google Gemini SDK untuk penyusunan resep makanan ramah anggaran lokal dan analisis audit siklus medis. Dilengkapi auth gate berbasis JWT untuk endpoint admin.
             </div>
             <div class="glass-panel rounded-xl p-5 border border-white/5 space-y-2">
               <strong class="text-white text-sm block"><i class="fa-solid fa-cloud text-emerald-500 mr-2"></i>3. Cloud Storage & Sec Tier (Supabase)</strong>
@@ -1237,7 +1240,7 @@ export function CycleProvider({ children }: { children: React.ReactNode }) {
 
         <div class="space-y-6">
           <p class="text-sm text-slate-400">
-            Supabase Row Level Security (RLS) didesain agar pengguna tidak dapat memanipulasi log, tabungan, maupun menyunting paksa data komunitas secara ilegal dari client side. Ketika ada konten dilaporkan oleh warga komunitas (`community_reports`), admin akan meluncurkan moderasi peninjauan. Siklusio mengintegrasikan fungsi moderasi tangguh berbasis **PostgreSQL RPC (Remote Procedure Call)**:
+            Supabase Row Level Security (RLS) didesain agar pengguna tidak dapat memanipulasi log, tabungan, maupun menyunting paksa data komunitas secara ilegal dari client side. Ketika ada konten dilaporkan oleh warga komunitas (`community_reports`), admin akan meluncurkan moderasi peninjauan. Siklusio mengintegrasikan fungsi moderasi tangguh berbasis <strong>PostgreSQL RPC (Remote Procedure Call)</strong>: `admin_moderate_target` (keep/remove konten + resolve reports atomik) dan `admin_reset_user_avatar` (hapus avatar custom yang melanggar). Sistem anti-spam ditegakkan melalui trigger `BEFORE INSERT` yang menerapkan cooldown 30 detik antar post, 10 detik antar komentar, serta batas 5 post/jam dan 20 komentar/jam per user (admin dikecualikan).
           </p>
 
           <div class="glass-panel rounded-2xl p-6 border border-white/5 space-y-4 shadow-xl">
@@ -1311,6 +1314,131 @@ BEGIN
 END;
 $$;</code></pre>
           </div>
+
+          <!-- SUBSECTION: PENGERASAN ARSITEKTUR SIKLUSIO V2 -->
+          <div class="glass-panel rounded-2xl p-6 border border-white/5 space-y-6 shadow-xl bg-slate-900/40">
+            <h3 class="font-outfit font-bold text-base text-teal-400 flex items-center gap-2">
+              <i class="fa-solid fa-lock text-teal-400"></i> Pemutakhiran Arsitektur & Pengerasan Sistem (Siklusio v2 Hardening)
+            </h3>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Untuk mencegah tabrakan data (*race conditions*) dan menjamin 100% privasi pengguna, Siklusio v2 telah mengimplementasikan empat fitur pengerasan sistem utama di tingkat basis data dan client:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Feature 1 -->
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+                <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-secret"></i> Column-Level SELECT RLS Hardening
+                </span>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Mencabut hak akses <code>SELECT</code> langsung pada kolom <code>user_id</code> dari tabel <code>community_posts</code> dan <code>community_comments</code> untuk pengguna umum. Menjamin anonimitas mutlak dengan memaksa pengguna mengambil data umpan komunitas hanya melalui fungsi RPC <code>get_community_feed</code>.
+                </p>
+              </div>
+
+              <!-- Feature 2 -->
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+                <span class="text-xs font-semibold text-cyan-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-clock-rotate-left"></i> Auto-Resolve Moderated Reports
+                </span>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Memperbarui trigger <code>trg_community_reports_insert</code> agar otomatis menandai laporan baru sebagai selesai (<code>resolved_keep</code> / <code>resolved_hide</code>) jika status moderasi admin telah ditetapkan sebelumnya (<code>admin_reviewed_at IS NOT NULL</code>), menghindari loop moderasi tanpa akhir.
+                </p>
+              </div>
+
+              <!-- Feature 3 -->
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+                <span class="text-xs font-semibold text-pink-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-rotate"></i> Timestamp-based SyncManager
+                </span>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Menerapkan koordinasi sinkronisasi data menstrual (HPHT, siklus, haid) secara hibrida menggunakan waktu pembaruan terakhir (<code>updated_at</code>). Menggunakan strategi <em>Last-Write-Wins</em> untuk mencegah penumpukan data offline yang usang menimpa data baru di cloud.
+                </p>
+              </div>
+
+              <!-- Feature 4 -->
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
+                <span class="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Cooldown Trigger errorParser
+                </span>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Membuat pemilah error <code>parseDbError</code> di sisi front-end client untuk menangkap pengecualian database SQLSTATE <code>P0001</code> dari trigger pembatasan spam (rate-limit) dan menyajikannya dalam bentuk banner Indonesian yang hangat daripada memicu crash sistem.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8.5: COMMUNITY FEATURE DETAIL -->
+      <section id="komunitas-detail" class="scroll-mt-12 space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 shadow-md">
+            <i class="fa-solid fa-users text-xl"></i>
+          </div>
+          <div>
+            <h2 class="font-outfit font-black text-2xl md:text-3xl text-white tracking-tight">8.5. Fitur Komunitas & Avatar System</h2>
+            <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Feed, reaksi, komentar, moderasi, dan identitas visual pengguna</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="glass-card-pink rounded-2xl p-6 space-y-3 glow-pink">
+            <h3 class="font-outfit font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-pen-to-square text-brand-400"></i> Feed & Composer
+            </h3>
+            <ul class="text-xs text-slate-400 space-y-2 leading-relaxed">
+              <li>• Post max 500 karakter, komentar max 300 karakter (CHECK constraint di DB)</li>
+              <li>• Per-post & per-comment anonymous toggle (user_id tetap tersimpan untuk audit)</li>
+              <li>• Optional phase tag: Menstrual / Folikular / Ovulasi / Luteal</li>
+              <li>• Cursor-based pagination via RPC <code class="text-brand-300">get_community_feed(page_size, before)</code></li>
+              <li>• Pull-to-refresh + infinite scroll (load 10 per page)</li>
+              <li>• Client-side cooldown counter di tombol Kirim (30s post, 10s komentar)</li>
+            </ul>
+          </div>
+
+          <div class="glass-card-teal rounded-2xl p-6 space-y-3 glow-teal">
+            <h3 class="font-outfit font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-heart text-tealbrand-400"></i> Reactions & Interactions
+            </h3>
+            <ul class="text-xs text-slate-400 space-y-2 leading-relaxed">
+              <li>• 5 fixed emoji: 💖 Peluk, 🙏 Doa, 😢 Sedih, 💪 Kuat, 🤝 Aku juga</li>
+              <li>• Toggle on/off per user per reaction type (UNIQUE constraint)</li>
+              <li>• Optimistic UI update + rollback otomatis kalau server error</li>
+              <li>• Denormalized counters (reaction_count, comment_count) via trigger</li>
+              <li>• Report system: 5 alasan preset + custom, 1 user 1 report per target</li>
+              <li>• Auto-hide threshold: ≥10 unique reports → is_hidden = true (trigger)</li>
+            </ul>
+          </div>
+
+          <div class="glass-card-blue rounded-2xl p-6 space-y-3 glow-pink">
+            <h3 class="font-outfit font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-user-circle text-purple-400"></i> Avatar System
+            </h3>
+            <ul class="text-xs text-slate-400 space-y-2 leading-relaxed">
+              <li>• Preset gallery: avatar built-in yang dibundel bersama app (extensible)</li>
+              <li>• Custom upload: via ImgBB API (free tier), base64 → CDN URL</li>
+              <li>• Kolom DB: <code class="text-brand-300">avatar_url</code> + <code class="text-brand-300">avatar_kind</code> ('preset' | 'custom')</li>
+              <li>• Anonim post → avatar tidak ditampilkan (NULL dari RPC)</li>
+              <li>• Admin bisa reset avatar custom via RPC <code class="text-brand-300">admin_reset_user_avatar</code></li>
+              <li>• Komponen reusable: <code class="text-brand-300">AvatarPicker</code> (modal 2 tab) + <code class="text-brand-300">resolveAvatarSource</code></li>
+            </ul>
+          </div>
+
+          <div class="glass-card-blue rounded-2xl p-6 space-y-3 glow-teal">
+            <h3 class="font-outfit font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-emerald-400"></i> Rate Limiting & Anti-Spam
+            </h3>
+            <ul class="text-xs text-slate-400 space-y-2 leading-relaxed">
+              <li>• <strong>Server (Postgres trigger BEFORE INSERT):</strong></li>
+              <li class="pl-4">Post: 30s cooldown + max 5/jam</li>
+              <li class="pl-4">Komentar: 10s cooldown + max 20/jam</li>
+              <li class="pl-4">Admin exempt dari semua rate limit</li>
+              <li>• <strong>Client (useCommunityFeed hook):</strong></li>
+              <li class="pl-4">State lastPostAt / lastCommentAt → computed cooldownLeft</li>
+              <li class="pl-4">Tick setiap detik selama cooldown aktif → tombol disabled + countdown</li>
+              <li class="pl-4">Error message friendly dari server di-parse via translateError()</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -1348,7 +1476,7 @@ $$;</code></pre>
               <span class="w-5 h-5 rounded border border-slate-700 flex items-center justify-center text-[10px] text-brand-400 group-hover:border-brand-500 shrink-0 mt-0.5"><i class="fa-solid fa-check scale-0 transition-all"></i></span>
               <div>
                 <strong class="text-white block mb-0.5 group-hover:text-brand-400 transition-all">Pembersihan Sisa Kode React Web</strong>
-                <span class="text-slate-500 leading-normal text-[11px] block">Direktori frontend lama dan file vite.config.ts telah dibuang total dari workspace.</span>
+                <span class="text-slate-500 leading-normal text-[11px] block">Direktori frontend lama dan file vite.config.ts telah dibuang total dari workspace. Root package.json dibersihkan dari dependency web-only (react-dom, react-router-dom, lucide-react, recharts, vite, tailwind-merge, dll). Hanya menyisakan dependency backend: express, dotenv, @google/genai, @supabase/supabase-js.</span>
               </div>
             </div>
 
@@ -1356,7 +1484,7 @@ $$;</code></pre>
               <span class="w-5 h-5 rounded border border-slate-700 flex items-center justify-center text-[10px] text-brand-400 group-hover:border-brand-500 shrink-0 mt-0.5"><i class="fa-solid fa-check scale-0 transition-all"></i></span>
               <div>
                 <strong class="text-white block mb-0.5 group-hover:text-brand-400 transition-all">Porting Panel Moderasi Admin Universal</strong>
-                <span class="text-slate-500 leading-normal text-[11px] block">Panel moderasi admin diimpor ke app/admin.tsx dengan standar gaya React Native yang bersih.</span>
+                <span class="text-slate-500 leading-normal text-[11px] block">Panel moderasi admin diimpor ke app/admin.tsx dengan standar gaya React Native yang bersih. Dilengkapi tab Pengguna (sortable, CSV export) dan tab Moderasi (queue grouped by target, filter pending/reviewed/all, tombol Pertahankan/Sembunyikan/Reset Avatar). Auth-gated di frontend (cek is_admin) dan backend (Bearer token + profile check).</span>
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Platform } from 'react-native';
 import { CalendarGrid } from '../../components/calendar/CalendarGrid';
 import { AiReportModal } from '../../components/calendar/AiReportModal';
 import { useCycle } from '../../src/context/CycleContext';
@@ -45,7 +45,7 @@ export default function CalendarScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Header */}
         <View className="flex-row justify-between items-end mb-6 pt-4 border-b border-primary/20 pb-4">

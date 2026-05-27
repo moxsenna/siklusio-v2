@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { Tabs, router } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAuth } from '../../src/context/AuthContext';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -37,8 +39,27 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
+  const { session, isLoading } = useAuth();
   const activeColor = Colors[colorScheme ?? 'light'].tint;
   const inactiveColor = colorScheme === 'dark' ? '#64748b' : '#94a3b8';
+
+  // Tambah padding bottom dinamis: minimal 14px, atau ikuti safe area inset
+  const bottomPadding = Math.max(insets.bottom, 14);
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      router.replace('/auth');
+    }
+  }, [isLoading, session]);
+
+  if (isLoading || !session) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fdf2f8' }}>
+        <ActivityIndicator size="large" color="#ec4899" />
+      </View>
+    );
+  }
 
   return (
     <Tabs
@@ -46,8 +67,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         headerShown: false,
+        animation: 'none',
         tabBarStyle: {
-          height: 84,
+          height: 70 + bottomPadding,
           backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#ffffff',
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
@@ -57,7 +79,7 @@ export default function TabLayout() {
           borderBottomWidth: 0,
           borderColor: colorScheme === 'dark' ? '#1e293b' : '#f1f5f9',
           paddingTop: 8,
-          paddingBottom: 14,
+          paddingBottom: bottomPadding,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -8 },
           shadowOpacity: 0.04,

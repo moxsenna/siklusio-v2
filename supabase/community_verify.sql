@@ -65,12 +65,36 @@ ORDER BY event_object_table, trigger_name;
 --   community_reports   | trg_community_reports_insert   | INSERT
 
 
--- 6. Pastikan helper function get_community_feed bisa dipanggil
+-- 6. Pastikan helper function community aman dan bisa dipanggil
 -- (akan return 0 row karena belum ada post, tapi tidak boleh error)
 SELECT * FROM public.get_community_feed(10, NULL);
+-- Ganti UUID di bawah dengan post_id yang ada untuk menguji komentar.
+-- SELECT * FROM public.get_post_comments('00000000-0000-0000-0000-000000000000');
 
 
--- 7. Pastikan CHECK constraint length post benar-benar bekerja
+-- 7. Pastikan RPC community berjalan sebagai SECURITY DEFINER dan search_path public
+SELECT
+  proname,
+  prosecdef AS security_definer,
+  proconfig AS function_config
+FROM pg_proc
+JOIN pg_namespace ON pg_namespace.oid = pg_proc.pronamespace
+WHERE pg_namespace.nspname = 'public'
+  AND proname IN (
+    'get_community_feed',
+    'get_post_comments',
+    'admin_get_moderation_queue'
+  )
+ORDER BY proname;
+-- Expected: security_definer = true dan function_config memuat search_path=public
+
+
+-- 8. Pastikan admin moderation queue bisa dipanggil oleh admin
+-- Expected untuk admin: return daftar laporan; untuk non-admin: kosong tanpa data privat.
+SELECT * FROM public.admin_get_moderation_queue('pending');
+
+
+-- 9. Pastikan CHECK constraint length post benar-benar bekerja
 -- (HARUS error: "violates check constraint content_length_check")
 -- DO $$ BEGIN
 --   PERFORM 1;

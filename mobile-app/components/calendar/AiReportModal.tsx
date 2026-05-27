@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'rea
 import { useCycle } from '../../src/context/CycleContext';
 import { format } from 'date-fns';
 import { parseLocalDate } from '../../src/lib/dateUtils';
-import Constants from 'expo-constants';
+import { apiPostJson } from '../../src/lib/api';
 
 interface AiReportModalProps {
   onClose: () => void;
@@ -15,14 +15,6 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const getApiBaseUrl = () => {
-    // Dynamic host discovery for Expo physical phone debugging
-    const debuggerHost = Constants.expoConfig?.hostUri || '';
-    const ip = debuggerHost.split(':')[0];
-    if (ip) return `http://${ip}:3000`;
-    return 'http://localhost:3000';
-  };
 
   const generateReport = async () => {
     setLoading(true);
@@ -47,19 +39,7 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
         cycleData: recentHistory
       };
 
-      const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/api/generate-cycle-report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Gagal menghubungi AI');
-      }
-      
+      const data = await apiPostJson<any>('/api/generate-cycle-report', payload);
       setReport(data);
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan menghubungi server lokal');

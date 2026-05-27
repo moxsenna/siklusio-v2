@@ -46,11 +46,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setSession(null);
+      setUser(null);
+      return;
+    }
     const allKeys = storage.getKeys();
     const keysToRemove = allKeys.filter(k => k.startsWith('hs_'));
     keysToRemove.forEach(k => storage.removeItem(k));
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    setSession(null);
+    setUser(null);
   };
 
   return (

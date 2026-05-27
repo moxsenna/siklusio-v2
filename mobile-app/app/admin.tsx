@@ -11,17 +11,17 @@ import {
   Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
-import Constants from 'expo-constants';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { format, differenceInYears } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import { supabase } from '../src/lib/supabase';
 import { REACTION_EMOJI } from '../src/lib/communityTypes';
+import { apiGetJson } from '../src/lib/api';
 
 // Replicate old types
 interface AdminUser {
   id: string;
-  email: string;
+  email?: string;
   last_sign_in_at?: string;
   name?: string;
   nickname?: string;
@@ -30,12 +30,17 @@ interface AdminUser {
   children_count?: string;
   last_period_date: string;
   husband_name: string;
+  husband_nickname?: string;
   husband_number?: string;
   cycle_length: number;
   period_length: number;
   target_saving: number;
   current_saving: number;
   created_at: string;
+  updated_at?: string;
+  is_admin?: boolean;
+  avatar_url?: string | null;
+  avatar_kind?: string | null;
 }
 
 interface ReportRow {
@@ -49,41 +54,6 @@ interface ReportRow {
   resolved_at: string | null;
 }
 
-interface PostRow {
-  id: string;
-  user_id: string;
-  content: string;
-  is_anonymous: boolean;
-  is_hidden: boolean;
-  hidden_reason: string | null;
-  report_count: number;
-  admin_reviewed_at: string | null;
-  admin_review_status: 'kept' | 'removed' | null;
-  comment_count: number;
-  reaction_count: number;
-  created_at: string;
-}
-
-interface CommentRow {
-  id: string;
-  post_id: string;
-  user_id: string;
-  content: string;
-  is_anonymous: boolean;
-  is_hidden: boolean;
-  hidden_reason: string | null;
-  report_count: number;
-  admin_reviewed_at: string | null;
-  admin_review_status: 'kept' | 'removed' | null;
-  created_at: string;
-}
-
-interface ProfileRow {
-  id: string;
-  name: string | null;
-  nickname: string | null;
-}
-
 interface QueueItem {
   key: string;
   target_type: 'post' | 'comment';
@@ -92,6 +62,9 @@ interface QueueItem {
   authorId: string;
   authorLabel: string;
   authorRealLabel: string;
+  /** Avatar URL/preset penulis. Null kalau anonim atau belum set. */
+  authorAvatarUrl: string | null;
+  authorAvatarKind: 'preset' | 'custom' | null;
   is_anonymous: boolean;
   is_hidden: boolean;
   reportCount: number;
@@ -101,12 +74,68 @@ interface QueueItem {
   reports: ReportRow[];
 }
 
+interface AdminModerationQueueRow {
+  report_id: string;
+  target_type: 'post' | 'comment' | string;
+  target_id: string;
+  reporter_id: string;
+  reason: string | null;
+  report_status: string | null;
+  report_created_at: string;
+  resolved_at: string | null;
+  content: string | null;
+  author_id: string | null;
+  author_label: string | null;
+  author_real_label: string | null;
+  author_avatar_url: string | null;
+  author_avatar_kind: string | null;
+  is_anonymous: boolean | null;
+  is_hidden: boolean | null;
+  report_count: number | null;
+  review_status: string | null;
+  reviewed_at: string | null;
+  target_created_at: string | null;
+}
+
 function formatRelative(dateStr: string) {
   try {
     return format(new Date(dateStr), 'd MMM yyyy HH:mm', { locale: localeId });
   } catch {
     return dateStr;
   }
+}
+
+function formatCsvDateTime(dateStr?: string | null) {
+  if (!dateStr) return '';
+  try {
+    return format(new Date(dateStr), 'yyyy-MM-dd HH:mm');
+  } catch {
+    return dateStr;
+  }
+}
+
+function escapeCsvCell(value: unknown) {
+  const text = value == null ? '' : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function toTargetType(value: string): 'post' | 'comment' {
+  return value === 'comment' ? 'comment' : 'post';
+}
+
+function toReportStatus(value: string | null): ReportRow['status'] {
+  if (value === 'resolved_hide' || value === 'resolved_keep') return value;
+  return 'pending';
+}
+
+function toReviewStatus(value: string | null): QueueItem['reviewStatus'] {
+  if (value === 'kept' || value === 'removed') return value;
+  return null;
+}
+
+function toAvatarKind(value: string | null): QueueItem['authorAvatarKind'] {
+  if (value === 'preset' || value === 'custom') return value;
+  return null;
 }
 
 export default function AdminDashboard() {
@@ -124,19 +153,9 @@ export default function AdminDashboard() {
   const [modFilter, setModFilter] = useState<'pending' | 'reviewed' | 'all'>('pending');
   const [modLoading, setModLoading] = useState(false);
   const [modError, setModError] = useState<string | null>(null);
-  const [reports, setReports] = useState<ReportRow[]>([]);
-  const [posts, setPosts] = useState<Record<string, PostRow>>({});
-  const [comments, setComments] = useState<Record<string, CommentRow>>({});
-  const [profiles, setProfiles] = useState<Record<string, ProfileRow>>({});
+  const [moderationRows, setModerationRows] = useState<AdminModerationQueueRow[]>([]);
   const [actingKey, setActingKey] = useState<string | null>(null);
   const [expandedQueueKey, setExpandedQueueKey] = useState<string | null>(null);
-
-  const getApiBaseUrl = () => {
-    const debuggerHost = Constants.expoConfig?.hostUri || '';
-    const ip = debuggerHost.split(':')[0];
-    if (ip) return `http://${ip}:3000`;
-    return 'http://localhost:3000';
-  };
 
   // 1. Authenticate & Authorize Admin
   useEffect(() => {
@@ -188,15 +207,7 @@ export default function AdminDashboard() {
     setUsersLoading(true);
     setUsersError(null);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Sesi tidak ditemukan. Silakan login ulang.');
-
-      const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/api/admin/users`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Gagal memuat daftar pengguna.');
+      const data = await apiGetJson<{ users: AdminUser[] }>('/api/admin/users');
       setUsers(data.users || []);
     } catch (err: any) {
       setUsersError(err.message || 'Gagal memuat daftar pengguna.');
@@ -214,67 +225,11 @@ export default function AdminDashboard() {
     setModLoading(true);
     setModError(null);
     try {
-      // 1. Reports query
-      let reportsQuery = supabase
-        .from('community_reports')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(200);
-
-      if (modFilter === 'pending') reportsQuery = reportsQuery.eq('status', 'pending');
-      if (modFilter === 'reviewed') reportsQuery = reportsQuery.in('status', ['resolved_hide', 'resolved_keep']);
-
-      const { data: reportRows, error: rErr } = await reportsQuery;
-      if (rErr) throw rErr;
-      const allReports = (reportRows || []) as ReportRow[];
-      setReports(allReports);
-
-      // 2. Collect target ids
-      const postIds = Array.from(
-        new Set(allReports.filter((r) => r.target_type === 'post').map((r) => r.target_id))
-      );
-      const commentIds = Array.from(
-        new Set(allReports.filter((r) => r.target_type === 'comment').map((r) => r.target_id))
-      );
-
-      // 3. Fetch targets
-      const [postRes, commentRes] = await Promise.all([
-        postIds.length
-          ? supabase.from('community_posts').select('*').in('id', postIds)
-          : Promise.resolve({ data: [], error: null } as any),
-        commentIds.length
-          ? supabase.from('community_comments').select('*').in('id', commentIds)
-          : Promise.resolve({ data: [], error: null } as any),
-      ]);
-      if (postRes.error) throw postRes.error;
-      if (commentRes.error) throw commentRes.error;
-
-      const postMap: Record<string, PostRow> = {};
-      (postRes.data as PostRow[]).forEach((p) => { postMap[p.id] = p; });
-      const commentMap: Record<string, CommentRow> = {};
-      (commentRes.data as CommentRow[]).forEach((c) => { commentMap[c.id] = c; });
-      setPosts(postMap);
-      setComments(commentMap);
-
-      // 4. Fetch author profiles
-      const userIds = Array.from(
-        new Set([
-          ...Object.values(postMap).map((p) => p.user_id),
-          ...Object.values(commentMap).map((c) => c.user_id),
-        ])
-      );
-      if (userIds.length) {
-        const { data: profileRows, error: pErr } = await supabase
-          .from('profiles')
-          .select('id, name, nickname')
-          .in('id', userIds);
-        if (pErr) throw pErr;
-        const profileMap: Record<string, ProfileRow> = {};
-        (profileRows as ProfileRow[]).forEach((p) => { profileMap[p.id] = p; });
-        setProfiles(profileMap);
-      } else {
-        setProfiles({});
-      }
+      const { data: rows, error } = await supabase.rpc('admin_get_moderation_queue', {
+        p_filter: modFilter,
+      });
+      if (error) throw error;
+      setModerationRows((rows || []) as AdminModerationQueueRow[]);
     } catch (err: any) {
       setModError(err.message || 'Gagal memuat data moderasi.');
     } finally {
@@ -295,38 +250,57 @@ export default function AdminDashboard() {
 
   // Group and sort moderation reports
   const moderationQueue: QueueItem[] = useMemo(() => {
-    const grouped = new Map<string, ReportRow[]>();
-    reports.forEach((r) => {
-      const key = `${r.target_type}:${r.target_id}`;
+    const grouped = new Map<string, AdminModerationQueueRow[]>();
+    moderationRows.forEach((r) => {
+      const targetType = toTargetType(r.target_type);
+      const key = `${targetType}:${r.target_id}`;
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key)!.push(r);
     });
 
     const items: QueueItem[] = [];
     grouped.forEach((rs, key) => {
-      const [target_type, target_id] = key.split(':') as ['post' | 'comment', string];
-      const target = target_type === 'post' ? posts[target_id] : comments[target_id];
-      if (!target) return;
+      const first = rs[0];
+      if (!first) return;
 
-      const profile = profiles[target.user_id];
-      const realLabel = profile?.nickname?.trim() || profile?.name?.trim() || target.user_id.split('-')[0];
-      const displayLabel = target.is_anonymous ? 'Anonim' : realLabel;
+      const [target_type, target_id] = key.split(':') as ['post' | 'comment', string];
+      const authorId = first.author_id || 'unknown';
+      const realLabel =
+        first.author_real_label?.trim() ||
+        authorId.split('-')[0] ||
+        'Pengguna';
+      const displayLabel =
+        first.author_label?.trim() ||
+        (first.is_anonymous ? 'Anonim' : realLabel);
 
       items.push({
         key,
         target_type,
         target_id,
-        content: target.content,
-        authorId: target.user_id,
+        content: first.content || '',
+        authorId,
         authorLabel: displayLabel,
         authorRealLabel: realLabel,
-        is_anonymous: target.is_anonymous,
-        is_hidden: target.is_hidden,
-        reportCount: target.report_count,
-        reviewStatus: target.admin_review_status,
-        reviewedAt: target.admin_reviewed_at,
-        createdAt: target.created_at,
-        reports: rs.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)),
+        authorAvatarUrl: first.author_avatar_url ?? null,
+        authorAvatarKind: toAvatarKind(first.author_avatar_kind),
+        is_anonymous: Boolean(first.is_anonymous),
+        is_hidden: Boolean(first.is_hidden),
+        reportCount: first.report_count ?? rs.length,
+        reviewStatus: toReviewStatus(first.review_status),
+        reviewedAt: first.reviewed_at,
+        createdAt: first.target_created_at || first.report_created_at,
+        reports: rs
+          .map<ReportRow>((r) => ({
+            id: r.report_id,
+            target_type: toTargetType(r.target_type),
+            target_id: r.target_id,
+            reporter_id: r.reporter_id,
+            reason: r.reason,
+            status: toReportStatus(r.report_status),
+            created_at: r.report_created_at,
+            resolved_at: r.resolved_at,
+          }))
+          .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)),
       });
     });
 
@@ -334,7 +308,7 @@ export default function AdminDashboard() {
       if (b.reportCount !== a.reportCount) return b.reportCount - a.reportCount;
       return +new Date(b.createdAt) - +new Date(a.createdAt);
     });
-  }, [reports, posts, comments, profiles]);
+  }, [moderationRows]);
 
   // Moderate Action Handlers
   const handleModerateAction = async (item: QueueItem, action: 'keep' | 'remove') => {
@@ -376,33 +350,85 @@ export default function AdminDashboard() {
     }
   };
 
+  /** Reset avatar penulis (mis. avatar tidak pantas). */
+  const handleResetAvatar = async (item: QueueItem) => {
+    const client = supabase;
+    if (!client) return;
+
+    const performReset = async () => {
+      setActingKey(`avatar:${item.key}`);
+      setModError(null);
+      try {
+        const { error: rpcErr } = await client.rpc('admin_reset_user_avatar', {
+          p_user_id: item.authorId,
+        });
+        if (rpcErr) throw rpcErr;
+        await fetchModeration();
+        const okMsg = 'Avatar pengguna telah direset.';
+        if (Platform.OS === 'web') window.alert(okMsg);
+        else Alert.alert('Berhasil', okMsg);
+      } catch (err: any) {
+        setModError(err.message || 'Gagal mereset avatar pengguna.');
+      } finally {
+        setActingKey(null);
+      }
+    };
+
+    const msg =
+      `Reset avatar untuk pengguna "${item.authorRealLabel}"?\n\n` +
+      `Avatar akan dihapus dan pengguna harus memilih ulang. Gunakan ini ` +
+      `kalau avatar yang diunggah melanggar aturan komunitas.`;
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(msg)) performReset();
+    } else {
+      Alert.alert(
+        'Reset Avatar Pengguna',
+        msg,
+        [
+          { text: 'Batal', style: 'cancel' },
+          { text: 'Ya, Reset', style: 'destructive', onPress: performReset },
+        ]
+      );
+    }
+  };
+
   // CSV download function for web
   const downloadCSV = () => {
     if (users.length === 0) return;
     const headers = [
-      'ID', 'Nama', 'Panggilan', 'No. WA', 'Usia', 'Jml Anak', 'Email', 'Nama Suami',
-      'No. Suami', 'HPHT', 'Siklus', 'Periode', 'Target Tabungan', 'Tabungan', 'Terdaftar'
+      'Email', 'Nama', 'Panggilan', 'No. WhatsApp', 'Terdaftar', 'Login Terakhir',
+      'ID Pengguna', 'Tanggal Lahir', 'Usia', 'Jumlah Anak', 'HPHT', 'Panjang Siklus',
+      'Lama Haid', 'Nama Suami', 'Panggilan Suami', 'No. WA Suami', 'Target Tabungan',
+      'Tabungan Saat Ini', 'Admin', 'Avatar Kind', 'Avatar URL', 'Updated At'
     ];
     const rows = users.map((user) => [
-      user.id,
+      user.email || '',
       user.name || '',
       user.nickname || '',
       user.whatsapp_number || '',
-      user.birth_date ? `${differenceInYears(new Date(), new Date(user.birth_date))} thn` : '',
+      formatCsvDateTime(user.created_at),
+      formatCsvDateTime(user.last_sign_in_at),
+      user.id,
+      user.birth_date || '',
+      user.birth_date ? differenceInYears(new Date(), new Date(user.birth_date)) : '',
       user.children_count || '',
-      user.email || '',
-      user.husband_name || '',
-      user.husband_number || '',
       user.last_period_date || '',
       user.cycle_length || 0,
       user.period_length || 0,
+      user.husband_name || '',
+      user.husband_nickname || '',
+      user.husband_number || '',
       user.target_saving || 0,
       user.current_saving || 0,
-      user.created_at || '',
+      user.is_admin ? 'Ya' : 'Tidak',
+      user.avatar_kind || '',
+      user.avatar_url || '',
+      formatCsvDateTime(user.updated_at),
     ]);
     
     const csvContent = [headers, ...rows]
-      .map((e) => e.map((item) => `"${item}"`).join(','))
+      .map((row) => row.map(escapeCsvCell).join(','))
       .join('\n');
     
     if (Platform.OS === 'web') {
@@ -839,6 +865,43 @@ export default function AdminDashboard() {
                           <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#b91c1c', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sembunyikan</Text>
                         </TouchableOpacity>
                       </View>
+
+                      {/* Avatar moderation: muncul hanya kalau penulis punya avatar custom */}
+                      {!item.is_anonymous && item.authorAvatarKind === 'custom' && (
+                        <TouchableOpacity
+                          disabled={actingKey === `avatar:${item.key}`}
+                          onPress={() => handleResetAvatar(item)}
+                          style={{
+                            marginTop: 8,
+                            height: 36,
+                            borderRadius: 12,
+                            backgroundColor: '#fffbeb',
+                            borderWidth: 1,
+                            borderColor: '#fef3c7',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'row',
+                            gap: 6,
+                          }}
+                        >
+                          {actingKey === `avatar:${item.key}` ? (
+                            <ActivityIndicator size="small" color="#b45309" />
+                          ) : (
+                            <FontAwesome name="image" size={12} color="#b45309" />
+                          )}
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 'bold',
+                              color: '#b45309',
+                              textTransform: 'uppercase',
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            Reset Avatar Pengguna
+                          </Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   );
                 })}

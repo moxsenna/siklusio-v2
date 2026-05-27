@@ -27,6 +27,10 @@ interface CycleContextType {
   setActivityHistory: React.Dispatch<React.SetStateAction<Record<string, DailyRecord>>>;
   userNickname: string;
   setUserNickname: (name: string) => void;
+  avatarUrl: string | null;
+  setAvatarUrl: (url: string | null) => void;
+  avatarKind: 'preset' | 'custom' | null;
+  setAvatarKind: (kind: 'preset' | 'custom' | null) => void;
   userBirthDate: Date | null;
   setUserBirthDate: (date: Date | null) => void;
   childrenCount: string;
@@ -51,29 +55,7 @@ interface CycleContextType {
 const CycleContext = createContext<CycleContextType | undefined>(undefined);
 
 const generateMockHistory = (): Record<string, DailyRecord> => {
-  const history: Record<string, DailyRecord> = {};
-  const today = new Date();
-  
-  for (let i = 0; i <= 60; i++) {
-    const d = subDays(today, i);
-    const dateKey = format(d, 'yyyy-MM-dd');
-    
-    const isDone1 = Math.random() > 0.1;
-    const isDone2 = Math.random() > 0.2;
-    const isDone3 = Math.random() > 0.3;
-    const isDone4 = Math.random() > 0.4;
-    
-    history[dateKey] = {
-      symptoms: Math.random() > 0.7 ? ['fatigue'] : [],
-      tasks: [
-        { id: 1, text: 'Minum Air (2L)', emoji: '💧', done: isDone1 },
-        { id: 2, text: 'Asam Folat', emoji: '💊', done: isDone2 },
-        { id: 3, text: 'Olahraga', emoji: '🧘‍♀️', done: isDone3 },
-        { id: 4, text: 'Istirahat Cukup', emoji: '🛌', done: isDone4 }
-      ]
-    };
-  }
-  return history;
+  return {};
 };
 
 function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?: (val: string) => T): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -107,34 +89,81 @@ function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?
 
 export function CycleProvider({ children }: { children: ReactNode }) {
   const [lastPeriodDate, setLastPeriodDate] = usePersistentState<Date | null>(
-    'hs_v2_lastPeriodDate',
+    'hs_v3_lastPeriodDate',
     null,
     (val) => (val && val !== 'null' ? parseLocalDate(val) : null)
   );
-  const [cycleLength, setCycleLength] = usePersistentState<number>('hs_v2_cycleLength', 0);
-  const [periodLength, setPeriodLength] = usePersistentState<number>('hs_v2_periodLength', 0);
-  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_activityHistory', generateMockHistory);
-  const [userNickname, setUserNickname] = usePersistentState<string>('hs_v2_userNickname', '');
-  const [userBirthDate, setUserBirthDate] = usePersistentState<Date | null>('hs_v2_userBirthDate', null, (val) => val && val !== 'null' ? parseLocalDate(val) : null);
-  const [childrenCount, setChildrenCount] = usePersistentState<string>('hs_v2_childrenCount', '');
-  const [husbandName, setHusbandName] = usePersistentState<string>('hs_v2_husbandName', '');
-  const [husbandNickname, setHusbandNickname] = usePersistentState<string>('hs_v2_husbandNickname', '');
-  const [husbandNumber, setHusbandNumber] = usePersistentState<string>('hs_v2_husbandNumber', '');
-  const [targetSaving, setTargetSaving] = usePersistentState<number>('hs_targetSaving', 25000000);
-  const [currentSaving, setCurrentSaving] = usePersistentState<number>('hs_currentSaving', 12450000);
+  const [cycleLength, setCycleLength] = usePersistentState<number>('hs_v3_cycleLength', 0);
+  const [periodLength, setPeriodLength] = usePersistentState<number>('hs_v3_periodLength', 0);
+  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', generateMockHistory);
+  const [userNickname, setUserNickname] = usePersistentState<string>('hs_v3_userNickname', '');
+  const [avatarUrl, setAvatarUrl] = usePersistentState<string | null>(
+    'hs_v3_avatarUrl',
+    null,
+    (val) => (val && val !== 'null' && val !== '""' ? JSON.parse(val) : null)
+  );
+  const [avatarKind, setAvatarKind] = usePersistentState<'preset' | 'custom' | null>(
+    'hs_v3_avatarKind',
+    null,
+    (val) => (val && val !== 'null' && val !== '""' ? JSON.parse(val) : null)
+  );
+  const [userBirthDate, setUserBirthDate] = usePersistentState<Date | null>('hs_v3_userBirthDate', null, (val) => val && val !== 'null' ? parseLocalDate(val) : null);
+  const [childrenCount, setChildrenCount] = usePersistentState<string>('hs_v3_childrenCount', '');
+  const [husbandName, setHusbandName] = usePersistentState<string>('hs_v3_husbandName', '');
+  const [husbandNickname, setHusbandNickname] = usePersistentState<string>('hs_v3_husbandNickname', '');
+  const [husbandNumber, setHusbandNumber] = usePersistentState<string>('hs_v3_husbandNumber', '');
+  const [targetSaving, setTargetSaving] = usePersistentState<number>('hs_v3_targetSaving', 0);
+  const [currentSaving, setCurrentSaving] = usePersistentState<number>('hs_v3_currentSaving', 0);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = usePersistentState<boolean>('hs_onboardingCompleted', false);
+
+  // Trigger sinkronisasi otomatis ke cloud (Supabase) ketika parameter utama siklus berubah
+  useEffect(() => {
+    if (lastPeriodDate && cycleLength > 0 && periodLength > 0) {
+      const payload = {
+        last_period_date: format(lastPeriodDate, 'yyyy-MM-dd'),
+        cycle_length: cycleLength,
+        period_length: periodLength,
+      };
+
+      import('../lib/SyncManager')
+        .then(({ SyncManager }) => {
+          SyncManager.syncProfileData(payload)
+            .then((res) => {
+              if (res.action === 'pulled' && res.data) {
+                // Jika cloud memiliki data baru, sesuaikan state lokal untuk menghindari overriding
+                const cloudDate = parseLocalDate(res.data.last_period_date);
+                setLastPeriodDate(cloudDate);
+                setCycleLength(res.data.cycle_length);
+                setPeriodLength(res.data.period_length);
+              }
+            })
+            .catch((err) => {
+              console.warn('[CycleContext] Gagal menyelaraskan data siklus:', err);
+            });
+        })
+        .catch((e) => {
+          console.error('[CycleContext] Gagal mengimpor SyncManager:', e);
+        });
+    }
+  }, [lastPeriodDate, cycleLength, periodLength]);
 
   const cycleData = useMemo(() => {
     return calculateCycleData(lastPeriodDate, cycleLength, periodLength, activityHistory);
   }, [lastPeriodDate, cycleLength, periodLength, activityHistory]);
 
-  return (
-    <CycleContext.Provider value={{
+  // Memoize the context value to prevent unnecessary re-renders downstream.
+  // Without this, every render creates a new object literal and forces all
+  // consumers (including the navigation tree) to rerender, which can trigger
+  // infinite navigation replace loops in React Navigation 7.
+  const contextValue = useMemo(
+    () => ({
       lastPeriodDate, setLastPeriodDate,
       cycleLength, setCycleLength,
       periodLength, setPeriodLength,
       activityHistory, setActivityHistory,
       userNickname, setUserNickname,
+      avatarUrl, setAvatarUrl,
+      avatarKind, setAvatarKind,
       userBirthDate, setUserBirthDate,
       childrenCount, setChildrenCount,
       husbandName, setHusbandName,
@@ -143,8 +172,22 @@ export function CycleProvider({ children }: { children: ReactNode }) {
       targetSaving, setTargetSaving,
       currentSaving, setCurrentSaving,
       isOnboardingCompleted, setIsOnboardingCompleted,
-      ...cycleData
-    }}>
+      ...cycleData,
+    }),
+    [
+      lastPeriodDate, cycleLength, periodLength,
+      activityHistory, userNickname,
+      avatarUrl, avatarKind,
+      userBirthDate, childrenCount,
+      husbandName, husbandNickname, husbandNumber,
+      targetSaving, currentSaving,
+      isOnboardingCompleted,
+      cycleData,
+    ]
+  );
+
+  return (
+    <CycleContext.Provider value={contextValue}>
       {children}
     </CycleContext.Provider>
   );

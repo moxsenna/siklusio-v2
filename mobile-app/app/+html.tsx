@@ -38,6 +38,10 @@ export default function Root({ children }: { children: React.ReactNode }) {
  *   expo-router renders.
  */
 const globalCss = `
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.ttf') format('truetype');
+}
 html, body {
   margin: 0;
   padding: 0;

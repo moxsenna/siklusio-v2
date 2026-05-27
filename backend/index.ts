@@ -159,7 +159,7 @@ app.post("/api/generate-recipes", async (c) => {
 app.post("/api/generate-cycle-report", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
-    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, userApiKey } = await c.req.json();
+    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, userApiKey, nickname } = await c.req.json();
     const apiKey = userApiKey || c.env.GEMINI_API_KEY;
     if (!apiKey) {
       return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
@@ -188,8 +188,17 @@ app.post("/api/generate-cycle-report", async (c) => {
       - Days to next period: ${daysToNextPeriod}
       - Fertile window: ${fertilityWindow.start} to ${fertilityWindow.end}
       - Activity & Body Data logic: ${JSON.stringify(cycleData).slice(0, 500)} // limited to avoid massive prompts
+      - User nickname: ${nickname || ''}
       
-      Write a supportive and professional report IN INDONESIAN. 
+      Write a warm, supportive, and sweet report IN INDONESIAN, specifically tailored for a woman.
+      
+      TONE AND PERSONALIZATION RULES (CRITICAL):
+      1. Address the user directly using her nickname if provided: "${nickname || ''}".
+      2. NEVER use the formal word "Anda".
+      3. ALWAYS address her warmly as "kamu" and her nickname.
+      4. DO NOT call her "Bunda" in the report text (strictly use "kamu" or her actual nickname).
+      5. Keep the tone loving, empathetic, and sweet.
+      
       It MUST be structured as a JSON with the following exact keys (no markdown formatting, just raw JSON).
       {
         "summary": string (a short, encouraging paragraph summarizing their current cycle state),
@@ -237,11 +246,11 @@ app.post("/api/generate-habits-insight", async (c) => {
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       contents: `Kamu adalah asisten kesehatan reproduksi wanita yang hangat dan suportif. Analisis data aktivitas dan gejala 7 hari terakhir pengguna, lalu berikan insight dan saran yang actionable.
 
       Konteks:
-      - Nama panggilan: ${nickname || 'Bunda'}
+      - Nama panggilan: ${nickname || ''}
       - Fase siklus saat ini: ${currentPhase}
       - Data 7 hari terakhir: ${JSON.stringify(weeklyData)}
 
@@ -251,10 +260,13 @@ app.post("/api/generate-habits-insight", async (c) => {
       3. Berikan 3 saran spesifik dan praktis untuk minggu depan
       4. Tutup dengan kalimat motivasi yang personal
 
-      PENTING:
-      - Gunakan bahasa yang hangat, suportif, dan tidak menggurui
-      - Saran harus realistis dan mudah dilakukan
-      - Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus
+      PENTING & GAYA BAHASA (SANGAT PENTING):
+      - Gunakan bahasa yang hangat, suportif, bersahabat, dan tidak menggurui.
+      - Panggil pengguna dengan nama panggilannya jika ada: "${nickname || ''}" atau gunakan kata ganti "kamu".
+      - JANGAN PERNAH menggunakan kata formal "Anda".
+      - JANGAN PERNAH memanggil pengguna dengan sebutan "Bunda" (selalu gunakan "kamu" atau nama panggilannya).
+      - Saran harus realistis dan mudah dilakukan.
+      - Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus.
 
       Return ONLY raw JSON (tanpa markdown blocks) dengan format:
       {
@@ -299,15 +311,16 @@ app.post("/api/generate-calming-reassurance", async (c) => {
 
     const response = await ai.models.generateContent({
       model: "gemini-flash-latest",
-      contents: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
+      contents: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname || ''} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
       Masa ini sangat rentan memicu kecemasan (symptom spotting).
       Ini adalah curahan hatinya (jurnal emosi): "${userJournal}"
 
       Berikan balasan surat yang:
       1. Menvalidasi perasaannya (tidak meremehkan).
-      2. Sangat hangat, empatis, dan menyemangati.
-      3. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
-      4. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
+      2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ''}".
+      3. JANGAN PERNAH memanggil/menyebut pengguna dengan sebutan "Bunda" maupun kata formal "Anda" (selalu gunakan "kamu" atau nama panggilannya).
+      4. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
+      5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
 
       Return ONLY raw JSON (tanpa markdown blocks) dengan format:
       {

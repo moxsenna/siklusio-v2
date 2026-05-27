@@ -10,7 +10,7 @@ interface AiReportModalProps {
 }
 
 export function AiReportModal({ onClose }: AiReportModalProps) {
-  const { currentPhase, cycleDay, daysToNextPeriod, activityHistory, fertileWindowStart, fertileWindowEnd } = useCycle();
+  const { currentPhase, cycleDay, daysToNextPeriod, activityHistory, fertileWindowStart, fertileWindowEnd, userNickname } = useCycle();
   
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,8 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
           end: fertileWindowEnd ? format(fertileWindowEnd, 'yyyy-MM-dd') : ''
         },
         cycleData: recentHistory,
-        userApiKey
+        userApiKey,
+        nickname: userNickname
       };
 
       const data = await apiPostJson<any>('/api/generate-cycle-report', payload);

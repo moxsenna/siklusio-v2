@@ -1,16 +1,16 @@
 # Graph Report - remix_-siklusio  (2026-05-28)
 
 ## Corpus Check
-- 534 files · ~1,101,166 words
+- 534 files · ~1,101,432 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 18057 nodes · 32858 edges · 615 communities (577 shown, 38 thin omitted)
+- 18057 nodes · 32858 edges · 613 communities (575 shown, 38 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 173 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f66797aa`
+- Built from commit: `d589c5e8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -614,8 +614,6 @@
 - [[_COMMUNITY_Community 607|Community 607]]
 - [[_COMMUNITY_Community 608|Community 608]]
 - [[_COMMUNITY_Community 609|Community 609]]
-- [[_COMMUNITY_Community 610|Community 610]]
-- [[_COMMUNITY_Community 611|Community 611]]
 - [[_COMMUNITY_Community 612|Community 612]]
 - [[_COMMUNITY_Community 613|Community 613]]
 - [[_COMMUNITY_Community 614|Community 614]]
@@ -644,7 +642,7 @@
 - `shouldPropagateToTarget()` --calls--> `target`  [INFERRED]
   .wrangler/tmp/dev-I32tPA/index.js → tsconfig.json
 
-## Communities (615 total, 38 thin omitted)
+## Communities (613 total, 38 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.16
@@ -868,7 +866,7 @@ Nodes (12): Cleanup Checklist, code:tsx (// Before (React 18)), code:tsx (// Bef
 
 ### Community 73 - "Community 73"
 Cohesion: 0.00
-Nodes (252): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+244 more)
+Nodes (254): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), baseURLOverridden() (+246 more)
 
 ### Community 74 - "Community 74"
 Cohesion: 0.15
@@ -1096,7 +1094,7 @@ Nodes (17): Account Overview, Authentication flow, code:bash (# Always use the l
 
 ### Community 140 - "Community 140"
 Cohesion: 0.01
-Nodes (333): [A,E], [A,M], [A,v], abort(), {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b} (+325 more)
+Nodes (327): [A,E], [A,M], [A,v], abort(), {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b} (+319 more)
 
 ### Community 141 - "Community 141"
 Cohesion: 0.06
@@ -1115,8 +1113,8 @@ Cohesion: 0.18
 Nodes (11): vite, devDependencies, autoprefixer, esbuild, tailwindcss, tsx, @types/express, @types/node (+3 more)
 
 ### Community 145 - "Community 145"
-Cohesion: 0.03
-Nodes (78): number, alert(), array(), b(), binaryEncode(), cancelTasks(), cloneRequestState(), containedBy() (+70 more)
+Cohesion: 0.02
+Nodes (89): number, alert(), applyTransformOptsToQuery(), array(), b(), cancelTasks(), cloneRequestState(), containedBy() (+81 more)
 
 ### Community 146 - "Community 146"
 Cohesion: 0.02
@@ -1128,7 +1126,7 @@ Nodes (13): description, name, private, scripts, build, clean, deploy, dev (+5 m
 
 ### Community 148 - "Community 148"
 Cohesion: 0.00
-Nodes (241): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+233 more)
+Nodes (238): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+230 more)
 
 ### Community 149 - "Community 149"
 Cohesion: 0.47
@@ -1136,27 +1134,27 @@ Nodes (4): prepareDatabase(), runTests(), scrollToFind(), supabase
 
 ### Community 155 - "Community 155"
 Cohesion: 0.02
-Nodes (6): addEventListener(), focus(), focusTextInput(), getStateForHref(), listen(), s
+Nodes (20): __addChild(), addEventListener(), createInteractionHandle(), __debouncedOnEnd(), focus(), focusTextInput(), __getAnimatedValue(), __getChildren() (+12 more)
 
 ### Community 156 - "Community 156"
-Cohesion: 0.03
-Nodes (28): $(), addListener(), computeBlankness(), computeViewableItems(), current(), deactivateAndFlush(), deviceName(), dispose() (+20 more)
+Cohesion: 0.02
+Nodes (30): $(), addListener(), computeBlankness(), computeViewableItems(), current(), deactivateAndFlush(), deviceName(), dispose() (+22 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.03
-Nodes (22): applyTransformOptsToQuery(), backIndex(), download(), dropTable(), eo(), fullBundleUrl(), __getNativeAnimationConfig(), getPublicUrl() (+14 more)
+Cohesion: 0.02
+Nodes (20): addChangeListener(), backIndex(), clear(), clearInteractionHandle(), delete(), eo(), get(), __getNativeAnimationConfig() (+12 more)
 
 ### Community 158 - "Community 158"
-Cohesion: 0.03
-Nodes (29): add(), addChangeListener(), clear(), clearInteractionHandle(), componentWillUnmount(), configureNextLayoutAnimation(), decode(), delete() (+21 more)
+Cohesion: 0.02
+Nodes (39): assert(), binaryEncode(), cancel(), cancelRefEvent(), cancelTimeout(), canPush(), componentWillUnmount(), configureNextLayoutAnimation() (+31 more)
 
 ### Community 159 - "Community 159"
 Cohesion: 0.02
-Nodes (160): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), applySettingDefaults(), arrayBuffer() (+152 more)
+Nodes (131): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), arrayBuffer(), batchSend() (+123 more)
 
 ### Community 160 - "Community 160"
 Cohesion: 0.00
-Nodes (223): ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware(), bindGetEndpointFromInstructions(), bindGetEndpointPlugin() (+215 more)
+Nodes (227): ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware(), bindGetEndpointFromInstructions(), bindGetEndpointPlugin() (+219 more)
 
 ### Community 161 - "Community 161"
 Cohesion: 0.02
@@ -1164,27 +1162,27 @@ Nodes (328): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$
 
 ### Community 162 - "Community 162"
 Cohesion: 0.03
-Nodes (207): error, ac(), ad(), Ae(), af(), Al(), ao(), Au() (+199 more)
+Nodes (205): error, ac(), ad(), Ae(), af(), Al(), ao(), Au() (+197 more)
 
 ### Community 163 - "Community 163"
 Cohesion: 0.00
-Nodes (247): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), basePath() (+239 more)
+Nodes (250): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), basePath() (+242 more)
 
 ### Community 164 - "Community 164"
 Cohesion: 0.02
-Nodes (178): addAuthHeaders(), apiCall(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), __awaiter() (+170 more)
+Nodes (182): addAuthHeaders(), apiCall(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), __awaiter() (+174 more)
 
 ### Community 165 - "Community 165"
-Cohesion: 0.03
-Nodes (117): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), clearHeartbeats(), connect(), connectionState() (+109 more)
+Cohesion: 0.02
+Nodes (161): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+153 more)
 
 ### Community 166 - "Community 166"
 Cohesion: 0.03
-Nodes (158): addAuthHeaders(), apiCall(), arrayBuffer(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), blob() (+150 more)
+Nodes (154): addAuthHeaders(), apiCall(), arrayBuffer(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), blob() (+146 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.02
-Nodes (17): __addChild(), createInteractionHandle(), __debouncedOnEnd(), __getAnimatedValue(), __getChildren(), __getNativeConfig(), __getNativeTag(), __getPlatformConfig() (+9 more)
+Cohesion: 0.06
+Nodes (33): add(), At(), bn(), cf(), channel(), er(), et(), getChannels() (+25 more)
 
 ### Community 168 - "Community 168"
 Cohesion: 0.05
@@ -1203,8 +1201,8 @@ Cohesion: 0.05
 Nodes (39): Angular, Angular UI Kit, Backend Setup, Basic Configuration, Client SDK Configuration, code:bash (npm install @cloudflare/realtimekit @cloudflare/realtimekit-), code:jsonc (// wrangler.jsonc), code:jsonc ({) (+31 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.03
-Nodes (125): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), close() (+117 more)
+Cohesion: 0.02
+Nodes (156): #addRoute(), buildAbortError(), buildAuthHeaders(), buildQueryString(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush() (+148 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.05
@@ -1216,7 +1214,7 @@ Nodes (37): App Endpoints, Base URL and Auth, Binding API (Workers), Client Prov
 
 ### Community 175 - "Community 175"
 Cohesion: 0.02
-Nodes (152): add(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), batchSend(), binaryEncode(), _binaryEncodeUserBroadcastPush() (+144 more)
+Nodes (160): add(), ajax(), appendParams(), applyTransformOptsToQuery(), __awaiter(), batchSend(), binaryEncode(), _binaryEncodeUserBroadcastPush() (+152 more)
 
 ### Community 176 - "Community 176"
 Cohesion: 0.05
@@ -1263,8 +1261,8 @@ Cohesion: 0.06
 Nodes (33): AI & Machine Learning, Cloudflare Platform Skill, code:block1 (Need feature flags?), code:block2 (Need to run code?), code:block3 (Need storage?), code:block4 (Need AI?), code:block5 (Need networking?), code:block6 (Need security?) (+25 more)
 
 ### Community 187 - "Community 187"
-Cohesion: 0.03
-Nodes (85): applyTransformOptsToQuery(), baseURLOverridden(), bindCallerConfig(), buildBody(), buildHeaders(), buildRequest(), buildURL(), cloneRequestState() (+77 more)
+Cohesion: 0.07
+Nodes (38): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+30 more)
 
 ### Community 188 - "Community 188"
 Cohesion: 0.06
@@ -1859,8 +1857,8 @@ Cohesion: 0.10
 Nodes (20): Advanced, Auto-Provisioning (Beta), Bindings, code:jsonc ({), code:jsonc ({), code:jsonc (// Custom domain (recommended)), code:jsonc (// Variables), code:jsonc ({) (+12 more)
 
 ### Community 338 - "Community 338"
-Cohesion: 0.03
-Nodes (91): applyTransformOptsToQuery(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), codeExecutionResult(), convertHttpAuthSchemesToMap(), copy(), createBucket() (+83 more)
+Cohesion: 0.08
+Nodes (30): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+22 more)
 
 ### Community 339 - "Community 339"
 Cohesion: 0.10
@@ -2167,8 +2165,8 @@ Cohesion: 0.12
 Nodes (16): Click Trigger, code:block1 (Type: History Change), code:block2 (Type: Click), code:block3 (Measurement ID: G-XXXXXXXXXX), code:block4 (Pixel ID: 1234567890123456), code:block5 (Conversion ID: AW-XXXXXXXXX), code:javascript (zaraz.consent.setAll({ analytics: true, marketing: true });), Consent Management (+8 more)
 
 ### Community 415 - "Community 415"
-Cohesion: 0.03
-Nodes (130): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), arrayBuffer(), batchSend() (+122 more)
+Cohesion: 0.02
+Nodes (187): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), arrayBuffer() (+179 more)
 
 ### Community 416 - "Community 416"
 Cohesion: 0.12
@@ -2275,8 +2273,8 @@ Cohesion: 0.11
 Nodes (18): ai, app, authUsersById, body, buffer, discount, emailExists, Env (+10 more)
 
 ### Community 442 - "Community 442"
-Cohesion: 0.09
-Nodes (39): __awaiter(), bufferFromSecret(), cmn(), convertToBuffer(), convertToBuffer3(), createStringToSign(), digest(), ff() (+31 more)
+Cohesion: 0.06
+Nodes (38): applySettingDefaults(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), getChannel(), getDefaultFetch() (+30 more)
 
 ### Community 443 - "Community 443"
 Cohesion: 0.13
@@ -2464,7 +2462,7 @@ Nodes (13): code:javascript (zaraz.debug = true;), code:javascript (// Clear con
 
 ### Community 489 - "Community 489"
 Cohesion: 0.02
-Nodes (171): addAuthHeaders(), apiCall(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), __awaiter() (+163 more)
+Nodes (177): addAuthHeaders(), apiCall(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), __awaiter() (+169 more)
 
 ### Community 490 - "Community 490"
 Cohesion: 0.15
@@ -2807,8 +2805,8 @@ Cohesion: 0.67
 Nodes (3): code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), List All Flags (with pagination)
 
 ### Community 581 - "Community 581"
-Cohesion: 0.05
-Nodes (66): binaryEncode(), _binaryEncodeUserBroadcastPush(), cmn(), constructUrl(), containedBy(), contains(), createCanonicalRequest(), createStringToSign() (+58 more)
+Cohesion: 0.03
+Nodes (92): applyTransformOptsToQuery(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), cloneRequestState(), cmn(), concatBytes(), containedBy() (+84 more)
 
 ### Community 583 - "Community 583"
 Cohesion: 0.33
@@ -2820,15 +2818,15 @@ Nodes (4): amount, description, name, redirectUrl
 
 ### Community 589 - "Community 589"
 Cohesion: 0.03
-Nodes (144): lockNoOp(), lockNoOp(), lockNoOp(), _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled() (+136 more)
+Nodes (147): lockNoOp(), lockNoOp(), lockNoOp(), _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled() (+139 more)
 
 ### Community 590 - "Community 590"
 Cohesion: 0.02
-Nodes (153): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+145 more)
+Nodes (170): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+162 more)
 
 ### Community 591 - "Community 591"
-Cohesion: 0.04
-Nodes (18): clearHeartbeats(), f(), flushSendBuffer(), hasLogger(), heartbeatTimeout(), isConnected(), isMember(), leaveOpenTopic() (+10 more)
+Cohesion: 0.03
+Nodes (18): clearHeartbeats(), f(), flushSendBuffer(), hasLogger(), heartbeatTimeout(), isConnected(), isMember(), onConnClose() (+10 more)
 
 ### Community 592 - "Community 592"
 Cohesion: 0.04
@@ -2839,68 +2837,60 @@ Cohesion: 0.10
 Nodes (37): bufferFromSecret(), cmn(), convertToBuffer(), convertToBuffer3(), createStringToSign(), digest(), ff(), formatDate() (+29 more)
 
 ### Community 594 - "Community 594"
-Cohesion: 0.13
-Nodes (19): liveMusicSetConfigParametersToMldev(), liveSendRealtimeInputParametersToMldev(), liveSendRealtimeInputParametersToVertex(), send(), sendClientContent(), sendRealtimeInput(), sendToolResponse(), setMusicGenerationConfig() (+11 more)
-
-### Community 595 - "Community 595"
-Cohesion: 0.02
-Nodes (182): applySettingDefaults(), buildAbortError(), buildAuthHeaders(), buildQueryString(), c(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout() (+174 more)
-
-### Community 596 - "Community 596"
 Cohesion: 0.07
 Nodes (34): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+26 more)
 
+### Community 595 - "Community 595"
+Cohesion: 0.02
+Nodes (127): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), close() (+119 more)
+
+### Community 596 - "Community 596"
+Cohesion: 0.09
+Nodes (29): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+21 more)
+
 ### Community 597 - "Community 597"
 Cohesion: 0.03
-Nodes (161): addAuthHeaders(), apiCall(), arrayBuffer(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await() (+153 more)
+Nodes (168): addAuthHeaders(), apiCall(), arrayBuffer(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await() (+160 more)
 
 ### Community 598 - "Community 598"
 Cohesion: 0.03
 Nodes (143): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+135 more)
 
 ### Community 599 - "Community 599"
-Cohesion: 0.02
-Nodes (139): applyTransformOptsToQuery(), baseURLOverridden(), _binaryDecode(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), buildBody(), buildHeaders() (+131 more)
+Cohesion: 0.03
+Nodes (92): applyTransformOptsToQuery(), baseURLOverridden(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), buildBody(), buildHeaders(), buildRequest() (+84 more)
 
 ### Community 601 - "Community 601"
-Cohesion: 0.04
-Nodes (73): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), batchSend(), #buildMatcher() (+65 more)
+Cohesion: 0.03
+Nodes (101): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), batchSend(), buildAbortError() (+93 more)
 
 ### Community 602 - "Community 602"
 Cohesion: 0.33
 Nodes (5): amount, customerName, email, mobile, name
 
 ### Community 603 - "Community 603"
-Cohesion: 0.03
-Nodes (11): assert(), cancel(), canPush(), connect(), connectWithFallback(), disconnect(), h(), ontimeout() (+3 more)
+Cohesion: 0.14
+Nodes (28): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+20 more)
 
 ### Community 605 - "Community 605"
 Cohesion: 0.04
 Nodes (54): acquireInitialRetryToken(), acquireTokenBucket(), applySettingDefaults(), calculateTimeWindow(), constructor(), createDeserializer(), createFetchClient(), createSerializer() (+46 more)
 
 ### Community 606 - "Community 606"
-Cohesion: 0.06
-Nodes (32): At(), cf(), channel(), er(), et(), getChannels(), Ht(), jn() (+24 more)
+Cohesion: 0.09
+Nodes (28): asResponse(), basePath(), _binaryDecode(), #clone(), cloneState(), concatBytes(), decode(), decodeBroadcast() (+20 more)
 
 ### Community 607 - "Community 607"
 Cohesion: 0.09
 Nodes (40): __awaiter(), bufferFromSecret(), cmn(), convertToBuffer(), convertToBuffer3(), createCanonicalRequest(), createStringToSign(), digest() (+32 more)
 
 ### Community 608 - "Community 608"
-Cohesion: 0.14
-Nodes (28): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+20 more)
-
-### Community 609 - "Community 609"
-Cohesion: 0.09
-Nodes (28): asResponse(), basePath(), _binaryDecode(), #clone(), cloneState(), concatBytes(), decode(), decodeBroadcast() (+20 more)
-
-### Community 610 - "Community 610"
 Cohesion: 0.16
 Nodes (21): catch(), execute(), fetchRequest(), fetchThenEvalAsync(), finally(), _genPromise(), getPromise(), go() (+13 more)
 
-### Community 611 - "Community 611"
-Cohesion: 0.14
-Nodes (18): liveSendRealtimeInputParametersToMldev(), liveSendRealtimeInputParametersToVertex(), send(), sendClientContent(), sendRealtimeInput(), sendToolResponse(), setMusicGenerationConfig(), setWeightedPrompts() (+10 more)
+### Community 609 - "Community 609"
+Cohesion: 0.17
+Nodes (15): _binaryDecode(), concatBytes(), decode(), decodeBroadcast(), decodePush(), decodeReply(), _decodeUserBroadcast(), decodeUTF8() (+7 more)
 
 ### Community 612 - "Community 612"
 Cohesion: 0.16
@@ -2918,11 +2908,11 @@ Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), bu
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `string()` connect `Community 157` to `Community 140`, `Community 142`, `Community 145`, `Community 148`, `Community 156`, `Community 158`, `Community 415`, `Community 159`, `Community 32`, `Community 162`, `Community 163`, `Community 164`, `Community 160`, `Community 166`, `Community 167`, `Community 175`, `Community 187`, `Community 73`, `Community 591`, `Community 338`, `Community 595`, `Community 597`, `Community 599`, `Community 601`, `Community 603`, `Community 608`, `Community 489`?**
+- **Why does `string()` connect `Community 145` to `Community 140`, `Community 142`, `Community 148`, `Community 156`, `Community 157`, `Community 158`, `Community 415`, `Community 32`, `Community 159`, `Community 162`, `Community 163`, `Community 164`, `Community 160`, `Community 166`, `Community 172`, `Community 175`, `Community 581`, `Community 73`, `Community 591`, `Community 597`, `Community 599`, `Community 601`, `Community 603`, `Community 489`?**
   _High betweenness centrality (0.144) - this node is a cross-community bridge._
-- **Why does `number` connect `Community 145` to `Community 0`, `Community 162`, `Community 167`, `Community 73`, `Community 591`, `Community 187`, `Community 156`, `Community 157`, `Community 158`, `Community 159`?**
+- **Why does `number` connect `Community 145` to `Community 0`, `Community 162`, `Community 581`, `Community 73`, `Community 591`, `Community 156`, `Community 157`, `Community 158`, `Community 159`?**
   _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `object()` connect `Community 145` to `Community 162`, `Community 163`, `Community 167`, `Community 73`, `Community 140`, `Community 187`, `Community 590`, `Community 175`, `Community 338`, `Community 595`, `Community 148`, `Community 596`, `Community 599`, `Community 155`, `Community 156`, `Community 605`, `Community 159`?**
+- **Why does `object()` connect `Community 145` to `Community 162`, `Community 163`, `Community 165`, `Community 140`, `Community 187`, `Community 590`, `Community 175`, `Community 338`, `Community 594`, `Community 596`, `Community 148`, `Community 442`, `Community 155`, `Community 156`, `Community 605`, `Community 159`?**
   _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **What connects `name`, `description`, `requestFramePermissions` to the rest of the system?**
   _5781 weakly-connected nodes found - possible documentation gaps or missing edges._

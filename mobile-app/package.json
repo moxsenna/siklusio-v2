@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:web": "node -e \"console.log('=== DEBUG BUILD ENV ==='); console.log('EXPO_PUBLIC_SUPABASE_URL:', process.env.EXPO_PUBLIC_SUPABASE_URL || 'NOT_FOUND'); console.log('EXPO_PUBLIC_API_BASE_URL:', process.env.EXPO_PUBLIC_API_BASE_URL || 'NOT_FOUND');\" && npx expo export --platform web && echo '/* /index.html 200' > dist/_redirects"
+    "build:web": "node -e \"console.log('=== DEBUG BUILD ENV ==='); console.log('EXPO_KEYS:', Object.keys(process.env).filter(k => k.startsWith('EXPO_')));\" && npx expo export --platform web && echo '/* /index.html 200' > dist/_redirects"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

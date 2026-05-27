@@ -87,6 +87,20 @@ const requireUser = async (c: any) => {
   }
 };
 
+// Helper to require admin access (returns supabaseAdmin + user or sends 401/403)
+const requireAdmin = async (c: any) => {
+  const auth = await requireUser(c);
+  if (!auth) return null;
+  const { supabaseAdmin, user } = auth;
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile?.is_admin) return null;
+  return { supabaseAdmin, user };
+};
+
 // ------------------------------------------------------------
 // API Routes
 // ------------------------------------------------------------
@@ -547,11 +561,367 @@ app.delete("/api/admin/coupons/:id", async (c) => {
   }
 });
 
+// ============================================================
+// Affiliate Public Endpoint — validate referral code [FIX-3]
+// ============================================================
+app.get("/api/affiliate/validate", async (c) => {
+  console.log("--> [BACKEND] GET /api/affiliate/validate");
+  try {
+    const code = (c.req.query("code") || "").trim().toUpperCase();
+    if (!code) return c.json({ valid: false });
+
+    const supabaseAdmin = getSupabaseAdmin(c);
+    const { data: affiliate } = await supabaseAdmin
+      .from("affiliates")
+      .select("code, commission_type, commission_value")
+      .eq("code", code)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (!affiliate) return c.json({ valid: false });
+
+    // Check if matching coupon exists for discount label
+    const { data: coupon } = await supabaseAdmin
+      .from("coupons")
+      .select("discount_type, discount_value")
+      .eq("code", code)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    let discountLabel = "";
+    if (coupon) {
+      discountLabel = coupon.discount_type === "percentage"
+        ? `Diskon ${coupon.discount_value}%`
+        : `Diskon Rp ${Number(coupon.discount_value).toLocaleString("id-ID")}`;
+    }
+
+    return c.json({ valid: true, discountLabel });
+  } catch (error: any) {
+    console.error("Affiliate validate error:", error);
+    return c.json({ valid: false });
+  }
+});
+
+// ============================================================
+// Affiliate User Endpoints (Self-Serve)
+// ============================================================
+
+// GET /api/affiliate/me — Get affiliate profile for logged-in user
+app.get("/api/affiliate/me", async (c) => {
+  console.log("--> [BACKEND] GET /api/affiliate/me");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Unauthorized" }, 401);
+
+    const { supabaseAdmin, user } = auth;
+    
+    // Find affiliate by user email
+    const { data: affiliate } = await supabaseAdmin
+      .from("affiliates")
+      .select("*")
+      .eq("email", user.email)
+      .maybeSingle();
+
+    return c.json({ affiliate: affiliate || null });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// POST /api/affiliate/register — Self-register as affiliate
+app.post("/api/affiliate/register", async (c) => {
+  console.log("--> [BACKEND] POST /api/affiliate/register");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Unauthorized" }, 401);
+
+    const { supabaseAdmin, user } = auth;
+    const { code, bank_name, account_number, account_holder } = await c.req.json();
+
+    if (!code) {
+      return c.json({ error: "Kode referal wajib diisi" }, 400);
+    }
+    const safeCode = code.trim().toUpperCase().replace(/\s/g, '');
+
+    // Get user profile details
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("name, whatsapp_number")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const name = profile?.name || user.email?.split("@")[0] || "User";
+    const whatsapp = profile?.whatsapp_number || "-";
+
+    // Use transactional RPC to also create coupon 10%
+    const { data, error } = await supabaseAdmin.rpc("create_affiliate_with_coupon", {
+      p_name: name,
+      p_email: user.email,
+      p_whatsapp: whatsapp,
+      p_code: safeCode,
+      p_commission_type: "percentage",
+      p_commission_value: 20, // 20% default user commission
+      p_bank_name: bank_name || null,
+      p_account_number: account_number || null,
+      p_account_holder: account_holder || null,
+      p_auto_coupon: true,
+      p_coupon_discount_type: "percentage",
+      p_coupon_discount_value: 10, // 10% default coupon for buyer
+    });
+
+    if (error) {
+      if (error.code === '23505') return c.json({ error: "Kode referal sudah digunakan, pilih kode lain." }, 400);
+      throw error;
+    }
+
+    return c.json({ affiliate: data });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// GET /api/affiliate/me/conversions — List user's conversions
+app.get("/api/affiliate/me/conversions", async (c) => {
+  console.log("--> [BACKEND] GET /api/affiliate/me/conversions");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Unauthorized" }, 401);
+
+    const { supabaseAdmin, user } = auth;
+    
+    // Find affiliate ID first
+    const { data: affiliate } = await supabaseAdmin
+      .from("affiliates")
+      .select("id")
+      .eq("email", user.email)
+      .maybeSingle();
+
+    if (!affiliate) {
+      return c.json({ conversions: [] });
+    }
+
+    const { data: conversions, error } = await supabaseAdmin
+      .from("affiliate_conversions")
+      .select("*")
+      .eq("affiliate_id", affiliate.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return c.json({ conversions: conversions || [] });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// PATCH /api/affiliate/me/bank — Update user's bank info
+app.patch("/api/affiliate/me/bank", async (c) => {
+  console.log("--> [BACKEND] PATCH /api/affiliate/me/bank");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Unauthorized" }, 401);
+
+    const { supabaseAdmin, user } = auth;
+    const { bank_name, account_number, account_holder } = await c.req.json();
+
+    const { error } = await supabaseAdmin
+      .from("affiliates")
+      .update({
+        bank_name,
+        account_number,
+        account_holder
+      })
+      .eq("email", user.email);
+
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================================
+// Affiliate Admin Endpoints
+// ============================================================
+
+// GET /api/admin/affiliates — List all affiliates
+app.get("/api/admin/affiliates", async (c) => {
+  console.log("--> [BACKEND] GET /api/admin/affiliates");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("affiliates")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return c.json({ affiliates: data });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// POST /api/admin/affiliates — Create affiliate (via RPC for transactional coupon) [FIX-6]
+app.post("/api/admin/affiliates", async (c) => {
+  console.log("--> [BACKEND] POST /api/admin/affiliates");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const body = await c.req.json();
+    const { name, email, whatsapp, code, commission_type, commission_value,
+            bank_name, account_number, account_holder,
+            autoCreateCoupon, coupon_discount_type, coupon_discount_value } = body;
+
+    if (!name || !email || !whatsapp || !code || !commission_type || commission_value == null) {
+      return c.json({ error: "Data afiliasi tidak lengkap" }, 400);
+    }
+
+    if (autoCreateCoupon) {
+      // Use transactional RPC [FIX-6]
+      const { data, error } = await admin.supabaseAdmin.rpc("create_affiliate_with_coupon", {
+        p_name: name,
+        p_email: email,
+        p_whatsapp: whatsapp,
+        p_code: code,
+        p_commission_type: commission_type,
+        p_commission_value: Number(commission_value),
+        p_bank_name: bank_name || null,
+        p_account_number: account_number || null,
+        p_account_holder: account_holder || null,
+        p_auto_coupon: true,
+        p_coupon_discount_type: coupon_discount_type || "percentage",
+        p_coupon_discount_value: Number(coupon_discount_value || 10),
+      });
+      if (error) throw error;
+      return c.json({ result: data });
+    } else {
+      // Direct insert without coupon
+      const { data, error } = await admin.supabaseAdmin
+        .from("affiliates")
+        .insert({
+          name,
+          email,
+          whatsapp,
+          code: code.trim().toUpperCase(),
+          commission_type,
+          commission_value: Number(commission_value),
+          bank_name: bank_name || null,
+          account_number: account_number || null,
+          account_holder: account_holder || null,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return c.json({ affiliate: data });
+    }
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// PATCH /api/admin/affiliates/:id — Update affiliate
+app.patch("/api/admin/affiliates/:id", async (c) => {
+  console.log("--> [BACKEND] PATCH /api/admin/affiliates/:id");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const updates = await c.req.json();
+
+    // Only allow safe fields to be updated
+    const allowedFields = ["name", "email", "whatsapp", "commission_type", "commission_value",
+      "bank_name", "account_number", "account_holder", "is_active", "allow_zero_order_commission"];
+    const safeUpdates: Record<string, any> = {};
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) safeUpdates[key] = updates[key];
+    }
+
+    const { error } = await admin.supabaseAdmin
+      .from("affiliates")
+      .update(safeUpdates)
+      .eq("id", id);
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// DELETE /api/admin/affiliates/:id — Delete affiliate
+app.delete("/api/admin/affiliates/:id", async (c) => {
+  console.log("--> [BACKEND] DELETE /api/admin/affiliates/:id");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const { error } = await admin.supabaseAdmin
+      .from("affiliates")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// GET /api/admin/affiliates/conversions — List all conversions
+app.get("/api/admin/affiliates/conversions", async (c) => {
+  console.log("--> [BACKEND] GET /api/admin/affiliates/conversions");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("affiliate_conversions")
+      .select("*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return c.json({ conversions: data });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// PATCH /api/admin/affiliates/conversions/:id/payout — Mark conversion as paid [FIX-4]
+app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
+  console.log("--> [BACKEND] PATCH /api/admin/affiliates/conversions/:id/payout");
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const { payout_reference, payout_note } = await c.req.json();
+
+    const { error } = await admin.supabaseAdmin
+      .from("affiliate_conversions")
+      .update({
+        payout_status: "paid",
+        payout_at: new Date().toISOString(),
+        payout_marked_by: admin.user.email || admin.user.id,
+        payout_reference: payout_reference || null,
+        payout_note: payout_note || null,
+      })
+      .eq("id", id);
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================================
+// Checkout & Payment
+// ============================================================
+
 // Hono Endpoint for pre-checkout registration + Mayar dynamic payment
 app.post("/api/checkout/register", async (c) => {
   console.log("--> [BACKEND] Received request /api/checkout/register");
   try {
-    const { name, email, whatsapp, password, couponCode } = await c.req.json();
+    const { name, email, whatsapp, password, couponCode, affiliateCode } = await c.req.json();
     
     if (!name || !email || !whatsapp || !password) {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
@@ -617,6 +987,20 @@ app.post("/api/checkout/register", async (c) => {
     }
 
     // If Free / 100% discount, bypass Mayar and create user directly
+    // Resolve affiliate code if provided
+    const normalizedAffiliateCode = affiliateCode ? affiliateCode.trim().toUpperCase() : null;
+    let validatedAffiliateCode: string | null = null;
+    if (normalizedAffiliateCode) {
+      const { data: aff } = await supabaseAdmin
+        .from("affiliates")
+        .select("code")
+        .eq("code", normalizedAffiliateCode)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (aff) validatedAffiliateCode = aff.code;
+      console.log(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
+    }
+
     if (finalAmount === 0) {
       console.log("--> 100% Free Coupon applied! Bypassing Mayar...");
       
@@ -635,6 +1019,53 @@ app.post("/api/checkout/register", async (c) => {
         console.error("Supabase auth user creation error:", signupErr);
         return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
       }
+
+      // Create checkout_session for free bypass [FIX-2]
+      const { data: session } = await supabaseAdmin
+        .from("checkout_sessions")
+        .insert({
+          email: email.toLowerCase(),
+          name,
+          whatsapp,
+          coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
+          affiliate_code: validatedAffiliateCode,
+          final_amount: 0,
+          status: "free_bypass",
+          paid_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      // Record affiliate conversion for free orders [FIX-5]
+      if (validatedAffiliateCode && session) {
+        const { data: aff } = await supabaseAdmin
+          .from("affiliates")
+          .select("id, commission_type, commission_value, allow_zero_order_commission")
+          .eq("code", validatedAffiliateCode)
+          .maybeSingle();
+
+        if (aff) {
+          // [FIX-5] Default: no commission for free orders unless explicitly allowed
+          let commissionAmount = 0;
+          if (aff.allow_zero_order_commission) {
+            commissionAmount = aff.commission_type === "nominal"
+              ? Number(aff.commission_value)
+              : 0; // percentage of 0 is always 0
+          }
+
+          await supabaseAdmin.from("affiliate_conversions").insert({
+            affiliate_id: aff.id,
+            checkout_session_id: session.id,
+            buyer_name: name,
+            buyer_email: email.toLowerCase(),
+            buyer_whatsapp: whatsapp,
+            amount_paid: 0,
+            commission_amount: commissionAmount,
+            mayar_transaction_id: null, // free bypass has no Mayar tx
+          });
+          console.log(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
+        }
+      }
       
       console.log("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
@@ -648,7 +1079,9 @@ app.post("/api/checkout/register", async (c) => {
         email: email.toLowerCase(),
         name,
         whatsapp,
-        password
+        password,
+        coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
+        affiliate_code: validatedAffiliateCode,
       }, { onConflict: "email" });
 
     if (insertErr) {
@@ -685,6 +1118,23 @@ app.post("/api/checkout/register", async (c) => {
     }
 
     const paymentUrl = resJson.data?.link;
+    const mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
+
+    // Create checkout_session for paid flow [FIX-2]
+    await supabaseAdmin
+      .from("checkout_sessions")
+      .insert({
+        email: email.toLowerCase(),
+        name,
+        whatsapp,
+        coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
+        affiliate_code: validatedAffiliateCode,
+        final_amount: finalAmount,
+        mayar_link: paymentUrl,
+        mayar_transaction_id: mayarTxId,
+        status: "pending",
+      });
+
     console.log("<-- Checkout request successful! Payment URL:", paymentUrl);
     return c.json({ paymentUrl });
   } catch (error: any) {
@@ -743,6 +1193,14 @@ app.post("/api/payment/webhook", async (c) => {
       return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
     }
 
+    // Extract Mayar transaction ID for idempotency [FIX-1]
+    const mayarTransactionId =
+      body.data?.id ||
+      body.data?.transactionId ||
+      body.data?.transaction_id ||
+      body.id ||
+      null;
+
     // Only process purchase/payment success events for account creation
     // Skip reminders, tracking, and other non-payment events
     const isPurchaseEvent = 
@@ -760,6 +1218,20 @@ app.post("/api/payment/webhook", async (c) => {
     }
 
     const supabaseAdmin = getSupabaseAdmin(c);
+
+    // [FIX-1] Idempotency check: if this transaction was already processed, skip
+    if (mayarTransactionId) {
+      const { data: existingConversion } = await supabaseAdmin
+        .from("affiliate_conversions")
+        .select("id")
+        .eq("mayar_transaction_id", mayarTransactionId)
+        .maybeSingle();
+
+      if (existingConversion) {
+        console.log(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
+        return c.json({ status: "ok", message: "Transaction already processed" }, 200);
+      }
+    }
 
     // Fetch the pending registration details
     console.log("--> Querying pending registration for email:", email);
@@ -794,6 +1266,79 @@ app.post("/api/payment/webhook", async (c) => {
     if (signupErr) {
       console.error("Supabase auth user creation error:", signupErr);
       return c.json({ error: "Auth user creation failed: " + signupErr.message }, 500);
+    }
+
+    // [FIX-2] Process affiliate conversion from checkout_session
+    const affiliateCode = pending.affiliate_code;
+    if (affiliateCode) {
+      console.log(`--> Processing affiliate conversion for code: ${affiliateCode}`);
+      
+      // Find the matching checkout session [FIX-2]
+      const { data: session } = await supabaseAdmin
+        .from("checkout_sessions")
+        .select("*")
+        .eq("email", email.toLowerCase())
+        .eq("affiliate_code", affiliateCode)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Look up affiliate details
+      const { data: affiliate } = await supabaseAdmin
+        .from("affiliates")
+        .select("id, commission_type, commission_value, allow_zero_order_commission")
+        .eq("code", affiliateCode)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (affiliate) {
+        const amountPaid = session?.final_amount || body.data?.amount || 0;
+        
+        // Calculate commission
+        let commissionAmount = 0;
+        if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
+          // [FIX-5] No commission for free orders by default
+          commissionAmount = 0;
+        } else if (affiliate.commission_type === "percentage") {
+          commissionAmount = Math.floor(Number(amountPaid) * (Number(affiliate.commission_value) / 100));
+        } else {
+          commissionAmount = Number(affiliate.commission_value);
+        }
+
+        // Insert conversion with idempotency key [FIX-1]
+        const { error: convErr } = await supabaseAdmin
+          .from("affiliate_conversions")
+          .insert({
+            affiliate_id: affiliate.id,
+            checkout_session_id: session?.id || null,
+            buyer_name: pending.name,
+            buyer_email: pending.email,
+            buyer_whatsapp: pending.whatsapp,
+            amount_paid: Number(amountPaid),
+            commission_amount: commissionAmount,
+            mayar_transaction_id: mayarTransactionId,
+          });
+
+        if (convErr) {
+          // If unique constraint violation on mayar_transaction_id, it's a retry — safe to ignore
+          if (convErr.code === "23505") {
+            console.log(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
+          } else {
+            console.error("Error inserting affiliate conversion:", convErr);
+          }
+        } else {
+          console.log(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
+        }
+      }
+
+      // Update checkout_session status to paid
+      if (session) {
+        await supabaseAdmin
+          .from("checkout_sessions")
+          .update({ status: "paid", paid_at: new Date().toISOString() })
+          .eq("id", session.id);
+      }
     }
 
     // Delete the pending registration record (cleanup)

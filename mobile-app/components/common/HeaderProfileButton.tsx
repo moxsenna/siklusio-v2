@@ -154,6 +154,21 @@ export function HeaderProfileButton() {
                 <FontAwesome name="angle-right" size={16} color="#c084fc" />
               </TouchableOpacity>
 
+              {/* Affiliate Program Option */}
+              <TouchableOpacity
+                onPress={() => handleNavigate('/affiliate')}
+                className="flex-row items-center gap-4 p-4 rounded-2xl bg-white border border-purple-100 shadow-sm active:scale-[0.98]"
+              >
+                <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
+                  <FontAwesome name="gift" size={18} color="#db2777" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-gray-800">Program Afiliasi 🌸</Text>
+                  <Text className="text-[10px] text-gray-400 mt-0.5">Dapatkan komisi untuk setiap bunda yang bergabung</Text>
+                </View>
+                <FontAwesome name="angle-right" size={16} color="#c084fc" />
+              </TouchableOpacity>
+
               {/* Admin Panel Option (Visible only to authentic admins) */}
               {isAdmin && (
                 <TouchableOpacity

@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS public.pending_registrations (
   name TEXT NOT NULL,
   whatsapp TEXT NOT NULL,
   password TEXT NOT NULL,
+  coupon_code TEXT,
+  affiliate_code TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

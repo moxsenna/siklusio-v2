@@ -329,6 +329,25 @@
       color: var(--slate-600);
     }
 
+    /* Referral badge */
+    .referral-banner {
+      display: none;
+      padding: 14px 20px;
+      border-radius: 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%);
+      color: var(--violet-700);
+      border: 1px solid var(--violet-200);
+      align-items: center;
+      gap: 10px;
+    }
+    .referral-banner .ref-code {
+      font-weight: 800;
+      color: var(--pink-600);
+    }
+
     footer {
       padding: 30px 0;
       text-align: center;
@@ -361,6 +380,12 @@
           <h2 class="card-title">Aktivasi Akun Premium</h2>
           <p class="card-subtitle">Langkah awal ikhtiar terbaik Bunda. Isi formulir pendaftaran di bawah ini untuk membuat akun personal Anda.</p>
           
+          <!-- Referral Banner -->
+          <div id="referralBanner" class="referral-banner">
+            <span>🌸 Sesi rujukan aktif: <span id="referralCode" class="ref-code"></span></span>
+            <span id="referralDiscount" style="margin-left: auto; font-size: 12px; color: var(--teal-700); font-weight: 700;"></span>
+          </div>
+
           <!-- Alerts -->
           <div id="errorAlert" class="alert alert-danger"></div>
           <div id="successAlert" class="alert alert-success"></div>
@@ -473,20 +498,74 @@
     const btnSpinner = document.getElementById('btnSpinner');
     const errorAlert = document.getElementById('errorAlert');
     const successAlert = document.getElementById('successAlert');
+    const referralBanner = document.getElementById('referralBanner');
+    const referralCodeEl = document.getElementById('referralCode');
+    const referralDiscountEl = document.getElementById('referralDiscount');
+    const inputCoupon = document.getElementById('inputCoupon');
 
     // Force actual input value to uppercase so it matches DB codes
-    document.getElementById('inputCoupon').addEventListener('input', function() {
+    inputCoupon.addEventListener('input', function() {
       const pos = this.selectionStart;
       this.value = this.value.toUpperCase();
       this.setSelectionRange(pos, pos);
     });
 
+    // ============================================================
+    // Affiliate Referral Tracking [FIX-3]
+    // ============================================================
+    function getApiBase() {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      return 'https://api.siklusio.web.id';
+    }
+
+    // Detect ?ref=KODE from URL and store in localStorage (Last-Click Wins)
+    (function detectReferral() {
+      const params = new URLSearchParams(window.location.search);
+      const refParam = params.get('ref');
+      if (refParam && refParam.trim()) {
+        const refCode = refParam.trim().toUpperCase();
+        localStorage.setItem('siklusio_ref_code', refCode);
+        console.log('--> Referral code detected from URL:', refCode);
+      }
+    })();
+
+    // Validate stored referral code via backend and show badge
+    (async function initReferral() {
+      const storedRef = localStorage.getItem('siklusio_ref_code');
+      if (!storedRef) return;
+
+      try {
+        const res = await fetch(`${getApiBase()}/api/affiliate/validate?code=${encodeURIComponent(storedRef)}`);
+        const data = await res.json();
+
+        if (data.valid) {
+          // Show referral banner
+          referralCodeEl.textContent = storedRef;
+          if (data.discountLabel) {
+            referralDiscountEl.textContent = data.discountLabel;
+          }
+          referralBanner.style.display = 'flex';
+
+          // Auto-fill coupon input if empty (same code as coupon)
+          if (!inputCoupon.value) {
+            inputCoupon.value = storedRef;
+          }
+          console.log('--> Referral validated:', storedRef, data.discountLabel);
+        } else {
+          // Invalid code — remove from localStorage
+          localStorage.removeItem('siklusio_ref_code');
+          console.log('--> Referral code invalid, removed:', storedRef);
+        }
+      } catch (err) {
+        console.warn('--> Failed to validate referral code:', err);
+      }
+    })();
+
     // API URL resolution - adaptive for production & local dev testing
     function getApiUrl() {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:3000/api/checkout/register';
-      }
-      return 'https://api.siklusio.web.id/api/checkout/register';
+      return getApiBase() + '/api/checkout/register';
     }
 
     form.addEventListener('submit', async (e) => {
@@ -501,7 +580,8 @@
       const whatsapp = document.getElementById('inputWhatsapp').value.trim();
       const email = document.getElementById('inputEmail').value.trim();
       const password = document.getElementById('inputPassword').value.trim();
-      const couponCode = document.getElementById('inputCoupon').value.trim().toUpperCase();
+      const couponCode = inputCoupon.value.trim().toUpperCase();
+      const affiliateCode = localStorage.getItem('siklusio_ref_code') || '';
 
       // Basic client validation
       if (!name || !whatsapp || !email || !password) {
@@ -530,7 +610,8 @@
             email,
             whatsapp,
             password,
-            couponCode
+            couponCode,
+            affiliateCode
           })
         });
 
@@ -539,6 +620,9 @@
         if (!response.ok) {
           throw new Error(result.error || 'Terjadi kesalahan sistem pendaftaran.');
         }
+
+        // Clear referral code after successful checkout
+        localStorage.removeItem('siklusio_ref_code');
 
         // Show success alert
         successAlert.innerText = 'Pendaftaran berhasil disimpan! Mengalihkan ke gerbang pembayaran aman Mayar...';

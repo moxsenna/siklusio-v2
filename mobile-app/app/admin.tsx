@@ -148,7 +148,7 @@ function toAvatarKind(value: string | null): QueueItem['authorAvatarKind'] {
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<'users' | 'moderation' | 'coupons'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'moderation' | 'coupons' | 'affiliates'>('users');
   
   // Coupons Panel states
   const [coupons, setCoupons] = useState<any[]>([]);
@@ -587,7 +587,7 @@ export default function AdminDashboard() {
         </View>
 
         {/* Tab Controls */}
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 20 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}>
           <TouchableOpacity
             onPress={() => setActiveTab('users')}
             style={{
@@ -635,7 +635,23 @@ export default function AdminDashboard() {
               🎫 Kupon
             </Text>
           </TouchableOpacity>
-        </View>
+
+          <TouchableOpacity
+            onPress={() => setActiveTab('affiliates')}
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderRadius: 20,
+              backgroundColor: activeTab === 'affiliates' ? '#ec4899' : 'transparent',
+              borderWidth: activeTab === 'affiliates' ? 0 : 1,
+              borderColor: '#f1e6eb',
+            }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: activeTab === 'affiliates' ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
+              🤝 Afiliasi
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
       {/* Main Content Area */}
@@ -1142,6 +1158,11 @@ export default function AdminDashboard() {
               </View>
             )}
           </View>
+        )}
+
+        {/* Tab Affiliates */}
+        {activeTab === 'affiliates' && (
+          <AdminAffiliatePanel />
         )}
 
       </ScrollView>

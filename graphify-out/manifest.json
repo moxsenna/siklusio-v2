@@ -75,7 +75,7 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\.expo\\types\\router.d.ts": {
-    "mtime": 1779914324.3401532,
+    "mtime": 1779916787.4620962,
     "ast_hash": "d30bc6cd0e07f99b87be894001f073fb",
     "semantic_hash": ""
   },
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+html.tsx": {
-    "mtime": 1779908433.4309354,
-    "ast_hash": "737de0b4d724cfe96f4f6e8304775e20",
+    "mtime": 1779916844.2225707,
+    "ast_hash": "085c929bc5eb682170f65f5bf872139c",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\+not-found.tsx": {
@@ -115,8 +115,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\onboarding.tsx": {
-    "mtime": 1779294339.0941634,
-    "ast_hash": "523e3b1853466a7811062b8548569059",
+    "mtime": 1779916786.3294475,
+    "ast_hash": "a68bb14c7b748dc7f64418fd3e40dc27",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\_layout.tsx": {
@@ -140,8 +140,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\settings.tsx": {
-    "mtime": 1779915225.1654537,
-    "ast_hash": "4688dd2eb08fd14bdbf700f901f29756",
+    "mtime": 1779916781.5597494,
+    "ast_hash": "15a20b8fafb61153ed8b57c36b15c8bf",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\(tabs)\\_layout.tsx": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\context\\CycleContext.tsx": {
-    "mtime": 1779730264.99141,
-    "ast_hash": "25a4bf6dded1ea9536a0b6fd88bc8482",
+    "mtime": 1779916777.482926,
+    "ast_hash": "2cf734eb9b41573d581230a0a9df00c2",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\cycleUtils.ts": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\SyncManager.ts": {
-    "mtime": 1779730254.8360217,
-    "ast_hash": "415df2fe6b17df610f4640e570eba724",
+    "mtime": 1779916772.1066818,
+    "ast_hash": "e3a5bbd5ba2a768ab06f20bf0014a784",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\scratch\\check-users.js": {

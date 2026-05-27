@@ -15,6 +15,7 @@ import { supabase } from '../src/lib/supabase';
 import { format } from 'date-fns';
 import { DatePickerField } from '../components/common/DatePickerField';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { storage } from '../src/lib/storage';
 
 interface DropdownOption {
   label: string;
@@ -201,6 +202,7 @@ export default function OnboardingScreen() {
       }
       setCycleLength(Number(cycleInput));
       setPeriodLength(Number(periodInput));
+      storage.setItem('hs_v3_last_sync_time', String(Date.now()));
     }
 
     if (step < totalSteps) {
@@ -227,6 +229,7 @@ export default function OnboardingScreen() {
         }
       }
       setIsOnboardingCompleted(true);
+      storage.setItem('hs_v3_last_sync_time', String(Date.now()));
       router.replace('/(tabs)/dashboard');
     }
   };

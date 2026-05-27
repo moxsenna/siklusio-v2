@@ -131,10 +131,10 @@ export function CycleProvider({ children }: { children: ReactNode }) {
             .then((res) => {
               if (res.action === 'pulled' && res.data) {
                 // Jika cloud memiliki data baru, sesuaikan state lokal untuk menghindari overriding
-                const cloudDate = parseLocalDate(res.data.last_period_date);
+                const cloudDate = res.data.last_period_date ? parseLocalDate(res.data.last_period_date) : null;
                 setLastPeriodDate(cloudDate);
-                setCycleLength(res.data.cycle_length);
-                setPeriodLength(res.data.period_length);
+                setCycleLength(res.data.cycle_length || 28);
+                setPeriodLength(res.data.period_length || 5);
               }
             })
             .catch((err) => {

@@ -59,10 +59,14 @@ export const SyncManager = {
         if (cloudTime > localSyncTime) {
           console.info("[SyncManager] Cloud data is newer than local sync time. Pulling cloud changes.");
           
-          // Simpan data cloud ke penyimpanan lokal
-          storage.setItem('hs_v3_lastPeriodDate', cloudProfile.last_period_date);
-          storage.setItem('hs_v3_cycleLength', String(cloudProfile.cycle_length));
-          storage.setItem('hs_v3_periodLength', String(cloudProfile.period_length));
+          // Simpan data cloud ke penyimpanan lokal secara aman
+          if (cloudProfile.last_period_date) {
+            storage.setItem('hs_v3_lastPeriodDate', cloudProfile.last_period_date);
+          } else {
+            storage.removeItem('hs_v3_lastPeriodDate');
+          }
+          storage.setItem('hs_v3_cycleLength', String(cloudProfile.cycle_length || 28));
+          storage.setItem('hs_v3_periodLength', String(cloudProfile.period_length || 5));
           
           // Samakan waktu sinkronisasi terakhir dengan cloud updated_at
           storage.setItem('hs_v3_last_sync_time', String(cloudTime));

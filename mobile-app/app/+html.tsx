@@ -49,14 +49,18 @@ html, body {
   color: #1e1b20;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   height: 100%;
+  height: 100dvh;
   min-height: 100%;
+  min-height: 100dvh;
 }
 #root {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Desktop: pakai phone-frame look */
@@ -73,6 +77,7 @@ html, body {
     width: 100%;
     max-width: 520px;
     height: 100vh;
+    height: 100dvh;
     background: #fdf2f8;
     box-shadow: 0 20px 60px -10px rgba(236, 72, 153, 0.25),
                 0 8px 24px -8px rgba(20, 184, 166, 0.15);

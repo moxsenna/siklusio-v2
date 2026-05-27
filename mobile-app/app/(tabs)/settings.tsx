@@ -244,6 +244,9 @@ export default function SettingsScreen() {
   };
 
   const applyCycleChanges = (changes: { lastDate: Date; cycle: number; period: number }) => {
+    // Set local sync time to current timestamp to indicate local edits are newer
+    storage.setItem('hs_v3_last_sync_time', String(Date.now()));
+
     setLastPeriodDate(changes.lastDate);
     setCycleLength(changes.cycle);
     setPeriodLength(changes.period);

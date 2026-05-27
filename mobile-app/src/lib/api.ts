@@ -55,3 +55,40 @@ export async function apiGetJson<TResponse>(path: string): Promise<TResponse> {
   }
   return json as TResponse;
 }
+
+export async function apiPatchJson<TResponse>(
+  path: string,
+  body: unknown
+): Promise<TResponse> {
+  const token = await getAccessToken();
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json?.error || `Server error (${res.status})`);
+  }
+  return json as TResponse;
+}
+
+export async function apiDeleteJson<TResponse>(path: string): Promise<TResponse> {
+  const token = await getAccessToken();
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
+    method: 'DELETE',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json?.error || `Server error (${res.status})`);
+  }
+  return json as TResponse;
+}

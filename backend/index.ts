@@ -15,6 +15,8 @@ interface Env {
   R2_SECRET_ACCESS_KEY: string;
   R2_BUCKET_NAME: string;
   R2_PUBLIC_URL: string;
+  MAYAR_API_KEY: string;
+  MAYAR_WEBHOOK_TOKEN?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -450,6 +452,358 @@ app.post("/api/upload-avatar", async (c) => {
       error: error instanceof Error ? error.message : "Gagal mengunggah avatar",
     }, 500);
   }
+});
+
+// API Route for Admin to manage coupons
+app.get("/api/admin/coupons", async (c) => {
+  console.log("--> [BACKEND] Received request GET /api/admin/coupons");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+    
+    const { supabaseAdmin, user } = auth;
+    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    if (!profile?.is_admin) return c.json({ error: "Forbidden: admin access required" }, 403);
+
+    const { data: coupons, error } = await supabaseAdmin.from("coupons").select("*").order("created_at", { ascending: false });
+    if (error) throw error;
+    
+    return c.json({ coupons });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post("/api/admin/coupons", async (c) => {
+  console.log("--> [BACKEND] Received request POST /api/admin/coupons");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing session" }, 401);
+    const { supabaseAdmin, user } = auth;
+    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+
+    const { code, discount_type, discount_value, is_active } = await c.req.json();
+    if (!code || !discount_type || !discount_value) {
+      return c.json({ error: "Input tidak valid" }, 400);
+    }
+
+    const { data, error } = await supabaseAdmin.from("coupons").insert({
+      code: code.trim(),
+      discount_type,
+      discount_value: Number(discount_value),
+      is_active: is_active ?? true
+    }).select().single();
+
+    if (error) throw error;
+    return c.json({ coupon: data });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.patch("/api/admin/coupons/:id", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing session" }, 401);
+    const { supabaseAdmin, user } = auth;
+    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const { is_active } = await c.req.json();
+    
+    const { error } = await supabaseAdmin.from("coupons").update({ is_active }).eq("id", id);
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete("/api/admin/coupons/:id", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing session" }, 401);
+    const { supabaseAdmin, user } = auth;
+    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const { error } = await supabaseAdmin.from("coupons").delete().eq("id", id);
+    if (error) throw error;
+    return c.json({ status: "ok" });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Hono Endpoint for pre-checkout registration + Mayar dynamic payment
+app.post("/api/checkout/register", async (c) => {
+  console.log("--> [BACKEND] Received request /api/checkout/register");
+  try {
+    const { name, email, whatsapp, password, couponCode } = await c.req.json();
+    
+    if (!name || !email || !whatsapp || !password) {
+      return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
+    }
+
+    // Validate Mayar API key is configured
+    const mayarKey = c.env.MAYAR_API_KEY;
+    if (!mayarKey) {
+      console.error("MAYAR_API_KEY secret is not configured");
+      return c.json({ error: "Konfigurasi pembayaran belum tersedia. Hubungi admin." }, 500);
+    }
+
+    const supabaseAdmin = getSupabaseAdmin(c);
+
+    // Check if email already registered in Supabase
+    console.log("--> Checking existing auth users...");
+    const { data: authUserList, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
+    if (authErr) {
+      console.error("Error listing users:", authErr);
+    }
+    const emailExists = authUserList?.users.some(
+      (u: any) => u.email?.toLowerCase() === email.toLowerCase()
+    );
+
+    if (emailExists) {
+      return c.json({ error: "Email ini sudah terdaftar. Silakan login langsung di aplikasi." }, 400);
+    }
+
+    // Determine final price based on coupon
+    let finalAmount = 37000;
+    
+    if (couponCode) {
+      console.log(`--> Validating coupon: ${couponCode}`);
+      const { data: coupon, error: couponErr } = await supabaseAdmin
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.trim())
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (couponErr) {
+        console.error("Error fetching coupon:", couponErr);
+      }
+      
+      if (coupon) {
+        if (coupon.discount_type === 'nominal') {
+          finalAmount = Math.max(0, finalAmount - Number(coupon.discount_value));
+        } else if (coupon.discount_type === 'percentage') {
+          const discount = Math.floor(finalAmount * (Number(coupon.discount_value) / 100));
+          finalAmount = Math.max(0, finalAmount - discount);
+        }
+        console.log(`--> Coupon applied. New amount: ${finalAmount}`);
+      } else {
+        return c.json({ error: "Kode kupon tidak valid atau sudah tidak aktif." }, 400);
+      }
+    }
+    
+    // Safety check: Mayar minimum is 10k, unless it's completely free
+    if (finalAmount > 0 && finalAmount < 10000) {
+      finalAmount = 10000;
+    }
+
+    // If Free / 100% discount, bypass Mayar and create user directly
+    if (finalAmount === 0) {
+      console.log("--> 100% Free Coupon applied! Bypassing Mayar...");
+      
+      // Create user directly
+      const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
+        email: email.toLowerCase(),
+        password: password,
+        email_confirm: true,
+        user_metadata: {
+          name: name,
+          whatsapp: whatsapp,
+        }
+      });
+
+      if (signupErr) {
+        console.error("Supabase auth user creation error:", signupErr);
+        return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
+      }
+      
+      console.log("<-- Free Checkout successful! User ID:", authData.user?.id);
+      return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
+    }
+
+    // Normal paid flow: Save pending registration & call Mayar
+    console.log("--> Inserting pending registration...");
+    const { error: insertErr } = await supabaseAdmin
+      .from("pending_registrations")
+      .upsert({
+        email: email.toLowerCase(),
+        name,
+        whatsapp,
+        password
+      }, { onConflict: "email" });
+
+    if (insertErr) {
+      console.error("DB Insert pending registration error:", insertErr);
+      return c.json({ error: "Gagal menyimpan pendaftaran tertunda. Silakan coba kembali." }, 500);
+    }
+
+    // Create dynamic payment via Mayar API
+    console.log("--> Calling Mayar API to create payment link...");
+    const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${mayarKey}`,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Siklusio Premium — Akses Selamanya",
+        amount: finalAmount,
+        description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
+        redirectUrl: "https://app.siklusio.web.id/auth?status=success",
+        email: email.toLowerCase(),
+        mobile: whatsapp,
+        customerName: name,
+      })
+    });
+
+    const resJson: any = await response.json();
+    console.log("--> Mayar API response status:", response.status, "body:", JSON.stringify(resJson).slice(0, 500));
+
+    if (!response.ok || resJson.statusCode !== 200) {
+      console.error("Mayar API error response:", resJson);
+      return c.json({ error: "Gagal membuat tautan pembayaran. Silakan coba lagi." }, 500);
+    }
+
+    const paymentUrl = resJson.data?.link;
+    console.log("<-- Checkout request successful! Payment URL:", paymentUrl);
+    return c.json({ paymentUrl });
+  } catch (error: any) {
+    console.error("<-- Checkout register error:", error.stack || error);
+    return c.json({ error: "Terjadi kesalahan internal pada server pendaftaran." }, 500);
+  }
+});
+
+// Hono Endpoint for Mayar payment confirmation webhook
+app.post("/api/payment/webhook", async (c) => {
+  console.log("--> [BACKEND] Received Mayar webhook notification");
+  try {
+    // Verify webhook token from Mayar (X-Callback-Token header)
+    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
+    const expectedToken = c.env.MAYAR_WEBHOOK_TOKEN || "";
+    if (expectedToken && callbackToken !== expectedToken) {
+      console.warn("--> Webhook rejected: invalid or missing X-Callback-Token");
+      return c.json({ error: "Unauthorized webhook request" }, 401);
+    }
+    // Safely parse body — Mayar test pings may send empty or non-JSON body
+    let body: any = {};
+    try {
+      const rawText = await c.req.text();
+      console.log("--> Webhook raw body:", rawText.slice(0, 500));
+      if (rawText && rawText.trim()) {
+        body = JSON.parse(rawText);
+      }
+    } catch (parseErr) {
+      console.warn("--> Webhook body is not valid JSON, treating as test ping");
+      return c.json({ status: "ok", message: "Webhook endpoint is active" }, 200);
+    }
+
+    // Handle Mayar test/ping webhook (empty body or no event data)
+    const event = body.event || body.type || "";
+    console.log("--> Webhook event type:", event);
+    console.log("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
+
+    // For test pings or non-purchase events, acknowledge immediately
+    if (!body.data && !body.email && !body.customer) {
+      console.log("--> Webhook acknowledged (test/ping or no customer data)");
+      return c.json({ status: "ok", message: "Webhook received successfully" }, 200);
+    }
+
+    // Extract email from multiple possible payload locations (Mayar sends different formats)
+    const email = 
+      body.data?.customerEmail ||
+      body.data?.email ||
+      body.data?.customer?.email ||
+      body.email ||
+      body.customer?.email ||
+      body.data?.transactions?.[0]?.email ||
+      "";
+
+    if (!email) {
+      console.warn("--> Webhook ignored: No email found in payload");
+      return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
+    }
+
+    // Only process purchase/payment success events for account creation
+    // Skip reminders, tracking, and other non-payment events
+    const isPurchaseEvent = 
+      event === "payment.success" ||
+      event === "payment" ||
+      event === "purchase" ||
+      body.data?.status === "paid" ||
+      body.data?.status === "PAID" ||
+      body.data?.isPaid === true ||
+      body.data?.statusCode === 200;
+
+    if (!isPurchaseEvent && event) {
+      console.log(`--> Webhook skipped: event '${event}' is not a purchase event`);
+      return c.json({ status: "ok", message: `Event '${event}' acknowledged, no action needed` }, 200);
+    }
+
+    const supabaseAdmin = getSupabaseAdmin(c);
+
+    // Fetch the pending registration details
+    console.log("--> Querying pending registration for email:", email);
+    const { data: pending, error: pendingErr } = await supabaseAdmin
+      .from("pending_registrations")
+      .select("*")
+      .eq("email", email.toLowerCase())
+      .maybeSingle();
+
+    if (pendingErr) {
+      console.error("Database query pending registration error:", pendingErr);
+      return c.json({ error: "Database error querying pending registrations" }, 500);
+    }
+
+    if (!pending) {
+      console.log("--> Webhook skipped: No pending registration found for email:", email);
+      return c.json({ status: "ok", message: "No pending registration found" }, 200);
+    }
+
+    // Create authentic user in Supabase Auth (Auto-confirm email)
+    console.log("--> Creating Supabase Auth user for:", email);
+    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
+      email: pending.email,
+      password: pending.password,
+      email_confirm: true,
+      user_metadata: {
+        name: pending.name,
+        whatsapp: pending.whatsapp,
+      }
+    });
+
+    if (signupErr) {
+      console.error("Supabase auth user creation error:", signupErr);
+      return c.json({ error: "Auth user creation failed: " + signupErr.message }, 500);
+    }
+
+    // Delete the pending registration record (cleanup)
+    console.log("--> Deleting pending registration record for email:", email);
+    await supabaseAdmin
+      .from("pending_registrations")
+      .delete()
+      .eq("id", pending.id);
+
+    console.log("<-- Webhook processed successfully! User created ID:", authData.user?.id);
+    return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });
+  } catch (error: any) {
+    console.error("<-- Webhook error:", error.stack || error);
+    return c.json({ error: "Internal webhook processor error" }, 500);
+  }
+});
+
+// Also support GET for webhook URL verification (some payment providers ping with GET first)
+app.get("/api/payment/webhook", (c) => {
+  console.log("--> [BACKEND] Webhook URL verification (GET)");
+  return c.json({ status: "ok", message: "Webhook endpoint is active" }, 200);
 });
 
 // Fallback Route

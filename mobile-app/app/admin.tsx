@@ -52,6 +52,9 @@ interface ReportRow {
   status: 'pending' | 'resolved_hide' | 'resolved_keep';
   created_at: string;
   resolved_at: string | null;
+  reporter_name?: string | null;
+  reporter_nickname?: string | null;
+  reporter_email?: string | null;
 }
 
 interface QueueItem {
@@ -72,6 +75,7 @@ interface QueueItem {
   reviewedAt: string | null;
   createdAt: string;
   reports: ReportRow[];
+  authorEmail?: string | null;
 }
 
 interface AdminModerationQueueRow {
@@ -95,6 +99,10 @@ interface AdminModerationQueueRow {
   review_status: string | null;
   reviewed_at: string | null;
   target_created_at: string | null;
+  reporter_name?: string | null;
+  reporter_nickname?: string | null;
+  reporter_email?: string | null;
+  author_email?: string | null;
 }
 
 function formatRelative(dateStr: string) {
@@ -364,6 +372,7 @@ export default function AdminDashboard() {
         reviewStatus: toReviewStatus(first.review_status),
         reviewedAt: first.reviewed_at,
         createdAt: first.target_created_at || first.report_created_at,
+        authorEmail: first.author_email,
         reports: rs
           .map<ReportRow>((r) => ({
             id: r.report_id,
@@ -374,6 +383,9 @@ export default function AdminDashboard() {
             status: toReportStatus(r.report_status),
             created_at: r.report_created_at,
             resolved_at: r.resolved_at,
+            reporter_name: r.reporter_name,
+            reporter_nickname: r.reporter_nickname,
+            reporter_email: r.reporter_email,
           }))
           .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)),
       });
@@ -878,22 +890,27 @@ export default function AdminDashboard() {
 
                       {/* Content block */}
                       <View style={{ padding: 16, gap: 8 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                           <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#1e1b20' }}>
                             {item.authorLabel}
                           </Text>
-                          {item.is_anonymous && (
-                            <Text style={{ fontSize: 10, color: '#64748b', fontStyle: 'italic' }}>
+                          {item.authorRealLabel !== 'Pengguna' && item.authorRealLabel !== item.authorLabel && (
+                            <Text style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic' }}>
                               (Asli: {item.authorRealLabel})
                             </Text>
                           )}
+                          {item.authorEmail && (
+                            <Text style={{ fontSize: 11, color: '#ec4899', fontWeight: '500' }}>
+                              · {item.authorEmail}
+                            </Text>
+                          )}
                           <Text style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
-                            · {item.authorId.split('-')[0]}
+                            · ID: {item.authorId.split('-')[0]}
                           </Text>
                         </View>
 
-                        <Text style={{ fontSize: 13, color: '#334155', lineHeight: 18 }}>
-                          {item.content}
+                        <Text style={{ fontSize: 13, color: item.content ? '#334155' : '#ef4444', lineHeight: 18, fontStyle: item.content ? 'normal' : 'italic', fontWeight: item.content ? 'normal' : 'bold' }}>
+                          {item.content || '[Konten tidak ditemukan / sudah dihapus oleh pengguna]'}
                         </Text>
                       </View>
 
@@ -916,9 +933,10 @@ export default function AdminDashboard() {
                                 key={rep.id} 
                                 style={{ backgroundColor: '#f8fafc', padding: 10, borderRadius: 12, gap: 4 }}
                               >
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                  <Text style={{ fontSize: 10, color: '#64748b' }}>
-                                    Pelapor: {rep.reporter_id.split('-')[0]}
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#475569' }}>
+                                    Pelapor: {rep.reporter_name || 'Pengguna'} {rep.reporter_nickname ? `(${rep.reporter_nickname})` : ''} 
+                                    {rep.reporter_email ? ` · ${rep.reporter_email}` : ''}
                                   </Text>
                                   <Text style={{ fontSize: 10, color: '#94a3b8' }}>
                                     {formatRelative(rep.created_at)}
@@ -928,7 +946,7 @@ export default function AdminDashboard() {
                                   Alasan: {rep.reason || 'Tidak diisi'}
                                 </Text>
                                 <Text style={{ fontSize: 9, fontWeight: 'bold', color: rep.status === 'pending' ? '#d97706' : rep.status === 'resolved_hide' ? '#dc2626' : '#15803d', textTransform: 'uppercase' }}>
-                                  Status: {rep.status === 'pending' ? 'menunggu' : rep.status === 'resolved_hide' ? 'dihapus' : 'dipertahankan'}
+                                  Status: {rep.status === 'pending' ? 'menunggu' : rep.status === 'resolved_keep' ? 'dipertahankan' : 'dihapus'}
                                 </Text>
                               </View>
                             ))}

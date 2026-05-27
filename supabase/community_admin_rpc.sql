@@ -26,7 +26,11 @@ RETURNS TABLE (
   report_count INTEGER,
   review_status TEXT,
   reviewed_at TIMESTAMPTZ,
-  target_created_at TIMESTAMPTZ
+  target_created_at TIMESTAMPTZ,
+  reporter_name TEXT,
+  reporter_nickname TEXT,
+  reporter_email TEXT,
+  author_email TEXT
 )
 LANGUAGE SQL
 STABLE
@@ -69,14 +73,24 @@ AS $$
     COALESCE(post_target.report_count, comment_target.report_count) AS report_count,
     COALESCE(post_target.admin_review_status, comment_target.admin_review_status) AS review_status,
     COALESCE(post_target.admin_reviewed_at, comment_target.admin_reviewed_at) AS reviewed_at,
-    COALESCE(post_target.created_at, comment_target.created_at) AS target_created_at
+    COALESCE(post_target.created_at, comment_target.created_at) AS target_created_at,
+    COALESCE(NULLIF(rep_prof.name, ''), 'Pengguna') AS reporter_name,
+    rep_prof.nickname AS reporter_nickname,
+    auth_rep.email AS reporter_email,
+    auth_aut.email AS author_email
   FROM filtered_reports r
   LEFT JOIN public.community_posts post_target
     ON r.target_type = 'post' AND post_target.id = r.target_id
   LEFT JOIN public.community_comments comment_target
     ON r.target_type = 'comment' AND comment_target.id = r.target_id
   LEFT JOIN public.profiles prof
-    ON prof.id = COALESCE(post_target.user_id, comment_target.user_id);
+    ON prof.id = COALESCE(post_target.user_id, comment_target.user_id)
+  LEFT JOIN public.profiles rep_prof
+    ON rep_prof.id = r.reporter_id
+  LEFT JOIN auth.users auth_rep
+    ON auth_rep.id = r.reporter_id
+  LEFT JOIN auth.users auth_aut
+    ON auth_aut.id = COALESCE(post_target.user_id, comment_target.user_id);
 $$;
 
 REVOKE ALL ON FUNCTION public.admin_get_moderation_queue(TEXT) FROM public;

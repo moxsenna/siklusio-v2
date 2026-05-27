@@ -474,6 +474,13 @@
     const errorAlert = document.getElementById('errorAlert');
     const successAlert = document.getElementById('successAlert');
 
+    // Force actual input value to uppercase so it matches DB codes
+    document.getElementById('inputCoupon').addEventListener('input', function() {
+      const pos = this.selectionStart;
+      this.value = this.value.toUpperCase();
+      this.setSelectionRange(pos, pos);
+    });
+
     // API URL resolution - adaptive for production & local dev testing
     function getApiUrl() {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -494,7 +501,7 @@
       const whatsapp = document.getElementById('inputWhatsapp').value.trim();
       const email = document.getElementById('inputEmail').value.trim();
       const password = document.getElementById('inputPassword').value.trim();
-      const couponCode = document.getElementById('inputCoupon').value.trim();
+      const couponCode = document.getElementById('inputCoupon').value.trim().toUpperCase();
 
       // Basic client validation
       if (!name || !whatsapp || !email || !password) {

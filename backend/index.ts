@@ -575,16 +575,18 @@ app.post("/api/checkout/register", async (c) => {
     let finalAmount = 37000;
     
     if (couponCode) {
-      console.log(`--> Validating coupon: ${couponCode}`);
+      const normalizedCode = couponCode.trim().toUpperCase();
+      console.log(`--> Validating coupon: ${normalizedCode}`);
       const { data: coupon, error: couponErr } = await supabaseAdmin
         .from("coupons")
         .select("*")
-        .eq("code", couponCode.trim())
+        .eq("code", normalizedCode)
         .eq("is_active", true)
         .maybeSingle();
 
       if (couponErr) {
         console.error("Error fetching coupon:", couponErr);
+        return c.json({ error: "Terjadi kesalahan saat memvalidasi kupon. Silakan coba lagi." }, 500);
       }
       
       if (coupon) {

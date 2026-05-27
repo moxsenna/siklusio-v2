@@ -1,16 +1,16 @@
 # Graph Report - mobile-app  (2026-05-28)
 
 ## Corpus Check
-- 70 files · ~120,908 words
+- 70 files · ~121,018 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2001 nodes · 5326 edges · 95 communities (73 shown, 22 thin omitted)
+- 2001 nodes · 5326 edges · 95 communities (74 shown, 21 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `870cfa67`
+- Built from commit: `b6f3230b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -123,7 +123,7 @@
 - `AuthScreen()` --calls--> `useAuth()`  [EXTRACTED]
   app/auth.tsx → src/context/AuthContext.tsx
 
-## Communities (95 total, 22 thin omitted)
+## Communities (95 total, 21 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.16
@@ -174,8 +174,8 @@ Cohesion: 0.05
 Nodes (63): ad(), addEventListener(), Ae(), af(), bf(), catch(), cn(), cr() (+55 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.08
-Nodes (45): ao(), bd(), cd(), co(), De(), Do(), eu(), fo() (+37 more)
+Cohesion: 0.09
+Nodes (42): ao(), Ba(), cd(), co(), De(), Do(), eu(), fo() (+34 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.06
@@ -198,24 +198,24 @@ Cohesion: 0.09
 Nodes (25): cloneRequestState(), containedBy(), csv(), explain(), fu(), geojson(), getInitialState(), ilikeAnyOf() (+17 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.17
-Nodes (34): ac(), bc(), cc(), Ce(), dc(), ec(), fc(), fd() (+26 more)
+Cohesion: 0.18
+Nodes (32): ac(), bc(), cc(), Ce(), dc(), ec(), fc(), fd() (+24 more)
 
 ### Community 34 - "Community 34"
 Cohesion: 0.06
 Nodes (34): applyTransformOptsToQuery(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), deleteBucket() (+26 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.17
-Nodes (32): Al(), bu(), ci(), cl(), dl(), ea(), El(), fi() (+24 more)
+Cohesion: 0.18
+Nodes (31): Al(), bu(), ci(), dl(), El(), fi(), fl(), Gu() (+23 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.08
 Nodes (7): $(), addListener(), hasListeners(), __makeNative(), removeEventListener(), start(), _startListeningToNativeValueUpdates()
 
 ### Community 37 - "Community 37"
-Cohesion: 0.10
-Nodes (31): bl(), di(), ee(), ef(), gi(), Gr(), hf(), hi() (+23 more)
+Cohesion: 0.11
+Nodes (31): bl(), cl(), di(), ee(), ef(), gi(), Gr(), hf() (+23 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.09
@@ -226,8 +226,8 @@ Cohesion: 0.09
 Nodes (17): cancelTasks(), cf(), create(), current(), filter(), g(), getRehydratedState(), getStateForAction() (+9 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.11
-Nodes (8): Ba(), c, fa(), ga(), Hr(), ia(), su(), za()
+Cohesion: 0.13
+Nodes (4): c, fa(), ia(), su()
 
 ### Community 41 - "Community 41"
 Cohesion: 0.07
@@ -242,12 +242,12 @@ Cohesion: 0.13
 Nodes (15): AdminModerationQueueRow, AdminUser, CommentRow, escapeCsvCell(), PostRow, ProfileRow, QueueItem, ReportRow (+7 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.10
-Nodes (19): cancelRefEvent(), destroy(), hasReceived(), inPendingSyncState(), isMember(), joinRef(), leave(), leaveOpenTopic() (+11 more)
+Cohesion: 0.11
+Nodes (18): cancelRefEvent(), cancelTimeout(), destroy(), hasReceived(), inPendingSyncState(), isMember(), joinRef(), leave() (+10 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.14
-Nodes (14): clearHeartbeats(), flushSendBuffer(), hasLogger(), heartbeatTimeout(), onConnClose(), onConnError(), onConnOpen(), push() (+6 more)
+Cohesion: 0.11
+Nodes (16): clearHeartbeats(), flushSendBuffer(), hasLogger(), heartbeatTimeout(), leaveOpenTopic(), onConnClose(), onConnError(), onConnOpen() (+8 more)
 
 ### Community 46 - "Community 46"
 Cohesion: 0.11
@@ -262,16 +262,16 @@ Cohesion: 0.17
 Nodes (14): useCycle(), ActionCard(), ActionCardProps, AffirmationCard(), CycleCard(), CycleCardProps, MessageModal(), MessageModalProps (+6 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.18
-Nodes (21): ai(), bi(), bo(), dd(), ei(), ep(), es(), Ke() (+13 more)
+Cohesion: 0.28
+Nodes (16): ai(), bi(), ea(), ei(), es(), ki(), np(), ns() (+8 more)
 
 ### Community 51 - "Community 51"
 Cohesion: 0.12
 Nodes (4): __getNativeConfig(), __getNativeTag(), __getPlatformConfig(), __startNativeAnimation()
 
 ### Community 52 - "Community 52"
-Cohesion: 0.13
-Nodes (12): cancelTimeout(), canPush(), Le(), On(), onClose(), onError(), onMessage(), onOpen() (+4 more)
+Cohesion: 0.15
+Nodes (12): channel(), getChannels(), Le(), On(), onClose(), onError(), onMessage(), onOpen() (+4 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.16
@@ -292,6 +292,10 @@ Nodes (9): alert(), b(), _dispatchEvent(), focus(), focusTextInput(), init(), op
 ### Community 58 - "Community 58"
 Cohesion: 0.13
 Nodes (3): array(), ja(), V()
+
+### Community 59 - "Community 59"
+Cohesion: 0.09
+Nodes (5): canPush(), isConnected(), onJoin(), onLeave(), onSync()
 
 ### Community 62 - "Community 62"
 Cohesion: 0.18
@@ -322,7 +326,7 @@ Cohesion: 0.24
 Nodes (5): translateError(), dropTable(), listBucketOptionsToQueryString(), string(), toString()
 
 ### Community 71 - "Community 71"
-Cohesion: 0.22
+Cohesion: 0.29
 Nodes (4): connect(), connectWithFallback(), transportConnect(), transportName()
 
 ### Community 73 - "Community 73"
@@ -330,8 +334,8 @@ Cohesion: 0.28
 Nodes (9): Au(), ca(), du(), Iu(), Mr(), oc(), Ou(), Ru() (+1 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.22
-Nodes (5): channel(), getChannels(), onJoin(), onLeave(), onSync()
+Cohesion: 0.13
+Nodes (15): bd(), bo(), dd(), ep(), gd(), Ke(), nd(), od() (+7 more)
 
 ### Community 77 - "Community 77"
 Cohesion: 0.25
@@ -372,12 +376,12 @@ Nodes (3): contrast(), level(), luminosity()
 ## Knowledge Gaps
 - **318 isolated node(s):** `name`, `slug`, `version`, `orientation`, `icon` (+313 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `string()` connect `Community 69` to `Community 6`, `Community 23`, `Community 26`, `Community 27`, `Community 28`, `Community 29`, `Community 30`, `Community 31`, `Community 32`, `Community 34`, `Community 36`, `Community 40`, `Community 43`, `Community 47`, `Community 48`, `Community 57`, `Community 64`, `Community 68`, `Community 83`?**
+- **Why does `string()` connect `Community 69` to `Community 6`, `Community 23`, `Community 26`, `Community 27`, `Community 28`, `Community 29`, `Community 30`, `Community 31`, `Community 32`, `Community 34`, `Community 35`, `Community 36`, `Community 40`, `Community 43`, `Community 47`, `Community 48`, `Community 57`, `Community 64`, `Community 68`, `Community 83`?**
   _High betweenness centrality (0.138) - this node is a cross-community bridge._
 - **Why does `s` connect `Community 24` to `Community 6`, `Community 22`, `Community 23`, `Community 26`, `Community 27`, `Community 28`, `Community 29`, `Community 30`, `Community 31`, `Community 32`, `Community 36`, `Community 38`, `Community 39`, `Community 40`, `Community 42`, `Community 44`, `Community 45`, `Community 46`, `Community 47`, `Community 48`, `Community 51`, `Community 52`, `Community 54`, `Community 55`, `Community 57`, `Community 58`, `Community 59`, `Community 60`, `Community 64`, `Community 65`, `Community 66`, `Community 67`, `Community 68`, `Community 70`, `Community 71`, `Community 72`, `Community 77`, `Community 78`, `Community 80`, `Community 81`, `Community 82`, `Community 83`?**
   _High betweenness centrality (0.115) - this node is a cross-community bridge._

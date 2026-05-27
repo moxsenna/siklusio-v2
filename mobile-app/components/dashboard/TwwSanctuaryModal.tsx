@@ -139,9 +139,13 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     setLoading(true);
     setError(null);
     try {
+      const { storage } = await import('../../src/lib/storage');
+      const userApiKey = storage.getItem('hs_gemini_api_key') || '';
+      
       const payload = {
         nickname: userNickname,
-        userJournal: journal
+        userJournal: journal,
+        userApiKey
       };
 
       const baseUrl = getApiBaseUrl();

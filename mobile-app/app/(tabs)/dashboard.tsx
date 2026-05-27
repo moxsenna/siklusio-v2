@@ -12,6 +12,7 @@ import { ActionCard } from '../../components/dashboard/ActionCard';
 import { MessageModal } from '../../components/dashboard/MessageModal';
 import { TwwActionCard } from '../../components/dashboard/TwwActionCard';
 import { TwwSanctuaryModal } from '../../components/dashboard/TwwSanctuaryModal';
+import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -65,26 +66,17 @@ export default function DashboardScreen() {
               {dateString}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => router.push('/settings')}
-            accessibilityLabel="Pengaturan"
-            className="w-12 h-12 bg-primary/10 rounded-2xl items-center justify-center border border-primary/20 active:opacity-70"
-          >
-            <FontAwesome name="cog" size={22} color="#ec4899" />
-          </TouchableOpacity>
+          <HeaderProfileButton />
+        </View>
+
+        {/* Affirmation Card between Date Header and Cycle Card Circle */}
+        <View className="mb-6">
+          <AffirmationCard displayPhase={displayPhase} />
         </View>
 
         {/* Dashboard Content */}
         <View className="space-y-6">
           <CycleCard displayPhase={displayPhase} actionCardIcon={actionCardIcon} />
-          
-          <View className="mt-4">
-            <AffirmationCard displayPhase={displayPhase} />
-          </View>
-          
-          <View className="mt-4">
-            <SavingsCard />
-          </View>
           
           <View className="mt-4">
             {currentPhase === 'Luteal' ? (
@@ -96,6 +88,10 @@ export default function DashboardScreen() {
                 isStrictOvulation={isStrictOvulation} 
               />
             )}
+          </View>
+          
+          <View className="mt-4">
+            <SavingsCard />
           </View>
         </View>
       </ScrollView>

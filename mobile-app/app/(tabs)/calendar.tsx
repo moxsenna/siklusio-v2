@@ -4,6 +4,7 @@ import { CalendarGrid } from '../../components/calendar/CalendarGrid';
 import { AiReportModal } from '../../components/calendar/AiReportModal';
 import { useCycle } from '../../src/context/CycleContext';
 import { format } from 'date-fns';
+import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 
 export default function CalendarScreen() {
   const { getDayInfo, activityHistory, setActivityHistory } = useCycle();
@@ -49,18 +50,13 @@ export default function CalendarScreen() {
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Header */}
         <View className="flex-row justify-between items-end mb-6 pt-4 border-b border-primary/20 pb-4">
-          <View>
+          <View className="flex-1 pr-3">
             <Text className="text-3xl font-bold text-on-background">Kalender</Text>
             <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
               Pelacakan Siklus & Ovulasi
             </Text>
           </View>
-          <TouchableOpacity 
-            onPress={() => setShowAiReport(true)}
-            className="bg-primary w-12 h-12 rounded-full items-center justify-center shadow-lg active:scale-95"
-          >
-            <Text className="text-xl">✨</Text>
-          </TouchableOpacity>
+          <HeaderProfileButton />
         </View>
 
         {/* Calendar Grid */}
@@ -70,6 +66,33 @@ export default function CalendarScreen() {
           onSelectDate={setSelectedDate}
           selectedDate={selectedDate}
         />
+
+        {/* AI Cycle Analysis Banner Button */}
+        <TouchableOpacity 
+          onPress={() => setShowAiReport(true)}
+          activeOpacity={0.9}
+          className="mt-6 bg-primary/10 border border-primary/20 rounded-[32px] p-5 flex-row items-center justify-between shadow-sm active:scale-[0.98]"
+        >
+          <View className="flex-row items-center gap-4 flex-1 pr-3">
+            <View className="w-12 h-12 rounded-2xl bg-primary/20 items-center justify-center">
+              <Text className="text-2xl">✨</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-primary">
+                Asisten AI Cerdas
+              </Text>
+              <Text className="text-sm font-bold text-on-background mt-0.5">
+                Wawasan & Analisis Siklus AI
+              </Text>
+              <Text className="text-[11px] text-on-surface-variant/80 mt-1 leading-relaxed">
+                Dapatkan ramalan masa subur dan tips kesehatan pribadi dari AI Bunda.
+              </Text>
+            </View>
+          </View>
+          <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center shrink-0">
+            <Text className="text-sm text-primary font-bold">➔</Text>
+          </View>
+        </TouchableOpacity>
         
         {/* Selected Date Details */}
         {selectedDate && (() => {

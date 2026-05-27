@@ -100,7 +100,8 @@ app.get("/", (c) => {
 app.post("/api/generate-recipes", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-recipes");
   try {
-    const apiKey = c.env.GEMINI_API_KEY;
+    const { phase, userApiKey } = await c.req.json();
+    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.error("<-- [BACKEND] No API key!");
       return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
@@ -110,8 +111,6 @@ app.post("/api/generate-recipes", async (c) => {
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
-
-    const { phase } = await c.req.json();
     console.log("--> [BACKEND] Phase requested:", phase);
 
     const ai = new GoogleGenAI({
@@ -160,7 +159,8 @@ app.post("/api/generate-recipes", async (c) => {
 app.post("/api/generate-cycle-report", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
-    const apiKey = c.env.GEMINI_API_KEY;
+    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, userApiKey } = await c.req.json();
+    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
     if (!apiKey) {
       return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
     }
@@ -169,8 +169,6 @@ app.post("/api/generate-cycle-report", async (c) => {
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
-
-    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow } = await c.req.json();
 
     const ai = new GoogleGenAI({
       apiKey,
@@ -218,7 +216,8 @@ app.post("/api/generate-cycle-report", async (c) => {
 app.post("/api/generate-habits-insight", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-habits-insight");
   try {
-    const apiKey = c.env.GEMINI_API_KEY;
+    const { weeklyData, currentPhase, nickname, userApiKey } = await c.req.json();
+    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
     if (!apiKey) {
       return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
     }
@@ -227,8 +226,6 @@ app.post("/api/generate-habits-insight", async (c) => {
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
-
-    const { weeklyData, currentPhase, nickname } = await c.req.json();
 
     const ai = new GoogleGenAI({
       apiKey,
@@ -285,12 +282,11 @@ app.post("/api/generate-habits-insight", async (c) => {
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
-    const apiKey = c.env.GEMINI_API_KEY;
+    const { nickname, userJournal, userApiKey } = await c.req.json();
+    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
     if (!apiKey) {
       return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
     }
-
-    const { nickname, userJournal } = await c.req.json();
 
     const ai = new GoogleGenAI({
       apiKey,

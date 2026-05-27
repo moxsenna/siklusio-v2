@@ -9,20 +9,94 @@ import {
   Alert, 
   Modal,
   Image,
-  Platform
+  Platform,
+  Animated
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useCycle } from '../../src/context/CycleContext';
 import { useAuth } from '../../src/context/AuthContext';
 import { format } from 'date-fns';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../src/lib/supabase';
 import { AvatarPicker } from '../../components/common/AvatarPicker';
 import { useUserAvatar } from '../../src/hooks/useUserAvatar';
+import { storage } from '../../src/lib/storage';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
   const { avatarUrl, avatarKind, updateAvatar } = useUserAvatar();
+  
+  // Detect active tab from route search parameters
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const [activeViewTab, setActiveViewTab] = useState<'profile' | 'cycle'>('profile');
+
+  useEffect(() => {
+    if (tab === 'profile') {
+      setActiveViewTab('profile');
+    } else if (tab === 'cycle') {
+      setActiveViewTab('cycle');
+    }
+  }, [tab]);
+
+  const [geminiApiKey, setGeminiApiKey] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const toastOpacity = React.useRef(new Animated.Value(0)).current;
+  const toastTranslateY = React.useRef(new Animated.Value(-20)).current;
+
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    setToast({ message, type });
+    
+    // Reset values first
+    toastOpacity.setValue(0);
+    toastTranslateY.setValue(-20);
+
+    Animated.parallel([
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(toastTranslateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    // Fade out after 3 seconds
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(toastOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(toastTranslateY, {
+          toValue: -20,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+        setToast(null);
+      });
+    }, 3000);
+  };
+
+  useEffect(() => {
+    const savedKey = storage.getItem('hs_gemini_api_key') || '';
+    setGeminiApiKey(savedKey);
+  }, []);
+
+  const handleApiKeySubmit = () => {
+    const trimmed = geminiApiKey.trim();
+    if (trimmed) {
+      storage.setItem('hs_gemini_api_key', trimmed);
+      showToast('Kunci Pintar AI Bunda berhasil diaktifkan! 🔑', 'success');
+    } else {
+      storage.removeItem('hs_gemini_api_key');
+      showToast('Kunci Pintar AI Bunda telah dihapus! 🗑️', 'info');
+    }
+  };
   
   const { 
     lastPeriodDate, setLastPeriodDate,
@@ -203,7 +277,7 @@ export default function SettingsScreen() {
 
     setShowOverrideWarning(false);
     setPendingChanges(null);
-    Alert.alert('Sukses', 'Data siklus haid berhasil diperbarui!');
+    showToast('Data siklus haid berhasil diperbarui! 📅', 'success');
   };
 
   const handleSavingsSubmit = () => {
@@ -217,7 +291,7 @@ export default function SettingsScreen() {
 
     setCurrentSaving(curVal);
     setTargetSaving(tarVal);
-    Alert.alert('Sukses', 'Pengaturan tabungan berhasil disimpan!');
+    showToast('Pengaturan tabungan berhasil disimpan! 💰', 'success');
   };
 
   const handleProfileSubmit = async () => {
@@ -242,16 +316,16 @@ export default function SettingsScreen() {
 
         if (error) {
           console.error('Failed to sync profile data to Supabase:', error);
-          Alert.alert('Eror', 'Gagal menyinkronkan data ke server: ' + error.message);
+          showToast('Gagal menyinkronkan data ke server.', 'error');
         } else {
-          Alert.alert('Sukses', 'Profil & Pasangan berhasil disimpan dan disinkronkan!');
+          showToast('Profil & Pasangan berhasil disimpan dan disinkronkan! 💖', 'success');
         }
       } catch (e: any) {
         console.error('Failed to sync profile data to Supabase:', e);
-        Alert.alert('Eror', 'Gagal menyinkronkan data: ' + e.message);
+        showToast('Gagal menyinkronkan data.', 'error');
       }
     } else {
-      Alert.alert('Sukses', 'Profil & Pasangan berhasil disimpan secara lokal!');
+      showToast('Profil & Pasangan berhasil disimpan secara lokal! 💖', 'success');
     }
   };
 
@@ -272,244 +346,468 @@ export default function SettingsScreen() {
         'Pengingat Diaktifkan',
         `Contoh notifikasi harian yang akan Anda terima pagi ini:\n\n"Selamat pagi ${userNickname || 'Bunda'}! Hari ini Anda berada di fase ${currentPhase} (Hari ke-${cycleDay}). ${predictionText}"`
       );
+      showToast('Pengingat Harian & Promil diaktifkan! 🔔', 'success');
+    } else {
+      showToast('Pengingat Harian dinonaktifkan! 🔕', 'info');
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+      
+      {/* Dynamic Toast Notification Banner */}
+      {toast && (
+        <Animated.View 
+          style={{
+            position: 'absolute',
+            top: Platform.OS === 'ios' ? 60 : 30,
+            left: 24,
+            right: 24,
+            zIndex: 9999,
+            opacity: toastOpacity,
+            transform: [{ translateY: toastTranslateY }],
+          }}
+        >
+          <View className={`flex-row items-center gap-3 p-4 rounded-2xl border shadow-lg ${
+            toast.type === 'success' 
+              ? 'bg-emerald-50 border-emerald-200' 
+              : toast.type === 'error'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-indigo-50 border-indigo-200'
+          }`}>
+            <View className={`w-8 h-8 rounded-full items-center justify-center shrink-0 ${
+              toast.type === 'success'
+                ? 'bg-emerald-100'
+                : toast.type === 'error'
+                ? 'bg-red-100'
+                : 'bg-indigo-100'
+            }`}>
+              <Text className="text-sm font-bold">
+                {toast.type === 'success' ? '✨' : toast.type === 'error' ? '⚠️' : 'ℹ️'}
+              </Text>
+            </View>
+            <Text className={`text-xs font-bold flex-1 leading-relaxed ${
+              toast.type === 'success'
+                ? 'text-emerald-800'
+                : toast.type === 'error'
+                ? 'text-red-800'
+                : 'text-indigo-800'
+            }`}>
+              {toast.message}
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         
         {/* Header */}
-        <View className="mb-6 pt-4 flex-row justify-between items-center border-b border-primary/20 pb-4">
+        <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-2">
             <Text className="text-3xl font-bold text-on-background">Pengaturan</Text>
-            <Text className="text-xs font-mono uppercase tracking-widest text-on-surface-variant opacity-60 mt-1">Privasi dan Akun</Text>
+            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Privasi dan Akun</Text>
             {user && (
               <Text className="text-[12px] font-mono font-bold mt-1 text-primary break-all">{user.email}</Text>
             )}
           </View>
-          <AvatarPicker
-            value={avatarUrl}
-            kind={avatarKind}
-            onChange={async (next) => {
-              try {
-                await updateAvatar(next);
-              } catch (e: any) {
-                Alert.alert('Gagal', e?.message || 'Tidak bisa menyimpan avatar.');
-              }
-            }}
-            size={64}
-          />
+        </View>
+
+        {/* Tab Toggle: Edit Profil vs Pengaturan Siklus */}
+        <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
+          <TouchableOpacity 
+            onPress={() => setActiveViewTab('profile')}
+            className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
+              activeViewTab === 'profile' ? 'bg-surface shadow-sm' : ''
+            }`}
+          >
+            <FontAwesome name="user" size={14} color={activeViewTab === 'profile' ? '#ec4899' : '#94a3b8'} />
+            <Text className={`text-sm font-bold ${
+              activeViewTab === 'profile' ? 'text-primary' : 'text-on-surface-variant/70'
+            }`}>Profil & Pasangan</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={() => setActiveViewTab('cycle')}
+            className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
+              activeViewTab === 'cycle' ? 'bg-surface shadow-sm' : ''
+            }`}
+          >
+            <FontAwesome name="cog" size={14} color={activeViewTab === 'cycle' ? '#ec4899' : '#94a3b8'} />
+            <Text className={`text-sm font-bold ${
+              activeViewTab === 'cycle' ? 'text-primary' : 'text-on-surface-variant/70'
+            }`}>Siklus & Celengan</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Content Area */}
         <View className="gap-6">
           
-          {/* Card 1: Pengaturan Siklus */}
-          <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-            <View className="flex-row items-center gap-3 mb-4">
-              <FontAwesome name="calendar" size={18} color="#ec4899" />
-              <Text className="text-base font-bold text-on-surface">Pengaturan Siklus</Text>
-            </View>
+          {activeViewTab === 'cycle' && (
+            <>
+              {/* Card 1: Pengaturan Siklus */}
+              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+                <View className="flex-row items-center gap-3 mb-4">
+                  <FontAwesome name="calendar" size={18} color="#ec4899" />
+                  <Text className="text-base font-bold text-on-surface">Pengaturan Siklus</Text>
+                </View>
 
-            <View className="gap-4">
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">HPHT (Hari Pertama Haid Terakhir)</Text>
-                <TouchableOpacity
-                  onPress={() => setIsDatePickerVisible(true)}
-                  className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 flex-row justify-between items-center"
-                >
-                  <Text className="text-sm text-on-surface font-semibold">
-                    {formatToLongIndonesianDate(new Date(selectedYear, selectedMonth - 1, selectedDay))}
+                <View className="gap-4">
+                  <View>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">HPHT (Hari Pertama Haid Terakhir)</Text>
+                    <TouchableOpacity
+                      onPress={() => setIsDatePickerVisible(true)}
+                      className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 flex-row justify-between items-center"
+                    >
+                      <Text className="text-sm text-on-surface font-semibold">
+                        {formatToLongIndonesianDate(new Date(selectedYear, selectedMonth - 1, selectedDay))}
+                      </Text>
+                      <FontAwesome name="calendar" size={16} color="#ec4899" />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View className="flex-row gap-4">
+                    <View className="flex-1">
+                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Siklus</Text>
+                      <View className="relative justify-center">
+                        <TextInput
+                          value={cycleInput}
+                          onChangeText={setCycleInput}
+                          keyboardType="number-pad"
+                          placeholderTextColor="#ec489950"
+                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
+                        />
+                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-1">
+                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Haid</Text>
+                      <View className="relative justify-center">
+                        <TextInput
+                          value={periodInput}
+                          onChangeText={setPeriodInput}
+                          keyboardType="number-pad"
+                          placeholderTextColor="#ec489950"
+                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
+                        />
+                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleCycleSubmit}
+                    className="w-full py-3 bg-primary rounded-2xl items-center justify-center shadow-sm mt-2"
+                  >
+                    <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Siklus</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Card 2: Pengaturan Tabungan */}
+              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+                <View className="flex-row items-center gap-3 mb-4">
+                  <FontAwesome name="money" size={18} color="#0d9488" />
+                  <Text className="text-base font-bold text-on-surface">Pengaturan Tabungan</Text>
+                </View>
+
+                <View className="gap-4">
+                  <View>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Tabungan Terkumpul</Text>
+                    <View className="relative justify-center">
+                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <TextInput
+                        value={currentSavingInput}
+                        onChangeText={setCurrentSavingInput}
+                        keyboardType="number-pad"
+                        placeholder="0"
+                        placeholderTextColor="#ec489950"
+                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
+                      />
+                    </View>
+                  </View>
+
+                  <View>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Target Tabungan</Text>
+                    <View className="relative justify-center">
+                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <TextInput
+                        value={targetSavingInput}
+                        onChangeText={setTargetSavingInput}
+                        keyboardType="number-pad"
+                        placeholder="0"
+                        placeholderTextColor="#ec489950"
+                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
+                      />
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleSavingsSubmit}
+                    className="w-full py-3 bg-teal-600 rounded-2xl items-center justify-center shadow-sm mt-2"
+                  >
+                    <Text className="text-white font-bold text-sm uppercase tracking-wider">Simpan Tabungan</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Card 3: Kunci Pintar AI (BYOK) */}
+              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+                <View className="flex-row items-center gap-3 mb-4">
+                  <View className="w-9 h-9 rounded-full bg-indigo-100 items-center justify-center">
+                    <FontAwesome name="key" size={16} color="#4f46e5" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-bold text-on-surface">🔑 Kunci Pintar AI Bunda</Text>
+                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">Bring Your Own Key (BYOK)</Text>
+                  </View>
+                </View>
+
+                <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 mb-4 gap-3">
+                  <Text className="text-xs font-semibold text-indigo-950 leading-relaxed">
+                    🌸 <Text className="font-bold text-indigo-700">Apa itu Kunci Pintar AI?</Text>
                   </Text>
-                  <FontAwesome name="calendar" size={16} color="#ec4899" />
-                </TouchableOpacity>
-              </View>
+                  <Text className="text-xs text-indigo-900/90 leading-relaxed">
+                    SiklusIo dilengkapi asisten AI pintar yang bisa diajak curhat (Pojok Tenang AI), membuat Laporan Harian AI, dan memberikan saran cerdas.
+                  </Text>
+                  <Text className="text-xs text-indigo-900/90 leading-relaxed font-semibold">
+                    Biar asisten AI ini bisa menjawab curhat Bunda secara gratis, super cepat tanpa antre, dan tanpa batas kuota harian, Bunda bisa memasukkan "Kunci Pintar" (Gemini API Key) milik Bunda sendiri.
+                  </Text>
+                  
+                  <View className="border-t border-indigo-200/50 pt-3">
+                    <Text className="text-xs font-bold text-indigo-950 mb-2">💡 Cara Mudah Mendapatkannya (100% Gratis & Aman):</Text>
+                    
+                    <View className="gap-2 pl-1">
+                      <View className="flex-row gap-2 items-start">
+                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
+                          <Text className="text-[10px] font-bold text-indigo-700">1</Text>
+                        </View>
+                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
+                          Ketuk tombol <Text className="font-semibold text-indigo-700">"Dapatkan Kunci Gratis ↗️"</Text> di bawah untuk membuka halaman pendaftaran resmi Google.
+                        </Text>
+                      </View>
 
-              <View className="flex-row gap-4">
-                <View className="flex-1">
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Siklus</Text>
-                  <View className="relative justify-center">
-                    <TextInput
-                      value={cycleInput}
-                      onChangeText={setCycleInput}
-                      keyboardType="number-pad"
-                      placeholderTextColor="#ec489950"
-                      className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
-                    />
-                    <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                      <View className="flex-row gap-2 items-start">
+                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
+                          <Text className="text-[10px] font-bold text-indigo-700">2</Text>
+                        </View>
+                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
+                          Masuk dengan akun <Text className="font-semibold">Gmail/Google</Text> Bunda yang biasa dipakai.
+                        </Text>
+                      </View>
+
+                      <View className="flex-row gap-2 items-start">
+                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
+                          <Text className="text-[10px] font-bold text-indigo-700">3</Text>
+                        </View>
+                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
+                          Klik tombol biru bertuliskan <Text className="font-semibold text-indigo-700">"Create API Key"</Text>, lalu salin (copy) kode rahasia yang muncul (biasanya diawali huruf <Text className="font-mono text-[11px] bg-indigo-100 px-1 rounded font-bold">AIzaSy...</Text>).
+                        </Text>
+                      </View>
+
+                      <View className="flex-row gap-2 items-start">
+                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
+                          <Text className="text-[10px] font-bold text-indigo-700">4</Text>
+                        </View>
+                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
+                          Tempel (paste) kodenya di kolom di bawah ini, lalu klik <Text className="font-bold text-indigo-700">Simpan Kunci Pintar</Text>. Selesai! 🎉
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View className="bg-white/80 rounded-xl p-3 border border-indigo-100 flex-row gap-2.5 items-start mt-1">
+                    <Text className="text-sm">🛡️</Text>
+                    <Text className="text-[11px] text-indigo-950/80 leading-relaxed flex-1">
+                      <Text className="font-bold">Jaminan Aman & Privat:</Text> Kunci rahasia ini disimpan langsung di dalam memori HP Bunda sendiri. Tidak ada pihak luar maupun SiklusIo yang bisa mengintip atau menyalahgunakannya.
+                    </Text>
                   </View>
                 </View>
 
-                <View className="flex-1">
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Haid</Text>
-                  <View className="relative justify-center">
-                    <TextInput
-                      value={periodInput}
-                      onChangeText={setPeriodInput}
-                      keyboardType="number-pad"
-                      placeholderTextColor="#ec489950"
-                      className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
-                    />
-                    <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                <View className="gap-4">
+                  <View>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Kunci Gemini API Key Bunda</Text>
+                    <View className="relative justify-center">
+                      <TextInput
+                        value={geminiApiKey}
+                        onChangeText={setGeminiApiKey}
+                        secureTextEntry={true}
+                        placeholder="Tempel kunci rahasia Bunda di sini..."
+                        placeholderTextColor="#a5b4fc"
+                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface font-mono"
+                      />
+                      {geminiApiKey ? (
+                        <TouchableOpacity 
+                          onPress={() => {
+                            setGeminiApiKey('');
+                            storage.removeItem('hs_gemini_api_key');
+                            showToast('Kunci Pintar AI Bunda telah dihapus! 🗑️', 'info');
+                          }}
+                          className="absolute right-3 w-8 h-8 rounded-full items-center justify-center bg-red-50 active:bg-red-100"
+                        >
+                          <FontAwesome name="trash" size={14} color="#ef4444" />
+                        </TouchableOpacity>
+                      ) : (
+                        <View className="absolute right-4">
+                          <FontAwesome name="lock" size={14} color="#94a3b8" />
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
+                  <View className="flex-row gap-3">
+                    <TouchableOpacity
+                      onPress={() => {
+                        const url = 'https://aistudio.google.com/app/apikey';
+                        if (Platform.OS === 'web') {
+                          window.open(url, '_blank');
+                        } else {
+                          import('react-native').then(({ Linking }) => {
+                            Linking.openURL(url).catch((err) => {
+                              console.error("Gagal membuka tautan:", err);
+                              Alert.alert("Eror", "Gagal membuka halaman web. Silakan buka browser dan ketik aistudio.google.com/app/apikey secara manual.");
+                            });
+                          });
+                        }
+                      }}
+                      className="flex-1 py-3 bg-indigo-50 border border-indigo-200 rounded-2xl items-center justify-center flex-row gap-2 active:bg-indigo-100"
+                    >
+                      <FontAwesome name="external-link" size={12} color="#4f46e5" />
+                      <Text className="text-indigo-700 font-bold text-xs uppercase tracking-wider">Dapatkan Kunci Gratis</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={handleApiKeySubmit}
+                      className="flex-1 py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
+                    >
+                      <Text className="text-white font-bold text-xs uppercase tracking-wider">Simpan Kunci</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </View>
 
-              <TouchableOpacity
-                onPress={handleCycleSubmit}
-                className="w-full py-3 bg-primary rounded-2xl items-center justify-center shadow-sm mt-2"
+              {/* Card 4: Pengaturan Pengingat */}
+              <TouchableOpacity 
+                onPress={handleReminderToggle}
+                className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
               >
-                <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Siklus</Text>
+                <View className="flex-row items-center gap-4 flex-1 pr-4">
+                  <View className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? 'bg-primary/20 text-primary' : 'bg-surface-variant text-on-surface-variant'}`}>
+                    <FontAwesome name="bell" size={18} color={dailyReminder ? '#ec4899' : '#888'} />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">Pengingat Harian & Promil</Text>
+                    <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
+                      Kirim notifikasi fase siklus, masa ovulasi, dan pengingat nutrisi.
+                    </Text>
+                  </View>
+                </View>
+                
+                {/* Custom Toggle Switch */}
+                <View className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? 'bg-primary' : 'bg-surface-variant'}`}>
+                  <View className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? 'self-end' : 'self-start'}`} />
+                </View>
               </TouchableOpacity>
-            </View>
-          </View>
+            </>
+          )}
 
-          {/* Card 2: Pengaturan Tabungan */}
-          <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-            <View className="flex-row items-center gap-3 mb-4">
-              <FontAwesome name="money" size={18} color="#0d9488" />
-              <Text className="text-base font-bold text-on-surface">Pengaturan Tabungan</Text>
-            </View>
-
-            <View className="gap-4">
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Tabungan Terkumpul</Text>
-                <View className="relative justify-center">
-                  <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
-                  <TextInput
-                    value={currentSavingInput}
-                    onChangeText={setCurrentSavingInput}
-                    keyboardType="number-pad"
-                    placeholder="0"
-                    placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
-                  />
-                </View>
+          {activeViewTab === 'profile' && (
+            /* Card 3: Profil & Pasangan */
+            <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+              <View className="flex-row items-center gap-3 mb-2">
+                <FontAwesome name="heart" size={18} color="#ec4899" />
+                <Text className="text-base font-bold text-on-surface">Profil & Pasangan</Text>
               </View>
+              <Text className="text-[10px] font-mono text-on-surface-variant opacity-60 mb-4">
+                Atur foto profil, nama panggilan Anda, dan kontak WhatsApp suami.
+              </Text>
 
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Target Tabungan</Text>
-                <View className="relative justify-center">
-                  <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
-                  <TextInput
-                    value={targetSavingInput}
-                    onChangeText={setTargetSavingInput}
-                    keyboardType="number-pad"
-                    placeholder="0"
-                    placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
-                  />
-                </View>
-              </View>
-
-              <TouchableOpacity
-                onPress={handleSavingsSubmit}
-                className="w-full py-3 bg-teal-600 rounded-2xl items-center justify-center shadow-sm mt-2"
-              >
-                <Text className="text-white font-bold text-sm uppercase tracking-wider">Simpan Tabungan</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Card 3: Profil & Pasangan */}
-          <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-            <View className="flex-row items-center gap-3 mb-2">
-              <FontAwesome name="heart" size={18} color="#ec4899" />
-              <Text className="text-base font-bold text-on-surface">Profil & Pasangan</Text>
-            </View>
-            <Text className="text-[10px] font-mono text-on-surface-variant opacity-60 mb-4">
-              Atur nama panggilan Anda dan kontak WhatsApp suami.
-            </Text>
-
-            <View className="gap-4">
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Anda</Text>
-                <TextInput
-                  value={userNickname}
-                  onChangeText={setUserNickname}
-                  placeholder="Cth: Bunda, Sayang"
-                  placeholderTextColor="#ec489950"
-                  className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                />
-              </View>
-
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Suami</Text>
-                <TextInput
-                  value={husbandName}
-                  onChangeText={setHusbandName}
-                  placeholder="Cth: Budi Susanto"
-                  placeholderTextColor="#ec489950"
-                  className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                />
-              </View>
-
-              <View>
-                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Suami</Text>
-                <TextInput
-                  value={husbandNickname}
-                  onChangeText={setHusbandNickname}
-                  placeholder="Cth: Mas, Sayang, Koko"
-                  placeholderTextColor="#ec489950"
-                  className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                />
-              </View>
-
-              <View>
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nomor WhatsApp Suami</Text>
-                  {errorPhone ? (
-                    <Text className="text-[10px] text-error font-medium">{errorPhone}</Text>
-                  ) : null}
-                </View>
-                <TextInput
-                  value={husbandNumber}
-                  onChangeText={(val) => {
-                    const digits = val.replace(/[^0-9]/g, '');
-                    setHusbandNumber(digits);
+              {/* Avatar Picker moved here inside the card */}
+              <View className="items-center justify-center mb-6 mt-2 pb-5 border-b border-purple-100">
+                <AvatarPicker
+                  value={avatarUrl}
+                  kind={avatarKind}
+                  onChange={async (next) => {
+                    try {
+                      await updateAvatar(next);
+                      showToast('Foto profil Bunda berhasil diubah! ✨', 'success');
+                    } catch (e: any) {
+                      showToast(e?.message || 'Tidak bisa menyimpan avatar.', 'error');
+                    }
                   }}
-                  placeholder="Cth: 6281234567890"
-                  keyboardType="phone-pad"
-                  placeholderTextColor="#ec489950"
-                  className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? 'border-error text-error' : 'border-outline-variant text-on-surface'}`}
+                  size={80}
                 />
-              </View>
-
-              <TouchableOpacity
-                onPress={handleProfileSubmit}
-                disabled={!!errorPhone}
-                className={`w-full py-3 rounded-2xl items-center justify-center shadow-sm mt-2 active:scale-95 ${
-                  errorPhone ? 'bg-primary/50' : 'bg-primary'
-                }`}
-              >
-                <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Profil & Pasangan</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Card 4: Pengaturan Pengingat */}
-          <TouchableOpacity 
-            onPress={handleReminderToggle}
-            className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
-          >
-            <View className="flex-row items-center gap-4 flex-1 pr-4">
-              <View className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? 'bg-primary/20 text-primary' : 'bg-surface-variant text-on-surface-variant'}`}>
-                <FontAwesome name="bell" size={18} color={dailyReminder ? '#ec4899' : '#888'} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">Pengingat Harian & Promil</Text>
-                <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
-                  Kirim notifikasi fase siklus, masa ovulasi, dan pengingat nutrisi.
+                <Text className="text-[10px] text-primary/80 font-bold uppercase tracking-wider mt-2.5">
+                  Ketuk untuk Mengubah Foto Profil
                 </Text>
               </View>
+
+              <View className="gap-4">
+                <View>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Anda</Text>
+                  <TextInput
+                    value={userNickname}
+                    onChangeText={setUserNickname}
+                    placeholder="Cth: Bunda, Sayang"
+                    placeholderTextColor="#ec489950"
+                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                  />
+                </View>
+
+                <View>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Suami</Text>
+                  <TextInput
+                    value={husbandName}
+                    onChangeText={setHusbandName}
+                    placeholder="Cth: Budi Susanto"
+                    placeholderTextColor="#ec489950"
+                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                  />
+                </View>
+
+                <View>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Suami</Text>
+                  <TextInput
+                    value={husbandNickname}
+                    onChangeText={setHusbandNickname}
+                    placeholder="Cth: Mas, Sayang, Koko"
+                    placeholderTextColor="#ec489950"
+                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                  />
+                </View>
+
+                <View>
+                  <View className="flex-row justify-between items-center mb-2">
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nomor WhatsApp Suami</Text>
+                    {errorPhone ? (
+                      <Text className="text-[10px] text-error font-medium">{errorPhone}</Text>
+                    ) : null}
+                  </View>
+                  <TextInput
+                    value={husbandNumber}
+                    onChangeText={(val) => {
+                      const digits = val.replace(/[^0-9]/g, '');
+                      setHusbandNumber(digits);
+                    }}
+                    placeholder="Cth: 6281234567890"
+                    keyboardType="phone-pad"
+                    placeholderTextColor="#ec489950"
+                    className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? 'border-error text-error' : 'border-outline-variant text-on-surface'}`}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleProfileSubmit}
+                  disabled={!!errorPhone}
+                  className={`w-full py-3 rounded-2xl items-center justify-center shadow-sm mt-2 active:scale-95 ${
+                    errorPhone ? 'bg-primary/50' : 'bg-primary'
+                  }`}
+                >
+                  <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Profil & Pasangan</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            
-            {/* Custom Toggle Switch */}
-            <View className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? 'bg-primary' : 'bg-surface-variant'}`}>
-              <View className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? 'self-end' : 'self-start'}`} />
-            </View>
-          </TouchableOpacity>
+          )}
 
           {/* Log Out Button */}
           <TouchableOpacity

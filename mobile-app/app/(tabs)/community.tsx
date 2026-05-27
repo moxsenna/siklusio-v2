@@ -17,6 +17,8 @@ import { PostCard } from '../../components/community/PostCard';
 import { ComposerModal } from '../../components/community/ComposerModal';
 import { CommentsModal } from '../../components/community/CommentsModal';
 import { ReportModal } from '../../components/community/ReportModal';
+import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
+
 export default function CommunityScreen() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -69,59 +71,12 @@ export default function CommunityScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fcf8fa', minHeight: Platform.OS === 'web' ? '100%' : undefined }}>
-      {/* Header */}
-      <View
-        style={{
-          paddingTop: 24,
-          paddingHorizontal: 24,
-          paddingBottom: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f1e6eb',
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-        }}
-      >
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#1e1b20' }}>
-            Komunitas
-          </Text>
-          <Text
-            style={{
-              fontSize: 10,
-              fontWeight: 'bold',
-              letterSpacing: 1.5,
-              color: '#94a3b8',
-              textTransform: 'uppercase',
-              marginTop: 6,
-            }}
-          >
-            Ruang Saling Mendukung
-          </Text>
-        </View>
-        <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 14,
-            backgroundColor: '#fce7f3',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 1,
-            borderColor: '#fbcfe8',
-          }}
-        >
-          <FontAwesome name="users" size={20} color="#ec4899" />
-        </View>
-      </View>
-
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
-          padding: 20,
+          padding: 24,
           paddingBottom: 100,
-          gap: 12,
         }}
         refreshControl={
           <RefreshControl
@@ -141,155 +96,166 @@ export default function CommunityScreen() {
         }}
         scrollEventThrottle={400}
       >
-        {feed.error && (
-          <View
-            style={{
-              backgroundColor: '#fef2f2',
-              borderColor: '#fee2e2',
-              borderWidth: 1,
-              borderRadius: 16,
-              padding: 14,
-              flexDirection: 'row',
-              gap: 10,
-            }}
-          >
-            <FontAwesome name="exclamation-triangle" size={18} color="#ef4444" />
-            <Text style={{ fontSize: 12, color: '#ef4444', flex: 1 }}>
-              {feed.error}
+        {/* Header */}
+        <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
+          <View className="flex-1 pr-3">
+            <Text className="text-3xl font-bold text-on-background">
+              Komunitas
+            </Text>
+            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+              Ruang Saling Mendukung
             </Text>
           </View>
-        )}
+          <HeaderProfileButton />
+        </View>
 
-        {!feed.refreshing && feed.posts.length === 0 && !feed.error && (
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 64,
-              gap: 12,
-            }}
-          >
+        {/* Top Composer Bar - Premium Social Input design */}
+        <TouchableOpacity
+          onPress={() => setComposerOpen(true)}
+          activeOpacity={0.9}
+          className="bg-surface border border-outline-variant rounded-[24px] p-4 flex-row items-center gap-3.5 mb-2 shadow-sm active:scale-[0.99]"
+        >
+          <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center shrink-0">
+            <Text className="text-lg">🌸</Text>
+          </View>
+          <View className="flex-1 bg-surface-variant border border-outline-variant/40 rounded-full px-4 py-3 justify-center">
+            <Text className="text-xs text-on-surface-variant/70 font-medium">
+              Bagikan cerita, curhat, atau info promil Bunda hari ini... ✨
+            </Text>
+          </View>
+          <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center shrink-0">
+            <FontAwesome name="pencil" size={14} color="#ec4899" />
+          </View>
+        </TouchableOpacity>
+
+        {/* Feed List wrapped in gap-3 layout */}
+        <View className="gap-3">
+          {feed.error && (
             <View
               style={{
-                width: 72,
-                height: 72,
-                borderRadius: 36,
-                backgroundColor: '#fce7f3',
+                backgroundColor: '#fef2f2',
+                borderColor: '#fee2e2',
+                borderWidth: 1,
+                borderRadius: 16,
+                padding: 14,
+                flexDirection: 'row',
+                gap: 10,
+              }}
+            >
+              <FontAwesome name="exclamation-triangle" size={18} color="#ef4444" />
+              <Text style={{ fontSize: 12, color: '#ef4444', flex: 1 }}>
+                {feed.error}
+              </Text>
+            </View>
+          )}
+
+          {!feed.refreshing && feed.posts.length === 0 && !feed.error && (
+            <View
+              style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderWidth: 1,
-                borderColor: '#fbcfe8',
+                paddingVertical: 64,
+                gap: 12,
               }}
             >
-              <FontAwesome name="heart" size={28} color="#ec4899" />
-            </View>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: '#1e1b20',
-                textAlign: 'center',
-              }}
-            >
-              Belum ada cerita di komunitas
-            </Text>
-            <Text
-              style={{
-                fontSize: 13,
-                color: '#94a3b8',
-                textAlign: 'center',
-                maxWidth: 280,
-                lineHeight: 19,
-              }}
-            >
-              Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan
-              orang lain.
-            </Text>
-            <TouchableOpacity
-              onPress={() => setComposerOpen(true)}
-              style={{
-                marginTop: 6,
-                backgroundColor: '#ec4899',
-                paddingHorizontal: 20,
-                paddingVertical: 12,
-                borderRadius: 18,
-              }}
-            >
+              <View
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 36,
+                  backgroundColor: '#fce7f3',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: '#fbcfe8',
+                }}
+              >
+                <FontAwesome name="heart" size={28} color="#ec4899" />
+              </View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: '#1e1b20',
+                  textAlign: 'center',
+                }}
+              >
+                Belum ada cerita di komunitas
+              </Text>
               <Text
                 style={{
                   fontSize: 13,
-                  fontWeight: 'bold',
-                  color: '#fff',
-                  textTransform: 'uppercase',
-                  letterSpacing: 1,
+                  color: '#94a3b8',
+                  textAlign: 'center',
+                  maxWidth: 280,
+                  lineHeight: 19,
                 }}
               >
-                Tulis Cerita Pertama
+                Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan
+                orang lain.
               </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+              <TouchableOpacity
+                onPress={() => setComposerOpen(true)}
+                style={{
+                  marginTop: 6,
+                  backgroundColor: '#ec4899',
+                  paddingHorizontal: 20,
+                  paddingVertical: 12,
+                  borderRadius: 18,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                  }}
+                >
+                  Tulis Cerita Pertama
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        {feed.posts.map((p) => (
-          <PostCard
-            key={p.id}
-            post={p}
-            reactions={feed.reactions[p.id] ?? {
-              counts: { hug: 0, pray: 0, sad: 0, strong: 0, me_too: 0 },
-              mine: new Set(),
-            }}
-            onReact={(rx) => handleReact(p.id, rx)}
-            onOpenComments={() => handleOpenComments(p.id, p.content)}
-            onReport={() => handleOpenReport(p.id, 'post')}
-            onDeleteOwn={() => handleDeleteOwn(p.id)}
-          />
-        ))}
+          {feed.posts.map((p) => (
+            <PostCard
+              key={p.id}
+              post={p}
+              reactions={feed.reactions[p.id] ?? {
+                counts: { hug: 0, pray: 0, sad: 0, strong: 0, me_too: 0 },
+                mine: new Set(),
+              }}
+              onReact={(rx) => handleReact(p.id, rx)}
+              onOpenComments={() => handleOpenComments(p.id, p.content)}
+              onReport={() => handleOpenReport(p.id, 'post')}
+              onDeleteOwn={() => handleDeleteOwn(p.id)}
+            />
+          ))}
 
-        {feed.loading && feed.posts.length > 0 && (
-          <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-            <ActivityIndicator size="small" color="#ec4899" />
-          </View>
-        )}
+          {feed.loading && feed.posts.length > 0 && (
+            <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#ec4899" />
+            </View>
+          )}
 
-        {!feed.hasMore && feed.posts.length > 0 && (
-          <Text
-            style={{
-              textAlign: 'center',
-              fontSize: 11,
-              color: '#cbd5e1',
-              paddingVertical: 16,
-            }}
-          >
-            ✦ Sampai di sini dulu ✦
-          </Text>
-        )}
+          {!feed.hasMore && feed.posts.length > 0 && (
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 11,
+                color: '#cbd5e1',
+                paddingVertical: 16,
+              }}
+            >
+              ✦ Sampai di sini dulu ✦
+            </Text>
+          )}
+        </View>
       </ScrollView>
 
-      {/* Floating compose button */}
-      {feed.posts.length > 0 && (
-        <TouchableOpacity
-          onPress={() => setComposerOpen(true)}
-          accessibilityLabel="Tulis cerita baru"
-          style={{
-            position: 'absolute',
-            right: 24,
-            bottom: 100,
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            backgroundColor: '#ec4899',
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#ec4899',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-            elevation: 8,
-          }}
-        >
-          <FontAwesome name="pencil" size={20} color="#fff" />
-        </TouchableOpacity>
-      )}
+
 
       <ComposerModal
         visible={composerOpen}

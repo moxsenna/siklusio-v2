@@ -2,6 +2,7 @@ import React, { useState, useMemo, useTransition } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
 import { format, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
+import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
 import { HistoryView } from '../../components/habits/HistoryView';
@@ -154,17 +155,12 @@ export default function HabitsScreen() {
     <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Header */}
-        <View className="mb-6 pt-4 flex-row justify-between items-center border-b border-primary/20 pb-4">
-          <View>
-            <Text className="text-3xl font-bold text-on-background">Halo, {userNickname}!</Text>
-            <Text className="text-sm text-on-surface-variant font-medium mt-1">Gimana kabarmu hari ini?</Text>
+        <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
+          <View className="flex-1 pr-3">
+            <Text className="text-3xl font-bold text-on-background">Halo, {userNickname}</Text>
+            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Gimana kabarmu hari ini?</Text>
           </View>
-          <TouchableOpacity 
-            onPress={() => Alert.alert('Notifikasi', 'Tidak ada notifikasi baru saat ini.')}
-            className="w-12 h-12 bg-surface rounded-full border border-outline-variant items-center justify-center shadow-sm"
-          >
-            <Text className="text-lg">🔔</Text>
-          </TouchableOpacity>
+          <HeaderProfileButton />
         </View>
 
         {/* Tab Toggle Daily vs History */}

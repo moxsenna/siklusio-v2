@@ -5,8 +5,8 @@
     "semantic_hash": "46f4d0ec17918ba4570bd95d3f84f45b"
   },
   "D:\\Coding\\remix_-siklusio\\package.json": {
-    "mtime": 1779855203.0498276,
-    "ast_hash": "4ea837b149d0d76db5b0bb01658bbd39",
+    "mtime": 1779856471.7656178,
+    "ast_hash": "143f69824f95ceb86654e18cb73b31ca",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\test-api.js": {
@@ -20,8 +20,8 @@
     "semantic_hash": "b6ea1c1ded55cc6663c013d692754853"
   },
   "D:\\Coding\\remix_-siklusio\\backend\\index.ts": {
-    "mtime": 1779855228.9928677,
-    "ast_hash": "9d6dcb798c63a1d852c8a98b6b1a1eb6",
+    "mtime": 1779856480.1194527,
+    "ast_hash": "95a4b4b86d8ec42526e94daefbffde47",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\supabase\\schema.sql": {
@@ -987,6 +987,1811 @@
   "D:\\Coding\\remix_-siklusio\\supabase\\crm_profiles.sql": {
     "mtime": 1779851020.9607553,
     "ast_hash": "03c97bec449687fd5bf48e5427b2d19b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-oLndT4\\middleware-insertion-facade.js": {
+    "mtime": 1779856499.5655303,
+    "ast_hash": "92ae89fccb7d87017eb9887f512b8180",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-oLndT4\\middleware-loader.entry.ts": {
+    "mtime": 1779856499.6543968,
+    "ast_hash": "85ef5aa7e1b4b06bea59bf82183d5e37",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\dev-I32tPA\\index.js": {
+    "mtime": 1779856506.458663,
+    "ast_hash": "6ec59f13b05edca76b5d25926c29cc03",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\SKILL.md": {
+    "mtime": 1779855643.3164575,
+    "ast_hash": "ab0c6af4103af1b3c4e67e19580f7fbd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\browse-the-web.md": {
+    "mtime": 1779855643.3259294,
+    "ast_hash": "0d72f9aaf62719aa96c7b86d5f80c730",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\callable.md": {
+    "mtime": 1779855643.330455,
+    "ast_hash": "76187031dfe075ec794bd9c766fd6a84",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\client-sdk.md": {
+    "mtime": 1779855643.3330145,
+    "ast_hash": "e502f6c2b972fac3a4a61854e6686a9f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\codemode.md": {
+    "mtime": 1779855643.3406725,
+    "ast_hash": "4fc93b4db97a03e62a4ba3b48453927c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\configuration.md": {
+    "mtime": 1779855643.344199,
+    "ast_hash": "a46854e0d012bf02149340c928537b66",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\durable-execution.md": {
+    "mtime": 1779855643.3498716,
+    "ast_hash": "230c4a20633f64624f158ef138ffa05c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\email.md": {
+    "mtime": 1779855643.3539314,
+    "ast_hash": "671e850af33f7911423d21ad29d8c126",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\human-in-the-loop.md": {
+    "mtime": 1779855643.3599298,
+    "ast_hash": "551966325c3d9916b05902daf4a9caec",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\mcp.md": {
+    "mtime": 1779855643.365298,
+    "ast_hash": "5052aa90dc2a79876bb83636e94b59de",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\observability.md": {
+    "mtime": 1779855643.3787675,
+    "ast_hash": "2d20214ea827507f4153bad57a4551a4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\queue-retries.md": {
+    "mtime": 1779855643.3836913,
+    "ast_hash": "91724f4642fb3ef87a2b3967ab94bc5b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\routing.md": {
+    "mtime": 1779855643.3897102,
+    "ast_hash": "39d0bd9daa1d306e3c265ec06ca22118",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\server-driven-messages.md": {
+    "mtime": 1779855643.3939664,
+    "ast_hash": "ab0821a6d94d3e943f61183cab4db650",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\state-scheduling.md": {
+    "mtime": 1779855643.4183524,
+    "ast_hash": "50f55dfb075b9f57899264c6d2859093",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\streaming-chat.md": {
+    "mtime": 1779855643.4441698,
+    "ast_hash": "4e1e48cce77f2ba119411f44de272d08",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\think.md": {
+    "mtime": 1779855643.4615145,
+    "ast_hash": "105645de4bf7c2ac63d8edef498f64e8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\voice.md": {
+    "mtime": 1779855643.4969492,
+    "ast_hash": "69c99bf221e48aa373215762562a0390",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\webhooks-push.md": {
+    "mtime": 1779855643.5411656,
+    "ast_hash": "fc7a9ff4c525c9bad98414ddde2b52eb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\agents-sdk\\references\\workflows.md": {
+    "mtime": 1779855643.5601063,
+    "ast_hash": "bbef420c4e133171f132acf2f7f8b418",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\SKILL.md": {
+    "mtime": 1779855643.7966433,
+    "ast_hash": "f8e5ac82d30c4b1332353fecf48a6043",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\agents-sdk\\api.md": {
+    "mtime": 1779855644.103056,
+    "ast_hash": "a3bb333f06330cf15c86956f5c786f38",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\agents-sdk\\configuration.md": {
+    "mtime": 1779855644.1748614,
+    "ast_hash": "5898c7fab3e57fe197a63195c611186a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\agents-sdk\\gotchas.md": {
+    "mtime": 1779855644.2108572,
+    "ast_hash": "03befef44d5852c7d1301aed83ce07d1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\agents-sdk\\patterns.md": {
+    "mtime": 1779855644.2320168,
+    "ast_hash": "a78b7131691312e03117d5a6b3342e38",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\agents-sdk\\README.md": {
+    "mtime": 1779855644.0332298,
+    "ast_hash": "e9eeffd8c7b7df964f020db6e8ab46be",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\configuration.md": {
+    "mtime": 1779855644.318623,
+    "ast_hash": "06d8bad498653823644ad86235069a64",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\dynamic-routing.md": {
+    "mtime": 1779855644.3444998,
+    "ast_hash": "8a10a865305c58fae2da3ce4ddab1b82",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\features.md": {
+    "mtime": 1779855644.3586361,
+    "ast_hash": "607c9b385f64baa1128fae3b8ccbb806",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\README.md": {
+    "mtime": 1779855644.2520058,
+    "ast_hash": "0bb73c7db9450c030af3f01776f9e425",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\sdk-integration.md": {
+    "mtime": 1779855644.3822432,
+    "ast_hash": "199507d0460db6a920d0a604d48e2db3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-gateway\\troubleshooting.md": {
+    "mtime": 1779855644.428886,
+    "ast_hash": "2496b5bcd78353dcede5653508d95218",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-search\\api.md": {
+    "mtime": 1779855644.4688427,
+    "ast_hash": "e9f67cd9f83fee9b62188713af9945c6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-search\\configuration.md": {
+    "mtime": 1779855644.4834113,
+    "ast_hash": "369e502d2dbcd6a668ae9879386af1b9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-search\\gotchas.md": {
+    "mtime": 1779855644.5076692,
+    "ast_hash": "14414b609a052380683f9b54110c60d2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-search\\patterns.md": {
+    "mtime": 1779855644.529384,
+    "ast_hash": "ec3d75987792e1ee87e83a03e919471d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ai-search\\README.md": {
+    "mtime": 1779855644.4449308,
+    "ast_hash": "3a89d0435dd544fc08aec7e447f100f3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\analytics-engine\\api.md": {
+    "mtime": 1779855644.5826826,
+    "ast_hash": "5d8d86f47d79830298bc697584afe03e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\analytics-engine\\configuration.md": {
+    "mtime": 1779855644.6255121,
+    "ast_hash": "c0e65dfd86b30fe030d9e21ae09d9b57",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\analytics-engine\\gotchas.md": {
+    "mtime": 1779855644.6464126,
+    "ast_hash": "0c5efa56c10a9c5d27d04dae8e74c0ce",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\analytics-engine\\patterns.md": {
+    "mtime": 1779855644.6667807,
+    "ast_hash": "ee76bcb479a8755159b3f7d8f4809bf4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\analytics-engine\\README.md": {
+    "mtime": 1779855644.5607505,
+    "ast_hash": "149294285a347ae802ec9cdc1d711cbe",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api\\api.md": {
+    "mtime": 1779855644.8424006,
+    "ast_hash": "226fd2b7790ce0a0a11f86a371adc970",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api\\configuration.md": {
+    "mtime": 1779855644.8508608,
+    "ast_hash": "2a9282b97fd2ff493259d8f013552547",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api\\gotchas.md": {
+    "mtime": 1779855644.864489,
+    "ast_hash": "0018b86270f70579a12b0a8ae98344bf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api\\patterns.md": {
+    "mtime": 1779855644.8759575,
+    "ast_hash": "ffdd25125fb6389d261c49900858e290",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api\\README.md": {
+    "mtime": 1779855644.8112142,
+    "ast_hash": "da0ef82bcff034e5bef5d403286700d5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api-shield\\api.md": {
+    "mtime": 1779855644.7140715,
+    "ast_hash": "76847295e34396520c1105ec3ef4e43b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api-shield\\configuration.md": {
+    "mtime": 1779855644.7365577,
+    "ast_hash": "7e925dc038ce803f9693c83304a5a07f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api-shield\\gotchas.md": {
+    "mtime": 1779855644.7639399,
+    "ast_hash": "0308e6af7a9c1b648c55b7b4d1e0b524",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api-shield\\patterns.md": {
+    "mtime": 1779855644.793048,
+    "ast_hash": "43d1513139833c10235ea18499e55c3f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\api-shield\\README.md": {
+    "mtime": 1779855644.683644,
+    "ast_hash": "a97898aaeb0f5e29b8c78377fe354b5b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\argo-smart-routing\\api.md": {
+    "mtime": 1779855644.926335,
+    "ast_hash": "b47619b2dbb151862097963925bd1eb6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\argo-smart-routing\\configuration.md": {
+    "mtime": 1779855644.9446084,
+    "ast_hash": "74a6499bc3c85df5e0f3ef474f778eba",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\argo-smart-routing\\gotchas.md": {
+    "mtime": 1779855644.9654028,
+    "ast_hash": "027325826b7113f7cf3181ddfa068d3a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\argo-smart-routing\\patterns.md": {
+    "mtime": 1779855644.9931293,
+    "ast_hash": "7e65d424a6df79c3b3cc76ec23a50890",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\argo-smart-routing\\README.md": {
+    "mtime": 1779855644.8963795,
+    "ast_hash": "36e8a44269ac2ecb58748716a7f0aa70",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\artifacts\\api.md": {
+    "mtime": 1779855645.036311,
+    "ast_hash": "77ca561935c3ceb83b43eb7f6a55d0b7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\artifacts\\configuration.md": {
+    "mtime": 1779855645.0579667,
+    "ast_hash": "b14fa3a84042c1525c48b9fc3d9899fb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\artifacts\\README.md": {
+    "mtime": 1779855645.0147128,
+    "ast_hash": "bd2c73b9a999a8485e69e81461f496d1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bindings\\api.md": {
+    "mtime": 1779855645.0964642,
+    "ast_hash": "e1c00c4985454ef7042021161da07f86",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bindings\\configuration.md": {
+    "mtime": 1779855645.111913,
+    "ast_hash": "c99f4cf78d04dabf7a5e86aecf60f2c5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bindings\\gotchas.md": {
+    "mtime": 1779855645.1280587,
+    "ast_hash": "b8c4c46ac8ddadf1b68dc5de32c66a1d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bindings\\patterns.md": {
+    "mtime": 1779855645.141562,
+    "ast_hash": "331d0c0c2d40a17346b67e09a8eefbb2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bindings\\README.md": {
+    "mtime": 1779855645.0795074,
+    "ast_hash": "dbc52500640b559161f7bace27443a45",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bot-management\\api.md": {
+    "mtime": 1779855645.181519,
+    "ast_hash": "d19a2bff1b5dcf672686dcc85e59871e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bot-management\\configuration.md": {
+    "mtime": 1779855645.1957264,
+    "ast_hash": "c1a2f76dd00d257426006187a7cf61dd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bot-management\\gotchas.md": {
+    "mtime": 1779855645.217661,
+    "ast_hash": "ac3189757e0f099f066bb2cd9504491d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bot-management\\patterns.md": {
+    "mtime": 1779855645.230419,
+    "ast_hash": "15ee6a02534c6bf351f5ab7316a1ff36",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\bot-management\\README.md": {
+    "mtime": 1779855645.1616924,
+    "ast_hash": "ace46c42ffe5ca1e4856695c2bea0d3e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\browser-rendering\\api.md": {
+    "mtime": 1779855645.2758923,
+    "ast_hash": "d5362a9b6eab57f9b7cc9f7fc75cda2b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\browser-rendering\\configuration.md": {
+    "mtime": 1779855645.2957976,
+    "ast_hash": "82adda8c9dcb03f7f5f24fb34df69433",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\browser-rendering\\gotchas.md": {
+    "mtime": 1779855645.3152778,
+    "ast_hash": "75f584433a627015b3ce59f5424d0c84",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\browser-rendering\\patterns.md": {
+    "mtime": 1779855645.3409963,
+    "ast_hash": "9cf3c46205038b36933d78ab68075862",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\browser-rendering\\README.md": {
+    "mtime": 1779855645.246714,
+    "ast_hash": "fb153c536d4c6d6c2d3a5d8216f18e05",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\c3\\api.md": {
+    "mtime": 1779855645.4151998,
+    "ast_hash": "f1453d5605238f286441af68ef9ed75e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\c3\\configuration.md": {
+    "mtime": 1779855645.4308271,
+    "ast_hash": "70cd2e61e71c1339c3dca7c5d2b73a00",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\c3\\gotchas.md": {
+    "mtime": 1779855645.4529362,
+    "ast_hash": "6ef44c96abcfa8050cee1ab498f7c0f1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\c3\\patterns.md": {
+    "mtime": 1779855645.470983,
+    "ast_hash": "4f35b0d96db5d130eee74cc873acc7f3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\c3\\README.md": {
+    "mtime": 1779855645.3722975,
+    "ast_hash": "eb621c441b91e2d1b7068d2fe64bb077",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cache-reserve\\api.md": {
+    "mtime": 1779855645.5149186,
+    "ast_hash": "c91bd274df03633df8aef85aadd1933c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cache-reserve\\configuration.md": {
+    "mtime": 1779855645.549534,
+    "ast_hash": "e8cb7816b787181914c3842a588c1128",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cache-reserve\\gotchas.md": {
+    "mtime": 1779855645.5690343,
+    "ast_hash": "f1fd610da20b50f3ac63f6ae98953fb3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cache-reserve\\patterns.md": {
+    "mtime": 1779855645.5858347,
+    "ast_hash": "adf747200b71ecdf94e5e598dc191056",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cache-reserve\\README.md": {
+    "mtime": 1779855645.4948084,
+    "ast_hash": "648b770b2785dd1d06941082aed7eeac",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\containers\\api.md": {
+    "mtime": 1779855645.626421,
+    "ast_hash": "3356c54b98f09d39a103b61edf127661",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\containers\\configuration.md": {
+    "mtime": 1779855645.6504312,
+    "ast_hash": "5cf4222d29ce5b465b0b6251273c59ba",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\containers\\gotchas.md": {
+    "mtime": 1779855645.6848629,
+    "ast_hash": "dcaf54191a56f65c94748a7f8e0979c9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\containers\\patterns.md": {
+    "mtime": 1779855645.7113369,
+    "ast_hash": "3d867c623249df10e724eefaa403b46e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\containers\\README.md": {
+    "mtime": 1779855645.6126318,
+    "ast_hash": "cf2cc4e7cfd2adc140c79f6cabc4076a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cron-triggers\\api.md": {
+    "mtime": 1779855645.7916615,
+    "ast_hash": "42bbbfd61ed502db08ffc617799eb8ae",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cron-triggers\\configuration.md": {
+    "mtime": 1779855645.8247614,
+    "ast_hash": "03b8fe84b64d02e9e616319351dcfd26",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cron-triggers\\gotchas.md": {
+    "mtime": 1779855645.8434367,
+    "ast_hash": "4289bedc588cd3a82f931aae25491bd8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cron-triggers\\patterns.md": {
+    "mtime": 1779855645.8948674,
+    "ast_hash": "4afa8165d61a0d2303a9d8a346216ae6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\cron-triggers\\README.md": {
+    "mtime": 1779855645.7507365,
+    "ast_hash": "2b0c5f58536ae03c0523bb0f7a7cbb21",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\d1\\api.md": {
+    "mtime": 1779855645.913986,
+    "ast_hash": "45db7e0c31ebaa74e2d1bc1734a41ad8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\d1\\configuration.md": {
+    "mtime": 1779855645.9225543,
+    "ast_hash": "5861bf17c04559f615d6ca74cb6bc71e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\d1\\gotchas.md": {
+    "mtime": 1779855645.9289615,
+    "ast_hash": "8e099c0038c36012651ac193afc63c17",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\d1\\patterns.md": {
+    "mtime": 1779855645.934055,
+    "ast_hash": "46372cc48aef09763d274577af04e493",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\d1\\README.md": {
+    "mtime": 1779855645.905413,
+    "ast_hash": "8290c7425c3f8184d5365bfe0f6f19de",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ddos\\api.md": {
+    "mtime": 1779855645.946953,
+    "ast_hash": "6c8ace71bf1484aa723a57fe9a746d83",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ddos\\configuration.md": {
+    "mtime": 1779855645.9514458,
+    "ast_hash": "a6ba176108ad101883dab2153f1c1775",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ddos\\gotchas.md": {
+    "mtime": 1779855645.9561286,
+    "ast_hash": "4609ae0e1d44d225910eb6e80649d327",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ddos\\patterns.md": {
+    "mtime": 1779855645.9614615,
+    "ast_hash": "69a4bb30c9690ac08dcd27f2bd10683a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\ddos\\README.md": {
+    "mtime": 1779855645.9429839,
+    "ast_hash": "1769781c783d0a4c4465e7a08f6e93e1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\api.md": {
+    "mtime": 1779855645.972542,
+    "ast_hash": "79e3db6370c51ec315c30f80e45a5152",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\configuration.md": {
+    "mtime": 1779855645.9776988,
+    "ast_hash": "76809185e81b0aa87610b988449a62de",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\gotchas.md": {
+    "mtime": 1779855645.9808102,
+    "ast_hash": "db1665f4fa7da4357704d84207f8114c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\patterns.md": {
+    "mtime": 1779855645.988265,
+    "ast_hash": "c981e570bd7b3a942875fc8270496f0e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\README.md": {
+    "mtime": 1779855645.9651642,
+    "ast_hash": "4e4fabea95ecae41171104c2c838de0e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\do-storage\\testing.md": {
+    "mtime": 1779855645.993401,
+    "ast_hash": "6d5a7ca08bfe06efdda1cd16ef6c176f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\durable-objects\\api.md": {
+    "mtime": 1779855646.0074186,
+    "ast_hash": "894a369f4fbb37167c89541da89e2dac",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\durable-objects\\configuration.md": {
+    "mtime": 1779855646.0132527,
+    "ast_hash": "a74743928290b1cb67e898fe7cd4fa3e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\durable-objects\\gotchas.md": {
+    "mtime": 1779855646.0251963,
+    "ast_hash": "324164fe91563016782d2ed93f6b991d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\durable-objects\\patterns.md": {
+    "mtime": 1779855646.0309305,
+    "ast_hash": "77883f0c22106b7cc00681f589b45f69",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\durable-objects\\README.md": {
+    "mtime": 1779855645.9979506,
+    "ast_hash": "df046f24179a0f1842e6d43cd5dc391c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-routing\\api.md": {
+    "mtime": 1779855646.0607805,
+    "ast_hash": "012f1067bfc374a3b1a1d9b1b11b0646",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-routing\\configuration.md": {
+    "mtime": 1779855646.0890417,
+    "ast_hash": "b8eaca6e0a485b2adf574e57de68eff4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-routing\\gotchas.md": {
+    "mtime": 1779855646.1091166,
+    "ast_hash": "02242a87149a02320534c7ca0e93b5f7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-routing\\patterns.md": {
+    "mtime": 1779855646.119637,
+    "ast_hash": "13c9479d9af43efe813cc3da8a933672",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-routing\\README.md": {
+    "mtime": 1779855646.041294,
+    "ast_hash": "4d20ca1230244b03b5c5b7b2db121ba0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-workers\\api.md": {
+    "mtime": 1779855646.1519861,
+    "ast_hash": "d8e661b9ae9ed9e514cf38de1854eb22",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-workers\\configuration.md": {
+    "mtime": 1779855646.1683543,
+    "ast_hash": "ee64267f1fdd6b22f0bdfca069b26971",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-workers\\gotchas.md": {
+    "mtime": 1779855646.1834197,
+    "ast_hash": "ee55a79f9d71700edee11970821868c1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-workers\\patterns.md": {
+    "mtime": 1779855646.1966333,
+    "ast_hash": "70596dca1bd6a1a94d159389105883e9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\email-workers\\README.md": {
+    "mtime": 1779855646.1308458,
+    "ast_hash": "561fe4328ce484053df112443ae2f0cc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\flagship\\api.md": {
+    "mtime": 1779855646.2262225,
+    "ast_hash": "f81d4244a345a15a700684ea543eb759",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\flagship\\configuration.md": {
+    "mtime": 1779855646.240465,
+    "ast_hash": "fe683a037e4f26b72fdf8f5b710ba0fb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\flagship\\gotchas.md": {
+    "mtime": 1779855646.249777,
+    "ast_hash": "6f2d0a4699152f33e757634aba959415",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\flagship\\patterns.md": {
+    "mtime": 1779855646.2630367,
+    "ast_hash": "f399a9ec1c18e5b9d86fe677e96e9abd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\flagship\\README.md": {
+    "mtime": 1779855646.2129755,
+    "ast_hash": "7497d3f4e7a16dba70c79f4c891144eb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\graphql-api\\api.md": {
+    "mtime": 1779855646.2936008,
+    "ast_hash": "df7e794bc6e64afc1cc1363808501806",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\graphql-api\\configuration.md": {
+    "mtime": 1779855646.307158,
+    "ast_hash": "6d4eafb679b5770da1f7cd2f13562ee9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\graphql-api\\gotchas.md": {
+    "mtime": 1779855646.3243458,
+    "ast_hash": "d93d11148d860b3367b31cd8a0d8c738",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\graphql-api\\patterns.md": {
+    "mtime": 1779855646.3461473,
+    "ast_hash": "8e28ced0d0e3ead1c4b0f37b404d8cf3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\graphql-api\\README.md": {
+    "mtime": 1779855646.2765257,
+    "ast_hash": "b786ddbf04f7ebd6eb1c55d7456c06e6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\hyperdrive\\api.md": {
+    "mtime": 1779855646.3678732,
+    "ast_hash": "6567f97feea97536fdea99e7e14a1855",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\hyperdrive\\configuration.md": {
+    "mtime": 1779855646.3826923,
+    "ast_hash": "7e57d053c973bfc62819f88dc2a17a99",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\hyperdrive\\gotchas.md": {
+    "mtime": 1779855646.4008257,
+    "ast_hash": "d71e28dcd7b9880685933262dab35855",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\hyperdrive\\patterns.md": {
+    "mtime": 1779855646.4240255,
+    "ast_hash": "11edbb1a075071fbd652517448ab32b8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\hyperdrive\\README.md": {
+    "mtime": 1779855646.359651,
+    "ast_hash": "cd42fc2b851599c2f3001ddcaec138ba",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\images\\api.md": {
+    "mtime": 1779855646.4528222,
+    "ast_hash": "3093b345443e1e505a0f9b921888c393",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\images\\configuration.md": {
+    "mtime": 1779855646.467499,
+    "ast_hash": "17c7c6f51983f507a105b6066a7cdcbd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\images\\gotchas.md": {
+    "mtime": 1779855646.4906557,
+    "ast_hash": "6f17ee3a11b7bb79c427ad6b1c3e4c33",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\images\\patterns.md": {
+    "mtime": 1779855646.513046,
+    "ast_hash": "6e2ba87170b5abc009786887e036dc2a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\images\\README.md": {
+    "mtime": 1779855646.4342222,
+    "ast_hash": "6a8726b4206c747a2910def36da3172b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\kv\\api.md": {
+    "mtime": 1779855646.5954733,
+    "ast_hash": "7c502d3383616e597373e3832bdae8e4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\kv\\configuration.md": {
+    "mtime": 1779855646.616652,
+    "ast_hash": "ec8e2e1c6ea6a5224663cc50807d43ca",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\kv\\gotchas.md": {
+    "mtime": 1779855646.6340928,
+    "ast_hash": "653584bb5c01ae7123de492060938842",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\kv\\patterns.md": {
+    "mtime": 1779855646.6661313,
+    "ast_hash": "c3e05d53c3263664d460c86ebe58462c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\kv\\README.md": {
+    "mtime": 1779855646.561395,
+    "ast_hash": "47875bc566e8d976f64a664b16cd2ff3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\miniflare\\api.md": {
+    "mtime": 1779855646.7390313,
+    "ast_hash": "d0bc0f4f6dfaef02d7f9a8d020b449e3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\miniflare\\configuration.md": {
+    "mtime": 1779855646.7668116,
+    "ast_hash": "d764b440955ce39548db16b8f07ca498",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\miniflare\\gotchas.md": {
+    "mtime": 1779855646.7766848,
+    "ast_hash": "8dd35f1ec952704f54576b73e30c3270",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\miniflare\\patterns.md": {
+    "mtime": 1779855646.7822104,
+    "ast_hash": "84e4e5eea693ba57a0b5167a0da5abc5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\miniflare\\README.md": {
+    "mtime": 1779855646.703696,
+    "ast_hash": "c0bb81782a318b2bf5c730e8a6584549",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\network-interconnect\\api.md": {
+    "mtime": 1779855646.8316014,
+    "ast_hash": "cf17a44a7b6109bff4285bb6a4da3277",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\network-interconnect\\configuration.md": {
+    "mtime": 1779855646.8571334,
+    "ast_hash": "9cd4b2d46a702fbd097b3907161eca64",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\network-interconnect\\gotchas.md": {
+    "mtime": 1779855646.8800373,
+    "ast_hash": "bb5a3de2e10ae33f967e99e06da7c100",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\network-interconnect\\patterns.md": {
+    "mtime": 1779855646.913933,
+    "ast_hash": "678d04cadecabe8e7908aafa6e4ff643",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\network-interconnect\\README.md": {
+    "mtime": 1779855646.8092217,
+    "ast_hash": "e67f785a1fee1ba52389bd2f12714cd3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\observability\\api.md": {
+    "mtime": 1779855646.967678,
+    "ast_hash": "10fb06cd4af89088afa838a0ce00dda4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\observability\\configuration.md": {
+    "mtime": 1779855647.0003507,
+    "ast_hash": "f1a0d11c57d8066e7a78d89edf3af8cf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\observability\\gotchas.md": {
+    "mtime": 1779855647.019806,
+    "ast_hash": "28514527c6a40a6b1a6add8c06e42953",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\observability\\patterns.md": {
+    "mtime": 1779855647.0454507,
+    "ast_hash": "798ecb0388a6d15a8361f4e4b14b74c5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\observability\\README.md": {
+    "mtime": 1779855646.942426,
+    "ast_hash": "b9f34ba9e8d4c0498c2834a32082db17",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages\\api.md": {
+    "mtime": 1779855647.166302,
+    "ast_hash": "3875a828e059a21b70e0499117fa5147",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages\\configuration.md": {
+    "mtime": 1779855647.1821363,
+    "ast_hash": "d93210afa9e3484e3ea549a08726584a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages\\gotchas.md": {
+    "mtime": 1779855647.1985235,
+    "ast_hash": "59de42074b88e390fad71d203e2a8ace",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages\\patterns.md": {
+    "mtime": 1779855647.2137482,
+    "ast_hash": "4e01dbcd243bfae484616436cb7840ae",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages\\README.md": {
+    "mtime": 1779855647.1503015,
+    "ast_hash": "389acaa465d168622e5b6d7e7109de70",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages-functions\\api.md": {
+    "mtime": 1779855647.0836847,
+    "ast_hash": "89c804c36c9a90a4dc55767f58eb9ac2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages-functions\\configuration.md": {
+    "mtime": 1779855647.0991063,
+    "ast_hash": "bd8e6c5075b18ec011c70569dc0b98f5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages-functions\\gotchas.md": {
+    "mtime": 1779855647.122741,
+    "ast_hash": "c0cdaff1ea9ee73f10c2ed56840d01a9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages-functions\\patterns.md": {
+    "mtime": 1779855647.135999,
+    "ast_hash": "a7e8ea1d329f276d8a300d574445cf54",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pages-functions\\README.md": {
+    "mtime": 1779855647.0649848,
+    "ast_hash": "09a82ced220d7c3651f589baf2ba6469",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pipelines\\api.md": {
+    "mtime": 1779855647.2807662,
+    "ast_hash": "f33496d965fc3226095ffb4662108611",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pipelines\\configuration.md": {
+    "mtime": 1779855647.2933748,
+    "ast_hash": "0a5339170afec8427867b435e3c9d978",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pipelines\\gotchas.md": {
+    "mtime": 1779855647.3291724,
+    "ast_hash": "4420e26cf9aad7c8fa68e54352958bee",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pipelines\\patterns.md": {
+    "mtime": 1779855647.3854697,
+    "ast_hash": "2f0113b2166a00ec7c7bd1f2adcb5995",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pipelines\\README.md": {
+    "mtime": 1779855647.2466867,
+    "ast_hash": "c9481a5b4a948bde8c054df3a4a34975",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pulumi\\api.md": {
+    "mtime": 1779855647.4073927,
+    "ast_hash": "d01f00d95b9f014ece593a472ea37325",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pulumi\\configuration.md": {
+    "mtime": 1779855647.412509,
+    "ast_hash": "147397a33d54f81087eb5b036a94ab73",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pulumi\\gotchas.md": {
+    "mtime": 1779855647.4173143,
+    "ast_hash": "8c9bd6d20e81bfe566f466181d02785d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pulumi\\patterns.md": {
+    "mtime": 1779855647.4274285,
+    "ast_hash": "31da36de8a93ca97c2f53c2ff83a0186",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\pulumi\\README.md": {
+    "mtime": 1779855647.4004445,
+    "ast_hash": "a9bd095139809a356767864a74c5f5f2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\queues\\api.md": {
+    "mtime": 1779855647.449322,
+    "ast_hash": "0b8f5867c304e22f5ba605bcdfceef18",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\queues\\configuration.md": {
+    "mtime": 1779855647.4546218,
+    "ast_hash": "3405e66ccd41ede935d074bdcbd50454",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\queues\\gotchas.md": {
+    "mtime": 1779855647.4602132,
+    "ast_hash": "bb26514b2db10a8517bf8d175b942848",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\queues\\patterns.md": {
+    "mtime": 1779855647.4652133,
+    "ast_hash": "fabd825badce51c7b03eeef78083e485",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\queues\\README.md": {
+    "mtime": 1779855647.4330826,
+    "ast_hash": "f4c0383c55630c19af0f24b11d4ac68d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2\\api.md": {
+    "mtime": 1779855647.6439312,
+    "ast_hash": "2c680691b681aefee16ee0acb80d7963",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2\\configuration.md": {
+    "mtime": 1779855647.6578264,
+    "ast_hash": "157ed3221a27a701310672d5514c4d6a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2\\gotchas.md": {
+    "mtime": 1779855647.682953,
+    "ast_hash": "e90f1e9e3386ddfed628c420ad144619",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2\\patterns.md": {
+    "mtime": 1779855647.716367,
+    "ast_hash": "deeab44b7ed2acddb6003cf15fa9188c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2\\README.md": {
+    "mtime": 1779855647.6089892,
+    "ast_hash": "789361f12b39fc804a5e92b8d015015a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-data-catalog\\api.md": {
+    "mtime": 1779855647.4785829,
+    "ast_hash": "2e8a0f4a14b423a368a487428e4cce72",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-data-catalog\\configuration.md": {
+    "mtime": 1779855647.491721,
+    "ast_hash": "38aed9be98f41ec2cdc70fe792d3be90",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-data-catalog\\gotchas.md": {
+    "mtime": 1779855647.5061467,
+    "ast_hash": "05db4b3de321ccb5ad7fd0fa956b43ca",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-data-catalog\\patterns.md": {
+    "mtime": 1779855647.518757,
+    "ast_hash": "ff8e0afb433253173cda804caa31f52c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-data-catalog\\README.md": {
+    "mtime": 1779855647.4716833,
+    "ast_hash": "5ef03bde60e003df9ec4d1353e228407",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-sql\\api.md": {
+    "mtime": 1779855647.561183,
+    "ast_hash": "0d79d5af5c48b5fe733138585f884c62",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-sql\\configuration.md": {
+    "mtime": 1779855647.5695887,
+    "ast_hash": "5b6d9f6d2d6494dbce493a0ae30891e6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-sql\\gotchas.md": {
+    "mtime": 1779855647.5821824,
+    "ast_hash": "b3002313f29d98106b265e1b98488f60",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-sql\\patterns.md": {
+    "mtime": 1779855647.5952091,
+    "ast_hash": "71fced77f9fe65d6902e27802279f92f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\r2-sql\\README.md": {
+    "mtime": 1779855647.5314205,
+    "ast_hash": "fc2867c4d760afa64fcb2531c68e4929",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtime-sfu\\api.md": {
+    "mtime": 1779855647.7471292,
+    "ast_hash": "f854a66d768d4966326e1a0ec715730c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtime-sfu\\configuration.md": {
+    "mtime": 1779855647.7651596,
+    "ast_hash": "dd24282f45e0e358dff5e200328cbdba",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtime-sfu\\gotchas.md": {
+    "mtime": 1779855647.7905843,
+    "ast_hash": "3f4fdcc56bc2a18e75238e9465b23c93",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtime-sfu\\patterns.md": {
+    "mtime": 1779855647.810655,
+    "ast_hash": "305a619ad830e3968e2226c65e5c5650",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtime-sfu\\README.md": {
+    "mtime": 1779855647.73003,
+    "ast_hash": "e3283cab3f85cfa35c40375462558203",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtimekit\\api.md": {
+    "mtime": 1779855647.859706,
+    "ast_hash": "0cd65e2a918b01bdea4116e50ff762e4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtimekit\\configuration.md": {
+    "mtime": 1779855647.8776345,
+    "ast_hash": "c23eb46c64fbfba7881dbfc1baed8dda",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtimekit\\gotchas.md": {
+    "mtime": 1779855647.9036214,
+    "ast_hash": "6eb0bfc72d4130127dd911c7a7d5e2d9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtimekit\\patterns.md": {
+    "mtime": 1779855647.9332948,
+    "ast_hash": "02b56ea55bb2a0a52a11f419a51b2093",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\realtimekit\\README.md": {
+    "mtime": 1779855647.8288176,
+    "ast_hash": "5072b1661d018211d0e4e00a8c2cd0eb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\sandbox\\api.md": {
+    "mtime": 1779855647.995359,
+    "ast_hash": "42b242d07f59dddf5f46a1a01511e708",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\sandbox\\configuration.md": {
+    "mtime": 1779855648.0226693,
+    "ast_hash": "34ac28fa5531396d5524987d385c4ba4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\sandbox\\gotchas.md": {
+    "mtime": 1779855648.0404358,
+    "ast_hash": "5344bdc29944eec46357e5c20a86d188",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\sandbox\\patterns.md": {
+    "mtime": 1779855648.0613906,
+    "ast_hash": "bd499e445f3d9a3af6edfc10173ba7c4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\sandbox\\README.md": {
+    "mtime": 1779855647.9647992,
+    "ast_hash": "8fc62a66eb6eb5f001b267d321e1e602",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\secrets-store\\api.md": {
+    "mtime": 1779855648.0974162,
+    "ast_hash": "3667960570548199edcb8a996403f989",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\secrets-store\\configuration.md": {
+    "mtime": 1779855648.1179614,
+    "ast_hash": "636521657aa0d9fcf78c9ad6e52f8701",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\secrets-store\\gotchas.md": {
+    "mtime": 1779855648.1343408,
+    "ast_hash": "42d9cdbc4973499ca99a63892e591ed8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\secrets-store\\patterns.md": {
+    "mtime": 1779855648.1556745,
+    "ast_hash": "a7b3d36a3b4ecf97e79cbc3b65b6717a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\secrets-store\\README.md": {
+    "mtime": 1779855648.0806966,
+    "ast_hash": "94978c095df8ecaa34e2ed9410375035",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\smart-placement\\api.md": {
+    "mtime": 1779855648.1935496,
+    "ast_hash": "ecd9d7fb9ad08a3cfaa614774e08aeba",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\smart-placement\\configuration.md": {
+    "mtime": 1779855648.2133925,
+    "ast_hash": "546958ab800a4a1a8239f2fbce02f3d5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\smart-placement\\gotchas.md": {
+    "mtime": 1779855648.2361264,
+    "ast_hash": "8c5a4bd10a5354c68ea10d820e5a14d5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\smart-placement\\patterns.md": {
+    "mtime": 1779855648.2618868,
+    "ast_hash": "beba30c6762bf0a30fd949b8a91048e5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\smart-placement\\README.md": {
+    "mtime": 1779855648.175949,
+    "ast_hash": "68fb2a49bd0ffc2460828f4e125c0afb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\snippets\\api.md": {
+    "mtime": 1779855648.359805,
+    "ast_hash": "6f5f9a3a43d3ac16f8577d7a2271d91e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\snippets\\configuration.md": {
+    "mtime": 1779855648.3761504,
+    "ast_hash": "ec8ef16d38bc90fea2cef0591e276ad1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\snippets\\gotchas.md": {
+    "mtime": 1779855648.3925679,
+    "ast_hash": "30a253991bfe1d5d0894f9e9ca06f5d3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\snippets\\patterns.md": {
+    "mtime": 1779855648.41359,
+    "ast_hash": "a5a0d91b17b790545f5978cabb0665aa",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\snippets\\README.md": {
+    "mtime": 1779855648.2919707,
+    "ast_hash": "a816518d4114764074bd35eeaf8fc1f0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\spectrum\\api.md": {
+    "mtime": 1779855648.4790392,
+    "ast_hash": "81b90005ecf76311a6467dca4341f1fc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\spectrum\\configuration.md": {
+    "mtime": 1779855648.4848542,
+    "ast_hash": "eb5f9297271c84436dc2ff94e85a3cd9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\spectrum\\gotchas.md": {
+    "mtime": 1779855648.4930978,
+    "ast_hash": "69f37f4670ba2cbbc7559a03b3ea26a0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\spectrum\\patterns.md": {
+    "mtime": 1779855648.500809,
+    "ast_hash": "669415525ff303f845508d0e5715eb72",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\spectrum\\README.md": {
+    "mtime": 1779855648.4606645,
+    "ast_hash": "835987103aef92e2e67064c7161f8eaf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\static-assets\\api.md": {
+    "mtime": 1779855648.532779,
+    "ast_hash": "76c7a8e58f0b50cb4a64e062fd35ccd4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\static-assets\\configuration.md": {
+    "mtime": 1779855648.545259,
+    "ast_hash": "73c4386b924e19b296ddaae6bf2fa5ad",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\static-assets\\gotchas.md": {
+    "mtime": 1779855648.553106,
+    "ast_hash": "89acad434c94d9747e3424abbcd0d0d1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\static-assets\\patterns.md": {
+    "mtime": 1779855648.5764117,
+    "ast_hash": "9828611382fb76500e4c530a04a244d2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\static-assets\\README.md": {
+    "mtime": 1779855648.5232584,
+    "ast_hash": "66655db8eaf7b83399aff8ae85bfdbd6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\api-live.md": {
+    "mtime": 1779855648.602981,
+    "ast_hash": "4daed66cf0f349ad417770ea0c7efba0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\api.md": {
+    "mtime": 1779855648.614629,
+    "ast_hash": "ad9a97ee415daab496fa3670ba04aaea",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\configuration.md": {
+    "mtime": 1779855648.631166,
+    "ast_hash": "149dfb57ccd545a97bcf32f0db7a32f6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\gotchas.md": {
+    "mtime": 1779855648.6431534,
+    "ast_hash": "01730dea8bdbc8f798d094a71b164af6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\patterns.md": {
+    "mtime": 1779855648.6562972,
+    "ast_hash": "e0b141067a7461a5d1bcac7688858e9d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\stream\\README.md": {
+    "mtime": 1779855648.5855205,
+    "ast_hash": "db40521ff0be246fd81786e4c858c9cb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tail-workers\\api.md": {
+    "mtime": 1779855648.681023,
+    "ast_hash": "688afc678a9eb63b56badd0dd8d69045",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tail-workers\\configuration.md": {
+    "mtime": 1779855648.6915033,
+    "ast_hash": "a1ba6b9ff17671a87584b53cc2d41db8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tail-workers\\gotchas.md": {
+    "mtime": 1779855648.699571,
+    "ast_hash": "a3177cc1bca13837a25f9e879c607bc2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tail-workers\\patterns.md": {
+    "mtime": 1779855648.7095451,
+    "ast_hash": "e01bbf2f114a4be9ca6f6aec054d2759",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tail-workers\\README.md": {
+    "mtime": 1779855648.6665237,
+    "ast_hash": "a5509429e6a5d7c08b11437145bdc3ff",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\terraform\\api.md": {
+    "mtime": 1779855648.7445457,
+    "ast_hash": "553e7c2fc6f87b6553b5a6405a11c437",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\terraform\\configuration.md": {
+    "mtime": 1779855648.7539866,
+    "ast_hash": "35953f91ea63841067266a9215dae149",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\terraform\\gotchas.md": {
+    "mtime": 1779855648.7653549,
+    "ast_hash": "10007f073078cb3a2636f1fca2096336",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\terraform\\patterns.md": {
+    "mtime": 1779855648.7755957,
+    "ast_hash": "7c7d93513e6ab8013c567a2183d23fb1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\terraform\\README.md": {
+    "mtime": 1779855648.7239447,
+    "ast_hash": "cc1a3868667024c4870e085b7d4f1219",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\api.md": {
+    "mtime": 1779855648.800805,
+    "ast_hash": "f763fc5264d2b154199ce184bc772c35",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\configuration.md": {
+    "mtime": 1779855648.8118148,
+    "ast_hash": "2c511ce03b7fc07f34b1ef0613647086",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\gotchas.md": {
+    "mtime": 1779855648.824338,
+    "ast_hash": "5a7d8a409f83b0c825bbb1ac47741f9b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\networking.md": {
+    "mtime": 1779855648.8348513,
+    "ast_hash": "39e3b99a6bfc7e0b21ab137edeacebe4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\patterns.md": {
+    "mtime": 1779855648.8463166,
+    "ast_hash": "09d3f0b7320a9d2e6daedac22f5104d6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\tunnel\\README.md": {
+    "mtime": 1779855648.7856305,
+    "ast_hash": "c76ff8a205c2cbd48e92136354422f61",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turn\\api.md": {
+    "mtime": 1779855648.9246752,
+    "ast_hash": "70258156dcfdd1005718756cda9e43c5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turn\\configuration.md": {
+    "mtime": 1779855648.9426923,
+    "ast_hash": "3fe019f507e9edc76fa8a61a01e85d2c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turn\\gotchas.md": {
+    "mtime": 1779855648.9666984,
+    "ast_hash": "740c8ad4d684b8bb340e8def31e5bb77",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turn\\patterns.md": {
+    "mtime": 1779855648.9876628,
+    "ast_hash": "3a0a97eef6fe3b97abde4e53315e1b13",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turn\\README.md": {
+    "mtime": 1779855648.8622549,
+    "ast_hash": "9a6d1c7e7a38857fbee742da92d8e119",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turnstile\\api.md": {
+    "mtime": 1779855649.048554,
+    "ast_hash": "b649c4abb8879b8bcd811c52aeb8cba6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turnstile\\configuration.md": {
+    "mtime": 1779855649.0746486,
+    "ast_hash": "26ea16766ada48f97ec638fd4843c0d3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turnstile\\gotchas.md": {
+    "mtime": 1779855649.1106362,
+    "ast_hash": "839907738586c3436e0eef0e472ec164",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turnstile\\patterns.md": {
+    "mtime": 1779855649.12531,
+    "ast_hash": "7dd0e706fc7454a392ac5a6ce7b5a7fc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\turnstile\\README.md": {
+    "mtime": 1779855649.0218666,
+    "ast_hash": "2a998c6fc374576136bc3a9d3432da0f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\vectorize\\api.md": {
+    "mtime": 1779855649.1814888,
+    "ast_hash": "5b7a440bf401bdccfaa675ddb02fa677",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\vectorize\\configuration.md": {
+    "mtime": 1779855649.1945078,
+    "ast_hash": "f02d67d358d6124c7f87f037953ab794",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\vectorize\\gotchas.md": {
+    "mtime": 1779855649.2060525,
+    "ast_hash": "e73c88f16754a9ed936487ac54b3aaaf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\vectorize\\patterns.md": {
+    "mtime": 1779855649.2534564,
+    "ast_hash": "f0935676f14a6f195641a4026a89d903",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\vectorize\\README.md": {
+    "mtime": 1779855649.1597188,
+    "ast_hash": "72cd54261e7f13cf2da52355f2150a7f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\waf\\api.md": {
+    "mtime": 1779855649.294125,
+    "ast_hash": "c98f439fdece2f19f374e3c930e2314e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\waf\\configuration.md": {
+    "mtime": 1779855649.3254523,
+    "ast_hash": "44de21066a4aea9bcd8e93e2716a15b1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\waf\\gotchas.md": {
+    "mtime": 1779855649.354552,
+    "ast_hash": "f4cf473e561a8725a909887bca0ac38d",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\waf\\patterns.md": {
+    "mtime": 1779855649.3761153,
+    "ast_hash": "915a450f1e9a24d1d3ed787e2a71b5d8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\waf\\README.md": {
+    "mtime": 1779855649.2674654,
+    "ast_hash": "d53b9f4c52bd5cfd8347b4f2a0a936ed",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\web-analytics\\configuration.md": {
+    "mtime": 1779855649.4113882,
+    "ast_hash": "b169af29424d29cf2a8656e419b254dd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\web-analytics\\gotchas.md": {
+    "mtime": 1779855649.425818,
+    "ast_hash": "f41c2d0aa9dec06a3e1d56bcf4c24ce3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\web-analytics\\integration.md": {
+    "mtime": 1779855649.4446883,
+    "ast_hash": "f78de0e6bff2c810913c6dabd0eca0f4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\web-analytics\\patterns.md": {
+    "mtime": 1779855649.4648817,
+    "ast_hash": "429d651b8a34d97ebf32deb1eb9018c1",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\web-analytics\\README.md": {
+    "mtime": 1779855649.3898003,
+    "ast_hash": "9baa42e813dfbf67cabe977a5ab604d9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workerd\\api.md": {
+    "mtime": 1779855649.4965496,
+    "ast_hash": "b8c4083044d7f712ba0ffd354fa97c57",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workerd\\configuration.md": {
+    "mtime": 1779855649.5094643,
+    "ast_hash": "8d34c6240d7641819d2fa95c02dadb32",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workerd\\gotchas.md": {
+    "mtime": 1779855649.5228975,
+    "ast_hash": "9502dec1785f20a2d4e93320aa5ccf80",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workerd\\patterns.md": {
+    "mtime": 1779855649.5410068,
+    "ast_hash": "9cefa480abbfec64447b1af4aeb3bf51",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workerd\\README.md": {
+    "mtime": 1779855649.4807503,
+    "ast_hash": "af4d6535a7d65bc3393c247a9b090be8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\api.md": {
+    "mtime": 1779855649.9918983,
+    "ast_hash": "47b7710bd704ecc416e4ed9cea26f0b4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\configuration.md": {
+    "mtime": 1779855649.9979265,
+    "ast_hash": "de19781a99c407d2543cc69bacd2a3bd",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\frameworks.md": {
+    "mtime": 1779855650.003684,
+    "ast_hash": "e28a722b8a959e94304ed24bbf68cb36",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\gotchas.md": {
+    "mtime": 1779855650.0115926,
+    "ast_hash": "bc9d1917a78075c740ab4aa615c22f85",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\patterns.md": {
+    "mtime": 1779855650.0260682,
+    "ast_hash": "e8ea4eb45421ab8f8f6d2c8783bb213a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers\\README.md": {
+    "mtime": 1779855649.9848657,
+    "ast_hash": "3af6ddb9551662f789624d72dfffca64",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-ai\\api.md": {
+    "mtime": 1779855649.806947,
+    "ast_hash": "91cd13fcf04ac2254d9afb91fe47dc2b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-ai\\configuration.md": {
+    "mtime": 1779855649.8313005,
+    "ast_hash": "4a1d7745aa5467cfe5c611df00da3925",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-ai\\gotchas.md": {
+    "mtime": 1779855649.8415198,
+    "ast_hash": "0965e7c1a06ae72519e93b8f639f176e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-ai\\patterns.md": {
+    "mtime": 1779855649.8468049,
+    "ast_hash": "a2f18de666698ff4511ace6ea88bb1db",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-ai\\README.md": {
+    "mtime": 1779855649.6594603,
+    "ast_hash": "5032f489a9b8f894ead7b6a358d50c32",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-for-platforms\\api.md": {
+    "mtime": 1779855649.8793938,
+    "ast_hash": "693ee0a34b4949c19f03c7bdf3a18947",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-for-platforms\\configuration.md": {
+    "mtime": 1779855649.8843913,
+    "ast_hash": "24be7781b2ad19f19290cd3444d788e3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-for-platforms\\gotchas.md": {
+    "mtime": 1779855649.8949196,
+    "ast_hash": "8fe624a0c0fc784baae8efbe8b1a5ee8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-for-platforms\\patterns.md": {
+    "mtime": 1779855649.9005332,
+    "ast_hash": "cdf5d61f26fbfdde017612adf517ec44",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-for-platforms\\README.md": {
+    "mtime": 1779855649.8667755,
+    "ast_hash": "da7de974365c1e3bf41d25b58222d8ad",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-playground\\api.md": {
+    "mtime": 1779855649.9154053,
+    "ast_hash": "e3c2abbf1ee4ff93b18f2b2012eb68aa",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-playground\\configuration.md": {
+    "mtime": 1779855649.926412,
+    "ast_hash": "04be5727db86d03c7c5df8e970e54fbb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-playground\\gotchas.md": {
+    "mtime": 1779855649.9314108,
+    "ast_hash": "a98616f48734b2ae92e37fc2fd8fe855",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-playground\\patterns.md": {
+    "mtime": 1779855649.9384158,
+    "ast_hash": "ea2d9f78a5188e9be61ea4bfe9c1f44c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-playground\\README.md": {
+    "mtime": 1779855649.9089022,
+    "ast_hash": "4102a99f069a942006973e5435744467",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-vpc\\api.md": {
+    "mtime": 1779855649.9514725,
+    "ast_hash": "15b626e4e9b7630544f3be36a5037ed6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-vpc\\configuration.md": {
+    "mtime": 1779855649.9614727,
+    "ast_hash": "a40f0f767f29c6d35a9ed663f1f1c3a2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-vpc\\gotchas.md": {
+    "mtime": 1779855649.9682012,
+    "ast_hash": "55a80ea88006a2e62f61b6f7a8a1e576",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-vpc\\patterns.md": {
+    "mtime": 1779855649.9792137,
+    "ast_hash": "6969727749b1dcb5e3910e328ea4137c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workers-vpc\\README.md": {
+    "mtime": 1779855649.9455702,
+    "ast_hash": "f578f1568bf576c2215122c98b785de9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workflows\\api.md": {
+    "mtime": 1779855650.104263,
+    "ast_hash": "8fb7489d81f5e6bf6ce63d3f0d5c4657",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workflows\\configuration.md": {
+    "mtime": 1779855650.121759,
+    "ast_hash": "8eb20052c82431c72d1d91689eba3757",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workflows\\gotchas.md": {
+    "mtime": 1779855650.1456516,
+    "ast_hash": "b40dcd90a7103c4966a1ffbd3fe27225",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workflows\\patterns.md": {
+    "mtime": 1779855650.172939,
+    "ast_hash": "7d6d561104c98d1410643cfa9b1cb096",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\workflows\\README.md": {
+    "mtime": 1779855650.0722597,
+    "ast_hash": "d325ebf4b75e17d606c65fb16b1e8173",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\wrangler\\api.md": {
+    "mtime": 1779855650.2079637,
+    "ast_hash": "5d4b80e48cc92d6b208da8e18866c802",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\wrangler\\configuration.md": {
+    "mtime": 1779855650.2343824,
+    "ast_hash": "be47a5571402a54f4495e8e6e8d472b9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\wrangler\\gotchas.md": {
+    "mtime": 1779855650.2746136,
+    "ast_hash": "c84c094fd2dc67075a365f6422095de7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\wrangler\\patterns.md": {
+    "mtime": 1779855650.3072627,
+    "ast_hash": "0e2b23aeeadae54d6b10374515aabd8a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\wrangler\\README.md": {
+    "mtime": 1779855650.1914637,
+    "ast_hash": "1cba88b5b460d150f0cc0c05d562aad2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\api.md": {
+    "mtime": 1779855650.411266,
+    "ast_hash": "2c04ca77ab698db746f3e6d654e70435",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\configuration.md": {
+    "mtime": 1779855650.4320018,
+    "ast_hash": "755fef50ff380fc1ff7ceaafbbc70edf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\gotchas.md": {
+    "mtime": 1779855650.448172,
+    "ast_hash": "86fc78a4be6acf74a4a096578f95e14b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\IMPLEMENTATION_SUMMARY.md": {
+    "mtime": 1779855650.3417346,
+    "ast_hash": "985a2d3dbc85f68abdc3506c10fefef7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\patterns.md": {
+    "mtime": 1779855650.4751556,
+    "ast_hash": "4ff91a18a23b510027aeda94c1cb062a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare\\references\\zaraz\\README.md": {
+    "mtime": 1779855650.3782687,
+    "ast_hash": "169b9111e79859264cf2ad8176283396",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\SKILL.md": {
+    "mtime": 1779855643.5810237,
+    "ast_hash": "d18edacdbecade6cace0d0ee40968eb6",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\references\\cli-and-mcp.md": {
+    "mtime": 1779855643.6681173,
+    "ast_hash": "6fda45235b37710c96cbff5e61709689",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\references\\deliverability.md": {
+    "mtime": 1779855643.6841352,
+    "ast_hash": "b85f114602bb0aaaf5406b2a498c933a",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\references\\rest-api.md": {
+    "mtime": 1779855643.712559,
+    "ast_hash": "08f6bfc6fc4f69be895b651dcf4769cb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\references\\routing.md": {
+    "mtime": 1779855643.732292,
+    "ast_hash": "5c3ab44a5f5135b8e00b1e958a41d7e2",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\cloudflare-email-service\\references\\sending.md": {
+    "mtime": 1779855643.761661,
+    "ast_hash": "a4b998486848c45c18a0f4867c2436d9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\durable-objects\\SKILL.md": {
+    "mtime": 1779855650.5040936,
+    "ast_hash": "e43c7614cfab8799548636e299c7402b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\durable-objects\\references\\rules.md": {
+    "mtime": 1779855650.525972,
+    "ast_hash": "59a00d2b4de6fffd12d1dbddbf0ab6b9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\durable-objects\\references\\testing.md": {
+    "mtime": 1779855650.5721636,
+    "ast_hash": "74a0df7352b750b35200cf6efee8a9be",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\durable-objects\\references\\workers.md": {
+    "mtime": 1779855650.5834055,
+    "ast_hash": "b9499a72f1952f8f52c84590a5ecf610",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\sandbox-sdk\\SKILL.md": {
+    "mtime": 1779855650.5970674,
+    "ast_hash": "ebe7506a25e7d141f2a2b97667db0c29",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\sandbox-sdk\\references\\api-quick-ref.md": {
+    "mtime": 1779855650.6052682,
+    "ast_hash": "5273ba1a7f9cca3838e56d3dbc0d920c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\sandbox-sdk\\references\\examples.md": {
+    "mtime": 1779855650.6203315,
+    "ast_hash": "464c90f0cfe6e519d58809ec5b7d4d91",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\web-perf\\SKILL.md": {
+    "mtime": 1779855650.6278696,
+    "ast_hash": "07bff00b6c86eeaa4440e369a391daf4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\workers-best-practices\\SKILL.md": {
+    "mtime": 1779855650.6373959,
+    "ast_hash": "d9abf7b92243f6704aec05f77fc3b832",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\workers-best-practices\\references\\review.md": {
+    "mtime": 1779855650.6464493,
+    "ast_hash": "61c1743f5cc0ca6c2a557b6e151082b8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\workers-best-practices\\references\\rules.md": {
+    "mtime": 1779855650.6553104,
+    "ast_hash": "ea257b1ae1065dfedcaa2a490ffe4e96",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\wrangler\\SKILL.md": {
+    "mtime": 1779855650.6643555,
+    "ast_hash": "eb634e72d2e9899fc848af697632a262",
     "semantic_hash": ""
   }
 }

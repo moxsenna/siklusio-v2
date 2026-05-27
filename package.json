@@ -5,9 +5,8 @@
   "type": "module",
   "description": "Express API server (Gemini + Supabase admin) for Siklusio. Mobile app lives in mobile-app/.",
   "scripts": {
-    "dev": "tsx backend/index.ts",
-    "build": "esbuild backend/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "dev": "wrangler dev backend/index.ts --port 3000",
+    "deploy": "wrangler deploy backend/index.ts",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
@@ -17,6 +16,7 @@
     "@supabase/supabase-js": "^2.106.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "hono": "^4.12.23",
     "playwright": "^1.60.0"
   },
   "devDependencies": {
@@ -24,6 +24,7 @@
     "@types/node": "^22.14.0",
     "esbuild": "^0.25.0",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "wrangler": "^4.95.0"
   }
 }

@@ -19,6 +19,10 @@ Thumbs.db
 # Env files (keep .env.example as template)
 .env*
 !.env.example
+.dev.vars
+
+# Cloudflare Wrangler
+.wrangler/
 
 # Editor
 .vscode/*

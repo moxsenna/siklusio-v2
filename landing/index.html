@@ -186,35 +186,62 @@
     .nav-links a:hover {
       color: var(--pink-500);
     }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-login {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-700);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-login:hover {
+      color: var(--pink-500);
+    }
     .nav-cta {
       font-size: 13px;
-      padding: 12px 24px;
-      border-radius: 14px;
+      padding: 10px 20px;
+      border-radius: 12px;
     }
     @media(max-width: 768px) {
       nav {
         padding: 12px 0;
       }
       .nav-links { display: none; }
+      .nav-actions {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-end;
+      }
+      .nav-login {
+        font-size: 11px;
+        padding: 4px 12px;
+        background: #fff;
+        border: 1px solid var(--slate-200);
+        border-radius: 8px;
+      }
       .nav-cta {
-        padding: 10px 14px;
-        font-size: 12px;
+        padding: 6px 12px;
+        font-size: 11px;
         white-space: nowrap;
-        border-radius: 12px;
+        border-radius: 8px;
       }
       .nav-logo-text {
-        font-size: 18px;
-      }
-      .nav-logo-icon {
-        width: 32px;
-        height: 32px;
         font-size: 16px;
       }
+      .nav-logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
       .nav-logo {
-        gap: 8px;
+        gap: 6px;
       }
       .container {
-        padding: 0 16px;
+        padding: 0 12px;
       }
     }
     
@@ -811,7 +838,10 @@
         <li><a href="#komunitas">Ruang Aman</a></li>
         <li><a href="#testimoni">Cerita Sukses</a></li>
       </ul>
-      <a href="checkout.html" class="btn btn-primary nav-cta">Mulai Ikhtiar Premium</a>
+      <div class="nav-actions">
+        <a href="https://app.siklusio.web.id" class="nav-login">Login / Masuk</a>
+        <a href="checkout.html" class="btn btn-primary nav-cta">Register</a>
+      </div>
     </div>
   </nav>
 

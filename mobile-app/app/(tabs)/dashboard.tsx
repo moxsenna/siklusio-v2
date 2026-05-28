@@ -89,6 +89,19 @@ export default function DashboardScreen() {
               />
             )}
           </View>
+
+          {/* Husband Message Button - Always Visible */}
+          <View className="mt-4">
+            <TouchableOpacity 
+              onPress={() => setIsMessageModalOpen(true)}
+              className="w-full bg-pink-50 py-[16px] rounded-[24px] items-center justify-center flex-row shadow-sm border border-pink-100 active:scale-95"
+            >
+              <Text className="text-xl mr-3">💝</Text>
+              <Text className="text-pink-600 font-bold uppercase text-xs tracking-widest">
+                Kirim Pesan Suami
+              </Text>
+            </TouchableOpacity>
+          </View>
           
           <View className="mt-4">
             <SavingsCard />

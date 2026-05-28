@@ -39,14 +39,14 @@ export function ActionCard({ onOpenMessageModal, isFertile, isStrictOvulation }:
            icon: '💖',
            title: 'Puncak Ovulasi',
            desc: 'Ini adalah hari puncak ovulasi Anda. Peluang terbaik Anda sedang berlangsung. Sudah atur waktu dengan suami hari ini?',
-           actionText: 'Kirim Pesan Suami'
+           actionText: 'Lanjutkan Aktivitas'
         };
      } else if (isFertile) {
         return {
            icon: '💕',
            title: 'Masa Subur',
            desc: 'Anda sedang dalam masa subur. Ini adalah waktu yang sangat baik untuk berhubungan. Tetap rileks dan nikmati momen bersama.',
-           actionText: 'Kirim Pesan Suami'
+           actionText: 'Lanjutkan Aktivitas'
         };
      } else if (currentPhase === 'Menstrual') {
         return {
@@ -85,9 +85,7 @@ export function ActionCard({ onOpenMessageModal, isFertile, isStrictOvulation }:
         
         <TouchableOpacity 
           onPress={() => {
-            if (actionCard.actionText === 'Kirim Pesan Suami') {
-              onOpenMessageModal();
-            } else if (actionCard.actionText === 'Lanjutkan Aktivitas' || actionCard.actionText === 'Lihat Nutrisi') {
+            if (actionCard.actionText === 'Lanjutkan Aktivitas' || actionCard.actionText === 'Lihat Nutrisi') {
               router.replace('/(tabs)/habits');
             } else if (actionCard.actionText === 'Lihat Histori') {
               router.replace('/(tabs)/calendar');

@@ -384,8 +384,8 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
             </View>
           )}
           
-          {/* Spacer */}
-          <View className="h-20" />
+          {/* Spacer for bottom tab bar */}
+          <View className="h-40" />
         </ScrollView>
       </View>
     </View>

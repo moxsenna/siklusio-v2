@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, SafeAreaView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, SafeAreaView, Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
@@ -19,6 +19,17 @@ export default function AuthScreen() {
 
   const { session } = useAuth();
   const router = useRouter();
+
+  const openCheckout = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.href = '/checkout.html';
+      return;
+    }
+
+    Linking.openURL('https://app.siklusio.web.id/checkout.html').catch(() => {
+      setError('Gagal membuka halaman checkout.');
+    });
+  };
 
   useEffect(() => {
     if (session) {
@@ -222,7 +233,7 @@ export default function AuthScreen() {
             <Text className="text-sm text-on-surface-variant opacity-80">
               {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
               <Text
-                onPress={() => setIsLogin(!isLogin)}
+                onPress={() => (isLogin ? openCheckout() : setIsLogin(true))}
                 className="text-primary font-bold underline"
               >
                 {isLogin ? 'Daftar Sekarang' : 'Masuk Disini'}

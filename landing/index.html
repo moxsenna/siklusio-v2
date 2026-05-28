@@ -189,22 +189,29 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
     }
     .nav-login {
-      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(236, 72, 153, 0.18);
+      box-shadow: 0 6px 18px -12px rgba(15, 23, 42, 0.35);
+      font-size: 13px;
       font-weight: 700;
-      color: var(--slate-700);
+      color: var(--pink-600);
       text-decoration: none;
-      transition: color 0.3s;
+      white-space: nowrap;
+      transition: all 0.3s;
     }
     .nav-login:hover {
       color: var(--pink-500);
-    }
-    .nav-cta {
-      font-size: 13px;
-      padding: 10px 20px;
-      border-radius: 12px;
+      border-color: rgba(236, 72, 153, 0.38);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px -14px rgba(236, 72, 153, 0.45);
     }
     @media(max-width: 768px) {
       nav {
@@ -212,22 +219,13 @@
       }
       .nav-links { display: none; }
       .nav-actions {
-        flex-direction: column;
-        gap: 6px;
-        align-items: flex-end;
+        flex-direction: row;
+        align-items: center;
       }
       .nav-login {
-        font-size: 11px;
-        padding: 4px 12px;
-        background: #fff;
-        border: 1px solid var(--slate-200);
-        border-radius: 8px;
-      }
-      .nav-cta {
+        min-height: 32px;
         padding: 6px 12px;
-        font-size: 11px;
-        white-space: nowrap;
-        border-radius: 8px;
+        font-size: 12px;
       }
       .nav-logo-text {
         font-size: 16px;
@@ -841,7 +839,6 @@
       </ul>
       <div class="nav-actions">
         <a href="https://app.siklusio.web.id" class="nav-login">Login / Masuk</a>
-        <a href="checkout.html" class="btn btn-primary nav-cta">Register</a>
       </div>
     </div>
   </nav>

@@ -21,12 +21,13 @@ export default function AuthScreen() {
   const router = useRouter();
 
   const openCheckout = () => {
+    const checkoutUrl = 'https://siklusio.web.id/checkout.html';
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      window.location.href = '/checkout.html';
+      window.location.href = checkoutUrl;
       return;
     }
 
-    Linking.openURL('https://app.siklusio.web.id/checkout.html').catch(() => {
+    Linking.openURL(checkoutUrl).catch(() => {
       setError('Gagal membuka halaman checkout.');
     });
   };

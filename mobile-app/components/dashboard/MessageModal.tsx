@@ -7,33 +7,76 @@ interface MessageModalProps {
 }
 
 export function MessageModal({ onClose }: MessageModalProps) {
-  const { currentPhase, cycleDay, daysToNextPeriod, husbandNickname, husbandNumber } = useCycle();
+  const {
+    currentPhase,
+    cycleDay,
+    daysToNextPeriod,
+    husbandNickname,
+    husbandNumber,
+    getDayInfo,
+  } = useCycle();
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
+
+  const getTipsSuamiPhase = () => {
+    const todayInfo = getDayInfo(new Date());
+
+    if (todayInfo.displayPhase === 'Masa Subur') {
+      return 'subur';
+    }
+
+    if (todayInfo.displayPhase === 'Ovulasi') {
+      return 'ovulasi';
+    }
+
+    const phaseMap: Record<string, string> = {
+      Menstrual: 'menstruasi',
+      Folikular: 'folikular',
+      Luteal: 'luteal',
+    };
+
+    return phaseMap[currentPhase] || 'umum';
+  };
+
+  const getSafeHusbandNickname = () => {
+    const trimmed = husbandNickname.trim();
+    return trimmed ? trimmed.slice(0, 24) : 'Mas';
+  };
+
+  const getTipsSuamiUrl = () => {
+    const fase = getTipsSuamiPhase();
+    const nama = encodeURIComponent(getSafeHusbandNickname());
+    return `https://siklusio.web.id/tips-suami.html?fase=${fase}&nama=${nama}`;
+  };
+
+  const appendTipsLink = (message: string) => {
+    return `${message}\n\nAku juga kirim panduan singkat buat kamu di sini ya: ${getTipsSuamiUrl()}`;
+  };
 
   const templates = useMemo(() => {
     if (currentPhase === 'Menstrual') {
       return [
-        `Masih haid hari ke-${cycleDay} nih ${husbandNickname}, bawain cemilan yang manis-manis dong pas pulang 🥺`,
-        `${husbandNickname}, perutku lagi kram banget nih hari ini. Nanti tolong pijitin yaa 🤗`,
-        `Lagi dapet nih ${husbandNickname}, mood lagi gampang berubah. Maafin ya kalo agak rewel hari ini 🙏 hehe`,
-        `Hari ini haid hari ke-${cycleDay} lho ${husbandNickname}. Doain cepet selesai ya biar kita bisa lanjut promil lagi 🥰`
+        appendTipsLink(`Masih haid hari ke-${cycleDay} nih ${husbandNickname}, bawain cemilan yang manis-manis dong pas pulang 🥺`),
+        appendTipsLink(`${husbandNickname}, perutku lagi kram banget nih hari ini. Nanti tolong pijitin yaa 🤗`),
+        appendTipsLink(`Lagi dapet nih ${husbandNickname}, mood lagi gampang berubah. Maafin ya kalo agak rewel hari ini 🙏 hehe`),
+        appendTipsLink(`Hari ini haid hari ke-${cycleDay} lho ${husbandNickname}. Doain cepet selesai ya biar kita bisa lanjut promil lagi 🥰`)
       ];
     } else if (currentPhase === 'Ovulasi') {
       return [
-        `${husbandNickname}, aplikasiku bilang hari ini lagi puncak masa subur (ovulasi) nih! Jangan pulang malem-malem yaa 😉`,
-        `Lagi masa subur nih ${husbandNickname}, yuk semangat promilnya bulan ini biar cepet dikasih momongan ❤️`,
-        `Hari ini ovulasi lho ${husbandNickname}. Persiapkan tenagamu ya untuk malam ini! 🔥`,
-        `${husbandNickname}... moodku lagi bagus banget nih karena lagi masa subur. Quality time yuk nanti! ✨`
+        appendTipsLink(`${husbandNickname || 'Mas'}, aku lagi di masa subur menurut Siklusio. Baca tipsnya sebentar ya, biar kita bisa ikhtiar lebih kompak 💕`),
+        appendTipsLink(`${husbandNickname}, aplikasiku bilang hari ini lagi puncak masa subur (ovulasi) nih! Jangan pulang malem-malem yaa 😉`),
+        appendTipsLink(`Lagi masa subur nih ${husbandNickname}, yuk semangat promilnya bulan ini biar cepet dikasih momongan ❤️`),
+        appendTipsLink(`Hari ini ovulasi lho ${husbandNickname}. Persiapkan tenagamu ya untuk malam ini! 🔥`),
+        appendTipsLink(`${husbandNickname}... moodku lagi bagus banget nih karena lagi masa subur. Quality time yuk nanti! ✨`)
       ];
     } else {
       return [
-        `${husbandNickname}, bulan ini haidnya diprediksi sekitar ${daysToNextPeriod} hari lagi. Doain semoga bulan ini ada garis dua yaa 🙏`,
-        `${husbandNickname}, jangan lupa minum vitamin promilnya juga okey! Biar kita berdua sama-sama sehat 💪`,
-        `Sekarang udah masuk fase ${currentPhase} lho ${husbandNickname}. Semoga bulan ini bawa kabar baik buat kita ❤️`,
-        `Lagi nunggu-nunggu hasil promil bulan ini nih ${husbandNickname}... Banyakin doa ya semoga dimudahkan 🥰`
+        appendTipsLink(`${husbandNickname}, bulan ini haidnya diprediksi sekitar ${daysToNextPeriod} hari lagi. Doain semoga bulan ini ada garis dua yaa 🙏`),
+        appendTipsLink(`${husbandNickname}, jangan lupa minum vitamin promilnya juga okey! Biar kita berdua sama-sama sehat 💪`),
+        appendTipsLink(`Sekarang udah masuk fase ${currentPhase} lho ${husbandNickname}. Semoga bulan ini bawa kabar baik buat kita ❤️`),
+        appendTipsLink(`Lagi nunggu-nunggu hasil promil bulan ini nih ${husbandNickname}... Banyakin doa ya semoga dimudahkan 🥰`)
       ];
     }
-  }, [currentPhase, cycleDay, daysToNextPeriod, husbandNickname]);
+  }, [currentPhase, cycleDay, daysToNextPeriod, husbandNickname, getDayInfo]);
 
   const handleSend = () => {
     const text = templates[selectedTemplateIndex];

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useCycle } from '../../src/context/CycleContext';
 import { format } from 'date-fns';
+import { analytics } from '../../src/lib/analytics';
 
 import { CycleCard } from '../../components/dashboard/CycleCard';
 import { AffirmationCard } from '../../components/dashboard/AffirmationCard';
@@ -93,7 +94,10 @@ export default function DashboardScreen() {
           {/* Husband Message Button - Always Visible */}
           <View className="mt-4">
             <TouchableOpacity 
-              onPress={() => setIsMessageModalOpen(true)}
+              onPress={() => {
+                setIsMessageModalOpen(true);
+                analytics.logEvent('click_husband_message', { phase: displayPhase });
+              }}
               className="w-full bg-pink-50 py-[16px] rounded-[24px] items-center justify-center flex-row shadow-sm border border-pink-100 active:scale-95"
             >
               <Text className="text-xl mr-3">💝</Text>

@@ -1,7 +1,7 @@
 import '../global.css';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, usePathname, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -9,6 +9,7 @@ import { storage } from '../src/lib/storage';
 import { AuthProvider } from '../src/context/AuthContext';
 import { CycleProvider } from '../src/context/CycleContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { analytics } from '../src/lib/analytics';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -52,11 +53,26 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+function NavigationTracker() {
+  const pathname = usePathname();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (pathname) {
+      const screenClass = segments[segments.length - 1] || 'root';
+      analytics.logScreenView(pathname, screenClass);
+    }
+  }, [pathname, segments]);
+
+  return null;
+}
+
 function RootLayoutNav() {
   return (
     <AuthProvider>
       <CycleProvider>
         <SafeAreaProvider>
+          <NavigationTracker />
           <Stack
             screenOptions={{
               headerShown: false,

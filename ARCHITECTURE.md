@@ -59,6 +59,7 @@ remix_-siklusio/
 | Auth | Supabase Auth (email/password) |
 | Backend API | Express.js (Node.js) via tsx/esbuild |
 | AI | Google Gemini (recipe recommendations, cycle reports) |
+| Payment Gateway | Mayar (Premium activation & webhook processing) |
 | Image Hosting | Cloudflare R2 (avatar upload, via backend proxy) |
 | Deployment (planned) | Cloudflare Pages (web) + Play Store (Android via EAS Build) |
 
@@ -87,6 +88,19 @@ remix_-siklusio/
 - Client-side countdown timer on submit buttons + `errorParser` utility mapping custom trigger-emitted rate limit exceptions (`SQLSTATE P0001`) into warm, localized Indonesian messages.
 - Avatar system: preset gallery + custom upload via Cloudflare R2
 - Admin can reset inappropriate custom avatars
+
+### Monetization & Affiliate System
+- **Mayar Checkout:** Integrasi *payment gateway* Mayar pada `checkout.html` di landing page untuk memproses aktivasi Premium seumur hidup (Lifetime).
+- **Backend Webhook:** Express API mendengarkan *event* `PAYMENT_SUCCESS` dari Mayar, lalu memicu registrasi pengguna baru di Supabase Auth dan `profiles`.
+- **Affiliate/Referral Tracking:**
+  - *Last-Click Wins:* Sistem referral menyimpan kode rujukan dari URL (`?ref=CODE`) ke `localStorage` (via web) atau `AsyncStorage` (di mobile app jika ada *deep linking*).
+  - Backend memvalidasi kode promo/afiliasi sebelum me-lempar permintaan tagihan ke Mayar. Diskon otomatis diterapkan pada invoice jika *valid*.
+  - *Conversion Tracking:* Tersimpan pada tabel `affiliate_conversions` setelah pengguna berhasil membayar.
+
+### Branding & UI Layer
+- **Desain Universal:** UI dibangun memakai **NativeWind** yang dikustomisasi dengan parameter *brand* Siklusio (Pink, Violet, Teal).
+- **Identitas Visual:** Aturan main penggunaan aset visual (Logo Floral & Heart Cycle, gaya bahasa "Bunda", dan font Outfit/Plus Jakarta Sans) tercatat terpusat di `brand_guideline.md`.
+- Komponen webview tambahan mengadopsi integrasi HTML murni yang berjalan mulus dengan ekosistem DOM (via expo-router web shell).
 
 ### Admin Portal
 - User management dashboard (sortable table, CSV export)
@@ -139,10 +153,11 @@ eas build --platform android     # → .aab for Play Store
 
 ### Key Postgres Features Used
 - Row Level Security (RLS) on all tables
-- `SECURITY DEFINER` helper functions (is_admin, admin_moderate_target)
+- `SECURITY DEFINER` helper functions (is_admin, admin_moderate_target, handle_new_user)
 - Triggers: auto-update timestamps, sync counters, auto-hide on threshold, rate limiting, and auto-resolve reports on reviewed targets
 - Column-Level SELECT privileges: blocked access to sensitive columns (e.g., user_id) on anonymous items
 - Cursor-based pagination via RPC function (get_community_feed)
+- Affiliate system relies on RLS and secure webhook insertions into `affiliate_conversions`.
 
 ## Security
 
@@ -167,3 +182,5 @@ eas build --platform android     # → .aab for Play Store
 | `R2_SECRET_ACCESS_KEY` | Backend only | R2 API Token Secret Key |
 | `R2_BUCKET_NAME` | Backend only | R2 bucket name (siklusio-avatars) |
 | `R2_PUBLIC_URL` | Backend only | R2 public URL (cdn.siklusio.web.id) |
+| `MAYAR_API_KEY` | Backend only | Token otentikasi API Mayar untuk *checkout invoice* |
+| `MAYAR_WEBHOOK_SECRET` | Backend only | Rahasia *signature* Webhook dari Mayar |

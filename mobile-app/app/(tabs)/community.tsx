@@ -18,6 +18,7 @@ import { ComposerModal } from '../../components/community/ComposerModal';
 import { CommentsModal } from '../../components/community/CommentsModal';
 import { ReportModal } from '../../components/community/ReportModal';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
+import { analytics } from '../../src/lib/analytics';
 
 export default function CommunityScreen() {
   const { user } = useAuth();
@@ -41,9 +42,22 @@ export default function CommunityScreen() {
   const handleReact = async (postId: string, rx: any) => {
     try {
       await feed.toggleReaction(postId, rx);
+      analytics.logEvent('community_react', { reaction_type: rx });
     } catch (e: any) {
       showError(e?.message || 'Gagal mengirim reaksi.');
     }
+  };
+
+  const handleCreatePost = async (content: string) => {
+    const res = await feed.createPost(content);
+    analytics.logEvent('community_post_created');
+    return res;
+  };
+
+  const handleCreateComment = async (postId: string, content: string) => {
+    const res = await feed.createComment(postId, content);
+    analytics.logEvent('community_comment_created');
+    return res;
   };
 
   const handleOpenReport = (id: string, type: 'post' | 'comment') => {
@@ -260,7 +274,7 @@ export default function CommunityScreen() {
       <ComposerModal
         visible={composerOpen}
         onClose={() => setComposerOpen(false)}
-        onSubmit={feed.createPost}
+        onSubmit={handleCreatePost}
         cooldownLeft={feed.postCooldownLeft}
       />
 
@@ -270,7 +284,7 @@ export default function CommunityScreen() {
         postPreview={commentsPostPreview}
         onClose={handleCloseComments}
         fetchComments={feed.fetchComments}
-        onCreateComment={feed.createComment}
+        onCreateComment={handleCreateComment}
         onReportComment={(commentId, reason) =>
           feed.reportTarget('comment', commentId, reason)
         }

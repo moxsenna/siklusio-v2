@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform
 import { format, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
+import { analytics } from '../../src/lib/analytics';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
 import { HistoryView } from '../../components/habits/HistoryView';
@@ -102,6 +103,16 @@ export default function HabitsScreen() {
 
   const toggleTask = (id: number) => {
     startTransition(() => {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        const nextState = !task.done;
+        if (nextState) {
+          analytics.logEvent('habit_completed', {
+            habit_name: task.text,
+            phase: currentPhase
+          });
+        }
+      }
       updateCurrentDay({
         tasks: tasks.map(t => t.id === id ? { ...t, done: !t.done } : t)
       });
@@ -110,6 +121,13 @@ export default function HabitsScreen() {
 
   const toggleSymptom = (id: string) => {
     startTransition(() => {
+      const isAdding = !symptoms.includes(id);
+      if (isAdding) {
+        analytics.logEvent('symptom_logged', {
+          symptom_id: id,
+          phase: currentPhase
+        });
+      }
       if (symptoms.includes(id)) {
         updateCurrentDay({ symptoms: symptoms.filter(s => s !== id) });
       } else {

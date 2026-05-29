@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PX5J3XBM');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Siklusio — Teman setia perjalanan promilmu. Lacak siklus haid, prediksi masa subur, dan persiapkan kehamilan dengan dukungan AI & komunitas.">
@@ -820,6 +827,10 @@
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5J3XBM"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- NAVIGATION -->
   <nav>
@@ -1102,5 +1113,59 @@
     </div>
   </footer>
 
+  <!-- GTM Click CTA Event Tracker -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function trackCtaClick(location, text) {
+      window.dataLayer.push({
+        event: 'click_cta',
+        cta_location: location,
+        cta_text: text
+      });
+      console.log('--> GTM Event: click_cta', { cta_location: location, cta_text: text });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Nav Login Click
+      const navLogin = document.querySelector('.nav-login');
+      if (navLogin) {
+        navLogin.addEventListener('click', () => {
+          trackCtaClick('navbar', navLogin.innerText);
+        });
+      }
+
+      // Hero Buttons
+      const heroPrimary = document.querySelector('.hero-buttons .btn-primary');
+      if (heroPrimary) {
+        heroPrimary.addEventListener('click', () => {
+          trackCtaClick('hero_section', heroPrimary.innerText);
+        });
+      }
+
+      const heroOutline = document.querySelector('.hero-buttons .btn-outline');
+      if (heroOutline) {
+        heroOutline.addEventListener('click', () => {
+          trackCtaClick('hero_section', heroOutline.innerText);
+        });
+      }
+
+      // Community Section CTA
+      const commCta = document.querySelector('.community-box .btn-secondary');
+      if (commCta) {
+        commCta.addEventListener('click', () => {
+          trackCtaClick('community_section', commCta.innerText);
+        });
+      }
+
+      // Pricing / Final CTA
+      const pricingBox = document.querySelector('.pricing-box .btn');
+      if (pricingBox) {
+        pricingBox.addEventListener('click', () => {
+          trackCtaClick('pricing_section', pricingBox.innerText);
+        });
+      }
+    });
+  </script>
 </body>
 </html>

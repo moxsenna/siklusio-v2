@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PX5J3XBM');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Aktivasi Akun Premium Siklusio — Langkah Nyata Ikhtiar Promilmu.">
@@ -358,6 +365,10 @@
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5J3XBM"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- HEADER -->
   <header>
@@ -491,6 +502,23 @@
 
   <!-- DYNAMIC JS FLOW INTEGRATION -->
   <script>
+    window.dataLayer = window.dataLayer || [];
+
+    // Trigger standard GA4 begin_checkout event
+    window.dataLayer.push({
+      event: 'begin_checkout',
+      ecommerce: {
+        currency: 'IDR',
+        value: 37000,
+        items: [{
+          item_name: 'Siklusio Premium Lifetime Access',
+          price: 37000,
+          quantity: 1
+        }]
+      }
+    });
+    console.log('--> GTM Event: begin_checkout');
+
     const form = document.getElementById('checkoutForm');
     const btnSubmit = document.getElementById('btnSubmit');
     const btnText = document.getElementById('btnText');
@@ -527,6 +555,13 @@
         const refCode = refParam.trim().toUpperCase();
         localStorage.setItem('siklusio_ref_code', refCode);
         console.log('--> Referral code detected from URL:', refCode);
+
+        // Push to GTM
+        window.dataLayer.push({
+          event: 'referral_detected',
+          ref_code: refCode
+        });
+        console.log('--> GTM Event: referral_detected', { ref_code: refCode });
       }
     })();
 
@@ -552,6 +587,14 @@
             inputCoupon.value = storedRef;
           }
           console.log('--> Referral validated:', storedRef, data.discountLabel);
+
+          // Push to GTM
+          window.dataLayer.push({
+            event: 'referral_validated',
+            ref_code: storedRef,
+            discount_label: data.discountLabel || ''
+          });
+          console.log('--> GTM Event: referral_validated', { ref_code: storedRef, discount_label: data.discountLabel });
         } else {
           // Invalid code — remove from localStorage
           localStorage.removeItem('siklusio_ref_code');
@@ -584,11 +627,27 @@
 
       // Basic client validation
       if (!name || !whatsapp || !email || !password) {
-        showError('Semua kolom pendaftaran wajib diisi.');
+        const errMsg = 'Semua kolom pendaftaran wajib diisi.';
+        showError(errMsg);
+
+        // Push error to dataLayer
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
         return;
       }
       if (password.length < 6) {
-        showError('Password minimal harus terdiri dari 6 karakter.');
+        const errMsg = 'Password minimal harus terdiri dari 6 karakter.';
+        showError(errMsg);
+
+        // Push error to dataLayer
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
         return;
       }
 
@@ -628,6 +687,25 @@
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
 
+        // Push successful purchase_initiated event to GTM (standard GA4 style)
+        window.dataLayer.push({
+          event: 'purchase_initiated',
+          ref_code: affiliateCode || '',
+          coupon_applied: couponCode || '',
+          ecommerce: {
+            transaction_id: result.transactionId || 'TXN_' + Date.now(),
+            value: result.finalAmount || 37000,
+            currency: 'IDR',
+            coupon: couponCode || '',
+            items: [{
+              item_name: 'Siklusio Premium Lifetime Access',
+              price: 37000,
+              quantity: 1
+            }]
+          }
+        });
+        console.log('--> GTM Event: purchase_initiated', { ref_code: affiliateCode, coupon: couponCode });
+
         // Redirect to unique Mayar payment request invoice link!
         setTimeout(() => {
           window.location.href = result.paymentUrl;
@@ -635,8 +713,17 @@
 
       } catch (err) {
         console.error('Checkout error:', err);
-        showError(err.message || 'Gagal menghubungi server pendaftaran. Silakan periksa koneksi internet Anda.');
+        const errMsg = err.message || 'Gagal menghubungi server pendaftaran. Silakan periksa koneksi internet Anda.';
+        showError(errMsg);
         
+        // Push error to dataLayer
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'server_error',
+          error_message: errMsg
+        });
+        console.log('--> GTM Event: checkout_error', { error_type: 'server_error', error_message: errMsg });
+
         // Reset loading state
         btnSubmit.disabled = false;
         btnSpinner.style.display = 'none';

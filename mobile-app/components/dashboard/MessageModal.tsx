@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Linking, Modal } from 'react-native';
 import { useCycle } from '../../src/context/CycleContext';
 
 interface MessageModalProps {
@@ -42,16 +42,22 @@ export function MessageModal({ onClose }: MessageModalProps) {
   };
 
   return (
-    <View className="absolute inset-0 z-50 justify-end">
-      {/* Backdrop */}
-      <TouchableOpacity 
-        activeOpacity={1}
-        onPress={onClose}
-        className="absolute inset-0 bg-black/40"
-      />
-      
-      {/* Bottom Sheet */}
-      <View className="relative bg-background rounded-t-[32px] w-full max-w-md mx-auto p-[24px] pb-[40px] border border-outline-variant shadow-lg">
+    <Modal
+      visible={true}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View className="flex-1 justify-end bg-black/40">
+        {/* Backdrop */}
+        <TouchableOpacity 
+          activeOpacity={1}
+          onPress={onClose}
+          className="absolute inset-0"
+        />
+        
+        {/* Bottom Sheet */}
+        <View className="relative bg-background rounded-t-[32px] w-full max-w-md mx-auto p-[24px] pb-[40px] border border-outline-variant shadow-lg">
         <View className="flex-row justify-between items-center mb-[24px]">
            <Text className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-on-background">TEMPLATE PESAN</Text>
            <TouchableOpacity 
@@ -88,5 +94,6 @@ export function MessageModal({ onClose }: MessageModalProps) {
         </TouchableOpacity>
       </View>
     </View>
+    </Modal>
   );
 }

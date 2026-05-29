@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Animated, Platform, Easing } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Animated, Platform, Easing, Modal } from 'react-native';
 import { useCycle } from '../../src/context/CycleContext';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { Audio } from 'expo-av';
@@ -170,16 +170,22 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
   };
 
   return (
-    <View className="absolute inset-0 z-50 justify-end">
-      {/* Backdrop */}
-      <TouchableOpacity 
-        activeOpacity={1}
-        onPress={onClose}
-        className="absolute inset-0 bg-black/60"
-      />
-      
-      {/* Bottom Sheet */}
-      <View className="relative bg-[#f8f5ff] rounded-t-[32px] w-full max-w-md mx-auto p-[24px] pb-[40px] border border-purple-100 shadow-lg max-h-[90vh]">
+    <Modal
+      visible={true}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View className="flex-1 justify-end bg-black/60">
+        {/* Backdrop */}
+        <TouchableOpacity 
+          activeOpacity={1}
+          onPress={onClose}
+          className="absolute inset-0"
+        />
+        
+        {/* Bottom Sheet */}
+        <View className="relative bg-[#f8f5ff] rounded-t-[32px] w-full max-w-md mx-auto p-[24px] pb-[40px] border border-purple-100 shadow-lg max-h-[90vh]">
         <View className="flex-row justify-between items-center mb-[24px] border-b border-purple-200 pb-4">
            <Text className="text-sm font-bold uppercase tracking-widest text-purple-700">
              🧘‍♀️ TWW Sanctuary
@@ -384,10 +390,11 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
             </View>
           )}
           
-          {/* Spacer for bottom tab bar */}
-          <View className="h-40" />
+          {/* Bottom spacer inside scrollview */}
+          <View className="h-10" />
         </ScrollView>
       </View>
     </View>
+    </Modal>
   );
 }

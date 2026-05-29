@@ -39,3 +39,8 @@ mobile-app/android/
 
 # Graphify cache
 graphify-out/cache/
+
+# Agent skills
+.agent/
+.agents/
+

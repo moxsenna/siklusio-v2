@@ -11,6 +11,7 @@ export function MessageModal({ onClose }: MessageModalProps) {
     currentPhase,
     cycleDay,
     daysToNextPeriod,
+    husbandName,
     husbandNickname,
     husbandNumber,
     getDayInfo,
@@ -37,14 +38,14 @@ export function MessageModal({ onClose }: MessageModalProps) {
     return phaseMap[currentPhase] || 'umum';
   };
 
-  const getSafeHusbandNickname = () => {
-    const trimmed = husbandNickname.trim();
+  const getSafeHusbandName = () => {
+    const trimmed = (husbandName || husbandNickname).trim();
     return trimmed ? trimmed.slice(0, 24) : 'Mas';
   };
 
   const getTipsSuamiUrl = () => {
     const fase = getTipsSuamiPhase();
-    const nama = encodeURIComponent(getSafeHusbandNickname());
+    const nama = encodeURIComponent(getSafeHusbandName());
     return `https://siklusio.web.id/tips-suami.html?fase=${fase}&nama=${nama}`;
   };
 
@@ -76,7 +77,7 @@ export function MessageModal({ onClose }: MessageModalProps) {
         appendTipsLink(`Lagi nunggu-nunggu hasil promil bulan ini nih ${husbandNickname}... Banyakin doa ya semoga dimudahkan 🥰`)
       ];
     }
-  }, [currentPhase, cycleDay, daysToNextPeriod, husbandNickname, getDayInfo]);
+  }, [currentPhase, cycleDay, daysToNextPeriod, husbandName, husbandNickname, getDayInfo]);
 
   const handleSend = () => {
     const text = templates[selectedTemplateIndex];

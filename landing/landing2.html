@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PX5J3XBM');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Siklusio — Teman setia perjalanan promilmu. Lacak jendela subur secara medis akurat, peroleh panduan asisten AI personal, dan bersandarlah di komunitas pejuang garis dua.">
+<meta name="theme-color" content="#ec4899">
+<title>Siklusio — Teman Setia Perjalanan Promilmu & Ikhtiar Pasutri 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ec4899;
+  --pink-dark: #db2777;
+  --pink-light: #fdf2f8;
+  --pink-mid: #fbeaf0;
+  --violet: #9333ea;
+  --violet-light: #faf5ff;
+  --teal: #14b8a6;
+  --teal-light: #f0fdfa;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-600: #475569;
+  --slate-300: #cbd5e1;
+  --slate-100: #f1f5f9;
+  --white: #ffffff;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --font-head: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--slate-800);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── UTILITY ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.outfit { font-family: var(--font-head); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(236,72,153,0.1);
+  padding: 14px 0;
+  transition: box-shadow .3s;
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; }
+.nav-logo {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+}
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a { font-size: 14px; color: var(--slate-600); text-decoration: none; font-weight: 500; transition: color .2s; }
+.nav-links a:hover { color: var(--pink); }
+.nav-cta {
+  background: var(--pink);
+  color: var(--white) !important;
+  padding: 10px 22px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background .2s, transform .15s !important;
+}
+.nav-cta:hover { background: var(--pink-dark) !important; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #fdf2f8 0%, #faf5ff 50%, #f0fdfa 100%);
+  display: flex; align-items: center;
+  padding: 100px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(236,72,153,0.12) 0%, transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(147,51,234,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 15%, rgba(20,184,166,0.08) 0%, transparent 40%);
+  pointer-events: none;
+}
+.hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white);
+  border: 1px solid rgba(236,72,153,0.25);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 500; color: var(--pink-dark);
+  margin-bottom: 24px;
+  animation: fadeUp .6s ease both;
+}
+.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+.hero-headline {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.1;
+  color: var(--slate-900);
+  margin-bottom: 20px;
+  animation: fadeUp .6s .1s ease both;
+}
+.hero-headline .grad {
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 17px; color: var(--slate-600); line-height: 1.7;
+  margin-bottom: 36px;
+  max-width: 480px;
+  animation: fadeUp .6s .2s ease both;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; animation: fadeUp .6s .3s ease both; }
+.btn-primary {
+  background: var(--pink);
+  color: var(--white);
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 16px; font-weight: 600;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 8px 24px rgba(236,72,153,0.35);
+}
+.btn-primary:hover { background: var(--pink-dark); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(236,72,153,0.45); }
+.btn-secondary {
+  background: var(--white);
+  color: var(--slate-800);
+  padding: 16px 28px;
+  border-radius: 50px;
+  font-size: 16px; font-weight: 500;
+  text-decoration: none;
+  border: 1.5px solid var(--slate-300);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: border-color .2s, transform .15s;
+}
+.btn-secondary:hover { border-color: var(--pink); color: var(--pink); transform: translateY(-2px); }
+.hero-trust { display: flex; flex-wrap: wrap; gap: 20px; animation: fadeUp .6s .4s ease both; }
+.trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--slate-600); font-weight: 500; }
+.trust-icon { font-size: 16px; }
+
+/* ── HERO VISUAL ── */
+.hero-visual { position: relative; animation: fadeUp .7s .2s ease both; }
+.phone-frame {
+  width: 260px; margin: 0 auto;
+  background: var(--slate-900);
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.1);
+  position: relative;
+}
+.phone-notch {
+  width: 100px; height: 28px;
+  background: var(--slate-900);
+  border-radius: 0 0 20px 20px;
+  margin: 0 auto 8px;
+  position: relative; z-index: 2;
+}
+.phone-screen {
+  background: linear-gradient(160deg, #fdf2f8, #faf5ff);
+  border-radius: 36px;
+  overflow: hidden;
+  padding: 20px 16px;
+  min-height: 480px;
+}
+.app-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.app-logo { font-family: var(--font-head); font-weight: 800; font-size: 18px; background: linear-gradient(135deg, var(--pink), var(--violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.app-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--violet)); }
+.app-greeting { font-size: 11px; color: var(--slate-600); margin-bottom: 4px; font-family: var(--font-body); }
+.app-name { font-family: var(--font-head); font-weight: 700; font-size: 16px; color: var(--slate-900); margin-bottom: 16px; }
+
+.cycle-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(236,72,153,0.08);
+}
+.cycle-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.cycle-card-title { font-family: var(--font-head); font-weight: 700; font-size: 12px; color: var(--slate-800); }
+.cycle-badge { background: var(--pink-mid); color: var(--pink-dark); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 50px; font-family: var(--font-body); }
+.cycle-days { display: flex; gap: 4px; }
+.cycle-day {
+  flex: 1; height: 28px; border-radius: 8px;
+  background: var(--pink-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: var(--slate-600); font-family: var(--font-body);
+}
+.cycle-day.past { background: rgba(236,72,153,0.15); color: var(--pink-dark); }
+.cycle-day.today { background: var(--pink); color: var(--white); box-shadow: 0 2px 8px rgba(236,72,153,0.4); }
+.cycle-day.fertile { background: rgba(20,184,166,0.15); color: #0f766e; }
+
+.ai-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 20px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.ai-tag { font-size: 9px; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; font-family: var(--font-body); }
+.ai-text { font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.5; font-family: var(--font-body); }
+.ai-accent { color: var(--pink); font-weight: 600; }
+
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-mini { background: var(--white); border-radius: 14px; padding: 10px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.stat-mini-num { font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--pink); }
+.stat-mini-lbl { font-size: 10px; color: var(--slate-600); font-family: var(--font-body); }
+
+/* Floating cards */
+.float-card {
+  position: absolute;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; color: var(--slate-800);
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+.float-1 { top: 40px; right: -20px; animation: floatY 3s ease-in-out infinite; }
+.float-2 { bottom: 80px; left: -30px; animation: floatY 3s 1.5s ease-in-out infinite; }
+.float-icon { font-size: 18px; }
+
+/* ── SOCIAL PROOF STRIP ── */
+.strip {
+  background: var(--slate-900);
+  padding: 18px 0;
+  overflow: hidden;
+}
+.strip-inner { display: flex; align-items: center; gap: 48px; white-space: nowrap; animation: slideLeft 20s linear infinite; }
+.strip-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; }
+.strip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+
+/* ── SECTIONS ── */
+section { padding: 96px 0; }
+.section-eyebrow {
+  display: inline-block;
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--pink);
+  margin-bottom: 12px;
+  background: var(--pink-mid);
+  padding: 5px 14px;
+  border-radius: 50px;
+}
+.section-title {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.15;
+  color: var(--slate-900);
+  margin-bottom: 16px;
+}
+.section-sub { font-size: 16px; color: var(--slate-600); max-width: 560px; line-height: 1.7; }
+
+/* ── PAIN SECTION ── */
+.pain-section { background: var(--pink-light); }
+.pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 48px; }
+.pain-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  border: 1.5px solid transparent;
+  transition: border-color .2s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.pain-card:hover { border-color: rgba(236,72,153,0.25); transform: translateY(-4px); }
+.pain-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--pink), var(--violet)); }
+.pain-emoji { font-size: 28px; margin-bottom: 12px; }
+.pain-title { font-family: var(--font-head); font-weight: 700; font-size: 17px; color: var(--slate-900); margin-bottom: 8px; }
+.pain-text { font-size: 14px; color: var(--slate-600); line-height: 1.65; }
+
+/* ── FEATURES ── */
+.features-section { background: var(--white); }
+.features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 56px; }
+.feature-card {
+  background: linear-gradient(160deg, #fdf2f8, #faf5ff);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  position: relative; overflow: hidden;
+  transition: transform .2s;
+}
+.feature-card:hover { transform: translateY(-4px); }
+.feature-card.large { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.feature-icon-wrap {
+  width: 52px; height: 52px;
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(236,72,153,0.15);
+}
+.feature-title { font-family: var(--font-head); font-weight: 700; font-size: 20px; color: var(--slate-900); margin-bottom: 10px; }
+.feature-text { font-size: 14px; color: var(--slate-600); line-height: 1.7; }
+.feature-tag { display: inline-block; background: var(--pink); color: var(--white); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 50px; margin-top: 16px; }
+
+/* ── HOW IT WORKS ── */
+.how-section { background: var(--slate-900); }
+.how-section .section-title { color: var(--white); }
+.how-section .section-eyebrow { background: rgba(236,72,153,0.2); color: #f9a8d4; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
+.step-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  padding: 32px 28px;
+  position: relative;
+  transition: background .2s;
+}
+.step-card:hover { background: rgba(255,255,255,0.08); }
+.step-num {
+  font-family: var(--font-head);
+  font-weight: 800; font-size: 48px;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+.step-title { font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--white); margin-bottom: 10px; }
+.step-text { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+/* ── TESTIMONIALS ── */
+.testi-section { background: linear-gradient(160deg, #fdf2f8, #faf5ff, #f0fdfa); }
+.testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; }
+.testi-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  transition: transform .2s;
+}
+.testi-card:hover { transform: translateY(-4px); }
+.testi-stars { color: #fbbf24; font-size: 14px; margin-bottom: 14px; }
+.testi-text { font-size: 14px; color: var(--slate-700, #334155); line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-weight: 700; font-size: 14px; color: var(--white);
+  flex-shrink: 0;
+}
+.testi-name { font-weight: 600; font-size: 14px; color: var(--slate-900); }
+.testi-loc { font-size: 12px; color: var(--slate-600); }
+
+/* ── STATS ── */
+.stats-section { background: var(--white); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 56px; }
+.stat-card { text-align: center; }
+.stat-num {
+  font-family: var(--font-head);
+  font-weight: 800; font-size: clamp(36px, 4vw, 52px);
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1; margin-bottom: 8px;
+}
+.stat-lbl { font-size: 14px; color: var(--slate-600); font-weight: 500; }
+
+/* ── PRICING ── */
+.pricing-section { background: var(--pink-light); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; align-items: start; }
+.pricing-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 32px 28px;
+  border: 1.5px solid rgba(0,0,0,0.06);
+  transition: transform .2s;
+}
+.pricing-card:hover { transform: translateY(-4px); }
+.pricing-card.featured {
+  background: var(--slate-900);
+  border-color: transparent;
+  transform: scale(1.04);
+  position: relative;
+}
+.pricing-card.featured:hover { transform: scale(1.04) translateY(-4px); }
+.featured-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  color: var(--white); font-size: 12px; font-weight: 700;
+  padding: 5px 18px; border-radius: 50px;
+  white-space: nowrap;
+}
+.pricing-name { font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--slate-900); margin-bottom: 6px; }
+.pricing-card.featured .pricing-name { color: var(--white); }
+.pricing-desc { font-size: 13px; color: var(--slate-600); margin-bottom: 24px; }
+.pricing-card.featured .pricing-desc { color: rgba(255,255,255,0.6); }
+.pricing-price { font-family: var(--font-head); font-weight: 800; font-size: 36px; color: var(--slate-900); margin-bottom: 4px; }
+.pricing-card.featured .pricing-price { color: var(--white); }
+.pricing-price span { font-size: 16px; font-weight: 500; color: var(--slate-600); }
+.pricing-card.featured .pricing-price span { color: rgba(255,255,255,0.5); }
+.pricing-period { font-size: 12px; color: var(--slate-600); margin-bottom: 28px; }
+.pricing-card.featured .pricing-period { color: rgba(255,255,255,0.5); }
+.pricing-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+.pricing-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--slate-700, #334155); }
+.pricing-card.featured .pricing-features li { color: rgba(255,255,255,0.8); }
+.pricing-features li::before { content: '✓'; color: var(--teal); font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.pricing-btn {
+  display: block; width: 100%; text-align: center;
+  padding: 14px;
+  border-radius: 50px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none;
+  transition: all .2s;
+}
+.pricing-btn-outline { border: 1.5px solid var(--slate-300); color: var(--slate-800); }
+.pricing-btn-outline:hover { border-color: var(--pink); color: var(--pink); }
+.pricing-btn-filled {
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  color: var(--white);
+  box-shadow: 0 8px 24px rgba(236,72,153,0.35);
+}
+.pricing-btn-filled:hover { box-shadow: 0 12px 32px rgba(236,72,153,0.5); transform: translateY(-1px); }
+
+/* ── FAQ ── */
+.faq-section { background: var(--white); }
+.faq-list { max-width: 720px; margin: 56px auto 0; display: flex; flex-direction: column; gap: 12px; }
+.faq-item { border: 1px solid rgba(0,0,0,0.08); border-radius: var(--radius-sm); overflow: hidden; }
+.faq-q {
+  width: 100%; padding: 20px 24px; text-align: left;
+  background: var(--white); border: none; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-body); font-size: 15px; font-weight: 600; color: var(--slate-900);
+  transition: background .2s;
+}
+.faq-q:hover { background: var(--pink-light); }
+.faq-chevron { font-size: 18px; color: var(--pink); transition: transform .3s; flex-shrink: 0; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  padding: 0 24px;
+  font-size: 14px; color: var(--slate-600); line-height: 1.75;
+  transition: max-height .35s ease, padding .35s ease;
+}
+.faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
+
+/* ── CTA SECTION ── */
+.cta-section {
+  background: var(--slate-900);
+  text-align: center;
+  padding: 96px 0;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 50%, rgba(236,72,153,0.15) 0%, transparent 60%),
+    radial-gradient(circle at 70% 50%, rgba(147,51,234,0.12) 0%, transparent 60%);
+}
+.cta-section .section-eyebrow { background: rgba(236,72,153,0.2); color: #f9a8d4; }
+.cta-section .section-title { color: var(--white); max-width: 600px; margin: 0 auto 16px; }
+.cta-sub { font-size: 16px; color: rgba(255,255,255,0.6); max-width: 480px; margin: 0 auto 40px; }
+.cta-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; position: relative; }
+.cta-note { margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); position: relative; }
+
+/* ── FOOTER ── */
+footer {
+  background: #060d1a;
+  padding: 60px 0 32px;
+  color: rgba(255,255,255,0.5);
+}
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-brand-logo { font-family: var(--font-head); font-weight: 800; font-size: 24px; background: linear-gradient(135deg, var(--pink), var(--violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 14px; display: block; text-decoration: none; }
+.footer-brand-text { font-size: 13px; line-height: 1.7; max-width: 260px; }
+.footer-col-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color .2s; }
+.footer-links a:hover { color: var(--pink); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 13px; }
+.footer-legal { display: flex; gap: 20px; }
+.footer-legal a { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color .2s; }
+.footer-legal a:hover { color: var(--pink); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes slideLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; text-align: center; }
+  .hero-sub { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-trust { justify-content: center; }
+  .hero-visual { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card.large { grid-column: auto; grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card.featured { transform: none; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  section { padding: 64px 0; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-top { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5J3XBM"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo outfit">Siklusio</a>
+    <div class="nav-links">
+      <a href="#fitur">Fitur</a>
+      <a href="#cara-kerja">Cara Kerja</a>
+      <a href="#testimoni">Testimoni</a>
+      <a href="#harga">Harga</a>
+      <a href="https://app.siklusio.web.id" style="margin-right: 10px; font-weight: 700; color: var(--pink);">Login / Masuk</a>
+      <a href="checkout.html" class="nav-cta">Aktivasi Premium</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          ✨ 100% Bebas Iklan & Mengutamakan Privasi Medis Anda
+        </div>
+        <h1 class="hero-headline outfit">
+          Lacak Masa Subur Medis,<br>
+          <span class="grad">Ikhtiar Promil</span><br>
+          Lebih Tenang & Terarah
+        </h1>
+        <p class="hero-sub">
+          Siklusio membantu Bunda membaca fase unik tubuh, merutinkan kebiasaan promil harian, mengajak suami ikut berikhtiar tanpa canggung, dan berteduh di komunitas anonim yang hangat.
+        </p>
+        <div class="hero-actions">
+          <a href="checkout.html" class="btn-primary">
+            🌸 Mulai Ikhtiar Premium
+          </a>
+          <a href="#cara-kerja" class="btn-secondary">
+            ▶ Lihat Langkah Promil
+          </a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item"><span class="trust-icon">🔒</span> Data 100% Aman & Privat</div>
+          <div class="trust-item"><span class="trust-icon">🛡️</span> Enkripsi Standar Medis</div>
+          <div class="trust-item"><span class="trust-icon">🤖</span> Didukung Asisten AI Cerdas</div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="app-bar">
+              <div class="app-logo">Siklusio</div>
+              <div class="app-avatar"></div>
+            </div>
+            <div class="app-greeting">Selamat pagi,</div>
+            <div class="app-name outfit">Bunda Hebat 👋</div>
+            
+            <div class="cycle-card">
+              <div class="cycle-card-header">
+                <span class="cycle-card-title outfit">Siklus Hari Ini</span>
+                <span class="cycle-badge">Hari ke-14 (Puncak)</span>
+              </div>
+              <div class="cycle-days">
+                <div class="cycle-day past">10</div>
+                <div class="cycle-day past">11</div>
+                <div class="cycle-day past">12</div>
+                <div class="cycle-day past">13</div>
+                <div class="cycle-day today">14</div>
+                <div class="cycle-day fertile">15</div>
+                <div class="cycle-day fertile">16</div>
+              </div>
+            </div>
+
+            <div class="ai-card" style="margin-bottom: 8px;">
+              <div class="ai-tag">🤖 AI Recommendation</div>
+              <div class="ai-text">Masa subur puncakmu <span class="ai-accent">hari ini</span>! Waktu terbaik untuk berikhtiar bersama pasangan.</div>
+            </div>
+
+            <div class="partner-card-mockup" style="background:var(--white); border-radius:14px; padding:10px 12px; box-shadow:0 2px 10px rgba(236,72,153,0.06); margin-bottom:12px; border-left:4px solid var(--pink)">
+              <div style="font-size:9.5px; font-weight:800; color:var(--pink-dark); text-transform:uppercase; margin-bottom:2px; display:flex; align-items:center; gap:4px">💌 Pesan Suami Aktif</div>
+              <div style="font-size:10px; color:var(--slate-600); font-style:italic; line-height:1.45">"Pah, hari ini waktu terbaik kita berikhtiar. Pulang kerja nanti kita quality time ya... 💜"</div>
+            </div>
+            
+            <div class="stats-row">
+              <div class="stat-mini">
+                <div class="stat-mini-num outfit">28</div>
+                <div class="stat-mini-lbl">Hari rata-rata siklus</div>
+              </div>
+              <div class="stat-mini">
+                <div class="stat-mini-num outfit">96%</div>
+                <div class="stat-mini-lbl">Akurasi prediksi AI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="float-card float-1">
+          <span class="float-icon">💖</span>
+          <span>Notifikasi masa subur aktif</span>
+        </div>
+        <div class="float-card float-2">
+          <span class="float-icon">🎉</span>
+          <span>+3.200 Bunda join minggu ini</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="container" style="overflow:hidden">
+    <div class="strip-inner">
+      <div class="strip-item"><span class="strip-dot"></span>50.000+ pengguna aktif</div>
+      <div class="strip-item"><span class="strip-dot"></span>Prediksi akurasi hingga 94%</div>
+      <div class="strip-item"><span class="strip-dot"></span>Direkomendasikan bidan & konselor</div>
+      <div class="strip-item"><span class="strip-dot"></span>Gratis tanpa iklan mengganggu</div>
+      <div class="strip-item"><span class="strip-dot"></span>Data terenkripsi & aman</div>
+      <div class="strip-item"><span class="strip-dot"></span>50.000+ pengguna aktif</div>
+      <div class="strip-item"><span class="strip-dot"></span>Prediksi akurasi hingga 94%</div>
+      <div class="strip-item"><span class="strip-dot"></span>Direkomendasikan bidan & konselor</div>
+      <div class="strip-item"><span class="strip-dot"></span>Gratis tanpa iklan mengganggu</div>
+      <div class="strip-item"><span class="strip-dot"></span>Data terenkripsi & aman</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAIN SECTION -->
+<section class="pain-section reveal">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:8px">
+      <span class="section-eyebrow">Kami Memahami Perjalananmu</span>
+    </div>
+    <h2 class="section-title outfit" style="text-align:center;max-width:560px;margin:0 auto 12px">Karena Promil Bukan Sekadar Tentang Angka</h2>
+    <p class="section-sub" style="text-align:center;margin:0 auto">Setiap pejuang garis dua memikul beban emosional yang sering kali tidak terlihat oleh orang lain. Kami merancang Siklusio untuk memeluk perasaan itu.</p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-emoji">😢</div>
+        <div class="pain-title outfit">Kekecewaan Bulanan</div>
+        <p class="pain-text">Rasa sesak dan air mata tersembunyi saat mendapati bercak merah kembali datang. Kami di sini untuk mengingatkan bahwa perjuanganmu berharga, dan harapan belum padam.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">📅</div>
+        <div class="pain-title outfit">Kecemasan Menghitung Waktu</div>
+        <p class="pain-text">Takut melewatkan masa subur karena siklus yang tidak teratur, atau bingung mengartikan sinyal tubuh. Kami menggabungkan kalkulasi medis untuk kepastian waktu ikhtiar.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🤝</div>
+        <div class="pain-title outfit">Suami yang Sulit Mengerti</div>
+        <p class="pain-text">Kadang terasa canggung mengajak suami di waktu yang tepat, atau dia kurang peka dengan fase tubuhmu. Kami menjembatani komunikasi ini agar terasa romantis dan hangat.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🔒</div>
+        <div class="pain-title outfit">Privasi Data Kesehatan Terancam</div>
+        <p class="pain-text">Khawatir data sensitif tubuh dan promil dimanfaatkan untuk target iklan pihak ketiga. Siklusio menjamin 100% bebas iklan dan menjaga kerahasiaan medismu.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">💸</div>
+        <div class="pain-title outfit">Biaya Program Hamil yang Tinggi</div>
+        <p class="pain-text">Mempersiapkan program hamil membutuhkan perencanaan finansial yang matang agar mental Bunda tetap tenang menyambut kehadiran si buah hati.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-emoji">🥺</div>
+        <div class="pain-title outfit">Rasa Kesepian & Tekanan Sosial</div>
+        <p class="pain-text">Pertanyaan "kapan punya anak?" dari sekitar yang kerap menyakitkan hati. Siklusio menyediakan wadah untuk berbagi keluh kesah secara anonim tanpa takut dihakimi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section reveal" id="fitur">
+  <div class="container">
+    <span class="section-eyebrow">Seluruh Pendukung Promilmu</span>
+    <h2 class="section-title outfit">Semua yang Bunda butuhkan,<br>dalam satu genggaman</h2>
+    <div class="features-grid">
+      <div class="feature-card large">
+        <div>
+          <div class="feature-icon-wrap">🤖</div>
+          <h3 class="feature-title outfit">Insight AI Medis & Personal</h3>
+          <p class="feature-text">AI Siklusio menganalisis tren gejala harian, emosi, dan kebiasaanmu selama 7 hari terakhir secara non-judgmental untuk memberikan rangkuman kesehatan, tips asupan gizi per fase, serta wawasan medis personal 24/7 di sakumu.</p>
+          <span class="feature-tag">Dokter Promil Virtual 24 Jam</span>
+        </div>
+        <div style="background:var(--white);border-radius:24px;padding:24px;">
+          <div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:var(--slate-600);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Akurasi prediksi</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Prediksi haid</span><span style="font-weight:600;color:var(--slate-900)">96%</span></div>
+              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:96%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Masa subur</span><span style="font-weight:600;color:var(--slate-900)">94%</span></div>
+              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:94%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Pola siklus</span><span style="font-weight:600;color:var(--slate-900)">91%</span></div>
+              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:91%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">💌</div>
+        <h3 class="feature-title outfit">Jembatan Rasa (Pesan Suami)</h3>
+        <p class="feature-text">Hilangkan canggung dan lelah merayu. Dapatkan template pesan WhatsApp otomatis manis, romantis, atau santai sesuai masa subur agar suami peka dan siap berikhtiar bersama.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🌸</div>
+        <h3 class="feature-title outfit">Pojok Tenang TWW Sanctuary</h3>
+        <p class="feature-text">Atasi kecemasan menunggu garis dua di fase luteal (Two Week Wait) dengan latihan pernapasan, audio relaksasi penenang jiwa, jurnal emosi, dan reassurance AI yang memeluk perasaanmu.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">👥</div>
+        <h3 class="feature-title outfit">Ruang Komunitas Anonim</h3>
+        <p class="feature-text">Tempat bersandar paling hangat. Bagikan kisah promil, tanyakan tips herbal/medis, dan saling kirim pelukan doa secara 100% anonim tanpa khawatir di-judge oleh lingkungan sosial.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">💰</div>
+        <h3 class="feature-title outfit">Tabungan Kehamilan</h3>
+        <p class="feature-text">Rencanakan dan persiapkan tabungan persalinan secara matang langsung di aplikasi. Catat kontribusi berkala demi menyambut kelahiran si kecil dengan tenang dan bebas stres finansial.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section reveal" id="cara-kerja">
+  <div class="container">
+    <span class="section-eyebrow">Langkah Promil</span>
+    <h2 class="section-title outfit" style="color:var(--white)">3 Langkah Sederhana Menjemput Keajaiban</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num outfit">01</div>
+        <h3 class="step-title outfit">Daftar & Aktivasi Premium</h3>
+        <p class="step-text">Isi data diri Bunda di halaman checkout dan lakukan patungan operasional sekali seumur hidup untuk mengaktifkan akses premium permanen.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num outfit">02</div>
+        <h3 class="step-title outfit">Catat Gejala Harian 30 Detik</h3>
+        <p class="step-text">Tandai tanggal haid dan luangkan waktu sejenak setiap hari untuk mencatat gejala tubuh, emosi, atau kebiasaan sehat harian promilmu di kalender.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num outfit">03</div>
+        <h3 class="step-title outfit">Ikuti Panduan AI & Komunitas</h3>
+        <p class="step-text">AI akan memberikan saran kesehatan & asupan gizi per fase, sementara komunitas pejuang garis dua siap menyalurkan doa serta pelukan hangat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section reveal">
+  <div class="container" style="text-align:center">
+    <span class="section-eyebrow">Angka bicara sendiri</span>
+    <h2 class="section-title outfit" style="max-width:480px;margin:0 auto 12px">Dipercaya ratusan ribu Bunda Indonesia</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num outfit">50K+</div>
+        <div class="stat-lbl">Pengguna aktif</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num outfit">94%</div>
+        <div class="stat-lbl">Akurasi prediksi AI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num outfit">4.9★</div>
+        <div class="stat-lbl">Rating rata-rata</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num outfit">2 juta+</div>
+        <div class="stat-lbl">Siklus tercatat</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-section reveal" id="testimoni">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="section-eyebrow">Cerita nyata Bunda</span>
+      <h2 class="section-title outfit" style="max-width:520px;margin:0 auto 12px">Mereka sudah merasakannya</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Setelah 9 bulan promil tanpa hasil, bulan ke-3 pakai Siklusio akhirnya positif! Ternyata selama ini aku salah hitung masa subur. AI-nya benar-benar akurat."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SR</div>
+          <div>
+            <div class="testi-name">Siti Rahayu</div>
+            <div class="testi-loc">Surabaya, Jawa Timur</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Siklus aku yang tidak teratur akhirnya bisa diprediksi. Notifikasi masa suburnya tepat banget. Dokter kandunganku pun terkesan dengan data yang aku bawa dari Siklusio."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">DM</div>
+          <div>
+            <div class="testi-name">Dewi Maharani</div>
+            <div class="testi-loc">Bandung, Jawa Barat</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Komunitas di Siklusio yang paling bikin aku betah. Akhirnya ada tempat cerita tanpa dihakimi. Dan fitur tabungan promilnya membantu banget untuk rencanain biaya."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">AL</div>
+          <div>
+            <div class="testi-name">Anita Lestari</div>
+            <div class="testi-loc">Jakarta Selatan, DKI Jakarta</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section reveal" id="harga">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="section-eyebrow">Investasi Kasih Sayang</span>
+      <h2 class="section-title outfit" style="max-width:580px;margin:0 auto 12px">Mulai Gratis, Upgrade Sekali Seumur Hidup</h2>
+      <p class="section-sub" style="margin:0 auto;text-align:center">Tanpa biaya langganan bulanan tersembunyi. Patungan gotong-royong untuk kemandirian server & privasi data Bunda.</p>
+    </div>
+    <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 380px)); justify-content: center; margin-top: 56px;">
+      <div class="pricing-card">
+        <div class="pricing-name outfit">Akses Basic</div>
+        <div class="pricing-desc">Untuk pelacakan siklus mendasar</div>
+        <div class="pricing-price outfit">Rp0 <span>/ selamanya</span></div>
+        <div class="pricing-period">Selamanya gratis</div>
+        <ul class="pricing-features">
+          <li>Pelacakan siklus menstruasi dasar</li>
+          <li>Prediksi jadwal haid bulanan</li>
+          <li>Kalkulator masa subur standar</li>
+          <li>Akses Ruang Komunitas umum</li>
+          <li>Notifikasi harian dasar</li>
+        </ul>
+        <a href="checkout.html" class="pricing-btn pricing-btn-outline">Mulai Akses Dasar</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-badge">🌸 Paling Direkomendasikan</div>
+        <div class="pricing-name outfit">Premium Lifetime</div>
+        <div class="pricing-desc" style="color:rgba(255,255,255,0.55)">Gotong-royong operasional server</div>
+        <div class="pricing-price outfit" style="color:#fff">Rp37.000 <span>/ satu kali bayar</span></div>
+        <div class="pricing-period" style="font-style: italic; color: rgba(255,255,255,0.75)">Investasi seumur hidup (Tanpa Iklan)</div>
+        <ul class="pricing-features">
+          <li>Semua fitur Akses Basic</li>
+          <li><strong>100% Bebas Iklan</strong> (Privasi medis aman)</li>
+          <li><strong>Prediksi & Insight AI Medis</strong></li>
+          <li><strong>Jembatan Rasa (WhatsApp Suami)</strong></li>
+          <li><strong>Pojok Tenang TWW Sanctuary</strong></li>
+          <li><strong>Tabungan Kehamilan</strong></li>
+          <li><strong>Ekspor Laporan PDF Medis untuk Dokter</strong></li>
+        </ul>
+        <a href="checkout.html" class="pricing-btn pricing-btn-filled">Aktifkan Akses Premium</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section reveal">
+  <div class="container">
+    <div style="text-align:center">
+      <span class="section-eyebrow">FAQ</span>
+      <h2 class="section-title outfit" style="max-width:400px;margin:0 auto">Pertanyaan yang Sering Ditanyakan</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Apakah Siklusio benar-benar gratis?
+          <span class="faq-chevron">›</span>
+        </button>
+        <div class="faq-a">Ya, versi dasar Siklusio 100% gratis selamanya. Bunda dapat mencatat siklus haid, melihat prediksi menstruasi, dan bergabung di komunitas umum. Untuk mengaktifkan fitur Premium (AI Insight, TWW Sanctuary, Template Pesan Suami, Tabungan Kehamilan, dan bebas iklan), Bunda cukup melakukan patungan operasional sekali seumur hidup sebesar Rp 37.000 tanpa biaya langganan bulanan.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Seberapa akurat prediksi AI Siklusio?
+          <span class="faq-chevron">›</span>
+        </button>
+        <div class="faq-a">Berdasarkan data pengguna aktual kami, prediksi jadwal menstruasi mencapai akurasi 96% dan prediksi masa subur mencapai 94% setelah minimal 3 bulan pencatatan data harian secara konsisten. AI kami belajar langsung dari pola unik biologis tubuh Bunda, bukan formula generik.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Apakah data kesehatan sensitif saya aman?
+          <span class="faq-chevron">›</span>
+        </button>
+        <div class="faq-a">Sangat aman. Keamanan data adalah prioritas tertinggi kami. Semua informasi dienkripsi dengan standar industri medis dan dilindungi oleh sistem otorisasi database Supabase RLS yang ketat. Kami berkomitmen penuh 100% bebas dari iklan pihak ketiga sehingga data sensitif tubuh Bunda tidak pernah dijual atau disalahgunakan.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Bisakah laporan Siklusio dibawa saat periksa ke dokter?
+          <span class="faq-chevron">›</span>
+        </button>
+        <div class="faq-a">Tentu saja. Pengguna Premium dapat mengekspor riwayat siklus, gejala, dan grafik kebiasaan harian ke dalam dokumen PDF medis yang rapi dan terstruktur. Laporan klinis ini sangat membantu bidan atau dokter kandungan untuk menganalisis perkembangan promil Anda secara lebih efektif.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Apakah Siklusio efektif untuk yang siklus haidnya tidak teratur?
+          <span class="faq-chevron">›</span>
+        </button>
+        <div class="faq-a">Ya, justru di sinilah letak keunggulan utama kecerdasan AI Siklusio. Kalkulator kalender biasa hanya bisa memprediksi siklus rata-rata 28 hari, sedangkan kecerdasan AI kami dirancang adaptif untuk mendeteksi variasi fluktuasi siklus individual Bunda yang tidak konsisten sekalipun.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <div class="container">
+    <span class="section-eyebrow">Sambut Keajaiban</span>
+    <h2 class="section-title outfit">Ikhtiar Promil Bersama Pasangan,<br>Sambut Buah Hati dengan Tenang</h2>
+    <p class="cta-sub">Bergabunglah dengan puluhan ribu Bunda Indonesia yang telah melangkah dengan lebih terarah, hangat, dan privat di perjalanan promil mereka bersama Siklusio.</p>
+    <div class="cta-actions">
+      <a href="checkout.html" class="btn-primary" style="font-size:17px;padding:18px 40px">
+        🌸 Mulai Ikhtiar Premium Sekarang
+      </a>
+    </div>
+    <p class="cta-note">Lebih dari 3.200 Bunda baru bergabung minggu ini</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <a href="#" class="footer-brand-logo outfit">Siklusio</a>
+        <p class="footer-brand-text">Sahabat Terbaik di Setiap Fase Kewanitaanmu. Platform pelacakan siklus & kehamilan berbasis AI terpercaya di Indonesia.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Produk</div>
+        <ul class="footer-links">
+          <li><a href="#">Fitur</a></li>
+          <li><a href="#">Harga</a></li>
+          <li><a href="#">Komunitas</a></li>
+          <li><a href="#">Tabungan Promil</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Perusahaan</div>
+        <ul class="footer-links">
+          <li><a href="#">Tentang Kami</a></li>
+          <li><a href="#">Blog Kesehatan</a></li>
+          <li><a href="#">Karir</a></li>
+          <li><a href="#">Kontak</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">Bantuan</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Komunitas</a></li>
+          <li><a href="#">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 Siklusio. Dibuat dengan 💖 untuk Bunda Indonesia.</span>
+      <div class="footer-legal">
+        <a href="#">Privasi</a>
+        <a href="#">Syarat & Ketentuan</a>
+        <a href="#">Keamanan Data</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+revealEls.forEach(el => observer.observe(el));
+
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  nav.style.boxShadow = window.scrollY > 20 ? '0 2px 20px rgba(0,0,0,0.08)' : 'none';
+});
+
+// GTM click_cta tracking parity
+window.dataLayer = window.dataLayer || [];
+
+function trackCtaClick(location, text) {
+  window.dataLayer.push({
+    event: 'click_cta',
+    cta_location: location,
+    cta_text: text
+  });
+  console.log('--> GTM Event: click_cta', { cta_location: location, cta_text: text });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Navbar links
+  document.querySelectorAll('nav a').forEach(el => {
+    el.addEventListener('click', () => {
+      const isCta = el.classList.contains('nav-cta') || el.textContent.includes('Login') || el.textContent.includes('Masuk');
+      trackCtaClick(isCta ? 'navbar_cta' : 'navbar_link', el.textContent.trim());
+    });
+  });
+
+  // Hero Section
+  document.querySelectorAll('.hero-actions a').forEach(el => {
+    el.addEventListener('click', () => {
+      trackCtaClick('hero_section', el.textContent.trim());
+    });
+  });
+
+  // Pricing Section
+  document.querySelectorAll('.pricing-card a').forEach(el => {
+    el.addEventListener('click', () => {
+      const isFeatured = el.closest('.pricing-card').classList.contains('featured');
+      trackCtaClick(isFeatured ? 'pricing_premium_lifetime' : 'pricing_basic_free', el.textContent.trim());
+    });
+  });
+
+  // Final CTA Section
+  document.querySelectorAll('.cta-actions a').forEach(el => {
+    el.addEventListener('click', () => {
+      trackCtaClick('final_cta_section', el.textContent.trim());
+    });
+  });
+});
+</script>
+</body>
+</html>

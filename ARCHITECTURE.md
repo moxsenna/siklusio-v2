@@ -2,14 +2,17 @@
 
 ## Overview
 
-Siklusio adalah aplikasi pelacak siklus menstruasi & program hamil (promil) untuk wanita Indonesia. Arsitektur monorepo dengan **satu codebase universal** (Expo/React Native) yang berjalan di Android, iOS, dan Web, didukung oleh backend Express.js dan database Supabase (PostgreSQL).
+Siklusio adalah aplikasi pelacak siklus menstruasi & program hamil (promil) untuk wanita Indonesia. Arsitektur monorepo dengan **satu codebase universal** (Expo/React Native) yang berjalan di Android, iOS, dan Web, didukung oleh backend Hono (TypeScript) yang di-deploy ke Cloudflare Workers dan database Supabase (PostgreSQL).
 
 ## Directory Structure
 
 ```
 remix_-siklusio/
-├── backend/              # Express.js API Server
-│   └── index.ts          # Entry point (Gemini AI + Supabase admin endpoints)
+├── backend/              # Hono API Server (Cloudflare Workers entry)
+│   └── index.ts          # Entry point (Gemini AI + Supabase admin + Affiliate endpoints)
+├── landing/              # Static Landing & Checkout Page
+│   ├── index.html        # Product presentation
+│   └── checkout.html     # Lifetime Premium purchase form (Mayar integration)
 ├── mobile-app/           # SATU-SATUNYA App Code (Universal: Android, iOS, Web)
 │   ├── app/              # Expo Router (file-based routing)
 │   │   ├── (tabs)/       # Tab navigation (Dashboard, Calendar, Habits, Community)
@@ -36,15 +39,26 @@ remix_-siklusio/
 ├── supabase/             # Database schema & migrations
 │   ├── schema.sql        # Core tables (profiles, activity_history)
 │   ├── community.sql     # Community feature (posts, comments, reactions, reports, triggers)
-│   ├── community_admin.sql   # Admin moderation RPC + policies
+│   ├── community_admin.sql   # Admin moderation policies & triggers
+│   ├── community_admin_rpc.sql # Admin moderation RPC functions
+│   ├── community_comments_rpc.sql # Secure comment interaction RPCs
 │   ├── community_avatar.sql  # Avatar columns + feed RPC update + admin reset avatar
 │   ├── community_rate_limit.sql # Anti-spam triggers (cooldown + hourly cap)
 │   ├── community_privacy_hardening.sql # Column-level SELECT RLS privacy hardening
 │   ├── community_verify.sql  # Diagnostic queries to verify schema
+│   ├── affiliates.sql    # Affiliate marketer data
+│   ├── affiliate_conversions.sql # Conversion records for successful referral purchases
+│   ├── affiliate_rpc.sql # Referral and promo code validation RPCs
+│   ├── coupons.sql       # Purchase discounts & referral coupons
+│   ├── checkout_sessions.sql # Mayar checkout session records
+│   ├── pending_registrations.sql # Pre-auth registration cache from webhook
+│   ├── crm_profiles.sql  # Customer data synchronized for CRM
 │   └── setup_admin.md    # Guide to create admin account
 ├── graphify-out/         # Code architecture visualization (auto-generated)
+├── wrangler.jsonc        # Cloudflare Workers configuration
 ├── package.json          # Root: backend dependencies + build scripts
 ├── tsconfig.json         # Root TypeScript config
+├── PRD.md                # Product Requirements Document (v1)
 └── .env.example          # Environment variable template
 ```
 
@@ -57,11 +71,11 @@ remix_-siklusio/
 | State | React Context (CycleContext, AuthContext) + persistent localStorage |
 | Database | Supabase (PostgreSQL) with Row Level Security |
 | Auth | Supabase Auth (email/password) |
-| Backend API | Express.js (Node.js) via tsx/esbuild |
+| Backend API | Hono framework (TypeScript) on Cloudflare Workers |
 | AI | Google Gemini (recipe recommendations, cycle reports) |
 | Payment Gateway | Mayar (Premium activation & webhook processing) |
 | Image Hosting | Cloudflare R2 (avatar upload, via backend proxy) |
-| Deployment (planned) | Cloudflare Pages (web) + Play Store (Android via EAS Build) |
+| Deployment | Cloudflare Pages (web) + Cloudflare Workers (backend API) + Play Store (Android via EAS Build) |
 
 ## Key Features
 
@@ -114,25 +128,25 @@ remix_-siklusio/
 ### Development
 
 ```bash
-# Backend API server (port 3000)
+# Backend API server (Cloudflare Wrangler, port 3000)
 cd remix_-siklusio
-npm run dev          # tsx backend/index.ts (serves the static product landing page at http://localhost:3000/)
+npm run dev          # wrangler dev backend/index.ts --port 3000
 
 # Mobile app (Expo dev server, port 8081)
 cd mobile-app
 npx expo start       # then press 'w' for web, 'a' for Android
 ```
 
-### Production Build
+### Production Build & Deployment
 
 ```bash
-# Backend
-npm run build        # esbuild → dist/server.cjs
-npm run start        # node dist/server.cjs
+# Backend API (Cloudflare Workers)
+npm run deploy       # wrangler deploy backend/index.ts
 
 # Mobile (Web)
 cd mobile-app
-npx expo export --platform web   # → dist/ static files for Cloudflare Pages
+npm run build:web    # npx expo export --platform web && dist/_redirects creation
+# Deployed to Cloudflare Pages via GitHub Actions / manual drag-drop
 
 # Mobile (Android)
 cd mobile-app

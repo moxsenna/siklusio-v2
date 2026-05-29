@@ -215,8 +215,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\MessageModal.tsx": {
-    "mtime": 1779270579.524932,
-    "ast_hash": "b8251c859dbd0578b0ebdd8a163a593e",
+    "mtime": 1780063347.8142083,
+    "ast_hash": "ce47372fb92062532108ef09c0171f4a",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\SavingsCard.tsx": {
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\ARCHITECTURE.md": {
-    "mtime": 1779976551.7568102,
-    "ast_hash": "143685dc49d1903f206ac2c0661dda78",
+    "mtime": 1780052707.309525,
+    "ast_hash": "c9a23a590b852cf8b103c251da017222",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\README.md": {
@@ -790,8 +790,8 @@
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\components\\dashboard\\TwwSanctuaryModal.tsx": {
-    "mtime": 1779972232.4526794,
-    "ast_hash": "818e7bfbd47ffd03a2d72262a6dfff5a",
+    "mtime": 1780063343.0516052,
+    "ast_hash": "d4cc05a6719399b0ebd001ecfe2ee886",
     "semantic_hash": ""
   },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\src\\lib\\api.ts": {
@@ -2844,36 +2844,6 @@
     "ast_hash": "8129e02fd876689cffb2ceb5ad74d04d",
     "semantic_hash": ""
   },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-3Fkxba\\middleware-insertion-facade.js": {
-    "mtime": 1779914968.0738406,
-    "ast_hash": "92ae89fccb7d87017eb9887f512b8180",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-3Fkxba\\middleware-loader.entry.ts": {
-    "mtime": 1779914968.1491392,
-    "ast_hash": "d8d73753e2df1c5f155b7569de488ed6",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\dev-GVPxfy\\index.js": {
-    "mtime": 1779917467.0584776,
-    "ast_hash": "ac6d689035dbe1e622f020931d3607e3",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-DSl35R\\middleware-insertion-facade.js": {
-    "mtime": 1779918810.4360502,
-    "ast_hash": "92ae89fccb7d87017eb9887f512b8180",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-DSl35R\\middleware-loader.entry.ts": {
-    "mtime": 1779918810.4514666,
-    "ast_hash": "f2f862daa70e8117dceb64004b1f875c",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\dev-bTnqi6\\index.js": {
-    "mtime": 1779918810.8580232,
-    "ast_hash": "26598d8aca87ce55c5b4b4125342bc6a",
-    "semantic_hash": ""
-  },
   "D:\\Coding\\remix_-siklusio\\mobile-app\\app\\affiliate.tsx": {
     "mtime": 1779918529.9794395,
     "ast_hash": "70be288f19968b902e5a71fe3963c529",
@@ -2914,21 +2884,6 @@
     "ast_hash": "25fbeb62d178590f48b049c164cf7e3b",
     "semantic_hash": ""
   },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-4xJAjE\\middleware-insertion-facade.js": {
-    "mtime": 1779958537.8257225,
-    "ast_hash": "92ae89fccb7d87017eb9887f512b8180",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\bundle-4xJAjE\\middleware-loader.entry.ts": {
-    "mtime": 1779958537.860581,
-    "ast_hash": "d91b8518514835155c540796cfd78515",
-    "semantic_hash": ""
-  },
-  "D:\\Coding\\remix_-siklusio\\.wrangler\\tmp\\dev-MOIzm2\\index.js": {
-    "mtime": 1779958538.1490004,
-    "ast_hash": "b54f8a089e3f461cea26003bfd712fac",
-    "semantic_hash": ""
-  },
   "D:\\Coding\\remix_-siklusio\\brand_guideline.md": {
     "mtime": 1779976527.6912942,
     "ast_hash": "56251a08ad5f03b17573a2b86dc6eb4e",
@@ -2967,6 +2922,231 @@
   "D:\\Coding\\remix_-siklusio\\scratch\\gtm-container-import.json": {
     "mtime": 1780049565.4113562,
     "ast_hash": "1818c16081d7ef78aa4efbbf3d6312d7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\landing\\landing2.html": {
+    "mtime": 1780062681.5065408,
+    "ast_hash": "6a43fcd2e3644b16711044f66132b68f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\scripts\\helper.js": {
+    "mtime": 1780065811.6342814,
+    "ast_hash": "cef288b6b4543910ffc7826c3a036a55",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\scripts\\start-server.sh": {
+    "mtime": 1780065811.6472087,
+    "ast_hash": "386ba065fd00d2f3d8d5303c26d413f5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\scripts\\stop-server.sh": {
+    "mtime": 1780065811.650719,
+    "ast_hash": "3d59796ec5ca347c5eb95adbc4914bb8",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\condition-based-waiting-example.ts": {
+    "mtime": 1780065811.6996577,
+    "ast_hash": "8e502a8c1e9c7de15967202615d241d5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\find-polluter.sh": {
+    "mtime": 1780065811.7091281,
+    "ast_hash": "2ae1144fa5a66aa26c13d644a12ad0bf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\render-graphs.js": {
+    "mtime": 1780065811.7791297,
+    "ast_hash": "e9d8be9caa34d327cac6f746f947cee0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\SKILL.md": {
+    "mtime": 1780065811.6265318,
+    "ast_hash": "02d86f11c496ece51327cca35491c45c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\spec-document-reviewer-prompt.md": {
+    "mtime": 1780065811.655371,
+    "ast_hash": "ea74c0f2369ae553c62f36af4ed3d424",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\visual-companion.md": {
+    "mtime": 1780065811.6578836,
+    "ast_hash": "98407f42a43e3c3e3aae399376821e7e",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\brainstorming\\scripts\\frame-template.html": {
+    "mtime": 1780065811.6290402,
+    "ast_hash": "bae2f359c254d1563ecdd2b7396d545f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\dispatching-parallel-agents\\SKILL.md": {
+    "mtime": 1780065811.6644075,
+    "ast_hash": "af319c60c986d9024c49de78dff43593",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\executing-plans\\SKILL.md": {
+    "mtime": 1780065811.6674557,
+    "ast_hash": "63061f08162428574aeccec5d0ef1f26",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\finishing-a-development-branch\\SKILL.md": {
+    "mtime": 1780065811.6694615,
+    "ast_hash": "e9b367120e56b5d4f438225cd4861caf",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\receiving-code-review\\SKILL.md": {
+    "mtime": 1780065811.6724615,
+    "ast_hash": "dd0aadbca70fe3bedbd059b730a6edbb",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\requesting-code-review\\code-reviewer.md": {
+    "mtime": 1780065811.6784425,
+    "ast_hash": "11211d21337d0c498660f51edff7323b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\requesting-code-review\\SKILL.md": {
+    "mtime": 1780065811.6769373,
+    "ast_hash": "f7d20aeaa4eca81b2617b6c68f3b91b9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\subagent-driven-development\\code-quality-reviewer-prompt.md": {
+    "mtime": 1780065811.6841562,
+    "ast_hash": "fc5e2ea930681d4228debaa3714f6ea0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\subagent-driven-development\\implementer-prompt.md": {
+    "mtime": 1780065811.6862564,
+    "ast_hash": "b856c2076801a91854adf094a907de9c",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\subagent-driven-development\\SKILL.md": {
+    "mtime": 1780065811.6816485,
+    "ast_hash": "da1219128741a51fccc499a613072fc3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\subagent-driven-development\\spec-reviewer-prompt.md": {
+    "mtime": 1780065811.6882553,
+    "ast_hash": "ecc20717d0b31a9013ba732f366eba8f",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\condition-based-waiting.md": {
+    "mtime": 1780065811.702659,
+    "ast_hash": "c64d669f2490aa489c514304c9ad46d3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\CREATION-LOG.md": {
+    "mtime": 1780065811.6903882,
+    "ast_hash": "b7ba553678c10cc2234dc9ae193d5347",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\defense-in-depth.md": {
+    "mtime": 1780065811.7056122,
+    "ast_hash": "002a0c9e8bee8fc29f85d7a434916977",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\root-cause-tracing.md": {
+    "mtime": 1780065811.712634,
+    "ast_hash": "7e96b2fe346c89d4f2300341529178cc",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\SKILL.md": {
+    "mtime": 1780065811.6926427,
+    "ast_hash": "3a08f3330fce34e3b2104e7d97f64af0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\test-academic.md": {
+    "mtime": 1780065811.7156513,
+    "ast_hash": "272ab1d95e755a7ff9479d547168eef9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\test-pressure-1.md": {
+    "mtime": 1780065811.7171595,
+    "ast_hash": "3d8805e8946e3889d4de0e906af66c47",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\test-pressure-2.md": {
+    "mtime": 1780065811.7192113,
+    "ast_hash": "237f40dfd0b48af48d239ab3af499f7b",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\systematic-debugging\\test-pressure-3.md": {
+    "mtime": 1780065811.7212124,
+    "ast_hash": "42ea1bd281ca8d837f5dd45143762b95",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\test-driven-development\\SKILL.md": {
+    "mtime": 1780065811.723212,
+    "ast_hash": "b349bbcc136f3f50c45f04d0917bdfc9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\test-driven-development\\testing-anti-patterns.md": {
+    "mtime": 1780065811.726745,
+    "ast_hash": "f4373033bf29f06897cd63c994deb2a7",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\using-git-worktrees\\SKILL.md": {
+    "mtime": 1780065811.729259,
+    "ast_hash": "19c5db98107c897bed0f70415e294015",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\using-superpowers\\SKILL.md": {
+    "mtime": 1780065811.732775,
+    "ast_hash": "7e7a8bba2c866b16f5f05351faf2e2c5",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\using-superpowers\\references\\codex-tools.md": {
+    "mtime": 1780065811.738419,
+    "ast_hash": "980b647b2c982b5b31cf08b83823a284",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\using-superpowers\\references\\copilot-tools.md": {
+    "mtime": 1780065811.7404187,
+    "ast_hash": "d4424fd67d662e17b470d9560e1cd930",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\using-superpowers\\references\\gemini-tools.md": {
+    "mtime": 1780065811.7424173,
+    "ast_hash": "4f93c6d265d412b76c4ecc15c0c2e4b4",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\verification-before-completion\\SKILL.md": {
+    "mtime": 1780065811.7454376,
+    "ast_hash": "ccf0e58c597adc512d920263562b5391",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-plans\\plan-document-reviewer-prompt.md": {
+    "mtime": 1780065811.75273,
+    "ast_hash": "dcad0192c2c468107951d7dcb47246a9",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-plans\\SKILL.md": {
+    "mtime": 1780065811.748595,
+    "ast_hash": "e9325200b86a2c27c64c4458e7943e34",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\anthropic-best-practices.md": {
+    "mtime": 1780065811.763297,
+    "ast_hash": "05c7c66a824d55afc81f3be10dd04750",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\persuasion-principles.md": {
+    "mtime": 1780065811.7739406,
+    "ast_hash": "5f0c22c7c8c3c5e12f255719833c2545",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\SKILL.md": {
+    "mtime": 1780065811.755278,
+    "ast_hash": "87cef13875b60fa4cd3bc5b3e64ec3d3",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\testing-skills-with-subagents.md": {
+    "mtime": 1780065811.7813828,
+    "ast_hash": "3b7b7942a42cb0450896d4b48cd49ed0",
+    "semantic_hash": ""
+  },
+  "D:\\Coding\\remix_-siklusio\\.agents\\skills\\writing-skills\\examples\\CLAUDE_MD_TESTING.md": {
+    "mtime": 1780065811.7694364,
+    "ast_hash": "2980791d97afe0f32c2eb4a6264fb8e6",
     "semantic_hash": ""
   }
 }

@@ -4,6 +4,11 @@ import { Buffer } from "node:buffer";
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { callOpenRouterJson } from "./ai/openRouter";
+import { chargeAiCredits, getAiCreditBalance } from "./ai/credits";
+import { buildHabitCoachMessages } from "./ai/prompts";
+import { habitCoachPlanSchema, validateHabitCoachPlan } from "./ai/schemas";
+import { summarizeActivityHistory } from "./ai/habitSummary";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
@@ -356,6 +361,175 @@ app.post("/api/generate-calming-reassurance", async (c) => {
   } catch (error: any) {
     console.error(error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat pesan penenang" }, 500);
+  }
+});
+
+app.get("/api/ai/credits", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+    return c.json({ balance });
+  } catch (error: any) {
+    console.error("[ai/credits]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil saldo kredit AI." }, 500);
+  }
+});
+
+app.get("/api/habit-coach/current", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const { data: plan, error } = await auth.supabaseAdmin
+      .from("habit_coach_plans")
+      .select("*, habit_coach_plan_days(*)")
+      .eq("user_id", auth.user.id)
+      .eq("status", "active")
+      .order("week_start", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return c.json({ plan });
+  } catch (error: any) {
+    console.error("[habit-coach/current]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil rencana habit." }, 500);
+  }
+});
+
+app.post("/api/habit-coach/generate", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const body = await c.req.json();
+    const dateKeys = Array.isArray(body.dateKeys) ? body.dateKeys : [];
+    if (
+      typeof body.weekStart !== "string" ||
+      typeof body.weekEnd !== "string" ||
+      dateKeys.length !== 7 ||
+      !dateKeys.every((dateKey: unknown) => typeof dateKey === "string")
+    ) {
+      return c.json({ error: "Data minggu habit tidak valid." }, 400);
+    }
+
+    const mode = body.mode === "renewal" ? "renewal" : "initial";
+    const creditCost = mode === "renewal" ? 60 : 50;
+
+    const { data: existingActive, error: existingError } = await auth.supabaseAdmin
+      .from("habit_coach_plans")
+      .select("id")
+      .eq("user_id", auth.user.id)
+      .eq("week_start", body.weekStart)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (existingActive) {
+      return c.json({
+        error: "Rencana habit minggu ini sudah aktif.",
+        planId: existingActive.id,
+      }, 409);
+    }
+
+    const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+    if (balance < creditCost) {
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
+    }
+
+    const answers = Array.isArray(body.answers)
+      ? body.answers.map((answer: any) => ({
+          question: String(answer?.question || ""),
+          answer: String(answer?.answer || ""),
+        }))
+      : [];
+    const cycleSnapshot = body.cycleSnapshot || {};
+    const previousSummary = {
+      ...(body.previousSummary || {}),
+      activity: summarizeActivityHistory(body.activityHistory || {}),
+    };
+
+    const ai = await callOpenRouterJson<any>({
+      apiKey: c.env.OPENROUTER_API_KEY,
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
+      messages: buildHabitCoachMessages({
+        nickname: body.nickname || "",
+        mode,
+        answers,
+        cycleSnapshot,
+        previousSummary,
+      }),
+      responseSchemaName: "habit_coach_plan",
+      responseSchema: habitCoachPlanSchema,
+      maxCompletionTokens: 2200,
+    });
+
+    const result = validateHabitCoachPlan(ai.data);
+
+    const { data: savedPlan, error: insertPlanError } = await auth.supabaseAdmin
+      .from("habit_coach_plans")
+      .insert({
+        user_id: auth.user.id,
+        week_start: body.weekStart,
+        week_end: body.weekEnd,
+        mode,
+        status: "pending_charge",
+        user_goal: body.userGoal || "habit sehat",
+        user_constraints: { answers },
+        cycle_snapshot: cycleSnapshot,
+        previous_summary: previousSummary,
+        coach_summary: result.coachSummary,
+        ai_model: ai.model,
+        credit_cost: creditCost,
+      })
+      .select()
+      .single();
+
+    if (insertPlanError) throw insertPlanError;
+
+    const days = result.days.map((day, index) => ({
+      plan_id: savedPlan.id,
+      date_key: dateKeys[index],
+      day_index: index + 1,
+      focus: day.focus,
+      tasks: day.tasks,
+    }));
+
+    const { error: insertDaysError } = await auth.supabaseAdmin
+      .from("habit_coach_plan_days")
+      .insert(days);
+
+    if (insertDaysError) throw insertDaysError;
+
+    const balanceAfter = await chargeAiCredits({
+      supabaseAdmin: auth.supabaseAdmin,
+      userId: auth.user.id,
+      amount: creditCost,
+      feature: "habit_coach",
+      reason: mode,
+      referenceId: savedPlan.id,
+      metadata: { model: ai.model, usage: ai.usage || null },
+    });
+
+    const { data: activatedPlan, error: activateError } = await auth.supabaseAdmin
+      .from("habit_coach_plans")
+      .update({ status: "active" })
+      .eq("id", savedPlan.id)
+      .select()
+      .single();
+
+    if (activateError) throw activateError;
+
+    return c.json({
+      plan: { ...activatedPlan, habit_coach_plan_days: days },
+      balance: balanceAfter,
+    });
+  } catch (error: any) {
+    console.error("[habit-coach/generate]", error.stack || error);
+    return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);
   }
 });
 

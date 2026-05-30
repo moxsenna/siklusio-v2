@@ -4,7 +4,67 @@ import type {
   HabitCategory,
   HabitCoachCompletionSummary,
   HabitCoachPlan,
+  HabitCoachTask,
 } from './habitCoachTypes';
+
+const habitCategories: HabitCategory[] = [
+  'hydration',
+  'nutrition',
+  'movement',
+  'rest',
+  'emotional',
+  'promil',
+  'partner',
+];
+
+function normalizeCategory(value: unknown): HabitCategory {
+  return habitCategories.includes(value as HabitCategory)
+    ? (value as HabitCategory)
+    : 'emotional';
+}
+
+function normalizeCoachTask(task: any, index: number): HabitCoachTask {
+  return {
+    id: String(task?.id || `task-${index + 1}`),
+    text: String(task?.text || ''),
+    emoji: String(task?.emoji || 'star'),
+    category: normalizeCategory(task?.category),
+    reason: String(task?.reason || ''),
+  };
+}
+
+export function mapApiHabitPlan(row: any): HabitCoachPlan {
+  if (!row) {
+    throw new Error('Habit coach plan is empty');
+  }
+
+  const rawDays = Array.isArray(row.habit_coach_plan_days)
+    ? row.habit_coach_plan_days
+    : Array.isArray(row.days)
+      ? row.days
+      : [];
+
+  return {
+    id: String(row.id),
+    weekStart: String(row.week_start || row.weekStart || ''),
+    weekEnd: String(row.week_end || row.weekEnd || ''),
+    mode: row.mode === 'renewal' ? 'renewal' : 'initial',
+    status: row.status || 'active',
+    userGoal: String(row.user_goal || row.userGoal || ''),
+    coachSummary: String(row.coach_summary || row.coachSummary || ''),
+    creditCost: Number(row.credit_cost || row.creditCost || 0),
+    days: rawDays
+      .map((day: any) => ({
+        dateKey: String(day.date_key || day.dateKey || ''),
+        dayIndex: Number(day.day_index || day.dayIndex || 0),
+        focus: String(day.focus || ''),
+        tasks: Array.isArray(day.tasks)
+          ? day.tasks.map((task: any, index: number) => normalizeCoachTask(task, index))
+          : [],
+      }))
+      .sort((a: any, b: any) => a.dayIndex - b.dayIndex),
+  };
+}
 
 export function getLocalWeekStart(date: Date) {
   const day = startOfDay(date);

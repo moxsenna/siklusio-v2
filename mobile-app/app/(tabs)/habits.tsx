@@ -1,12 +1,24 @@
-import React, { useState, useMemo, useTransition } from 'react';
+import React, { useEffect, useState, useMemo, useTransition } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
-import { format, subDays } from 'date-fns';
+import { addDays, format, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { analytics } from '../../src/lib/analytics';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
+import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import {
+  getLocalWeekEnd,
+  getLocalWeekStart,
+  getPlanTasksForDate,
+  mapApiHabitPlan,
+  summarizeHabitPlanCompletion,
+} from '../../src/lib/habitCoachPlan';
+import type { CoachQuestionAnswer, HabitCoachPlan } from '../../src/lib/habitCoachTypes';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
+import { HabitCoachCard } from '../../components/habits/HabitCoachCard';
+import { HabitCoachSheet } from '../../components/habits/HabitCoachSheet';
+import { HabitPlanWeekView } from '../../components/habits/HabitPlanWeekView';
 import { HistoryView } from '../../components/habits/HistoryView';
 
 // Error boundary wrapper untuk HistoryView yang crash di native
@@ -52,6 +64,12 @@ export default function HabitsScreen() {
   
   const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
   const [historyFilter, setHistoryFilter] = useState<7 | 14 | 30>(7);
+  const [habitCoachPlan, setHabitCoachPlan] = useState<HabitCoachPlan | null>(null);
+  const [aiCreditBalance, setAiCreditBalance] = useState<number | null>(null);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [coachError, setCoachError] = useState<string | null>(null);
+  const [coachFetching, setCoachFetching] = useState(false);
   
   const [viewedDateOffset, setViewedDateOffset] = useState(0); // 0 = today, -1 = yesterday
   
@@ -66,6 +84,31 @@ export default function HabitsScreen() {
   }, [viewedDate]);
 
   const dateKey = format(viewedDate, 'yyyy-MM-dd');
+
+  useEffect(() => {
+    let mounted = true;
+    setCoachFetching(true);
+
+    Promise.all([
+      apiGetJson<{ plan: any | null }>('/api/habit-coach/current'),
+      apiGetJson<{ balance: number }>('/api/ai/credits'),
+    ])
+      .then(([planResponse, creditResponse]) => {
+        if (!mounted) return;
+        setHabitCoachPlan(planResponse.plan ? mapApiHabitPlan(planResponse.plan) : null);
+        setAiCreditBalance(creditResponse.balance);
+      })
+      .catch((error: any) => {
+        console.warn('[Habits] Gagal mengambil Habit Coach:', error?.message || error);
+      })
+      .finally(() => {
+        if (mounted) setCoachFetching(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
   
   // Dynamic Tasks Based on Phase
   const fallbackTasks = useMemo(() => {
@@ -88,7 +131,21 @@ export default function HabitsScreen() {
     return baseTasks;
   }, [currentPhase]);
 
-  const currentDayData = activityHistory[dateKey] || { tasks: fallbackTasks, symptoms: [] };
+  const coachTasks = useMemo(
+    () => getPlanTasksForDate(habitCoachPlan, dateKey),
+    [habitCoachPlan, dateKey]
+  );
+  const savedDayData = activityHistory[dateKey];
+  const savedTasksBelongToCoach =
+    Boolean(habitCoachPlan) &&
+    Boolean(savedDayData?.tasks?.some(task => task.coachPlanId === habitCoachPlan?.id));
+  const currentDayData = {
+    ...(savedDayData || {}),
+    tasks: coachTasks.length > 0
+      ? (savedTasksBelongToCoach ? savedDayData?.tasks || coachTasks : coachTasks)
+      : (savedDayData?.tasks || fallbackTasks),
+    symptoms: savedDayData?.symptoms || [],
+  };
   const tasks = currentDayData.tasks;
   const symptoms = currentDayData.symptoms || [];
 
@@ -150,6 +207,49 @@ export default function HabitsScreen() {
       startTransition(() => {
         setViewedDateOffset(prev => prev + 1);
       });
+    }
+  };
+
+  const handleGenerateCoachPlan = async (answers: CoachQuestionAnswer[]) => {
+    setCoachLoading(true);
+    setCoachError(null);
+
+    try {
+      const mode = habitCoachPlan ? 'renewal' : 'initial';
+      const targetStart = habitCoachPlan
+        ? addDays(new Date(`${habitCoachPlan.weekEnd}T00:00:00`), 1)
+        : getLocalWeekStart(viewedDate);
+      const weekStart = mode === 'renewal' ? targetStart : getLocalWeekStart(viewedDate);
+      const weekEnd = mode === 'renewal' ? addDays(weekStart, 6) : getLocalWeekEnd(viewedDate);
+      const dateKeys = Array.from({ length: 7 }, (_, index) => format(addDays(weekStart, index), 'yyyy-MM-dd'));
+      const previousSummary = habitCoachPlan
+        ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
+        : null;
+
+      const json = await apiPostJson<{ plan: any; balance: number }>('/api/habit-coach/generate', {
+        mode,
+        answers,
+        nickname: userNickname,
+        userGoal: answers.find((answer) => answer.id === 'goal' || answer.id === 'next_focus')?.answer || 'habit sehat',
+        weekStart: format(weekStart, 'yyyy-MM-dd'),
+        weekEnd: format(weekEnd, 'yyyy-MM-dd'),
+        dateKeys,
+        activityHistory,
+        cycleSnapshot: { currentPhase },
+        previousSummary,
+      });
+
+      setHabitCoachPlan(mapApiHabitPlan(json.plan));
+      setAiCreditBalance(json.balance);
+      setCoachOpen(false);
+    } catch (error: any) {
+      const message = error?.message || 'Gagal membuat rencana habit.';
+      setCoachError(message);
+      if (Platform.OS !== 'web') {
+        Alert.alert('Habit Coach', message);
+      }
+    } finally {
+      setCoachLoading(false);
     }
   };
 
@@ -232,6 +332,24 @@ export default function HabitsScreen() {
               </TouchableOpacity>
             </View>
             
+            <View className="mb-6">
+              <HabitCoachCard
+                plan={habitCoachPlan}
+                balance={aiCreditBalance}
+                loading={coachFetching}
+                onOpen={() => {
+                  setCoachError(null);
+                  setCoachOpen(true);
+                }}
+              />
+            </View>
+
+            {habitCoachPlan && (
+              <View className="mb-6">
+                <HabitPlanWeekView plan={habitCoachPlan} />
+              </View>
+            )}
+
             {/* Progress Header */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant relative overflow-hidden mb-6">
               <View className="flex-row items-center justify-between z-10">
@@ -309,14 +427,15 @@ export default function HabitsScreen() {
                </View>
             </View>
 
-            {/* AI Recommendation Section */}
-            <View className="mt-4">
-              <AiRecommendationSection
-                currentPhase={currentPhase}
-                activityHistory={activityHistory}
-                nickname={userNickname}
-              />
-            </View>
+            {!habitCoachPlan && (
+              <View className="mt-4">
+                <AiRecommendationSection
+                  currentPhase={currentPhase}
+                  activityHistory={activityHistory}
+                  nickname={userNickname}
+                />
+              </View>
+            )}
           </View>
         ) : (
           <View className="bg-white rounded-[32px] p-6 shadow-sm border border-outline-variant">
@@ -328,6 +447,17 @@ export default function HabitsScreen() {
           </View>
         )}
       </ScrollView>
+      <HabitCoachSheet
+        visible={coachOpen}
+        mode={habitCoachPlan ? 'renewal' : 'initial'}
+        loading={coachLoading}
+        error={coachError}
+        balance={aiCreditBalance}
+        onClose={() => {
+          if (!coachLoading) setCoachOpen(false);
+        }}
+        onGenerate={handleGenerateCoachPlan}
+      />
     </SafeAreaView>
   );
 }

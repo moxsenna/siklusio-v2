@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { format } from 'date-fns';
 import {
   getLocalWeekStart,
+  mapApiHabitPlan,
   summarizeHabitPlanCompletion,
   getPlanTasksForDate,
 } from './habitCoachPlan';
@@ -76,4 +77,53 @@ test('summarizeHabitPlanCompletion counts completed coach tasks only', () => {
   assert.equal(summary.completedTasks, 1);
   assert.equal(summary.completionRate, 100);
   assert.deepEqual(summary.symptoms, ['fatigue']);
+});
+
+test('mapApiHabitPlan maps Supabase snake_case rows into mobile plan shape', () => {
+  const mapped = mapApiHabitPlan({
+    id: 'plan-api',
+    week_start: '2026-06-01',
+    week_end: '2026-06-07',
+    mode: 'initial',
+    status: 'active',
+    user_goal: 'promil aktif',
+    coach_summary: 'Mulai ringan.',
+    credit_cost: 50,
+    habit_coach_plan_days: [
+      {
+        date_key: '2026-06-02',
+        day_index: 2,
+        focus: 'Nutrisi',
+        tasks: [
+          {
+            id: 'task-2',
+            text: 'Makan protein sederhana',
+            emoji: 'plate',
+            category: 'nutrition',
+            reason: 'Menjaga energi.',
+          },
+        ],
+      },
+      {
+        date_key: '2026-06-01',
+        day_index: 1,
+        focus: 'Hidrasi',
+        tasks: [
+          {
+            id: 'task-1',
+            text: 'Minum air 6 gelas',
+            emoji: 'water',
+            category: 'hydration',
+            reason: 'Mendukung cairan tubuh.',
+          },
+        ],
+      },
+    ],
+  });
+
+  assert.equal(mapped.id, 'plan-api');
+  assert.equal(mapped.weekStart, '2026-06-01');
+  assert.equal(mapped.coachSummary, 'Mulai ringan.');
+  assert.equal(mapped.days[0].dateKey, '2026-06-01');
+  assert.equal(mapped.days[1].tasks[0].category, 'nutrition');
 });

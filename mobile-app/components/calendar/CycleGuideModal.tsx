@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { apiPostJson } from '../../src/lib/api';
+import { apiGetJson, apiPostJson } from '../../src/lib/api';
 import type { CycleGuidePreview } from '../../src/lib/cycleGuideSummary';
 
 interface Props {
@@ -16,6 +16,32 @@ export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabi
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    if (visible && payload?.generatedForDate) {
+      setLoading(true);
+      apiGetJson<any>(`/api/cycle-guide/today?date=${payload.generatedForDate}`)
+        .then((json) => {
+          if (mounted && json.guide?.result) {
+            setResult(json.guide.result);
+          }
+        })
+        .catch((err) => {
+          console.warn('[CycleGuideModal] Failed to fetch existing guide:', err);
+        })
+        .finally(() => {
+          if (mounted) setLoading(false);
+        });
+    } else if (!visible) {
+      // Clear state when modal closes to ensure fresh state next time
+      setResult(null);
+      setError(null);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [visible, payload?.generatedForDate]);
 
   const generate = async () => {
     setLoading(true);

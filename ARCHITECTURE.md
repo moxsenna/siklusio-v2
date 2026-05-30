@@ -72,7 +72,7 @@ remix_-siklusio/
 | Database | Supabase (PostgreSQL) with Row Level Security |
 | Auth | Supabase Auth (email/password) |
 | Backend API | Hono framework (TypeScript) on Cloudflare Workers |
-| AI | Google Gemini (recipe recommendations, cycle reports) |
+| AI | OpenRouter (free-tier Qwen 3 with paid fallback, recipes, reports, reassurance, habit coach) |
 | Payment Gateway | Mayar (Premium activation & webhook processing) |
 | Image Hosting | Cloudflare R2 (avatar upload, via backend proxy) |
 | Deployment | Cloudflare Pages (web) + Cloudflare Workers (backend API) + Play Store (Android via EAS Build) |
@@ -84,7 +84,7 @@ remix_-siklusio/
 - Phase tracking: Menstrual → Folikular → Ovulasi → Luteal
 - Daily habits & symptom logging
 - Calendar view with fertility window
-- AI-powered cycle reports (Gemini)
+- AI-powered cycle reports (OpenRouter)
 - Savings tracker for pregnancy preparation
 - SyncManager: Last-Write-Wins dynamic local-to-cloud profile reconciliation based on modified timestamps to eliminate offline data conflicts.
 
@@ -186,7 +186,10 @@ eas build --platform android     # → .aab for Play Store
 
 | Variable | Where Used | Purpose |
 |----------|-----------|---------|
-| `GEMINI_API_KEY` | Backend | Google Gemini AI calls |
+| `OPENROUTER_API_KEY` | Backend | OpenRouter authentication key |
+| `OPENROUTER_FREE_MODEL` | Backend | Primary free-tier AI model for generation |
+| `OPENROUTER_PAID_MODEL` | Backend | Fallback paid-tier AI model for generation |
+| `GEMINI_API_KEY` | Backend | Deprecated/Unused (replaced by OpenRouter) |
 | `VITE_SUPABASE_URL` | Backend | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Backend only | Bypass RLS for admin ops |
 | `EXPO_PUBLIC_SUPABASE_URL` | Mobile app | Supabase client init |

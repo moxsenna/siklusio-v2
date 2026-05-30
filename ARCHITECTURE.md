@@ -9,7 +9,7 @@ Siklusio adalah aplikasi pelacak siklus menstruasi & program hamil (promil) untu
 ```
 remix_-siklusio/
 ├── backend/              # Hono API Server (Cloudflare Workers entry)
-│   └── index.ts          # Entry point (Gemini AI + Supabase admin + Affiliate endpoints)
+│   └── index.ts          # Entry point (OpenRouter AI + Supabase admin + Affiliate endpoints)
 ├── landing/              # Static Landing & Checkout Page
 │   ├── index.html        # Product presentation
 │   └── checkout.html     # Lifetime Premium purchase form (Mayar integration)

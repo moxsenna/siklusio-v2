@@ -460,7 +460,14 @@ app.post("/api/habit-coach/generate", async (c) => {
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+        "qwen/qwen3-235b-a22b-2507",
+        "mistralai/mistral-small-3.2-24b-instruct",
+      ],
       messages: buildHabitCoachMessages({
         nickname: body.nickname || "",
         mode,
@@ -583,7 +590,14 @@ app.post("/api/cycle-guide/generate", async (c) => {
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+        "qwen/qwen3-235b-a22b-2507",
+        "mistralai/mistral-small-3.2-24b-instruct",
+      ],
       messages: buildCycleGuideMessages({
         nickname: body.nickname || "",
         guideLevel,

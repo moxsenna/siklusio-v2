@@ -88,6 +88,17 @@ remix_-siklusio/
 - Savings tracker for pregnancy preparation
 - SyncManager: Last-Write-Wins dynamic local-to-cloud profile reconciliation based on modified timestamps to eliminate offline data conflicts.
 
+### AI Habit Coach & Panduan Siklus
+- **AI Habit Coach:** Guided 7-day action planning using guided quick-discussion chips with custom text fallback. Generates actionable checklists (focusing on movement, hydration, rest, etc.) mapped directly into the daily habits tracker.
+  - *Biaya:* 50 kredit untuk Rencana Awal (Initial), 60 kredit untuk Perpanjangan Mingguan (Renewal).
+- **AI Panduan Siklus:** Menganalisis fase siklus aktif, tingkat keyakinan prediksi, serta log gejala pengguna guna menyajikan panduan harian yang sangat terpersonalisasi.
+  - *Biaya:* 40 kredit per pembuatan panduan.
+  - *Idempotensi & Caching:* Integrasi endpoint fetch-on-mount (`GET /api/cycle-guide/today`) dan key constraint unik database `UNIQUE(user_id, generated_for_date, status)` untuk mencegah duplikasi pemotongan kredit saat modal dibuka ulang pada hari yang sama.
+
+### AI Credit Ledger & Balance System
+- **Sistem Ledger Kredit:** Pencatatan transaksi kredit server-side yang aman (`ai_credits` schema) dengan verifikasi saldo transaksional yang ketat. Kredit hanya dipotong secara permanen (`active`) *setelah* respon terstruktur JSON dari OpenRouter sukses divalidasi dan disimpan, melindungi pengguna dari biaya API yang gagal.
+- **Bonus Premium:** Pemberian otomatis bonus awal 500 kredit AI secara idempotent untuk anggota Lifetime Premium melalui pengolah webhook Mayar.
+
 ### Community (Fitur Komunitas)
 - Feed-style posts (max 500 chars) with cursor pagination
 - Per-post anonymous toggle (user_id always stored for moderation)
@@ -158,6 +169,10 @@ eas build --platform android     # → .aab for Play Store
 ### Core Tables
 - `profiles` — user settings, cycle data, husband info, savings, avatar
 - `activity_history` — daily logs (symptoms, tasks, period markers)
+- `ai_credit_ledger` — ledger of credit deposits and charges for transactional balance tracking
+- `habit_coach_plans` — weekly goals, answers, cycle snapshots, and coach summaries
+- `habit_coach_plan_days` — daily focus and generated tasks for each active plan
+- `cycle_guides` — daily cycle guide predictions, RLS policies, and unique idempotency constraint
 
 ### Community Tables
 - `community_posts` — feed content + moderation state + denormalized counters

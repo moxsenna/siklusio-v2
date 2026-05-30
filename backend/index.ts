@@ -5,7 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
-import { chargeAiCredits, getAiCreditBalance } from "./ai/credits";
+import { chargeAiCredits, getAiCreditBalance, grantPremiumInitialAiCredits } from "./ai/credits";
 import { buildCycleGuideMessages, buildHabitCoachMessages } from "./ai/prompts";
 import {
   cycleGuideSchema,
@@ -1333,6 +1333,14 @@ app.post("/api/checkout/register", async (c) => {
           console.log(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
         }
       }
+
+      if (authData.user?.id) {
+        await grantPremiumInitialAiCredits({
+          supabaseAdmin,
+          userId: authData.user.id,
+          referenceId: session?.id || null,
+        });
+      }
       
       console.log("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
@@ -1533,6 +1541,22 @@ app.post("/api/payment/webhook", async (c) => {
     if (signupErr) {
       console.error("Supabase auth user creation error:", signupErr);
       return c.json({ error: "Auth user creation failed: " + signupErr.message }, 500);
+    }
+
+    const { data: premiumSession } = await supabaseAdmin
+      .from("checkout_sessions")
+      .select("id")
+      .eq("email", email.toLowerCase())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (authData.user?.id) {
+      await grantPremiumInitialAiCredits({
+        supabaseAdmin,
+        userId: authData.user.id,
+        referenceId: premiumSession?.id || null,
+      });
     }
 
     // [FIX-2] Process affiliate conversion from checkout_session

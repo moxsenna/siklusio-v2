@@ -36,3 +36,32 @@ export async function chargeAiCredits(params: {
   if (error) throw error;
   return Number(data);
 }
+
+export async function grantPremiumInitialAiCredits(params: {
+  supabaseAdmin: any;
+  userId: string;
+  referenceId?: string | null;
+}) {
+  const { data: existingBonus, error: existingError } = await params.supabaseAdmin
+    .from("ai_credit_ledger")
+    .select("id")
+    .eq("user_id", params.userId)
+    .eq("feature", "premium_bonus")
+    .eq("reason", "premium_initial_bonus")
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+  if (existingBonus) return null;
+
+  const { data, error } = await params.supabaseAdmin.rpc("grant_ai_credits", {
+    p_user_id: params.userId,
+    p_amount: 500,
+    p_feature: "premium_bonus",
+    p_reason: "premium_initial_bonus",
+    p_reference_id: params.referenceId || null,
+    p_metadata: { source: "premium_lifetime" },
+  });
+
+  if (error) throw error;
+  return Number(data);
+}

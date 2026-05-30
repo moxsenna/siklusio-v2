@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getAiCreditBalance } from "./credits";
+import { getAiCreditBalance, grantPremiumInitialAiCredits } from "./credits";
 import { buildOpenRouterRequestBody, parseOpenRouterJsonContent } from "./openRouter";
 import { validateHabitCoachPlan } from "./schemas";
 
@@ -84,4 +84,40 @@ test("getAiCreditBalance ensures a balance row before reading", async () => {
 
   assert.equal(balance, 123);
   assert.equal(calls[0], "ensure_ai_credit_balance:user-1");
+});
+
+test("grantPremiumInitialAiCredits skips users that already received the bonus", async () => {
+  const calls: string[] = [];
+  const supabaseAdmin = {
+    from(table: string) {
+      calls.push(`from:${table}`);
+      return {
+        select(column: string) {
+          calls.push(`select:${column}`);
+          return {
+            eq(columnName: string, value: string) {
+              calls.push(`eq:${columnName}:${value}`);
+              return this;
+            },
+            async maybeSingle() {
+              return { data: { id: "ledger-1" }, error: null };
+            },
+          };
+        },
+      };
+    },
+    async rpc() {
+      calls.push("rpc:grant_ai_credits");
+      return { data: null, error: null };
+    },
+  };
+
+  const result = await grantPremiumInitialAiCredits({
+    supabaseAdmin,
+    userId: "user-1",
+    referenceId: "checkout-1",
+  });
+
+  assert.equal(result, null);
+  assert.equal(calls.includes("rpc:grant_ai_credits"), false);
 });

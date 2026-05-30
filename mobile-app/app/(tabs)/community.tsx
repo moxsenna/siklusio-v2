@@ -49,13 +49,13 @@ export default function CommunityScreen() {
   };
 
   const handleCreatePost = async (content: string) => {
-    const res = await feed.createPost(content);
+    const res = await feed.createPost(content, false, null);
     analytics.logEvent('community_post_created');
     return res;
   };
 
   const handleCreateComment = async (postId: string, content: string) => {
-    const res = await feed.createComment(postId, content);
+    const res = await feed.createComment(postId, content, false);
     analytics.logEvent('community_comment_created');
     return res;
   };

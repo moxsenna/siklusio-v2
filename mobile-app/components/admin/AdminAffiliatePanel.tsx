@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, Platform, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { useAdminAffiliates, CreateAffiliatePayload, Affiliate, AffiliateConversion } from '../../hooks/useAdminAffiliates';
+import { useAdminAffiliates, CreateAffiliatePayload, AffiliateConversion } from '../../src/hooks/useAdminAffiliates';
 import { formatRelative, format } from 'date-fns';
+
+function toErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
 
 export default function AdminAffiliatePanel() {
   const {
@@ -78,13 +83,22 @@ export default function AdminAffiliatePanel() {
   };
 
   const handleToggle = (id: string, currentStatus: boolean) => {
-    toggleAffiliate(id, currentStatus).catch(err => Alert.alert('Gagal', err.message));
+    toggleAffiliate(id, currentStatus).catch((err: unknown) =>
+      Alert.alert('Gagal', toErrorMessage(err))
+    );
   };
 
   const handleDelete = (id: string) => {
     Alert.alert('Hapus Afiliasi', 'Yakin ingin menghapus afiliasi ini?', [
       { text: 'Batal', style: 'cancel' },
-      { text: 'Hapus', style: 'destructive', onPress: () => deleteAffiliate(id).catch(err => Alert.alert('Gagal', err.message)) }
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: () =>
+          deleteAffiliate(id).catch((err: unknown) =>
+            Alert.alert('Gagal', toErrorMessage(err))
+          ),
+      }
     ]);
   };
 
@@ -92,7 +106,9 @@ export default function AdminAffiliatePanel() {
     if (Platform.OS === 'web') {
       const ref = window.prompt('Masukkan referensi transfer (opsional):');
       if (ref !== null) {
-        markPayout(conversion.id, ref, '').catch(err => window.alert('Gagal: ' + err.message));
+        markPayout(conversion.id, ref, '').catch((err: unknown) =>
+          window.alert('Gagal: ' + toErrorMessage(err))
+        );
       }
     } else {
       Alert.prompt(
@@ -100,7 +116,13 @@ export default function AdminAffiliatePanel() {
         'Masukkan nomor referensi transfer (opsional):',
         [
           { text: 'Batal', style: 'cancel' },
-          { text: 'Simpan', onPress: (ref) => markPayout(conversion.id, ref || '', '').catch(err => Alert.alert('Gagal', err.message)) }
+          {
+            text: 'Simpan',
+            onPress: (ref?: string) =>
+              markPayout(conversion.id, ref || '', '').catch((err: unknown) =>
+                Alert.alert('Gagal', toErrorMessage(err))
+              ),
+          }
         ]
       );
     }
@@ -311,7 +333,7 @@ export default function AdminAffiliatePanel() {
                         ) : (
                           <Text style={{ fontSize: 13, color: '#94a3b8', fontStyle: 'italic' }}>Belum ada data rekening</Text>
                         )}
-                        <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Dibuat pada {formatRelative(new Date(aff.created_at), new Date())}</Text>
+                        <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Dibuat pada {format(new Date(aff.created_at), 'dd MMM yyyy HH:mm')}</Text>
                       </View>
                     )}
                   </View>

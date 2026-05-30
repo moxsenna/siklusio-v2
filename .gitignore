@@ -37,8 +37,12 @@ mobile-app/.expo-shared/
 mobile-app/ios/
 mobile-app/android/
 
-# Graphify cache
+# Graphify cache, dependencies, and state files
 graphify-out/cache/
+graphify-out/.deps/
+graphify-out/graph.json
+graphify-out/manifest.json
+graphify-out/.graphify_*
 
 # Agent skills
 .agent/

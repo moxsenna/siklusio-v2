@@ -17,6 +17,7 @@ import { id as localeId } from 'date-fns/locale';
 import { supabase } from '../src/lib/supabase';
 import { REACTION_EMOJI } from '../src/lib/communityTypes';
 import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from '../src/lib/api';
+import AdminAffiliatePanel from '../components/admin/AdminAffiliatePanel';
 
 // Replicate old types
 interface AdminUser {

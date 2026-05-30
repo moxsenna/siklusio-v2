@@ -11,6 +11,25 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="theme-color" content="#fdf2f8" />
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Register Service Worker for PWA installability */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/service-worker.js').then(function(reg) {
+                    console.log('SW registered successfully with scope:', reg.scope);
+                  }).catch(function(err) {
+                    console.error('SW registration failed:', err);
+                  });
+                });
+              }
+            `
+          }}
+        />
 
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.

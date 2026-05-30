@@ -6,9 +6,15 @@ import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
 import { chargeAiCredits, getAiCreditBalance } from "./ai/credits";
-import { buildHabitCoachMessages } from "./ai/prompts";
-import { habitCoachPlanSchema, validateHabitCoachPlan } from "./ai/schemas";
+import { buildCycleGuideMessages, buildHabitCoachMessages } from "./ai/prompts";
+import {
+  cycleGuideSchema,
+  habitCoachPlanSchema,
+  validateCycleGuide,
+  validateHabitCoachPlan,
+} from "./ai/schemas";
 import { summarizeActivityHistory } from "./ai/habitSummary";
+import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
@@ -530,6 +536,90 @@ app.post("/api/habit-coach/generate", async (c) => {
   } catch (error: any) {
     console.error("[habit-coach/generate]", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);
+  }
+});
+
+app.post("/api/cycle-guide/generate", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const body = await c.req.json();
+    if (typeof body.generatedForDate !== "string") {
+      return c.json({ error: "Tanggal panduan siklus tidak valid." }, 400);
+    }
+
+    const guideLevel =
+      body.guideLevel === "active" || body.guideLevel === "personal"
+        ? body.guideLevel
+        : "starter";
+    const creditCost = 40;
+    const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+    if (balance < creditCost) {
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
+    }
+
+    const cycleSnapshot = buildCycleGuideSnapshot({ ...body, guideLevel });
+    const habitSnapshot = body.habitSnapshot || {};
+
+    const ai = await callOpenRouterJson<any>({
+      apiKey: c.env.OPENROUTER_API_KEY,
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
+      messages: buildCycleGuideMessages({
+        nickname: body.nickname || "",
+        guideLevel,
+        cycleSnapshot,
+        habitSnapshot,
+      }),
+      responseSchemaName: "cycle_guide",
+      responseSchema: cycleGuideSchema,
+      maxCompletionTokens: 1200,
+    });
+
+    const result = validateCycleGuide(ai.data);
+
+    const { data: saved, error: saveError } = await auth.supabaseAdmin
+      .from("cycle_guides")
+      .insert({
+        user_id: auth.user.id,
+        generated_for_date: body.generatedForDate,
+        guide_level: guideLevel,
+        cycle_snapshot: cycleSnapshot,
+        habit_snapshot: habitSnapshot,
+        result,
+        status: "pending_charge",
+        ai_model: ai.model,
+        credit_cost: creditCost,
+      })
+      .select()
+      .single();
+
+    if (saveError) throw saveError;
+
+    const balanceAfter = await chargeAiCredits({
+      supabaseAdmin: auth.supabaseAdmin,
+      userId: auth.user.id,
+      amount: creditCost,
+      feature: "cycle_guide",
+      reason: guideLevel,
+      referenceId: saved.id,
+      metadata: { model: ai.model, usage: ai.usage || null },
+    });
+
+    const { data: activatedGuide, error: activateError } = await auth.supabaseAdmin
+      .from("cycle_guides")
+      .update({ status: "active" })
+      .eq("id", saved.id)
+      .select()
+      .single();
+
+    if (activateError) throw activateError;
+
+    return c.json({ guide: activatedGuide, result, balance: balanceAfter });
+  } catch (error: any) {
+    console.error("[cycle-guide/generate]", error.stack || error);
+    return c.json({ error: error.message || "Gagal membuat panduan siklus." }, 500);
   }
 });
 

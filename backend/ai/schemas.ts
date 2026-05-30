@@ -179,3 +179,138 @@ export function validateCycleGuide(value: unknown): CycleGuideAiResult {
 
   return value as unknown as CycleGuideAiResult;
 }
+
+export const recipesGenerationSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["groceries", "recipes"],
+  properties: {
+    groceries: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "name", "desc", "emoji"],
+        properties: {
+          id: { type: "integer" },
+          name: { type: "string" },
+          desc: { type: "string" },
+          emoji: { type: "string" }
+        }
+      }
+    },
+    recipes: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "title", "description", "ingredients", "emoji"],
+        properties: {
+          id: { type: "integer" },
+          title: { type: "string" },
+          description: { type: "string" },
+          ingredients: {
+            type: "array",
+            items: { type: "string" }
+          },
+          emoji: { type: "string" }
+        }
+      }
+    }
+  }
+};
+
+export const cycleReportSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["summary", "bodyInsights", "actionPlan", "encouragement"],
+  properties: {
+    summary: { type: "string" },
+    bodyInsights: {
+      type: "array",
+      items: { type: "string" }
+    },
+    actionPlan: {
+      type: "array",
+      items: { type: "string" }
+    },
+    encouragement: { type: "string" }
+  }
+};
+
+export const habitsInsightSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["summary", "symptomAnalysis", "tips", "motivation"],
+  properties: {
+    summary: { type: "string" },
+    symptomAnalysis: { type: "string" },
+    tips: {
+      type: "array",
+      items: { type: "string" }
+    },
+    motivation: { type: "string" }
+  }
+};
+
+export const calmingReassuranceSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["reassurance", "breathingTip"],
+  properties: {
+    reassurance: { type: "string" },
+    breathingTip: { type: "string" }
+  }
+};
+
+export interface RecipesGenerationResult {
+  groceries: Array<{ id: number; name: string; desc: string; emoji: string }>;
+  recipes: Array<{ id: number; title: string; description: string; ingredients: string[]; emoji: string }>;
+}
+
+export interface CycleReportResult {
+  summary: string;
+  bodyInsights: string[];
+  actionPlan: string[];
+  encouragement: string;
+}
+
+export interface HabitsInsightResult {
+  summary: string;
+  symptomAnalysis: string;
+  tips: string[];
+  motivation: string;
+}
+
+export interface CalmingReassuranceResult {
+  reassurance: string;
+  breathingTip: string;
+}
+
+export function validateRecipesGeneration(value: unknown): RecipesGenerationResult {
+  if (!isPlainRecord(value) || !Array.isArray(value.groceries) || !Array.isArray(value.recipes)) {
+    throw new Error("Invalid recipes generation payload");
+  }
+  return value as unknown as RecipesGenerationResult;
+}
+
+export function validateCycleReport(value: unknown): CycleReportResult {
+  if (!isPlainRecord(value) || !Array.isArray(value.bodyInsights) || !Array.isArray(value.actionPlan)) {
+    throw new Error("Invalid cycle report payload");
+  }
+  return value as unknown as CycleReportResult;
+}
+
+export function validateHabitsInsight(value: unknown): HabitsInsightResult {
+  if (!isPlainRecord(value) || !Array.isArray(value.tips)) {
+    throw new Error("Invalid habits insight payload");
+  }
+  return value as unknown as HabitsInsightResult;
+}
+
+export function validateCalmingReassurance(value: unknown): CalmingReassuranceResult {
+  if (!isPlainRecord(value)) {
+    throw new Error("Invalid calming reassurance payload");
+  }
+  return value as unknown as CalmingReassuranceResult;
+}

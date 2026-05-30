@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Buffer } from "node:buffer";
-import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
@@ -12,6 +11,14 @@ import {
   habitCoachPlanSchema,
   validateCycleGuide,
   validateHabitCoachPlan,
+  recipesGenerationSchema,
+  cycleReportSchema,
+  habitsInsightSchema,
+  calmingReassuranceSchema,
+  validateRecipesGeneration,
+  validateCycleReport,
+  validateHabitsInsight,
+  validateCalmingReassurance,
 } from "./ai/schemas";
 import { summarizeActivityHistory } from "./ai/habitSummary";
 import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
@@ -124,15 +131,15 @@ app.get("/", (c) => {
   return c.text("Siklusio API Server (Hono + Cloudflare Workers) is running.");
 });
 
-// API Route for generating recipes and groceries (Gemini AI)
+// API Route for generating recipes and groceries (OpenRouter AI)
 app.post("/api/generate-recipes", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-recipes");
   try {
-    const { phase, userApiKey } = await c.req.json();
-    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
+    const { phase } = await c.req.json();
+    const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       console.error("<-- [BACKEND] No API key!");
-      return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
     const auth = await requireUser(c);
@@ -141,56 +148,49 @@ app.post("/api/generate-recipes", async (c) => {
     }
     console.log("--> [BACKEND] Phase requested:", phase);
 
-    const ai = new GoogleGenAI({
+    console.log("--> [BACKEND] Calling OpenRouter API...");
+    const ai = await callOpenRouterJson<any>({
       apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+      ],
+      messages: [
+        {
+          role: "user",
+          content: `Generate smart grocery recommendations for a pregnant or trying-to-conceive woman, specifically currently in the ${phase} phase of her menstrual cycle.
+          Also generate 2 simple, healthy daily recipes suitable for this phase.
+          IMPORTANT: 
+          1. All generated text (names, descriptions, titles, ingredients) MUST be in Indonesian (Bahasa Indonesia).
+          2. ONLY recommend groceries and ingredients that are very common, affordable, and easy to find in local Indonesian traditional markets (pasar) or standard Indonesian supermarkets (e.g., bayam, tempe, tahu, ikan kembung, telur ayam, kangkung, dll.). Avoid western/rare ingredients like quinoa, asparagus, berries, or salmon if there are cheaper common local alternatives like ikan kembung, ayam, atau pisang.`,
         }
-      }
+      ],
+      responseSchemaName: "recipes_generation",
+      responseSchema: recipesGenerationSchema,
     });
 
-    console.log("--> [BACKEND] Calling Gemini API...");
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", 
-      contents: `Generate smart grocery recommendations for a pregnant or trying-to-conceive woman, specifically currently in the ${phase} phase of her menstrual cycle.
-      Also generate 2 simple, healthy daily recipes suitable for this phase.
-      IMPORTANT: 
-      1. All generated text (names, descriptions, titles, ingredients) MUST be in Indonesian (Bahasa Indonesia).
-      2. ONLY recommend groceries and ingredients that are very common, affordable, and easy to find in local Indonesian traditional markets (pasar) or standard Indonesian supermarkets (e.g., bayam, tempe, tahu, ikan kembung, telur ayam, kangkung, dll.). Avoid western/rare ingredients like quinoa, asparagus, berries, or salmon if there are cheaper common local alternatives like ikan kembung, ayam, atau pisang.
-      Return ONLY a raw JSON object string (do not include markdown blocks like \`\`\`json) matching this exact schema:
-      {
-        "groceries": [ { "id": number, "name": string, "desc": string, "emoji": string } ],
-        "recipes": [ { "id": number, "title": string, "description": string, "ingredients": [string], "emoji": string } ]
-      }`,
-      config: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    console.log("--> [BACKEND] Received Gemini response.");
-    let text = response.text || "";
-    text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-    if (!text) throw new Error("No text generated");
-    console.log("--> [BACKEND] Parsing JSON...");
-    const result = JSON.parse(text);
+    console.log("--> [BACKEND] Received OpenRouter response.");
+    const result = validateRecipesGeneration(ai.data);
     console.log("<-- [BACKEND] Returning success.");
     return c.json(result);
   } catch (error: any) {
-    console.error("<-- [BACKEND] Gemini API Error / Exception:");
+    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Sesuatu yang tidak terduga terjadi" }, 500);
   }
 });
 
-// API Route for generating AI cycle report (Gemini AI)
+// API Route for generating AI cycle report (OpenRouter AI)
 app.post("/api/generate-cycle-report", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
-    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, userApiKey, nickname } = await c.req.json();
-    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
+    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } = await c.req.json();
+    const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
     const auth = await requireUser(c);
@@ -198,65 +198,60 @@ app.post("/api/generate-cycle-report", async (c) => {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
 
-    const ai = new GoogleGenAI({
+    console.log("--> [BACKEND] Calling OpenRouter API...");
+    const ai = await callOpenRouterJson<any>({
       apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+      ],
+      messages: [
+        {
+          role: "user",
+          content: `Analyze the user's menstrual cycle and generate an actionable AI report.
+          Context:
+          - Current phase: ${phase}
+          - Cycle day: ${cycleDay}
+          - Days to next period: ${daysToNextPeriod}
+          - Fertile window: ${fertilityWindow.start} to ${fertilityWindow.end}
+          - Activity & Body Data logic: ${JSON.stringify(cycleData).slice(0, 500)} // limited to avoid massive prompts
+          - User nickname: ${nickname || ''}
+          
+          Write a warm, supportive, and sweet report IN INDONESIAN, specifically tailored for a woman.
+          
+          TONE AND PERSONALIZATION RULES (CRITICAL):
+          1. Address the user directly using her nickname if provided: "${nickname || ''}".
+          2. NEVER use the formal word "Anda".
+          3. ALWAYS address her warmly as "kamu" and her nickname.
+          4. DO NOT call her "Bunda" in the report text (strictly use "kamu" or her actual nickname).
+          5. Keep the tone loving, empathetic, and sweet.`,
         }
-      }
+      ],
+      responseSchemaName: "cycle_report",
+      responseSchema: cycleReportSchema,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", 
-      contents: `Analyze the user's menstrual cycle and generate an actionable AI report.
-      Context:
-      - Current phase: ${phase}
-      - Cycle day: ${cycleDay}
-      - Days to next period: ${daysToNextPeriod}
-      - Fertile window: ${fertilityWindow.start} to ${fertilityWindow.end}
-      - Activity & Body Data logic: ${JSON.stringify(cycleData).slice(0, 500)} // limited to avoid massive prompts
-      - User nickname: ${nickname || ''}
-      
-      Write a warm, supportive, and sweet report IN INDONESIAN, specifically tailored for a woman.
-      
-      TONE AND PERSONALIZATION RULES (CRITICAL):
-      1. Address the user directly using her nickname if provided: "${nickname || ''}".
-      2. NEVER use the formal word "Anda".
-      3. ALWAYS address her warmly as "kamu" and her nickname.
-      4. DO NOT call her "Bunda" in the report text (strictly use "kamu" or her actual nickname).
-      5. Keep the tone loving, empathetic, and sweet.
-      
-      It MUST be structured as a JSON with the following exact keys (no markdown formatting, just raw JSON).
-      {
-        "summary": string (a short, encouraging paragraph summarizing their current cycle state),
-        "bodyInsights": [ string ] (2-3 bullet points about what their body is doing right now based on the phase),
-        "actionPlan": [ string ] (3 practical actions to do today/this week for pregnancy success or wellbeing),
-        "encouragement": string (a warm, supportive closing remark)
-      }`,
-      config: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    let text = response.text || "";
-    text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-    const result = JSON.parse(text);
+    console.log("--> [BACKEND] Received OpenRouter response.");
+    const result = validateCycleReport(ai.data);
     return c.json(result);
   } catch (error: any) {
+    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat laporan" }, 500);
   }
 });
 
-// API Route for generating AI habits insight based on 7-day data (Gemini AI)
+// API Route for generating AI habits insight based on 7-day data (OpenRouter AI)
 app.post("/api/generate-habits-insight", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-habits-insight");
   try {
-    const { weeklyData, currentPhase, nickname, userApiKey } = await c.req.json();
-    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
+    const { weeklyData, currentPhase, nickname } = await c.req.json();
+    const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
     const auth = await requireUser(c);
@@ -264,107 +259,99 @@ app.post("/api/generate-habits-insight", async (c) => {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
 
-    const ai = new GoogleGenAI({
+    console.log("--> [BACKEND] Calling OpenRouter API...");
+    const ai = await callOpenRouterJson<any>({
       apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+      ],
+      messages: [
+        {
+          role: "user",
+          content: `Kamu adalah asisten kesehatan reproduksi wanita yang hangat dan suportif. Analisis data aktivitas dan gejala 7 hari terakhir pengguna, lalu berikan insight dan saran yang actionable.
+
+          Konteks:
+          - Nama panggilan: ${nickname || ''}
+          - Fase siklus saat ini: ${currentPhase}
+          - Data 7 hari terakhir: ${JSON.stringify(weeklyData)}
+
+          Berdasarkan data di atas, buatkan analisis dalam Bahasa Indonesia yang:
+          1. Ringkas pola aktivitas (berapa persen target tercapai, konsistensi)
+          2. Analisis gejala yang muncul (frekuensi, korelasi dengan fase)
+          3. Berikan 3 saran spesifik dan praktis untuk minggu depan
+          4. Tutup dengan kalimat motivasi yang personal
+
+          PENTING & GAYA BAHASA (SANGAT PENTING):
+          - Gunakan bahasa yang hangat, suportif, bersahabat, dan tidak menggurui.
+          - Panggil pengguna dengan nama panggilannya jika ada: "${nickname || ''}" atau gunakan kata ganti "kamu".
+          - JANGAN PERNAH menggunakan kata formal "Anda".
+          - JANGAN PERNAH memanggil pengguna dengan sebutan "Bunda" (selalu gunakan "kamu" atau nama panggilannya).
+          - Saran harus realistis dan mudah dilakukan.
+          - Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus.`,
         }
-      }
+      ],
+      responseSchemaName: "habits_insight",
+      responseSchema: habitsInsightSchema,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Kamu adalah asisten kesehatan reproduksi wanita yang hangat dan suportif. Analisis data aktivitas dan gejala 7 hari terakhir pengguna, lalu berikan insight dan saran yang actionable.
-
-      Konteks:
-      - Nama panggilan: ${nickname || ''}
-      - Fase siklus saat ini: ${currentPhase}
-      - Data 7 hari terakhir: ${JSON.stringify(weeklyData)}
-
-      Berdasarkan data di atas, buatkan analisis dalam Bahasa Indonesia yang:
-      1. Ringkas pola aktivitas (berapa persen target tercapai, konsistensi)
-      2. Analisis gejala yang muncul (frekuensi, korelasi dengan fase)
-      3. Berikan 3 saran spesifik dan praktis untuk minggu depan
-      4. Tutup dengan kalimat motivasi yang personal
-
-      PENTING & GAYA BAHASA (SANGAT PENTING):
-      - Gunakan bahasa yang hangat, suportif, bersahabat, dan tidak menggurui.
-      - Panggil pengguna dengan nama panggilannya jika ada: "${nickname || ''}" atau gunakan kata ganti "kamu".
-      - JANGAN PERNAH menggunakan kata formal "Anda".
-      - JANGAN PERNAH memanggil pengguna dengan sebutan "Bunda" (selalu gunakan "kamu" atau nama panggilannya).
-      - Saran harus realistis dan mudah dilakukan.
-      - Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus.
-
-      Return ONLY raw JSON (tanpa markdown blocks) dengan format:
-      {
-        "summary": "string (ringkasan pola 7 hari, 2-3 kalimat)",
-        "symptomAnalysis": "string (analisis gejala, 1-2 kalimat. Kosongkan jika tidak ada gejala)",
-        "tips": ["string", "string", "string"] (3 saran praktis),
-        "motivation": "string (kalimat motivasi personal)"
-      }`,
-      config: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    let text = response.text || "";
-    text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-    const result = JSON.parse(text);
+    console.log("--> [BACKEND] Received OpenRouter response.");
+    const result = validateHabitsInsight(ai.data);
     return c.json(result);
   } catch (error: any) {
+    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat insight" }, 500);
   }
 });
 
-// API Route for TWW Sanctuary AI Reassurance (Gemini AI)
+// API Route for TWW Sanctuary AI Reassurance (OpenRouter AI)
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
-    const { nickname, userJournal, userApiKey } = await c.req.json();
-    const apiKey = userApiKey || c.env.GEMINI_API_KEY;
+    const { nickname, userJournal } = await c.req.json();
+    const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return c.json({ error: "GEMINI_API_KEY is not defined" }, 500);
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
-    const ai = new GoogleGenAI({
+    console.log("--> [BACKEND] Calling OpenRouter API...");
+    const ai = await callOpenRouterJson<any>({
       apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
+        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
+      ],
+      messages: [
+        {
+          role: "user",
+          content: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname || ''} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
+          Masa ini sangat rentan memicu kecemasan (symptom spotting).
+          Ini adalah curahan hatinya (jurnal emosi): "${userJournal}"
+
+          Berikan balasan surat yang:
+          1. Menvalidasi perasaannya (tidak meremehkan).
+          2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ''}".
+          3. JANGAN PERNAH memanggil/menyebut pengguna dengan sebutan "Bunda" maupun kata formal "Anda" (selalu gunakan "kamu" atau nama panggilannya).
+          4. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
+          5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.`,
         }
-      }
+      ],
+      responseSchemaName: "calming_reassurance",
+      responseSchema: calmingReassuranceSchema,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-flash-latest",
-      contents: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname || ''} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
-      Masa ini sangat rentan memicu kecemasan (symptom spotting).
-      Ini adalah curahan hatinya (jurnal emosi): "${userJournal}"
-
-      Berikan balasan surat yang:
-      1. Menvalidasi perasaannya (tidak meremehkan).
-      2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ''}".
-      3. JANGAN PERNAH memanggil/menyebut pengguna dengan sebutan "Bunda" maupun kata formal "Anda" (selalu gunakan "kamu" atau nama panggilannya).
-      4. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
-      5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
-
-      Return ONLY raw JSON (tanpa markdown blocks) dengan format:
-      {
-        "reassurance": "string (surat balasan hangat 2-3 paragraf singkat)",
-        "breathingTip": "string (satu kalimat instruksi napas sederhana yang relevan)"
-      }`,
-      config: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    let text = response.text || "";
-    text = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-    const result = JSON.parse(text);
+    console.log("--> [BACKEND] Received OpenRouter response.");
+    const result = validateCalmingReassurance(ai.data);
     return c.json(result);
   } catch (error: any) {
+    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat pesan penenang" }, 500);
   }

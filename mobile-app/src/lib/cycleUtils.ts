@@ -11,6 +11,10 @@ export interface Task {
   text: string;
   emoji: string;
   done: boolean;
+  coachPlanId?: string;
+  coachTaskId?: string;
+  category?: string;
+  reason?: string;
 }
 
 export interface DailyRecord {

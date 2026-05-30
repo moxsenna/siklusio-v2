@@ -27,17 +27,38 @@ const initialQuestions = [
   {
     id: 'goal',
     question: 'Target utama minggu ini',
-    placeholder: 'Contoh: lebih konsisten promil, energi lebih stabil',
+    placeholder: 'Ketik target kustom Anda...',
+    options: [
+      'Lebih konsisten promil',
+      'Energi lebih stabil & tidak lelah',
+      'Kurangi stres & pikiran rileks',
+      'Olahraga rutin & nutrisi seimbang',
+      'Isi sendiri...',
+    ],
   },
   {
     id: 'time',
     question: 'Waktu yang paling realistis',
-    placeholder: 'Contoh: pagi 10 menit, malam setelah makan',
+    placeholder: 'Ketik waktu kustom Anda...',
+    options: [
+      'Pagi hari (10-15 menit)',
+      'Sore hari setelah beraktivitas',
+      'Malam hari sebelum tidur',
+      'Kapan saja di sela waktu luang',
+      'Isi sendiri...',
+    ],
   },
   {
     id: 'constraint',
     question: 'Hal yang perlu coach hindari',
-    placeholder: 'Contoh: olahraga berat, masakan ribet, jadwal terlalu padat',
+    placeholder: 'Ketik batasan kustom Anda...',
+    options: [
+      'Olahraga berat/terlalu lelah',
+      'Resep masakan ribet/mahal',
+      'Jadwal aktivitas terlalu padat',
+      'Tidak ada batasan khusus',
+      'Isi sendiri...',
+    ],
   },
 ];
 
@@ -45,17 +66,38 @@ const renewalQuestions = [
   {
     id: 'last_week',
     question: 'Yang terasa paling membantu',
-    placeholder: 'Contoh: minum air lebih mudah, jalan santai enak',
+    placeholder: 'Ketik ulasan kustom Anda...',
+    options: [
+      'Minum air lebih mudah & teratur',
+      'Jalan santai terasa sangat menyegarkan',
+      'Tidur lebih rapi & berkualitas',
+      'Nutrisi promil lebih konsisten',
+      'Isi sendiri...',
+    ],
   },
   {
     id: 'barrier',
     question: 'Yang paling sulit dijalankan',
-    placeholder: 'Contoh: lupa sore hari, badan cepat lelah',
+    placeholder: 'Ketik kendala kustom Anda...',
+    options: [
+      'Sering lupa di sore/malam hari',
+      'Badan cepat lelah & kurang motivasi',
+      'Jadwal harian mendadak terlalu sibuk',
+      'Semua berjalan lancar tanpa hambatan',
+      'Isi sendiri...',
+    ],
   },
   {
     id: 'next_focus',
     question: 'Fokus minggu depan',
-    placeholder: 'Contoh: tidur lebih rapi, makan protein lebih konsisten',
+    placeholder: 'Ketik fokus kustom Anda...',
+    options: [
+      'Pola & kualitas tidur lebih rapi',
+      'Konsumsi protein & nutrisi seimbang',
+      'Olahraga ringan lebih teratur',
+      'Mengurangi kafein & gula berlebih',
+      'Isi sendiri...',
+    ],
   },
 ];
 
@@ -70,6 +112,8 @@ export function HabitCoachSheet({
 }: Props) {
   const questions = useMemo(() => (mode === 'renewal' ? renewalQuestions : initialQuestions), [mode]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
+  
   const creditCost = mode === 'renewal' ? 60 : 50;
   const canSubmit = questions.every((item) => (answers[item.id] || '').trim().length >= 3);
 
@@ -94,11 +138,11 @@ export function HabitCoachSheet({
             backgroundColor: '#fff',
             borderTopLeftRadius: 28,
             borderTopRightRadius: 28,
-            maxHeight: '88%',
+            maxHeight: '90%',
             padding: 22,
           }}
         >
-          <ScrollView contentContainerStyle={{ gap: 14, paddingBottom: 20 }}>
+          <ScrollView contentContainerStyle={{ gap: 16, paddingBottom: 24 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flex: 1, paddingRight: 16 }}>
                 <Text style={{ fontSize: 11, color: '#6d28d9', fontWeight: '800', textTransform: 'uppercase' }}>
@@ -117,28 +161,84 @@ export function HabitCoachSheet({
               Saldo {balance === null ? '-' : balance} kredit. Plan ini memakai {creditCost} kredit setelah berhasil tersimpan.
             </Text>
 
-            {questions.map((item) => (
-              <View key={item.id} style={{ gap: 7 }}>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#334155' }}>{item.question}</Text>
-                <TextInput
-                  value={answers[item.id] || ''}
-                  onChangeText={(value) => setAnswers((prev) => ({ ...prev, [item.id]: value }))}
-                  placeholder={item.placeholder}
-                  placeholderTextColor="#94a3b8"
-                  multiline
-                  style={{
-                    minHeight: 74,
-                    borderWidth: 1,
-                    borderColor: '#e2e8f0',
-                    borderRadius: 16,
-                    padding: 12,
-                    color: '#111827',
-                    fontSize: 13,
-                    textAlignVertical: 'top',
-                  }}
-                />
-              </View>
-            ))}
+            {questions.map((item) => {
+              const selectedOption = item.options.find((opt) => answers[item.id] === opt && opt !== 'Isi sendiri...');
+              const isCustom = showCustomInput[item.id] || (!selectedOption && answers[item.id] !== undefined && answers[item.id] !== '');
+
+              return (
+                <View key={item.id} style={{ gap: 8 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#334155' }}>
+                    {item.question}
+                  </Text>
+                  
+                  {/* Options Chips Selection */}
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 2 }}>
+                    {item.options.map((opt) => {
+                      const isSelected = (opt === 'Isi sendiri...' && isCustom) || (answers[item.id] === opt && !isCustom);
+                      
+                      return (
+                        <TouchableOpacity
+                          key={opt}
+                          onPress={() => {
+                            if (opt === 'Isi sendiri...') {
+                              setShowCustomInput((prev) => ({ ...prev, [item.id]: true }));
+                              setAnswers((prev) => ({
+                                ...prev,
+                                [item.id]: answers[item.id] === selectedOption ? '' : prev[item.id] || '',
+                              }));
+                            } else {
+                              setShowCustomInput((prev) => ({ ...prev, [item.id]: false }));
+                              setAnswers((prev) => ({ ...prev, [item.id]: opt }));
+                            }
+                          }}
+                          activeOpacity={0.7}
+                          style={{
+                            paddingHorizontal: 12,
+                            paddingVertical: 7,
+                            borderRadius: 20,
+                            borderWidth: 1,
+                            borderColor: isSelected ? '#6d28d9' : '#e2e8f0',
+                            backgroundColor: isSelected ? '#f5f3ff' : '#f8fafc',
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontWeight: isSelected ? '700' : '500',
+                              color: isSelected ? '#6d28d9' : '#475569',
+                            }}
+                          >
+                            {opt}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  {/* Render Custom TextInput if 'Isi sendiri...' is selected or typed custom */}
+                  {isCustom && (
+                    <TextInput
+                      value={answers[item.id] || ''}
+                      onChangeText={(value) => setAnswers((prev) => ({ ...prev, [item.id]: value }))}
+                      placeholder={item.placeholder}
+                      placeholderTextColor="#94a3b8"
+                      multiline
+                      style={{
+                        minHeight: 74,
+                        borderWidth: 1,
+                        borderColor: '#e2e8f0',
+                        borderRadius: 16,
+                        padding: 12,
+                        color: '#111827',
+                        fontSize: 13,
+                        textAlignVertical: 'top',
+                        backgroundColor: '#fff',
+                      }}
+                    />
+                  )}
+                </View>
+              );
+            })}
 
             {error && (
               <View style={{ backgroundColor: '#fef2f2', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fee2e2' }}>
@@ -158,6 +258,7 @@ export function HabitCoachSheet({
                 flexDirection: 'row',
                 justifyContent: 'center',
                 gap: 8,
+                marginTop: 8,
               }}
             >
               {loading ? <ActivityIndicator color="#fff" /> : <FontAwesome name="check" size={13} color="#fff" />}

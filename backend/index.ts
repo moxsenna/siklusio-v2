@@ -7,7 +7,10 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
-  GEMINI_API_KEY: string;
+  GEMINI_API_KEY?: string;
+  OPENROUTER_API_KEY: string;
+  OPENROUTER_FREE_MODEL?: string;
+  OPENROUTER_PAID_MODEL?: string;
   VITE_SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   R2_ACCOUNT_ID: string;

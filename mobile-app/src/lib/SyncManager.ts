@@ -1,5 +1,13 @@
 import { supabase } from './supabase';
 import { storage } from './storage';
+import { format, subDays } from 'date-fns';
+import {
+  activityHistoryToRows,
+  mergeActivityHistories,
+  rowsToActivityHistory,
+  type ActivityHistoryMap,
+  type ActivityHistoryRow,
+} from './activityHistorySync';
 
 export interface CycleSyncPayload {
   last_period_date: string;
@@ -15,6 +23,12 @@ export interface SyncResult {
     period_length: number;
     updated_at: string;
   };
+  error?: any;
+}
+
+export interface ActivitySyncResult {
+  action: 'merged' | 'pushed' | 'pulled' | 'skipped' | 'error';
+  data?: ActivityHistoryMap;
   error?: any;
 }
 
@@ -104,6 +118,76 @@ export const SyncManager = {
       return { action: 'pushed' };
     } catch (err) {
       console.error("[SyncManager] Exception during syncProfileData:", err);
+      return { action: 'error', error: err };
+    }
+  },
+
+  syncActivityHistory: async (localHistory: ActivityHistoryMap): Promise<ActivitySyncResult> => {
+    try {
+      if (!supabase) {
+        return { action: 'skipped', error: 'Supabase client not initialized' };
+      }
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        return { action: 'skipped', error: 'User not authenticated' };
+      }
+
+      const startDate = format(subDays(new Date(), 400), 'yyyy-MM-dd');
+      const { data: cloudRows, error: fetchError } = await supabase
+        .from('activity_history')
+        .select('date_key, is_period, symptoms, tasks, updated_at')
+        .eq('user_id', user.id)
+        .gte('date_key', startDate)
+        .order('date_key', { ascending: true });
+
+      if (fetchError) {
+        return { action: 'error', error: fetchError };
+      }
+
+      const cloudHistory = rowsToActivityHistory((cloudRows ?? []) as ActivityHistoryRow[]);
+      const localHistoryWindow = Object.keys(localHistory).reduce<ActivityHistoryMap>((acc, dateKey) => {
+        if (dateKey >= startDate) {
+          acc[dateKey] = localHistory[dateKey];
+        }
+        return acc;
+      }, {});
+      const rowsToPush = activityHistoryToRows(localHistoryWindow, cloudHistory, user.id);
+      const mergedHistory = mergeActivityHistories(localHistory, cloudHistory);
+
+      for (const row of rowsToPush) {
+        mergedHistory[row.date_key] = {
+          symptoms: row.symptoms,
+          tasks: row.tasks,
+          isPeriod: row.is_period,
+          updatedAt: row.updated_at,
+        };
+      }
+
+      if (rowsToPush.length > 0) {
+        const { error: upsertError } = await supabase
+          .from('activity_history')
+          .upsert(rowsToPush, { onConflict: 'user_id,date_key' });
+
+        if (upsertError) {
+          return { action: 'error', data: mergedHistory, error: upsertError };
+        }
+      }
+
+      const hasCloudRows = (cloudRows ?? []).length > 0;
+      if (rowsToPush.length > 0 && hasCloudRows) {
+        return { action: 'merged', data: mergedHistory };
+      }
+      if (rowsToPush.length > 0) {
+        return { action: 'pushed', data: mergedHistory };
+      }
+      if (hasCloudRows) {
+        return { action: 'pulled', data: mergedHistory };
+      }
+
+      return { action: 'skipped', data: mergedHistory };
+    } catch (err) {
+      console.error("[SyncManager] Exception during syncActivityHistory:", err);
       return { action: 'error', error: err };
     }
   }

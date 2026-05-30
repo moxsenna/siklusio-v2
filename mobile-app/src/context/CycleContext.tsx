@@ -1,13 +1,15 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode, useEffect, useRef } from 'react';
 import { subDays, format } from 'date-fns';
 import { parseLocalDate } from '../lib/dateUtils';
 import { storage } from '../lib/storage';
+import { useAuth } from './AuthContext';
 import {
   CyclePhase,
   Task,
   DailyRecord,
   calculateCycleData
 } from '../lib/cycleUtils';
+import type { PredictionConfidence } from '../lib/cyclePrediction';
 
 interface CycleContextType {
   lastPeriodDate: Date | null;
@@ -47,6 +49,13 @@ interface CycleContextType {
   setCurrentSaving: (amount: number) => void;
   effectiveLastPeriod: Date;
   hasManualLogs: boolean;
+  predictedCycleLength: number;
+  predictedPeriodLength: number;
+  cycleConfidence: PredictionConfidence;
+  periodConfidence: PredictionConfidence;
+  lastPredictionDeltaDays: number | null;
+  lastPredictedPeriodDate: Date | null;
+  lastActualPeriodDate: Date | null;
   getDayInfo: (date: Date) => { phase: string; displayPhase: string; cycleDay: number; isManualPeriod: boolean };
   isOnboardingCompleted: boolean;
   setIsOnboardingCompleted: (val: boolean) => void;
@@ -88,6 +97,7 @@ function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?
 }
 
 export function CycleProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [lastPeriodDate, setLastPeriodDate] = usePersistentState<Date | null>(
     'hs_v3_lastPeriodDate',
     null,
@@ -115,6 +125,10 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   const [targetSaving, setTargetSaving] = usePersistentState<number>('hs_v3_targetSaving', 0);
   const [currentSaving, setCurrentSaving] = usePersistentState<number>('hs_v3_currentSaving', 0);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = usePersistentState<boolean>('hs_onboardingCompleted', false);
+  const activityInitialSyncUserRef = useRef<string | null>(null);
+  const activityInitialSyncDoneUserRef = useRef<string | null>(null);
+  const activitySyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isApplyingActivitySyncRef = useRef(false);
 
   // Trigger sinkronisasi otomatis ke cloud (Supabase) ketika parameter utama siklus berubah
   useEffect(() => {
@@ -146,6 +160,68 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         });
     }
   }, [lastPeriodDate, cycleLength, periodLength]);
+
+  useEffect(() => {
+    activityInitialSyncUserRef.current = null;
+    activityInitialSyncDoneUserRef.current = null;
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || activityInitialSyncUserRef.current === user.id) return;
+
+    activityInitialSyncUserRef.current = user.id;
+    let cancelled = false;
+
+    import('../lib/SyncManager')
+      .then(({ SyncManager }) => SyncManager.syncActivityHistory(activityHistory))
+      .then((res) => {
+        if (cancelled || !res.data || res.action === 'skipped' || res.action === 'error') return;
+
+        setActivityHistory((prev) => {
+          if (JSON.stringify(prev) === JSON.stringify(res.data)) return prev;
+          isApplyingActivitySyncRef.current = true;
+          return res.data!;
+        });
+
+        setTimeout(() => {
+          isApplyingActivitySyncRef.current = false;
+        }, 0);
+      })
+      .catch((err) => {
+        console.warn('[CycleContext] Gagal menyelaraskan histori aktivitas:', err);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          activityInitialSyncDoneUserRef.current = user.id;
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || activityInitialSyncDoneUserRef.current !== user.id || isApplyingActivitySyncRef.current) return;
+
+    if (activitySyncTimerRef.current) {
+      clearTimeout(activitySyncTimerRef.current);
+    }
+
+    activitySyncTimerRef.current = setTimeout(() => {
+      import('../lib/SyncManager')
+        .then(({ SyncManager }) => SyncManager.syncActivityHistory(activityHistory))
+        .catch((err) => {
+          console.warn('[CycleContext] Gagal mengunggah histori aktivitas:', err);
+        });
+    }, 1500);
+
+    return () => {
+      if (activitySyncTimerRef.current) {
+        clearTimeout(activitySyncTimerRef.current);
+      }
+    };
+  }, [user?.id, activityHistory]);
 
   const cycleData = useMemo(() => {
     return calculateCycleData(lastPeriodDate, cycleLength, periodLength, activityHistory);

@@ -1,16 +1,16 @@
 # Graph Report - remix_-siklusio  (2026-05-29)
 
 ## Corpus Check
-- 581 files · ~486,160 words
+- 1040 files · ~768,027 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 22353 nodes · 42944 edges · 704 communities (658 shown, 46 thin omitted)
+- 22812 nodes · 43549 edges · 702 communities (656 shown, 46 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 221 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ad253a14`
+- Built from commit: `3b0552b2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -648,9 +648,7 @@
 - [[_COMMUNITY_Community 642|Community 642]]
 - [[_COMMUNITY_Community 643|Community 643]]
 - [[_COMMUNITY_Community 644|Community 644]]
-- [[_COMMUNITY_Community 645|Community 645]]
 - [[_COMMUNITY_Community 646|Community 646]]
-- [[_COMMUNITY_Community 647|Community 647]]
 - [[_COMMUNITY_Community 648|Community 648]]
 - [[_COMMUNITY_Community 649|Community 649]]
 - [[_COMMUNITY_Community 650|Community 650]]
@@ -664,9 +662,6 @@
 - [[_COMMUNITY_Community 658|Community 658]]
 - [[_COMMUNITY_Community 659|Community 659]]
 - [[_COMMUNITY_Community 660|Community 660]]
-- [[_COMMUNITY_Community 661|Community 661]]
-- [[_COMMUNITY_Community 662|Community 662]]
-- [[_COMMUNITY_Community 663|Community 663]]
 - [[_COMMUNITY_Community 664|Community 664]]
 - [[_COMMUNITY_Community 665|Community 665]]
 - [[_COMMUNITY_Community 666|Community 666]]
@@ -693,6 +688,7 @@
 - [[_COMMUNITY_Community 687|Community 687]]
 - [[_COMMUNITY_Community 688|Community 688]]
 - [[_COMMUNITY_Community 689|Community 689]]
+- [[_COMMUNITY_Community 690|Community 690]]
 - [[_COMMUNITY_Community 691|Community 691]]
 - [[_COMMUNITY_Community 692|Community 692]]
 - [[_COMMUNITY_Community 693|Community 693]]
@@ -728,7 +724,7 @@
 - `reduceError()` --calls--> `string()`  [INFERRED]
   .wrangler/tmp/dev-YUAiG2/index.js → mobile-app/.expo/audit-export/_expo/static/js/web/entry-79aede259881aaeffeb015697aba664c.js
 
-## Communities (704 total, 46 thin omitted)
+## Communities (702 total, 46 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.12
@@ -799,7 +795,7 @@ Cohesion: 0.18
 Nodes (10): code:block1 (Email    : admin@siklusio.local), code:sql (-- Pastikan profile-nya ada (trigger handle_new_user biasany), code:sql (SELECT id, name, nickname, is_admin), code:sql (-- Cari user UID berdasarkan email), Kredensial yang dibuat, Langkah 1 — Buat akun di Supabase Dashboard, Langkah 2 — Tandai sebagai admin, Langkah 3 — Login (+2 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.04
+Cohesion: 0.05
 Nodes (48): Authentication Middleware, Basic API Route, Calling API Routes from Client, code:block1 (app/), code:ts (export async function POST(request: Request) {), code:bash (npx expo serve), code:bash (curl http://localhost:8081/api/hello), code:bash (npm install -g eas-cli) (+40 more)
 
 ### Community 35 - "Community 35"
@@ -807,7 +803,7 @@ Cohesion: 0.04
 Nodes (47): 1) Create an Expo project, 1. Disable user script sandboxing, 2. Add a Run Script phase to embed the JS bundle, 2) Place native projects under the Expo project, 3) Configure Android, 3. Update `Info.plist`, 4) Configure iOS, 5) Test the integration (+39 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.05
+Cohesion: 0.04
 Nodes (43): 1. make-webgpu-renderer.ts, 1. "X is not part of the THREE namespace", 2. fiber-canvas.tsx, 2. TypeScript Errors with Three.js, 3. Blank Screen, 4. Performance Issues, 5. Peer Dependency Errors, Animation with useFrame (+35 more)
 
 ### Community 38 - "Community 38"
@@ -839,7 +835,7 @@ Cohesion: 0.06
 Nodes (32): Basic use, Basic use, code:bash (# Latest group id across all branches), code:json ({), code:bash (eas update:insights 03d5dfcf-736c-475a-8730-af039c3f4d06), code:bash (# Human-readable), code:bash (eas channel:insights --channel production --runtime-version ), code:bash (# 1. Grab the latest publish on production) (+24 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.06
+Cohesion: 0.08
 Nodes (32): Assets, Basic DOM Component, code:tsx (// components/WebChart.tsx), code:tsx ("use dom";), code:tsx (// app/[id].tsx (native)), code:tsx (// components/dom-component.tsx), code:tsx ("use dom";), code:tsx ("use dom";) (+24 more)
 
 ### Community 46 - "Community 46"
@@ -859,11 +855,11 @@ Cohesion: 0.07
 Nodes (26): Android, Automated Deployments, Build Commands, code:bash (npm install -g eas-cli), code:bash (npx eas-cli@latest init), code:bash (# iOS App Store build), code:bash (# iOS: Build and submit to App Store Connect), code:bash (# Deploy to production) (+18 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Basic Loader, Best Practices, code:json ({), code:tsx (// app/posts/index.tsx), code:tsx (// app/posts/[id].tsx), code:json ({), code:tsx (// app/posts/index.tsx), code:tsx (// app/posts/[id].tsx) (+17 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): After (expo-video), After (expo-video), After (expo-video), API Mapping, API Reference, Before (expo-av), Before (expo-av), Before (expo-av) (+17 more)
 
 ### Community 52 - "Community 52"
@@ -871,7 +867,7 @@ Cohesion: 0.08
 Nodes (23): code:tsx (<Stack.Screen), code:tsx (function SearchResults({ search, items }) {), code:tsx (function SearchScreen() {), code:tsx (headerSearchBarOptions: {), code:tsx (import { useEffect, useState } from "react";), code:tsx (function SearchScreen() {), code:tsx (const filtered = items.filter(item =>), code:tsx (const filtered = items.filter(item => {) (+15 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Animations, Best Practices, code:tsx (import Animated, {), code:tsx (import Animated, {), code:tsx (<Animated.View), code:tsx (// Duration in milliseconds), code:tsx (import {), code:tsx (import { Gesture, GestureDetector } from "react-native-gestu) (+14 more)
 
 ### Community 54 - "Community 54"
@@ -879,11 +875,11 @@ Cohesion: 0.09
 Nodes (21): Button, code:tsx (import { Stack } from "expo-router";), code:tsx (import { Color, Stack } from "expo-router";), code:tsx (<Stack.Toolbar.Menu icon="ellipsis">), code:tsx (<Stack.Toolbar.Spacer />           // Bottom toolbar - flexi), code:tsx (<Stack.Toolbar.View>), code:tsx (function CustomFilterView() {), code:tsx (export default function Page() {) (+13 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (28): Agent Methods for Workflows, AgentWorkflow Base Class, Build on Push, code:yaml (name: Deploy), code:yaml (name: Web PR Preview), code:yaml (name: PR Preview), code:yaml (name: Release), code:yaml (name: Build) (+20 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.09
+Cohesion: 0.12
 Nodes (21): Building for Specific Platform, Building for TestFlight, Building Locally, Checking Build Status, code:json ({), code:bash (eas credentials), code:bash (eas build -p ios --profile development --clear-cache), code:bash (eas --version) (+13 more)
 
 ### Community 57 - "Community 57"
@@ -899,11 +895,11 @@ Cohesion: 0.10
 Nodes (19): Apple Zoom Transitions, Basic Zoom, Best Practices, code:tsx (import { Link } from "expo-router";), code:tsx (<Link href="/photo" asChild>), code:tsx (<Link href="/photo" asChild>), code:tsx (// Destination screen (e.g., app/photo.tsx)), code:tsx (<Link.AppleZoom alignmentRect={{ x: 0, y: 0, width: 200, hei) (+11 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.10
+Cohesion: 0.16
 Nodes (19): Beta/Preview Releases, Breaking Changes Checklist, Clear caches for bare workflow, code:bash (npx expo install expo@next --fix  # install beta), code:bash (npx expo install expo@latest), code:bash (npx expo export -p ios --clear), code:bash (npx expo prebuild --clean), code:json ({) (+11 more)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Basic Usage, code:tsx (// app/_layout.tsx), code:tsx (// app/about.tsx), code:tsx (// app/_layout.tsx), code:tsx (// _layout.tsx), code:tsx (// app/confirm.tsx), code:tsx (<View style={{ flex: 1 }}>{/* content */}</View>), Common Detent Values (+10 more)
 
 ### Community 62 - "Community 62"
@@ -911,12 +907,12 @@ Cohesion: 0.11
 Nodes (17): AsyncFunction on Views, code:swift (public class MyViewModule: Module {), code:kotlin (View(MyContainerView::class) {), code:kotlin (class MyViewModule : Module() {), code:typescript (import { requireNativeView } from "expo";), code:swift (class MyNativeView: ExpoView {), code:kotlin (class MyNativeView(context: Context, appContext: AppContext)), code:swift (// Called after all props have been set) (+9 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.18
-Nodes (14): CACHE_DIRECTORY, fetchCached(), getExpires(), hashUrl(), loadCacheEntry(), parseMaxAge(), saveCacheEntry(), args (+6 more)
+Cohesion: 0.25
+Nodes (15): CACHE_DIRECTORY, fetchCached(), getExpires(), hashUrl(), loadCacheEntry(), parseMaxAge(), saveCacheEntry(), args (+7 more)
 
 ### Community 64 - "Community 64"
 Cohesion: 0.12
-Nodes (16): Age Rating (Advisory), App Store Metadata, Categories, CI/CD Integration, code:json ({), code:json ({), code:json ({), code:json ({) (+8 more)
+Nodes (14): Age Rating (Advisory), App Store Metadata, CI/CD Integration, code:json ({), code:json ({), code:json ({), code:yaml (# .eas/workflows/release.yml), code:json ({) (+6 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.12
@@ -931,67 +927,67 @@ Cohesion: 0.12
 Nodes (15): After (SDK 55+), Before (SDK 53/54), BottomAccessory, code:tsx (// SDK 53/54), code:tsx (<NativeTabs>), code:tsx (<NativeTabs.Trigger.Icon sf="house" md="home" />), code:tsx (import {), code:tsx (import { NativeTabs } from "expo-router/unstable-native-tabs) (+7 more)
 
 ### Community 68 - "Community 68"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (16): code:json ({), code:json ({), code:bash (npx expo install react-native-worklets), code:tsx (import { Platform } from "react-native";), Common Migration Issues, Configuration, Documentation, Expo Go (+8 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): code:block1 (references/), code:swift (import ExpoModulesCore), code:kotlin (package expo.modules.mymodule), code:typescript (import { requireNativeModule } from "expo";), code:json ({), Core File Shapes, expo-module.config.json, Module Structure Reference (+6 more)
 
 ### Community 70 - "Community 70"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Audio Playback, Audio Recording (Microphone), Camera, code:tsx (import React, { useRef, useState } from "react";), code:tsx (import { useAudioPlayer } from 'expo-audio';), code:tsx (import {), code:tsx (import { useVideoPlayer, VideoView } from 'expo-video';), code:tsx (import * as MediaLibrary from "expo-media-library";) (+5 more)
 
 ### Community 71 - "Community 71"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): After upgrading Expo SDK, Android `mavenLocal()` not found (isolated approach), Brownfield Troubleshooting, Build failures, code:sh (npx expo prebuild --clean), code:sh (rm -rf ~/.m2/repository/<group>/<libraryName>), code:sh (find ~/.m2/repository -name "mybrownfield*"), iOS architecture / simulator mismatch (+5 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Cleanup Checklist, code:tsx (// Before (React 18)), code:tsx (// Before (React 18)), code:tsx (// Before (React 18)), Context Changes, Context.Provider → Context, Migration Steps, Other React 19 Features (+4 more)
 
 ### Community 73 - "Community 73"
 Cohesion: 0.00
-Nodes (240): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+232 more)
+Nodes (246): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+238 more)
 
 ### Community 74 - "Community 74"
 Cohesion: 0.15
 Nodes (13): App Store Optimization (ASO), code:json ({), code:json ({), code:json ({), code:json ({), code:json ({), code:json ({), Description Optimization (+5 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): code:tsx (import "expo-sqlite/localStorage/install";), code:tsx (// utils/storage.ts), code:tsx (// hooks/use-storage.ts), code:tsx (function Settings() {), code:tsx (import * as SQLite from "expo-sqlite";), Full SQLite for Complex Data, Key-Value Storage, React Hook for Storage (+3 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.17
-Nodes (11): code:tsx (// app/(tabs)/_layout.tsx), code:block17 (app/), code:tsx (// SF Symbol (iOS) + Material Symbol (Android)), Custom Web Layout, Icon Component, Limitations, Native Tabs, Platform Features (+3 more)
+Cohesion: 0.15
+Nodes (11): Basic Usage, code:tsx (import { NativeTabs } from "expo-router/unstable-native-tabs), code:block17 (app/), code:json ({), Custom Web Layout, Keyboard Handling (Android), Limitations, Native Tabs (+3 more)
 
 ### Community 77 - "Community 77"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): App Store Metadata, CI/CD Integration, code:bash (# Pull existing metadata), code:yaml (# .eas/workflows/release.yml), code:bash (# Build and submit to App Store Connect), code:json ({), Prerequisites, Submission Commands (+3 more)
 
 ### Community 78 - "Community 78"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): code:block1 (my-module/), code:typescript (import {), code:json ({), code:swift (Function("getApiKey") {), code:kotlin (Function("getApiKey") {), Config Plugins Reference, Key Rules, Plugin Structure (+3 more)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Answering Questions, code:bash (# Fetch resources), code:sh (# Install dependencies if missing), EAS Workflows Skill, Expressions, Generating Workflows, Reference Documentation, Top-Level Structure (+2 more)
 
 ### Community 80 - "Community 80"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): code:bash (npx testflight), code:bash (EXPO_APPLE_ID=you@email.com), code:bash (eas credentials -p ios), Skip the Prompts, Submit, Tester Strategy, TestFlight, Tips (+2 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Cleanup After Enabling, code:json ({), code:tsx (// Before (manual memoization)), Enabling React Compiler, React Compiler, Requirements, Troubleshooting, Verifying It's Working (+1 more)
 
 ### Community 82 - "Community 82"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Automated migration (preferred), Check for deprecated imports, code:sh (npx expo-codemod sdk-56-expo-router-react-navigation-replace), code:sh (npx expo-codemod sdk-56-expo-router-react-navigation-replace), Done when, Manual API mapping, Migrating from react-navigation to expo-router, Reference (+1 more)
 
 ### Community 83 - "Community 83"
-Cohesion: 0.22
+Cohesion: 0.29
 Nodes (8): dependencies, ajv, ajv-formats, js-yaml, name, private, type, version
 
 ### Community 84 - "Community 84"
@@ -1011,8 +1007,8 @@ Cohesion: 0.25
 Nodes (8): Async Configuration (External Localization), Basic Dynamic Config, code:js (// store.config.js), code:js (// store.config.js), code:js (// store.config.js), code:json ({), Dynamic Configuration, Environment-Based Config
 
 ### Community 88 - "Community 88"
-Cohesion: 0.25
-Nodes (8): 2) Build the native libraries, code:block10 (artifacts/MyAppPackage/), code:sh (npx expo prebuild), code:sh (npx expo-brownfield build:ios), code:sh (npx expo-brownfield build:ios --release --package MyAppPacka), Generate native projects for debugging, iOS, Ship as a Swift Package (recommended)
+Cohesion: 0.40
+Nodes (5): code:block10 (artifacts/MyAppPackage/), code:sh (npx expo-brownfield build:ios), code:sh (npx expo-brownfield build:ios --release --package MyAppPacka), iOS, Ship as a Swift Package (recommended)
 
 ### Community 89 - "Community 89"
 Cohesion: 0.25
@@ -1027,15 +1023,15 @@ Cohesion: 0.25
 Nodes (8): code:tsx (<NativeTabs minimizeBehavior="onScrollDown">), code:tsx (<NativeTabs.Trigger name="(search)" role="search">), code:tsx (<NativeTabs.Trigger name="search" role="search" />), iOS 26 Features, Liquid Glass Tab Bar, Minimize on Scroll, Role Prop, Search Tab
 
 ### Community 92 - "Community 92"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): Brownfield: Isolated vs. Integrated, Common scenarios, Comparison, Quick decision rules, What is different at runtime, What is identical between the approaches
 
 ### Community 93 - "Community 93"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): code:sh (npx create-expo-app@latest my-project --template default@sdk), Expo Brownfield, Pick an approach, References, Shared prerequisites, Versioning note
 
 ### Community 94 - "Community 94"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): Autolinking, code:json ({), expo-module.config.json, Fields, Module Configuration Reference, Resolution Order
 
 ### Community 95 - "Community 95"
@@ -1043,15 +1039,15 @@ Cohesion: 0.29
 Nodes (7): Automatic Release, code:json ({), code:json ({), code:json ({), Phased Release, Release Options, Scheduled Release
 
 ### Community 96 - "Community 96"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): code:json ({), code:json ({), `eas update:insights` JSON schema, `eas update:view <groupId> --insights --json`, Field reference
 
 ### Community 97 - "Community 97"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): Brownfield: Isolated Approach, Prerequisites, Related references, What you produce, When to use
 
 ### Community 98 - "Community 98"
-Cohesion: 0.33
+Cohesion: 0.38
 Nodes (5): code:bash (npx expo install @expo/ui), code:jsx (import { Host, Column, Button, Text } from "@expo/ui/jetpack), Installation, Instructions, Key Components
 
 ### Community 99 - "Community 99"
@@ -1059,7 +1055,7 @@ Cohesion: 0.33
 Nodes (6): After (Native Tabs), Before (JS Tabs), code:tsx (import { Tabs } from "expo-router";), code:tsx (import { NativeTabs } from "expo-router/unstable-native-tabs), Key Differences, Migration from JS Tabs
 
 ### Community 100 - "Community 100"
-Cohesion: 0.40
+Cohesion: 0.33
 Nodes (4): Caveats, code:json ({), `eas channel:insights` JSON schema, Field reference
 
 ### Community 101 - "Community 101"
@@ -1083,8 +1079,8 @@ Cohesion: 0.40
 Nodes (5): code:bash (eas metadata:pull), code:bash (eas metadata:push), Getting Started, Pull Existing Metadata, Push Metadata Updates
 
 ### Community 106 - "Community 106"
-Cohesion: 0.40
-Nodes (5): Android, code:sh (npx expo-brownfield build:android), code:json ({), code:sh (npx expo-brownfield build:android --task publishReleasePubli), Publishing the Android AAR
+Cohesion: 0.25
+Nodes (8): 2) Build the native libraries, Android, code:sh (npx expo prebuild), code:sh (npx expo-brownfield build:android), code:json ({), code:sh (npx expo-brownfield build:android --task publishReleasePubli), Generate native projects for debugging, Publishing the Android AAR
 
 ### Community 107 - "Community 107"
 Cohesion: 0.40
@@ -1174,17 +1170,25 @@ Nodes (3): code:tsx (<NativeTabs.Trigger name="index" disableAutomaticContentIns
 Cohesion: 0.67
 Nodes (3): code:tsx (import {), code:tsx (import { ThemeProvider, DarkTheme } from "@react-navigation/), Common Issues
 
+### Community 131 - "Community 131"
+Cohesion: 0.04
+Nodes (21): number, binaryDecode(), configureNextLayoutAnimation(), decode(), decodeBroadcast(), decodePush(), decodeReply(), encode() (+13 more)
+
+### Community 136 - "Community 136"
+Cohesion: 0.09
+Nodes (41): __awaiter(), bufferFromSecret(), cmn(), convertToBuffer(), convertToBuffer3(), createCanonicalRequest(), createStringToSign(), digest() (+33 more)
+
 ### Community 139 - "Community 139"
 Cohesion: 0.11
 Nodes (17): Account Overview, Authentication flow, code:bash (# Always use the latest version — no install step required), code:bash (npx -y mayar@latest whoami --json), Customer Directory (`customer`), Detailed Commands & Capabilities Reference, Dynamic QR Code (`qrcode`), Global Flags (+9 more)
 
 ### Community 140 - "Community 140"
 Cohesion: 0.01
-Nodes (334): [A,E], [A,M], [A,v], abort(), {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b} (+326 more)
+Nodes (339): [A,E], [A,M], [A,v], {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b}, {addOptionsGetter:d} (+331 more)
 
 ### Community 141 - "Community 141"
 Cohesion: 0.06
-Nodes (10): a(), catch(), execute(), fetchRequest(), fetchThenEvalAsync(), finally(), _genPromise(), _getAccessToken() (+2 more)
+Nodes (11): a(), catch(), execute(), fetchRequest(), fetchThenEvalAsync(), finally(), _genPromise(), _getAccessToken() (+3 more)
 
 ### Community 142 - "Community 142"
 Cohesion: 0.09
@@ -1200,11 +1204,11 @@ Nodes (11): vite, devDependencies, autoprefixer, esbuild, tailwindcss, tsx, @typ
 
 ### Community 145 - "Community 145"
 Cohesion: 0.02
-Nodes (96): $(), alert(), b(), binaryEncode(), cancel(), cancelTasks(), cf(), cloneRequestState() (+88 more)
+Nodes (100): $(), alert(), array(), b(), binaryEncode(), cancel(), cancelTasks(), cf() (+92 more)
 
 ### Community 146 - "Community 146"
 Cohesion: 0.02
-Nodes (334): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+326 more)
+Nodes (328): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+320 more)
 
 ### Community 147 - "Community 147"
 Cohesion: 0.14
@@ -1212,7 +1216,7 @@ Nodes (13): description, name, private, scripts, build, clean, deploy, dev (+5 m
 
 ### Community 148 - "Community 148"
 Cohesion: 0.00
-Nodes (231): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+223 more)
+Nodes (233): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+225 more)
 
 ### Community 149 - "Community 149"
 Cohesion: 0.47
@@ -1220,7 +1224,7 @@ Nodes (4): prepareDatabase(), runTests(), scrollToFind(), supabase
 
 ### Community 155 - "Community 155"
 Cohesion: 0.00
-Nodes (262): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+254 more)
+Nodes (260): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+252 more)
 
 ### Community 156 - "Community 156"
 Cohesion: 0.02
@@ -1228,47 +1232,47 @@ Nodes (335): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$
 
 ### Community 157 - "Community 157"
 Cohesion: 0.02
-Nodes (25): add(), addChangeListener(), backIndex(), clear(), clearInteractionHandle(), computeViewableItems(), __debouncedOnEnd(), delete() (+17 more)
+Nodes (29): add(), addChangeListener(), backIndex(), clear(), clearInteractionHandle(), computeViewableItems(), __debouncedOnEnd(), delete() (+21 more)
 
 ### Community 158 - "Community 158"
-Cohesion: 0.08
-Nodes (30): At(), bn(), channel(), er(), et(), ff(), getChannels(), Ht() (+22 more)
+Cohesion: 0.06
+Nodes (40): applySettingDefaults(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), generateCallbackId(), getChannel() (+32 more)
 
 ### Community 159 - "Community 159"
-Cohesion: 0.02
-Nodes (133): add(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), arrayBuffer(), batchSend(), binaryEncode() (+125 more)
+Cohesion: 0.03
+Nodes (109): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), arrayBuffer(), batchSend() (+101 more)
 
 ### Community 160 - "Community 160"
 Cohesion: 0.00
-Nodes (268): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+260 more)
+Nodes (230): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, authSchemes, authUsersById, __awaiter2(), bindEndpointMiddleware() (+222 more)
 
 ### Community 161 - "Community 161"
 Cohesion: 0.02
-Nodes (330): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+322 more)
+Nodes (328): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+320 more)
 
 ### Community 162 - "Community 162"
 Cohesion: 0.03
-Nodes (218): error, ac(), ad(), addEventListener(), Ae(), af(), Al(), ao() (+210 more)
+Nodes (216): error, ac(), ad(), addEventListener(), Ae(), af(), Al(), ao() (+208 more)
 
 ### Community 163 - "Community 163"
 Cohesion: 0.00
-Nodes (256): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+248 more)
+Nodes (260): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+252 more)
 
 ### Community 164 - "Community 164"
-Cohesion: 0.03
-Nodes (147): addAuthHeaders(), apiCall(), authHeaders(), __awaiter(), bufferFromSecret(), buildAllMatchers(), bytes(), calculateDefaultRetryTimeoutMillis() (+139 more)
+Cohesion: 0.02
+Nodes (178): addAuthHeaders(), apiCall(), asResponse(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), __awaiter() (+170 more)
 
 ### Community 165 - "Community 165"
 Cohesion: 0.02
-Nodes (166): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+158 more)
+Nodes (133): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), clearHeartbeats(), close(), closeAndRetry() (+125 more)
 
 ### Community 166 - "Community 166"
 Cohesion: 0.03
-Nodes (158): addAuthHeaders(), apiCall(), arrayBuffer(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), blob() (+150 more)
+Nodes (156): addAuthHeaders(), apiCall(), arrayBuffer(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), blob() (+148 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.01
-Nodes (31): clearHeartbeats(), clone(), createInteractionHandle(), f(), flushSendBuffer(), __getAnimatedValue(), getStateForHref(), __getValue() (+23 more)
+Cohesion: 0.02
+Nodes (14): abort(), close(), closeAndRetry(), createInteractionHandle(), __getAnimatedValue(), getSize(), getStateForHref(), __getValue() (+6 more)
 
 ### Community 168 - "Community 168"
 Cohesion: 0.05
@@ -1288,7 +1292,7 @@ Nodes (39): Angular, Angular UI Kit, Backend Setup, Basic Configuration, Client 
 
 ### Community 172 - "Community 172"
 Cohesion: 0.02
-Nodes (169): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+161 more)
+Nodes (156): #addRoute(), buildAbortError(), buildAuthHeaders(), buildQueryString(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush() (+148 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.05
@@ -1300,18 +1304,18 @@ Nodes (37): App Endpoints, Base URL and Auth, Binding API (Workers), Client Prov
 
 ### Community 175 - "Community 175"
 Cohesion: 0.02
-Nodes (149): add(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), batchSend(), binaryEncode(), _binaryEncodeUserBroadcastPush() (+141 more)
+Nodes (144): add(), ajax(), appendParams(), applyTransformOptsToQuery(), baseURLOverridden(), batchSend(), binaryEncode(), _binaryEncodeUserBroadcastPush() (+136 more)
 
 ### Community 176 - "Community 176"
-Cohesion: 0.05
+Cohesion: 0.06
 Nodes (36): code:typescript (import { Container } from "@cloudflare/containers";), code:typescript (onStart() {), code:typescript (onStop() {), code:typescript (onError(error: Error) {), code:typescript (onActivityExpired(): boolean {), code:typescript (export class ScheduledContainer extends Container {), code:typescript (const state = await container.getState();), code:typescript (export class MyContainer extends Container {) (+28 more)
 
 ### Community 177 - "Community 177"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (35): Available APIs in Snippets, Cloudflare Properties (`request.cf`), code:javascript (request.method    // GET, POST, PUT, DELETE, etc.), code:bash (PUT /zones/{zone_id}/snippets/{snippet_name}), code:bash (DELETE /zones/{zone_id}/snippets/{snippet_name}), code:bash (GET /zones/{zone_id}/rulesets/phases/http_request_snippets/e), code:bash (PUT /zones/{zone_id}/snippets/snippet_rules), code:javascript (export default {) (+27 more)
 
 ### Community 178 - "Community 178"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (35): CLI Commands, code:javascript (export default {), code:javascript (const response = await fetch('https://example.com');), code:javascript (const socket = await connect({ hostname: 'example.com', port), code:javascript (import { Buffer } from 'node:buffer';), code:bash (workerd serve config.capnp [constantName]          # Start s), code:bash (wrangler dev     # Uses workerd internally), code:bash (wrangler types  # Output: worker-configuration.d.ts) (+27 more)
 
 ### Community 179 - "Community 179"
@@ -1347,8 +1351,8 @@ Cohesion: 0.06
 Nodes (33): AI & Machine Learning, Cloudflare Platform Skill, code:block1 (Need feature flags?), code:block2 (Need to run code?), code:block3 (Need storage?), code:block4 (Need AI?), code:block5 (Need networking?), code:block6 (Need security?) (+25 more)
 
 ### Community 187 - "Community 187"
-Cohesion: 0.09
-Nodes (29): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+21 more)
+Cohesion: 0.03
+Nodes (85): applyTransformOptsToQuery(), baseURLOverridden(), bindCallerConfig(), buildBody(), buildHeaders(), buildRequest(), buildURL(), cloneRequestState() (+77 more)
 
 ### Community 188 - "Community 188"
 Cohesion: 0.06
@@ -1447,27 +1451,27 @@ Cohesion: 0.06
 Nodes (30): Assuming Single Read Gets All Data, Blocked Destinations, Certificate Validation, code:typescript (for (let i = 0; i < hosts.length; i += 6) {), code:typescript (const socket = connect(addr, opts);), code:typescript (const socket = connect({ hostname: "api.internal", port: 443), code:typescript (const ALLOWED = ['api1.internal.net', 'api2.internal.net'];), Common Errors (+22 more)
 
 ### Community 212 - "Community 212"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): "Agent not found", "AI Gateway unavailable", AI Integration, Best Practices, "@callable method returns undefined", code:ts (// ❌ this.state.count++), code:ts (export class ChatAgent extends AIChatAgent<Env> {), code:ts (// ❌ this.sql`...WHERE id = '${userId}'`) (+21 more)
 
 ### Community 215 - "Community 215"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): API Protection, Block AI Scrapers, Bot Management Patterns, code:txt (# High security for checkout), code:txt (Public content: High threshold (score < 10)), code:txt (1. Default deny (all scores < 30)), code:typescript (import type { IncomingRequestCfProperties } from '@cloudflar), code:txt (# Enterprise: Combine bot score with JWT validation) (+21 more)
 
 ### Community 216 - "Community 216"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): Basic Email Worker, CI/CD (GitHub Actions), code:jsonc (// wrangler.jsonc), code:typescript (interface Env {), code:bash (npm install --save-dev @cloudflare/workers-types), code:json (// tsconfig.json), code:typescript (import type { ForwardableEmailMessage } from "@cloudflare/wo), code:bash (npm install postal-mime) (+21 more)
 
 ### Community 217 - "Community 217"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (28): Aggregation Fields, Boolean Operators (AND / OR), code:graphql ({), code:graphql (# HTTP requests), code:graphql (quantiles { cpuTimeP50 cpuTimeP99 wallTimeP50 wallTimeP99 }), code:graphql (ratio { status4xx status5xx }      # float64 (0 to 1) -- HTT), code:graphql (zones(filter: { zoneTag: "ZONE_ID" })           # up to 10 z), code:graphql (# Explicit AND) (+20 more)
 
 ### Community 218 - "Community 218"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): AI Code Execution, Analytics Engine, Architecture, Best Practices, Billing by Plan, code:typescript (interface Env {), code:typescript (const bindings = [{), code:typescript (export default {) (+21 more)
 
 ### Community 219 - "Community 219"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): Basic Patterns, code:typescript (import { connect } from 'cloudflare:sockets';), code:typescript (const ALLOWED_HOSTS = ['db.internal.company.net', 'api.inter), code:typescript (class SocketPool {), code:typescript (interface Protocol { name: string; defaultPort: number; test), code:typescript (const socket = connect({ hostname: "echo.example.com", port:), code:typescript (async function readAll(socket: Socket): Promise<Uint8Array> ), code:typescript (// Stream socket data directly to HTTP response) (+21 more)
 
 ### Community 220 - "Community 220"
@@ -1559,7 +1563,7 @@ Cohesion: 0.07
 Nodes (27): Add Track (Publish), Add Track (Subscribe), API Reference, Authentication, Client Libraries, Close Tracks, code:bash (curl -X POST 'https://rtc.live/v1/apps/${CALLS_APP_ID}/sessi), code:typescript (// 1. Create PeerConnection) (+19 more)
 
 ### Community 242 - "Community 242"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (27): 1. Use Hashed Filenames, 1. Use Selective Worker-First Routing, 2. Leverage Navigation Request Optimization, 2. Minimize Worker Invocations, 3. Leverage Browser Cache, 3. Type Safety with Bindings, "429 Too Many Requests on free tier", 4. Use .assetsignore (+19 more)
 
 ### Community 243 - "Community 243"
@@ -1608,59 +1612,59 @@ Nodes (328): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$
 
 ### Community 254 - "Community 254"
 Cohesion: 0.03
-Nodes (142): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+134 more)
+Nodes (139): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+131 more)
 
 ### Community 255 - "Community 255"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Client-Side Sync (React), code:typescript (type State = {), code:typescript (export class MyAgent extends Agent<Env, State> {), code:typescript (// Read (lazy-loaded from SQLite)), code:typescript (validateStateChange(nextState: State, source: Connection | "), code:tsx (import { useAgent } from "agents/react";), code:typescript (// Create table), code:typescript (// Delay (seconds)) (+17 more)
 
 ### Community 256 - "Community 256"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): "Alarm Not Deleted with deleteAll()", allowConcurrency Option, "Async in transactionSync", Breaking Gates (DANGER), code:typescript (// SAFE: Input gate active during await), code:typescript (// SAFE: Output gate waits for put() to confirm before retur), code:typescript (// SAFE: All three writes coalesce atomically), code:typescript (// UNSAFE: fetch() allows another request to interleave) (+17 more)
 
 ### Community 257 - "Community 257"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Best Practices, code:typescript (const count = await stub.increment();  // RPC), code:typescript (async scheduleEvent(id: string, runAt: number) {), code:typescript (async myMethod() {), code:typescript (export default {), code:typescript (async checkLimit(key: string, limit: number, windowMs: numbe), code:typescript (private held = false;), code:typescript (async fetch(req: Request): Promise<Response> {) (+17 more)
 
 ### Community 258 - "Community 258"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Authentication, code:typescript (interface ExportedHandler<Env = unknown> {), code:typescript (interface ForwardableEmailMessage {), code:typescript (// Access headers), code:typescript (// Envelope addresses (routing, auth checks)), code:jsonc (// wrangler.jsonc), code:typescript (interface Env {), code:typescript (interface Env {) (+17 more)
 
 ### Community 259 - "Community 259"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): code:typescript (interface ForwardableEmailMessage {), code:typescript (import { createMimeMessage } from 'mimetext';), code:typescript (import {), code:typescript (if (blockList.includes(message.from)) {), code:typescript (await message.forward('inbox@example.com');), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (interface SendEmail {) (+17 more)
 
 ### Community 260 - "Community 260"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Base, CNI API Reference, CNI Objects (BGP config), code:block1 (https://api.cloudflare.com/client/v4), code:typescript (import Cloudflare from 'cloudflare';), code:python (from cloudflare import Cloudflare), code:bash (# List interconnects), code:typescript (client.networkInterconnects.interconnects.*) (+17 more)
 
 ### Community 261 - "Community 261"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Build Config, code:jsonc ({), code:bash (# Basic), code:bash (# .dev.vars (never commit)), code:bash (echo "secret-value" | npx wrangler pages secret put SECRET_K), code:txt (/old-page /new-page 301          # 301 redirect), code:txt (/secure/*), code:json ({) (+17 more)
 
 ### Community 262 - "Community 262"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): 10. No Event Retry, 1. Not Using `ctx.waitUntil()`, 2. Missing `tail()` Handler, 3. Outcome vs HTTP Status, 4. Timestamp Units, 5. Type Name Mismatch, 6. Excessive Logging Volume, 7. Serialization Issues (+17 more)
 
 ### Community 263 - "Community 263"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Advanced Options, Automatic Provisioning (Beta), Automatic Type Generation (Recommended), Bindings, code:jsonc ({), code:jsonc ({), code:bash (npx wrangler deploy              # Production), code:jsonc ({) (+17 more)
 
 ### Community 264 - "Community 264"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Cloudflare Wrangler, code:bash (npm install wrangler --save-dev), code:bash (wrangler init [name]              # Create new project), code:bash (wrangler kv namespace create NAME), code:bash (wrangler d1 create NAME), code:bash (wrangler r2 bucket create NAME), code:bash (wrangler queues create NAME), code:bash (wrangler secret put NAME          # Set Worker secret) (+17 more)
 
 ### Community 265 - "Community 265"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): Anti-Patterns, Cloudflare Sandbox SDK, Code Interpreter (Recommended for AI), code:bash (npm install @cloudflare/sandbox), code:jsonc ({), code:typescript (import { getSandbox } from '@cloudflare/sandbox';), code:typescript (const sandbox = getSandbox(env.Sandbox, 'user-123');), code:typescript (const ctx = await sandbox.createCodeContext({ language: 'pyt) (+17 more)
 
 ### Community 266 - "Community 266"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (25): code:json ("chrome-devtools": {), code:block2 (Audit Progress:), code:block3 (navigate_page(url: "<target-url>")), code:block4 (performance_start_trace(autoStop: true, reload: true)), code:block5 (performance_analyze_insight(insightSetId: "<id-from-trace>",), code:block6 (list_network_requests(resourceTypes: ["Script", "Stylesheet"), code:block7 (get_network_request(reqid: <id>)), code:block8 (take_snapshot(verbose: true)) (+17 more)
 
 ### Community 267 - "Community 267"
 Cohesion: 0.02
-Nodes (327): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+319 more)
+Nodes (329): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+321 more)
 
 ### Community 268 - "Community 268"
 Cohesion: 0.08
@@ -1675,7 +1679,7 @@ Cohesion: 0.08
 Nodes (24): Authentication Posture, BOLA Detection, code:block1 (Security > API Shield > Schema Validation > Add validation), code:bash (openssl req -x509 -newkey rsa:4096 -keyout client-key.pem -o), code:block11 (Security > API Shield > Settings > Session Identifiers), code:block12 (Security > API Shield > Schema Validation > [Select Schema] ), code:block13 (Security > API Shield > Authentication Posture), code:hcl (# Session identifier) (+16 more)
 
 ### Community 271 - "Community 271"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (23): API Reference, Authentication, Base Endpoint, Checking Editability Before Updates, code:block1 (https://api.cloudflare.com/client/v4), code:typescript (async function safelyEnableArgo(client: Cloudflare, zoneId: ), code:python (def safely_enable_argo(client: Cloudflare, zone_id: str) -> ), code:typescript (import Cloudflare from 'cloudflare';) (+15 more)
 
 ### Community 272 - "Community 272"
@@ -1767,55 +1771,55 @@ Cohesion: 0.08
 Nodes (23): Anti-Patterns to Flag, Binding access — the most common error, Binding-code consistency, Cloudflare docs, Code Review — Workers, code:bash (mkdir -p /tmp/workers-types-latest && \), code:bash (# Read from local node_modules), code:block3 (**[SEVERITY]** Brief description) (+15 more)
 
 ### Community 294 - "Community 294"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Agents SDK Email, Attachments, code:jsonc (// wrangler.jsonc), code:typescript (import { routeAgentEmail } from "agents";), code:typescript (try {), code:jsonc ({), code:jsonc ({ "send_email": [{ "name": "EMAIL", "remote": true }] }), code:typescript (export default {) (+14 more)
 
 ### Community 295 - "Community 295"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Alarms, Alarms, Class Structure, code:typescript (import { DurableObject } from "cloudflare:workers";), code:typescript (// Store connection metadata (survives hibernation)), code:typescript (// Complete work after response sent (e.g., cleanup, logging), code:typescript (this.ctx.id              // DurableObjectId of this instance), code:typescript (this.ctx.storage.sql     // SQLite API (recommended)) (+14 more)
 
 ### Community 296 - "Community 296"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): 10. Multi-Tenant, 1. Allowlist/Blocklist, 2. Parse Email Body, 3. Spam Filter, 4. Archive to R2, 5. Store Metadata in KV, 6. Subject-Based Routing, 7. Auto-Reply (+14 more)
 
 ### Community 297 - "Community 297"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): 409 Conflict on Flag Creation, Anti-Patterns, Client Provider Token Exposure, code:typescript (// ❌ BAD — no context, rules can't match), code:typescript (// ❌ BAD — flag "checkout-flow" has string variations), code:typescript (// ❌ BAD — no targetingKey, rollout is random per request), code:bash (# ❌ BAD — overwrites the entire flag, losing rules/variation), code:typescript (// ❌ BAD) (+14 more)
 
 ### Community 298 - "Community 298"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): AI & Gateway Analytics, Best Practices, Cache Analytics, code:graphql (query TrafficTimeSeries($zoneTag: string!, $start: Time!, $e), code:graphql (query TopCountries($zoneTag: string!, $start: Time!, $end: T), code:graphql (query WorkersOverview($accountTag: string!, $start: Time!, $), code:graphql (query RecentFirewallEvents($zoneTag: string!, $start: Time!)), code:graphql (query DNSQueryVolume($zoneTag: string!, $start: Time!, $end:) (+14 more)
 
 ### Community 299 - "Community 299"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): "API token permissions insufficient", Best Practices, "Binding name mismatch", code:typescript (// WRONG: Pulumi won't bundle this), code:typescript (// Pattern: Export Pulumi config to wrangler.toml), code:typescript (const version = Date.now().toString();), code:typescript (const db = new cloudflare.D1Database("db", {accountId, name:), code:yaml (# Pulumi.<stack>.yaml) (+14 more)
 
 ### Community 300 - "Community 300"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Best Practices, code:python (import os), code:python (files = table.scan().plan_files()), code:python (import pyarrow as pa), code:python (from datetime import datetime, timedelta), code:python (from pyiceberg.types import StringType), code:python (from pyiceberg.partitioning import PartitionSpec, PartitionF), code:python (from datetime import datetime, timedelta) (+14 more)
 
 ### Community 301 - "Community 301"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Backend Worker (Smart Placement Enabled), Baseline Traffic, Cloudflare Pages/Assets Warning, code:jsonc ({), code:jsonc (// frontend-worker/wrangler.jsonc), code:jsonc (// backend-api/wrangler.jsonc), code:typescript (// ✅ Smart Placement affects this:), code:jsonc (// ✅ Valid - Smart Placement) (+14 more)
 
 ### Community 302 - "Community 302"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (21): Browser to Stream (WHIP), Check Live Status, code:typescript (import Cloudflare from 'cloudflare';), code:typescript (async function createLiveInput(accountId: string, apiToken: ), code:typescript (async function getLiveStatus(accountId: string, liveInputId:), code:typescript (const liveInput = await createLiveInput(accountId, apiToken)), code:typescript (async function startWebRTCBroadcast(liveInputId: string) {), code:typescript (async function playWebRTCStream(videoId: string) {) (+13 more)
 
 ### Community 303 - "Community 303"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Account Data Sources, code:hcl (# Get zone by name), code:hcl (# List all accounts), code:hcl (# Get existing worker script (v5: cloudflare_workers_script)), code:hcl (# Get KV namespace), code:hcl (# Get IP lists for WAF rules), code:hcl (# Get Cloudflare IP ranges (for firewall rules)), code:bash (# Example: Import DNS record) (+14 more)
 
 ### Community 304 - "Community 304"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Access (Zero Trust), code:hcl (# Zone + settings), code:hcl (resource "cloudflare_workers_script" "api" {), code:hcl (resource "cloudflare_worker" "api" { account_id = var.accoun), code:hcl (resource "cloudflare_worker_route" "api" {), code:hcl (# KV), code:hcl (resource "cloudflare_pages_project" "site" {), code:hcl (# WAF) (+14 more)
 
 ### Community 305 - "Community 305"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Actions by Phase, Actions & Phases, API Reference, code:typescript (import Cloudflare from 'cloudflare';), code:typescript (// List rulesets), code:typescript (// Request properties), code:typescript (// Comparison), code:typescript ('cf.waf.score gt 40' // Attack score) (+14 more)
 
 ### Community 306 - "Community 306"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (22): Alarms, Anti-Patterns (NEVER), Basic Durable Object Pattern, code:jsonc (// wrangler.jsonc), code:typescript (import { DurableObject } from "cloudflare:workers";), code:typescript (// Deterministic - preferred for most cases), code:typescript (// SQL (synchronous, recommended)), code:typescript (// Schedule (replaces existing)) (+14 more)
 
 ### Community 307 - "Community 307"
@@ -1835,11 +1839,11 @@ Cohesion: 0.09
 Nodes (21): API Configuration, Cache Reserve Configuration, Cache Rules Integration, code:bash (# Navigate to dashboard), code:bash (# Enable), code:bash (npm install cloudflare), code:typescript (import Cloudflare from 'cloudflare';), code:bash (pip install cloudflare) (+13 more)
 
 ### Community 311 - "Community 311"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (20): ⚠️ Activity Timeout on Long Operations, Best Practices, Beta Caveats, ⚠️ blockConcurrencyWhile for Startup, code:typescript (// ❌ WRONG), code:typescript (// ❌ WRONG), code:typescript (const interval = setInterval(() => {), code:typescript (await this.ctx.blockConcurrencyWhile(async () => {) (+12 more)
 
 ### Community 312 - "Community 312"
-Cohesion: 0.09
+Cohesion: 0.11
 Nodes (21): Activity Timeout Renewal, code:typescript (export class SessionBackend extends Container {), code:typescript (export default {), code:typescript (export default {), code:typescript (export default {), code:typescript (export default {), code:typescript (export class GracefulContainer extends Container {), code:typescript (export class SafeContainer extends Container {) (+13 more)
 
 ### Community 313 - "Community 313"
@@ -1899,52 +1903,52 @@ Cohesion: 0.09
 Nodes (19): "Binding not found", Build Issues, code:capnp (services = [(name = "internet", network = (allow = ["public"), code:capnp (bindings = [(name = "API", service = (external = (address = ), Common Errors, Compatibility Changes, "Compatibility error", Limits (+11 more)
 
 ### Community 327 - "Community 327"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Address-Based (Inbound Mail), Basic Email Handler, Catch-All (Single Instance), code:jsonc ({), code:typescript (import { Agent } from "agents";), code:typescript (import { routeAgentRequest, routeAgentEmail } from "agents";), code:typescript (import { createAddressBasedEmailResolver } from "agents/emai), code:typescript (import { createSecureReplyEmailResolver } from "agents/email) (+12 more)
 
 ### Community 328 - "Community 328"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Batch Operations, code:typescript (// ❌ NEVER: Direct string interpolation (SQL injection risk)), code:bash (# Inspect local database), code:typescript (// .all() - Returns all rows), code:typescript (// Execute multiple queries in single round trip (atomic tra), code:typescript (// D1 executes batch() as atomic transaction - all succeed o), code:typescript (const session = env.DB.withSession({ timeout: 600 }); // 10 ), code:typescript (interface Env {) (+12 more)
 
 ### Community 329 - "Community 329"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): "Batch size exceeded", "BLOB data corrupted on export", "Boolean Type Issues", Common Errors, D1 Gotchas & Troubleshooting, "Database size approaching limit", "Date/Time Type Issues", "Foreign key constraint failed" (+12 more)
 
 ### Community 330 - "Community 330"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Architecture, Cloudflare Email Workers, code:typescript (export default {), code:block2 (Incoming Email → Email Routing → Email Worker), code:typescript (// Buffer first), Core Operations, Envelope vs Headers, In This Reference (+12 more)
 
 ### Community 331 - "Community 331"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Batch Delete, Caching with Cache API, Checksum Validation & Storage Transitions, Client-Side Uploads (Presigned URLs), code:typescript (const object = await env.MY_BUCKET.get(key);), code:typescript (const ifNoneMatch = request.headers.get('if-none-match');), code:typescript (const key = url.pathname.slice(1);), code:typescript (const PART_SIZE = 5 * 1024 * 1024; // 5MB) (+12 more)
 
 ### Community 332 - "Community 332"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Basic Worker Example, Cloudflare Worker Integration, code:bash (# .env), code:typescript (import { z } from 'zod';), code:jsonc ({), code:bash (wrangler secret put TURN_KEY_SECRET), code:typescript (interface Env {), code:typescript (export default {) (+12 more)
 
 ### Community 333 - "Community 333"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Cloudflare Web Analytics, code:block1 (Is your site proxied through Cloudflare?), code:json ({"token": "YOUR_TOKEN", "spa": true}), code:block3 (script-src https://static.cloudflareinsights.com https://clo), Core Web Vitals Debugging, CSP Requirements, Features, Key Concepts (+12 more)
 
 ### Community 334 - "Community 334"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): code:typescript (const response = await env.AI.run(model, input);), code:typescript (const result = await env.AI.run('@cf/meta/llama-3.1-8b-instr), code:typescript (const stream = await env.AI.run(model, { messages, stream: t), code:typescript (const result = await env.AI.run('@cf/baai/bge-base-en-v1.5',), code:typescript (const tools = [{), code:typescript (const image = await env.AI.run('@cf/stabilityai/stable-diffu), code:typescript (const audioArray = Array.from(new Uint8Array(await request.a), code:typescript (const result = await env.AI.run('@cf/meta/m2m100-1.2b', {) (+12 more)
 
 ### Community 335 - "Community 335"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): "API Rate Limit Exceeded", API Rate Limits, "Asset Session Expired", Asset Upload Limits, "Bindings Lost on Update", code:typescript (try {), code:typescript (async function deployWithBackoff(deploy: () => Promise<void>), Common Errors (+12 more)
 
 ### Community 336 - "Community 336"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): "Body has already been used", "Cannot fetch in global scope", code:typescript (const session = env.DB.withSession();), code:bash (npx wrangler types  # Generates .wrangler/types/runtime.d.ts), code:typescript (// ❌ Old fetch pattern), code:typescript (export class WebSocketDO {), code:typescript (// ✅ Hono (Workers-native)), Common Errors (+12 more)
 
 ### Community 337 - "Community 337"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): Advanced, Auto-Provisioning (Beta), Bindings, code:jsonc ({), code:jsonc ({), code:jsonc (// Custom domain (recommended)), code:jsonc (// Variables), code:jsonc ({) (+12 more)
 
 ### Community 338 - "Community 338"
 Cohesion: 0.02
-Nodes (36): number, assert(), cancelRefEvent(), cancelTimeout(), canPush(), configureNextLayoutAnimation(), connect(), connectWithFallback() (+28 more)
+Nodes (58): assert(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), connect(), connectWithFallback() (+50 more)
 
 ### Community 339 - "Community 339"
 Cohesion: 0.10
@@ -2019,7 +2023,7 @@ Cohesion: 0.10
 Nodes (19): Baseline Traffic & Analysis Time, "cf-placement header missing", code:jsonc (// ❌ BAD - Assets routed away from user), code:jsonc (// frontend/wrangler.jsonc), code:typescript (// ❌ RPC - Smart Placement has NO EFFECT), code:jsonc ({ "placement": { "mode": "off" } }  // Explicit disable), Common Errors, Disabling Smart Placement (+11 more)
 
 ### Community 357 - "Community 357"
-Cohesion: 0.10
+Cohesion: 0.12
 Nodes (19): CNAME Origin, code:typescript (const app = await client.spectrum.apps.create({), code:hcl (resource "cloudflare_spectrum_application" "game_cluster" {), code:hcl (resource "cloudflare_spectrum_application" "ssh" {), code:typescript (const app = await client.spectrum.apps.create({), code:hcl (resource "cloudflare_spectrum_application" "database" {), code:hcl (resource "cloudflare_load_balancer" "game_lb" {), code:typescript (const app = await client.spectrum.apps.create({) (+11 more)
 
 ### Community 358 - "Community 358"
@@ -2039,63 +2043,63 @@ Cohesion: 0.10
 Nodes (19): Async Behavior, code:javascript (zaraz.track('button_click');), code:javascript (zaraz.set('userId', 'user_12345');), code:javascript (zaraz.ecommerce('Product Viewed', { product_id: 'SKU123', na), code:block4 ({{system.page.url}}   {{system.page.title}}   {{system.page.), code:javascript (// Check), code:javascript (zaraz.debug = true;), code:javascript (zaraz.getCookie('session_id');  // Zaraz namespace) (+11 more)
 
 ### Community 362 - "Community 362"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Architecture, Cloudflare AI Gateway, code:typescript (import { createAiGateway } from 'ai-gateway-provider';), code:typescript (import OpenAI from 'openai';), code:typescript (export default {), code:block4 (Your App → AI Gateway → AI Provider (OpenAI, Anthropic, etc.), Gateway Types, Headers Quick Reference (+10 more)
 
 ### Community 363 - "Community 363"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Authentication, C3 Troubleshooting, CI/CD, code:bash (npx wrangler kv namespace create MY_KV  # Get real ID), code:bash (npm run cf-typegen  # Regenerate types), code:bash (rm pnpm-lock.yaml  # If using npm), code:bash (npm create cloudflare@latest my-app -- \), code:yaml (env:) (+10 more)
 
 ### Community 364 - "Community 364"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Batch Operations, CLI Commands, Cloudflare D1 Database, code:bash (# Create database), code:typescript (// .all() - Returns all rows; .first() - First row or null; ), code:typescript (// Multiple queries in single round trip (atomic transaction), code:typescript (// Create long-running session for analytics/migrations (up ), code:typescript (// Read from nearest replica for lower latency (automatic fa) (+10 more)
 
 ### Community 365 - "Community 365"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Basic Setup, Binding Options, code:jsonc ({), code:jsonc ({), code:typescript (// EU data residency), code:jsonc ({), code:jsonc ({), code:jsonc ({) (+10 more)
 
 ### Community 366 - "Community 366"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Bulk Operations, CLI Operations, code:bash (wrangler kv namespace create MY_NAMESPACE), code:jsonc ({), code:typescript (interface Env {), code:typescript (export default {), code:typescript (interface UserProfile {), code:bash (# Put) (+10 more)
 
 ### Community 367 - "Community 367"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): code:jsonc ({), code:jsonc (// wrangler.prod.jsonc), code:bash (wrangler deploy --config wrangler.prod.jsonc --env productio), code:typescript (// Good - structured logging), code:jsonc ({), code:toml (# wrangler.toml), code:typescript (export interface Env {), code:toml (# wrangler.toml) (+10 more)
 
 ### Community 368 - "Community 368"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): code:bash (npx wrangler types), code:block10 (/old  /new  301), code:bash (# Dev server), code:typescript (// functions/api.ts), code:typescript (interface Env {), code:jsonc ({), code:jsonc ({), code:bash (# .dev.vars (add to .gitignore)) (+10 more)
 
 ### Community 369 - "Community 369"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Ack/Retry Precedence Rules, Batch Operations, code:typescript (// Basic send), code:typescript (// Type-safe handler with ExportedHandler), code:typescript (// ❌ BAD: Uncaught error retries entire batch), code:typescript (async queue(batch: MessageBatch): Promise<void> {), code:typescript (// Acknowledge entire batch), code:typescript (async queue(batch: MessageBatch, env: Env): Promise<void> {) (+10 more)
 
 ### Community 370 - "Community 370"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): API Token Scopes, Bucket Management, code:jsonc ({), code:typescript (interface Env { MY_BUCKET: R2Bucket; }), code:typescript (import { S3Client, PutObjectCommand } from '@aws-sdk/client-), code:bash (wrangler r2 bucket create my-bucket --location=enam), code:typescript (import { S3Client, PutBucketCorsCommand } from '@aws-sdk/cli), code:typescript (import { PutBucketLifecycleConfigurationCommand } from '@aws) (+10 more)
 
 ### Community 371 - "Community 371"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): AI Code Execution with Code Context, CI/CD Pipeline, code:typescript (export default {), code:typescript (export default {), code:typescript (export default {), code:dockerfile (FROM docker.io/cloudflare/sandbox:0.7.0), code:typescript (export default {), code:typescript (export default {) (+10 more)
 
 ### Community 372 - "Community 372"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Access Control, Cloudflare Stream, code:bash (curl -X POST \), code:html (<iframe), code:bash (curl -X POST \), Core Concepts, In This Reference, Key Features (+10 more)
 
 ### Community 373 - "Community 373"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Automatic Redaction, Bypassing Redaction, code:typescript (export default {), code:typescript (interface TraceItem {), code:typescript (// ✅ CORRECT - use directly with Date), code:typescript (export default {), code:typescript (interface Env {), code:typescript (// ✅ Check outcome for script execution status) (+10 more)
 
 ### Community 374 - "Community 374"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Batch Ingestion, Best Practices, code:typescript (// Generate embedding + query), code:typescript (const response = await openai.embeddings.create({ model: "te), code:typescript (// 1. Embed query), code:typescript (await env.VECTORIZE.upsert([{ id: "1", values: emb, namespac), code:bash (wrangler vectorize create-metadata-index my-index --property), code:typescript (await env.VECTORIZE.upsert([{ id: "1", values: emb, metadata) (+10 more)
 
 ### Community 375 - "Community 375"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): API Errors, code:typescript (// WRONG: Can't mix phase-specific actions), code:typescript (// Common mistakes), code:typescript (// WRONG: Trying to skip managed rules from custom phase), code:typescript (// WRONG: This deletes all existing rules!), code:typescript (// List managed ruleset rules to find IDs), code:typescript ({), code:typescript (// Error: "Invalid phase" → Use exact phase name) (+10 more)
 
 ### Community 376 - "Community 376"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Best Practices, code:typescript (import { startWorker } from "wrangler";), code:typescript (// Local mode (default) - fast, simulated), code:typescript (import { getPlatformProxy } from "wrangler";), code:typescript (import { startWorker } from "wrangler";), code:typescript (import { startWorker } from "wrangler";), code:typescript (import { startWorker } from "wrangler";), Dynamic Reconfiguration (+10 more)
 
 ### Community 377 - "Community 377"
@@ -2127,7 +2131,7 @@ Cohesion: 0.11
 Nodes (16): Archive & Extract Attachments, Auto-Reply with Threading, code:typescript (import PostalMime from 'postal-mime';), code:typescript (// Allowlist from KV), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (const rateKey = `rate:${message.from}`;), code:typescript (const subject = (message.headers.get('Subject') || '').toLow), code:typescript (// support+tenant123@example.com → tenant123) (+8 more)
 
 ### Community 384 - "Community 384"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (17): Analytics Engine, Analytics Engine _sample_interval Aggregation, code:bash (# Verify config), code:jsonc (// Temporarily set to 100% sampling for debugging), code:typescript (// Date.now() is coarsened - trace spans are accurate), code:sql (-- WRONG: Undercounts actual events), code:typescript (// For deep call chains, add custom correlation ID), Common Errors (+9 more)
 
 ### Community 385 - "Community 385"
@@ -2139,7 +2143,7 @@ Cohesion: 0.11
 Nodes (17): CLI Commands, Cloudflare Workers Smart Placement, code:block1 (Does your Worker have a fetch handler?), code:block2 (User → Frontend Worker (at edge, close to user)), code:jsonc (// wrangler.jsonc), code:typescript (type PlacementStatus =), code:bash (# Deploy with Smart Placement), Core Concept (+9 more)
 
 ### Community 387 - "Community 387"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (17): Analytics Data Retention, Client IP Showing Cloudflare IP, code:bash (# Test connectivity), code:typescript (// Enable in Spectrum app), code:bash (openssl s_client -connect app.example.com:443 -showcerts), code:nginx (stream {), code:block5 (frontend ft_ssh), code:typescript (const app = await client.spectrum.apps.create({) (+9 more)
 
 ### Community 388 - "Community 388"
@@ -2183,71 +2187,71 @@ Cohesion: 0.11
 Nodes (17): After (Progressive), api.md (287 lines), Before (Monolithic), configuration.md (307 lines), File Summary, Files Created, gotchas.md (317 lines), Key Improvements Applied (+9 more)
 
 ### Community 398 - "Community 398"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): CLI, MCP, and Project Setup, Cloudflare MCP Server, code:block1 (wrangler email routing), code:bash (npx wrangler email sending enable yourdomain.com), code:jsonc ({ "send_email": [{ "name": "EMAIL", "remote": true }] }), code:bash (npx wrangler dev), code:javascript (// search tool — find all email sending API endpoints), code:javascript (// execute tool — check sending quota) (+8 more)
 
 ### Community 399 - "Community 399"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Authentication, code:block1 (POST https://api.cloudflare.com/client/v4/accounts/{account_), code:block2 (Authorization: Bearer <API_TOKEN>), code:bash (curl "https://api.cloudflare.com/client/v4/accounts/{account), code:bash (curl "https://api.cloudflare.com/client/v4/accounts/{account), code:bash (curl "https://api.cloudflare.com/client/v4/accounts/{account), code:bash (curl "https://api.cloudflare.com/client/v4/accounts/{account), code:bash (curl "https://api.cloudflare.com/client/v4/accounts/{account) (+8 more)
 
 ### Community 400 - "Community 400"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Analytics Engine Configuration, code:jsonc ({), code:jsonc ({), code:typescript (interface Env {), code:jsonc ({), code:bash (npx wrangler tail  # Check for sampling/write errors), code:sql (-- Check write activity), Cost (+8 more)
 
 ### Community 401 - "Community 401"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): "BOLA detection false positives", Common Errors, "Endpoint discovery not finding APIs", "Fallthrough", Gotchas & Troubleshooting, "GraphQL protection blocking valid queries", "JWT validation failing", Limits (2026) (+8 more)
 
 ### Community 402 - "Community 402"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Billing Model, Cloudflare Argo Smart Routing Skill Reference, code:bash (curl -X PATCH "https://api.cloudflare.com/client/v4/zones/{z), code:typescript (import Cloudflare from 'cloudflare';), Core Concepts, Enable via cURL, Enable via TypeScript SDK, In This Reference (+8 more)
 
 ### Community 403 - "Community 403"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Access Locations, Available Data, Bot Analytics, Bot Management API, code:typescript (interface BotManagement {), code:txt (# Score fields), code:typescript (import type { IncomingRequestCfProperties } from '@cloudflar), code:txt (BotScore              # 1-99 or 0 if not computed) (+8 more)
 
 ### Community 404 - "Community 404"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Basic Worker, Browser Rendering Patterns, code:typescript (import puppeteer from "@cloudflare/puppeteer";), code:typescript (let sessionId = await env.SESSION_KV.get("browser-session");), code:typescript (const pages = await Promise.all(urls.map(() => browser.newPa), code:typescript (import { launch } from "@cloudflare/playwright";), code:typescript (const ctx1 = await browser.createIncognitoBrowserContext();), code:typescript (const limits = await puppeteer.limits(env.MYBROWSER);) (+8 more)
 
 ### Community 405 - "Community 405"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Alarms, Async KV API (Both backends), code:typescript (const cursor = this.sql.exec('SELECT * FROM users WHERE emai), code:typescript (this.ctx.storage.kv.get("counter"); // undefined if missing), code:typescript (await this.ctx.storage.get("key"); // Single), code:typescript (// Sync (SQL/sync KV only)), code:typescript (await this.ctx.storage.getCurrentBookmark();), code:typescript (await this.ctx.storage.setAlarm(Date.now() + 60000); // Time) (+8 more)
 
 ### Community 406 - "Community 406"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): API Reference, Binding Interface, code:typescript (interface Hyperdrive {), code:typescript (import { Client } from "pg";  // pg@^8.17.2), code:typescript (import postgres from "postgres";  // postgres@^3.4.8), code:typescript (import { createConnection } from "mysql2/promise";  // mysql), code:sql (SELECT * FROM posts WHERE published = true;), code:sql (-- Writes) (+8 more)
 
 ### Community 407 - "Community 407"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): code:typescript (// Single key (string)), code:typescript (// Basic put), code:typescript (// Single key), code:typescript (await env.MY_KV.delete("key"); // Always succeeds (even if k), code:typescript (// List all), code:typescript (// Efficient parallel reads with Promise.all()), Delete Operations, Error Handling (+8 more)
 
 ### Community 408 - "Community 408"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): code:bash (npm install partytracks @cloudflare/calls), code:bash (npm install partytracks @cloudflare/calls observable-hooks), code:jsonc ({), code:bash (wrangler login), code:javascript (const pc = new RTCPeerConnection({), code:typescript (export class Room {), code:typescript (if (!env.CALLS_APP_ID || !env.CALLS_APP_SECRET) {), Configuration & Deployment (+8 more)
 
 ### Community 409 - "Community 409"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): "Account secret quota exceeded", "Binding already exists", "Cannot access secret in local dev", code:typescript (try {), code:bash (# Validate before storing), code:typescript (try {), Common Errors, ".get() Throws on Error" (+8 more)
 
 ### Community 410 - "Community 410"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): A/B Testing, API Auth Header Injection, Bot Detection, code:javascript (export default {), code:javascript (export default {), code:javascript (export default {), code:javascript (export default {), code:javascript (export default {) (+8 more)
 
 ### Community 411 - "Community 411"
-Cohesion: 0.12
+Cohesion: 0.15
 Nodes (16): Analytics API, code:block1 (GET    /zones/{zone_id}/spectrum/apps                    # L), code:typescript (interface CreateSpectrumAppRequest {), code:typescript (interface SpectrumApp {), code:typescript (import Cloudflare from 'cloudflare';), code:python (from cloudflare import Cloudflare), code:go (import "github.com/cloudflare/cloudflare-go"), code:bash (curl "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/sp) (+8 more)
 
 ### Community 412 - "Community 412"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Cache, code:javascript (export default {), code:javascript (const method = request.method;       // "GET", "POST"), code:javascript (// Text), code:javascript (// Background work (after response sent)), code:javascript (const response = await fetch('https://api.example.com');), code:javascript (const cache = caches.default;), code:javascript (crypto.randomUUID();                 // UUID v4) (+8 more)
 
 ### Community 413 - "Community 413"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Common Errors, Gotchas & Debugging, "Idempotency Violation", "Instance Data Disappeared After Completion", "Instance ID Collision", "Large Step Returns Exceeding Limit", Limits & Pricing, "Missing await on step.do" (+8 more)
 
 ### Community 414 - "Community 414"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Click Trigger, code:block1 (Type: History Change), code:block2 (Type: Click), code:block3 (Measurement ID: G-XXXXXXXXXX), code:block4 (Pixel ID: 1234567890123456), code:block5 (Conversion ID: AW-XXXXXXXXX), code:javascript (zaraz.consent.setAll({ analytics: true, marketing: true });), Consent Management (+8 more)
 
 ### Community 415 - "Community 415"
@@ -2351,199 +2355,199 @@ Cohesion: 0.12
 Nodes (15): Cloudflare Workers, code:typescript (export default {), code:bash (npx wrangler dev                    # Local dev), code:bash (npm create cloudflare@latest my-worker -- --type hello-world), code:typescript (// HTTP requests), Essential Commands, Handler Signatures, In This Reference (+7 more)
 
 ### Community 440 - "Community 440"
-Cohesion: 0.12
+Cohesion: 0.17
 Nodes (15): Anti-Patterns to Flag, Architecture, Code Patterns, code:bash (# Fetch latest workers types), Configuration, FIRST: Fetch Latest References, Observability, Principles (+7 more)
 
 ### Community 441 - "Community 441"
-Cohesion: 0.08
-Nodes (24): ai, allowedFields, app, authUsersById, body, buffer, code, discount (+16 more)
+Cohesion: 0.09
+Nodes (23): ai, allowedFields, app, authUsersById, body, buffer, code, discount (+15 more)
 
 ### Community 442 - "Community 442"
-Cohesion: 0.15
-Nodes (23): __asyncGenerator(), __asyncValues(), __await(), _binaryDecode(), concatBytes(), decode(), decodeBroadcast(), decodePush() (+15 more)
+Cohesion: 0.06
+Nodes (40): applySettingDefaults(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), generateCallbackId(), getChannel() (+32 more)
 
 ### Community 443 - "Community 443"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): AI Chat w/Tools, code:ts (import { AIChatAgent } from "@cloudflare/ai-chat";), code:tsx (import { useAgent } from "agents/react";), code:ts (// Server), code:ts (export class TaskAgent extends Agent<Env> {), code:ts (export class ChatAgent extends Agent<Env> {), code:ts (export class EmailAgent extends Agent<Env> {), code:ts (export class GameAgent extends Agent<Env> {) (+6 more)
 
 ### Community 444 - "Community 444"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): code:typescript (const response = await client.chat.completions.create({), code:typescript (headers: {), code:block3 (Start → GPT-4 → On error: Claude → On error: Llama), code:block4 (Conditional: tier == 'enterprise' → GPT-4 (no limit)), code:block5 (Percentage: 10% → New model, 90% → Old model), code:block6 (Budget Limit: $100/day per teamId), Common Patterns, Dynamic Routing (+6 more)
 
 ### Community 445 - "Community 445"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): AI Search API Reference, aiSearch() Options, code:typescript (const answer = await env.AI.autorag("instance-name").aiSearc), code:typescript (interface AiSearchOptions {), code:typescript (interface AiSearchResponse {), code:typescript (// Comparison), code:typescript (const stream = await env.AI.autorag("docs").aiSearch({ query), code:bash (curl https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_) (+6 more)
 
 ### Community 446 - "Community 446"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): AI Search Gotchas, Anti-Patterns, Auth Errors, code:typescript (const nowInSeconds = Math.floor(Date.now() / 1000); // Corre), code:typescript (filters: { column: "folder", operator: "gte", value: "docs/a), code:typescript (// ✅ Valid: same column, eq only), code:typescript (// Add score threshold + limit results), code:typescript (const answer = await env.AI.autorag(env.AI_SEARCH_INSTANCE).) (+6 more)
 
 ### Community 447 - "Community 447"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (13): AI Search Patterns, code:typescript (const answer = await env.AI.autorag("saas-docs").aiSearch({), code:typescript (const stream = await env.AI.autorag("docs").aiSearch({), code:typescript (const systemPrompt = `You are a documentation assistant.), code:typescript (// OR: Multiple folders), code:typescript (reranking: { enabled: true, model: "@cf/baai/bge-reranker-ba), Compound Filters, Multitenancy (Folder-Based) (+5 more)
 
 ### Community 448 - "Community 448"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (13): AI Search vs Direct Workers AI, AI Search vs Vectorize, Cloudflare AI Search Reference, code:jsonc (// wrangler.jsonc), code:typescript (export default {), In This Reference, Overview, Platform Limits (+5 more)
 
 ### Community 449 - "Community 449"
-Cohesion: 0.13
+Cohesion: 0.16
 Nodes (14): Billing Configuration, CI/CD Integration, code:hcl (# terraform/argo.tf), code:typescript (// config/argo.ts), code:typescript (// pulumi/argo.ts), code:bash (# .env), code:typescript (// config/env.ts), code:yaml (# .github/workflows/deploy-argo.yml) (+6 more)
 
 ### Community 450 - "Community 450"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Artifacts API Reference, Binding Notes, code:typescript (const created = await env.ARTIFACTS.create("starter-repo", {), code:typescript (const repo = await env.ARTIFACTS.get("starter-repo");), code:txt (https://artifacts.cloudflare.net/v1/api/namespaces/$ARTIFACT), code:bash (curl --request POST "$ARTIFACTS_BASE_URL/repos" \), code:bash (git -c http.extraHeader="Authorization: Bearer $ARTIFACTS_TO), Git-Compatible Access (+6 more)
 
 ### Community 451 - "Community 451"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Bot Management Gotchas, "Bot Score = 0", Bot Verification Methods, code:txt ((http.user_agent contains "YandexBot" and ip.src in {<yandex), Common Errors, Detection Engine Behavior, "False Negatives (Bots Not Caught)", "False Positives (Legitimate Users Blocked)" (+6 more)
 
 ### Community 452 - "Community 452"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Basic Patterns, Cloudflare Bot Management, code:txt (# Dashboard: Security > Bots), code:txt (├─ Initial setup → configuration.md), code:typescript (// Workers: Check bot score), code:txt (# WAF: Block definite bots), Core Concepts, In This Reference (+6 more)
 
 ### Community 453 - "Community 453"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): C3 Usage Patterns, CI/CD (GitHub Actions), code:bash (# TypeScript API Worker), code:yaml (- name: Deploy), code:bash (--type=<value>       # Required), code:bash (cd packages/), code:bash (# GitHub repo), code:json ({) (+6 more)
 
 ### Community 454 - "Community 454"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Cloudflare Cron Triggers, code:block1 (┌─────────── minute (0-59)), code:bash (*/5 * * * *        # Every 5 minutes), code:jsonc ({), code:typescript (export default {), code:bash (npx wrangler dev), Common Schedules, Cron Syntax (+6 more)
 
 ### Community 455 - "Community 455"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Account-Scoped (cross-domain), Cloudflare GraphQL Analytics API, code:block1 (Need analytics data from Cloudflare?), code:graphql ({), Core Concepts, Dataset Naming Convention, In This Reference, Key Datasets by Product (+6 more)
 
 ### Community 456 - "Community 456"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Common Errors, "connection_refused", "Environment variable not working", "Failed to acquire a connection (Pool exhausted)", Gotchas, Limits, "Local database connection failed", "password authentication failed" (+6 more)
 
 ### Community 457 - "Community 457"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (13): "429 Rate Limit on Concurrent Writes", code:typescript (// ❌ BAD: Read immediately after write), code:typescript (// ❌ BAD: Assumes value exists), code:typescript (// Check → create pattern has race condition), Common Errors, Cost Examples, "Inefficient Multiple Gets", KV Gotchas & Troubleshooting (+5 more)
 
 ### Community 458 - "Community 458"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): CNI Patterns, code:block1 (Your Network A ──10G CNI v2──> CF CCR Device 1), code:typescript (// 1. Create interconnect), code:typescript (// 1. Order Direct Connect in AWS Console), code:block4 (1. Get VLAN attachment pairing key from GCP Console), code:typescript (// Primary (NY)), Decision Matrix, Failover & Security (+6 more)
 
 ### Community 459 - "Community 459"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Authentication, Cloudflare Pulumi Provider, code:typescript (import * as cloudflare from "@pulumi/cloudflare";), code:yaml (name: my-cloudflare-app), code:yaml (config:), code:typescript (import * as pulumi from "@pulumi/pulumi";), Common Resource Types, Core Principles (+6 more)
 
 ### Community 460 - "Community 460"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Authentication Methods (priority order), Basic Configuration, Cloudflare Terraform Provider, code:hcl (terraform {), code:bash (terraform init          # Initialize provider), code:bash (# Install), Core Principles, Import Existing Resources (+6 more)
 
 ### Community 461 - "Community 461"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Additional Resources, Cloudflare TURN Service, In This Reference, Key Characteristics, Overview, Quick Start, Reading Order, Related Cloudflare Services (+6 more)
 
 ### Community 462 - "Community 462"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Cloudflare Turnstile Implementation Skill Reference, code:html (<!-- 1. Add script -->), code:html (<div id="turnstile-container"></div>), code:javascript (// Cloudflare Workers), Explicit Rendering (JavaScript-based), Implicit Rendering (HTML-based), Key Constraints, Overview (+6 more)
 
 ### Community 463 - "Community 463"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Async Mutations, Batch Size Limit, code:typescript (// ✅ Chunk into 1000 (Workers API limit; HTTP API allows 500), code:bash (# ✅ Create index FIRST), Common Mistakes, Critical Warnings, Index Config Immutable, Limits (V2) (+6 more)
 
 ### Community 464 - "Community 464"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): code:bash (# Set environment variables), code:bash (npm install cloudflare), code:typescript (import Cloudflare from 'cloudflare';), code:hcl (provider "cloudflare" {), code:hcl (resource "cloudflare_ruleset" "waf_managed" {), code:typescript (import * as cloudflare from '@pulumi/cloudflare';), code:typescript (export default {), Configuration (+6 more)
 
 ### Community 465 - "Community 465"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Cloudflare Workers Playground Skill Reference, code:javascript (export default {), code:javascript (export default {), code:javascript (export default {), code:javascript (import { Hono } from 'https://esm.sh/hono@3';), Common Use Cases, In This Reference, Key Features (+6 more)
 
 ### Community 466 - "Community 466"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (14): Code Interpreter, code:typescript (getSandbox(binding: DurableObjectNamespace<Sandbox>, sandbox), code:typescript (await sandbox.exec(command: string, options?: ExecOptions): ), code:typescript (await sandbox.createCodeContext(options?: CreateContextOptio), code:typescript (await sandbox.writeFile(path: string, content: string | Uint), code:typescript (await sandbox.exposePort(port: number): Promise<{ url: strin), code:typescript (try {), code:typescript (const result = await sandbox.runCode('1/0', { language: 'pyt) (+6 more)
 
 ### Community 467 - "Community 467"
-Cohesion: 0.13
-Nodes (15): Add a Targeting Rule to an Existing Flag, Change Default Variation, code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), code:bash (# 1. Read current flag), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (curl -s -X POST \), code:bash (curl -s -X POST \) (+7 more)
+Cohesion: 0.12
+Nodes (17): Add a New Variation, Change Default Variation, code:bash (# 1. Read current flag), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (BASE="https://api.cloudflare.com/client/v4/accounts/$CLOUDFL), code:bash (curl -s -X DELETE \) (+9 more)
 
 ### Community 468 - "Community 468"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Best Practices, Billing Modes, Caching, code:typescript (// Custom TTL (1 hour)), code:typescript (// Skip logging for request), Custom Cost Tracking, Data Loss Prevention (DLP), Features & Capabilities (+5 more)
 
 ### Community 469 - "Community 469"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): 401 Fix, 429 Retry Pattern, AI Gateway Troubleshooting, Analytics, Cache Not Working, code:typescript (const client = new OpenAI({), code:typescript (async function requestWithRetry(fn, maxRetries = 3) {), code:bash (# Test connectivity) (+5 more)
 
 ### Community 470 - "Community 470"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Analytics Engine Gotchas, Best Practices, Can't Query from Workers, code:typescript (// Pre-aggregate before writing), code:typescript (// ❌ Pointless await), code:typescript (// ✅ Correct), Common Errors, Critical Issues (+5 more)
 
 ### Community 471 - "Community 471"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:typescript (async function enableOptimalPerformance(client: Cloudflare, ), code:graphql (query ArgoAnalytics($zoneTag: string!) {), code:typescript (// Update existing app), code:typescript (async function validateArgoEligibility(client: Cloudflare, z), code:typescript (async function verifyArgoEnabled(client: Cloudflare, zoneId:), code:typescript (async function setupArgo(client: Cloudflare, zoneId: string)), Enable Argo + Tiered Cache, Full Setup Pattern (+5 more)
 
 ### Community 472 - "Community 472"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Artifacts Configuration, code:toml ([[artifacts]]), code:bash (npx wrangler types), code:typescript (interface Env {), code:bash (export ARTIFACTS_NAMESPACE="default"), code:bash (git -c http.extraHeader="Authorization: Bearer $ARTIFACTS_TO), Git Consumers, Repo Tokens (+5 more)
 
 ### Community 473 - "Community 473"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Browser Rendering API, code:bash (curl -X POST '.../browser-rendering/screenshot' \), code:jsonc (// wrangler.jsonc), code:typescript (import puppeteer from "@cloudflare/puppeteer";), code:typescript (import { launch, connect } from "@cloudflare/playwright";), code:typescript (// List sessions), Endpoints, Key Options (+5 more)
 
 ### Community 474 - "Community 474"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:bash (npm install @cloudflare/puppeteer  # or @cloudflare/playwrig), code:json ({), code:typescript (interface Env {), code:bash (wrangler dev --remote  # --remote required for browser bindi), code:bash (curl -X POST \), Configuration & Setup, Development, Installation (+5 more)
 
 ### Community 475 - "Community 475"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): C3 (create-cloudflare), code:bash (# Interactive (recommended for first-time)), code:block2 (What are you building?), code:bash (# NPM), code:bash (cd my-app), In This Reference, Installation Methods, Interactive Flow (+5 more)
 
 ### Community 476 - "Community 476"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:jsonc ({), code:jsonc ({), code:typescript (export class MyDurableObject extends DurableObject {), code:jsonc ({), code:typescript (// Jurisdiction (GDPR/FedRAMP)), code:typescript (export class Counter extends DurableObject {), CPU Limits, DO Storage Configuration (+5 more)
 
 ### Community 477 - "Community 477"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Analytics Engine, Cloudflare Observability Skill Reference, code:block1 (├─ "How do I enable/configure X?"           → configuration.), Decision Tree: Which File to Load?, In This Reference, Logpush, Pricing Summary (2026), Product Overview (+5 more)
 
 ### Community 478 - "Community 478"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Advanced Mode (_worker.js), Background Tasks (waitUntil), code:typescript (export async function onRequest(ctx: EventContext<Env>) {), code:typescript (// functions/_middleware.js (global) or functions/users/_mid), code:typescript (// CORS middleware), code:typescript (// JSON & file upload), code:typescript (import { env } from 'cloudflare:test';), code:typescript (interface Env { ASSETS: Fetcher; KV: KVNamespace; }) (+5 more)
 
 ### Community 479 - "Community 479"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Architecture, Cloudflare Pipelines, code:block1 (Data Sources → Streams → Pipelines (SQL) → Sinks → R2), code:bash (# Interactive setup (recommended)), code:typescript (interface Env {), code:block4 (Need SQL queries on data?), Common Use Cases, In This Reference (+5 more)
 
 ### Community 480 - "Community 480"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Architecture, Cloudflare R2 Data Catalog Skill Reference, code:block1 (┌─────────────────────────────────────────────────┐), code:block2 (Start → Need analytics on object storage data?), Current Status, Decision Tree: Is R2 Data Catalog Right For You?, In This Reference, Limits (+5 more)
 
 ### Community 481 - "Community 481"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Architecture Overview, Cloudflare R2 SQL Skill Reference, code:block1 (Do you need to query structured data in R2?), code:bash (# 1. Enable R2 Data Catalog on bucket), Decision Tree: Need to Query R2 Data?, Important Limitations, In This Reference, Quick Start (+5 more)
 
 ### Community 482 - "Community 482"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:typescript (export default {), code:typescript (export default {), code:typescript (export default {), code:typescript (export default {), code:typescript (const response = await env.ASSETS.fetch("https://assets.loca), code:typescript (const url = new URL(request.url);), code:typescript (const response = await env.ASSETS.fetch(request);), code:typescript (export default {) (+5 more)
 
 ### Community 483 - "Community 483"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:typescript (interface VectorizeVector {), code:typescript (const matches = await env.VECTORIZE.query(queryVector, {), code:typescript (await env.VECTORIZE.queryById("doc-123", { topK: 5 });), code:typescript (// Insert: ignores duplicates (keeps first)), code:typescript (// Get by IDs), code:typescript (for (let i = 0; i < vectors.length; i += 1000) {), Filtering, Insert/Upsert (+5 more)
 
 ### Community 484 - "Community 484"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:typescript (// Deploy Cloudflare Managed Ruleset (default)), code:typescript (await client.rulesets.create({), code:typescript (await client.rulesets.create({), code:typescript (await client.rulesets.create({), code:typescript (await client.rulesets.create({), code:typescript (const client = new Cloudflare({ apiToken: process.env.CF_API), Common Patterns, Complete Setup Example (+5 more)
 
 ### Community 485 - "Community 485"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Cloudflare WAF Expert Skill Reference, code:typescript (import Cloudflare from 'cloudflare';), code:typescript (// Block requests with attack score >= 40), code:typescript (await client.rulesets.create({), Create Custom Rule, Create Rate Limit, Deploy Cloudflare Managed Ruleset, Managed Ruleset Quick Reference (+5 more)
 
 ### Community 486 - "Community 486"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:block1 (script-src https://static.cloudflareinsights.com https://clo), code:html (<script defer src='https://static.cloudflareinsights.com/bea), code:typescript (// Only load in production), Configuration, Data Retention, Environment Config, Non-Proxied Sites (Manual), Proxied Sites (Automatic) (+5 more)
 
 ### Community 487 - "Community 487"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Architecture Pattern: Workers + Tunnel, Best Practices, code:typescript (import { connect } from 'cloudflare:sockets';), code:block2 (┌─────────┐     ┌─────────────┐     ┌──────────────┐     ┌──), Key Limits, Overview, Quick Decision: Which Technology?, Quick Start (+5 more)
 
 ### Community 488 - "Community 488"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): code:javascript (zaraz.debug = true;), code:javascript (// Clear consent cookie), code:javascript (window.addEventListener('hashchange', () => {), code:javascript (const location = useLocation();), Consent Issues, Data Layer, Events Not Firing, Limits (+5 more)
 
 ### Community 489 - "Community 489"
@@ -2551,119 +2555,119 @@ Cohesion: 0.03
 Nodes (159): addAuthHeaders(), apiCall(), arrayBuffer(), __asyncGenerator(), __asyncValues(), authHeaders(), __await(), blob() (+151 more)
 
 ### Community 490 - "Community 490"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (11): Built-in Queue, Class-level Defaults, code:typescript (export class MyAgent extends Agent<Env, State> {), code:typescript (const items = this.getQueue();), code:typescript (await this.schedule(60, "task", payload, { retry: { maxAttem), code:typescript (export class MyAgent extends Agent<Env, State> {), Important, Queue Management (+3 more)
 
 ### Community 491 - "Community 491"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Analytics Engine Patterns, Anti-Patterns, API Metering (Billing), Best Practices, code:typescript (env.ANALYTICS.writeDataPoint({), code:typescript (env.ANALYTICS.writeDataPoint({), code:typescript (env.ANALYTICS.writeDataPoint({), code:typescript (/**) (+4 more)
 
 ### Community 492 - "Community 492"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Cloudflare Workers Analytics Engine Reference, code:block1 (Need to track metrics? → Yes), code:jsonc ({), code:typescript (env.ANALYTICS.writeDataPoint({), code:sql (SELECT blob1, SUM(double2) AS total_requests), Core Concepts, In This Reference, Quick Start (+4 more)
 
 ### Community 493 - "Community 493"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Always Close Browsers, Browser Rendering Gotchas, code:typescript (const limits = await puppeteer.limits(env.MYBROWSER);), code:typescript (const browser = await puppeteer.launch(env.MYBROWSER);), code:typescript (// ❌ 3 sessions (hits free tier limit)), code:typescript (// ❌ Outer scope not available), code:typescript (await page.setRequestInterception(true);), Common Errors (+4 more)
 
 ### Community 494 - "Community 494"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Alert Configuration, code:typescript (// Zone-level), code:typescript (// Account-level only), code:typescript (import Cloudflare from "cloudflare";), code:typescript (interface DDoSAlertConfig {), code:typescript (// Override by category), DDoS API, Endpoints (+4 more)
 
 ### Community 495 - "Community 495"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Architecture, Cloudflare Email Routing Skill Reference, code:typescript (// Basic email handler), code:block2 (Need to receive emails?), code:block3 (Internet → MX Records → Cloudflare Email Routing), Decision Tree, In This Reference, Key Concepts (+4 more)
 
 ### Community 496 - "Community 496"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Architecture, code:block1 (Worker → Edge (setup) → Pool (near DB) → Origin), code:bash (# Create config), code:typescript (import { Client } from "pg";), Driver Choice, Hyperdrive, In This Reference, Key Features (+4 more)
 
 ### Community 497 - "Community 497"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): AWS Direct Connect (Beta), Best Practices, BGP Configuration, Cloud Interconnect Setup, CNI Configuration, code:block1 (Router ID: 192.0.2.1), code:block2 (Dashboard → Notifications → Add), code:block3 (Dashboard → Notifications → Add) (+4 more)
 
 ### Community 498 - "Community 498"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Automation Boundary, Cloudflare Network Interconnect (CNI), Connection Types, Dataplane Versions, In This Reference, Prerequisites, Reading Order by Task, See Also (+4 more)
 
 ### Community 499 - "Community 499"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Analytics Engine Binding Types, Analytics Engine SQL API, API Reference, code:graphql (query {), code:sql (-- List all datasets), code:typescript (// Standard methods (all appear in Workers Logs)), code:typescript (console.log({), code:typescript (interface AnalyticsEngineDataset {) (+4 more)
 
 ### Community 500 - "Community 500"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Cloudflare Pages Functions, code:block1 (Need serverless backend?), code:block2 (/functions), code:js (// /functions/users/[user].js), code:js (// /functions/users/[[catchall]].js), Decision Tree: Is This Pages Functions?, Dynamic Routes, File-Based Routing (+4 more)
 
 ### Community 501 - "Community 501"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): code:typescript (const EventSchema = z.object({ user_id: z.string(), amount: ), code:bash (npx wrangler pipelines delete old-pipeline), code:bash (npx wrangler pipelines streams list  # Get stream ID), Common Errors, Critical Issues, Debug Checklist, Events Silently Dropped, Limits (Open Beta) (+4 more)
 
 ### Community 502 - "Community 502"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): code:typescript (export default {), code:typescript (import { z } from 'zod';), code:sql (-- Filter early (reduce storage)), code:typescript (await Promise.all([), code:bash (# Create v2 stream/sink/pipeline), Fire-and-Forget, Performance Tuning, Pipelines Patterns (+4 more)
 
 ### Community 503 - "Community 503"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Architecture, Cloudflare Queues, code:bash (wrangler queues create my-queue), code:typescript (// Producer), code:block3 ([Producer Worker] → [Queue] → [Consumer Worker/HTTP] → [Proc), Core Operations, Critical Warnings, In This Reference (+4 more)
 
 ### Community 504 - "Community 504"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Cloudflare R2 Object Storage, code:bash (wrangler r2 bucket create my-bucket --location=enam), code:typescript (// Upload), code:typescript (// wrangler.jsonc), Core Operations, Event Notifications, In This Reference, Overview (+4 more)
 
 ### Community 505 - "Community 505"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Architecture, code:block1 (Config (workerd.capnp)), code:bash (workerd serve config.capnp), Core Concepts, Decision Tree: When to Use What, ⚠️ IMPORTANT SECURITY NOTICE, Key Features, Platform Support & Beta Status (+4 more)
 
 ### Community 506 - "Community 506"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): A/B Testing, Best Practices, code:javascript (// On route change), code:javascript (// Login), code:javascript (zaraz.set('experiment_checkout', variant);), code:typescript (export default {), E-commerce Funnel, GTM Migration (+4 more)
 
 ### Community 507 - "Community 507"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (12): Best Practices, code:bash (wrangler --version  # Requires v4.x+), code:bash (npm install -D wrangler@latest), code:bash (# Initialize new project), code:bash (# Create Pages project), FIRST: Check if Wrangler is installed, and if not, install it, Key Guidelines, Pages (Frontend Deployment) (+4 more)
 
 ### Community 508 - "Community 508"
 Cohesion: 0.02
-Nodes (193): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), arrayBuffer() (+185 more)
+Nodes (135): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), arrayBuffer(), __asyncGenerator() (+127 more)
 
 ### Community 509 - "Community 509"
-Cohesion: 0.18
-Nodes (13): code:jsonc (// wrangler.jsonc), code:jsonc ({), code:ts (// Generated by wrangler types — always matches actual confi), code:ts (// Hand-written Env that drifts from actual bindings), Configuration, Design & Sharding, Enable nodejs_compat, Generate binding types with wrangler types (+5 more)
+Cohesion: 0.20
+Nodes (12): code:jsonc (// wrangler.jsonc), code:jsonc ({), code:ts (// Generated by wrangler types — always matches actual confi), Configuration, Design & Sharding, Enable nodejs_compat, Generate binding types with wrangler types, Keep compatibility_date current (+4 more)
 
 ### Community 510 - "Community 510"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Cloudflare Agents SDK, code:typescript (import { AIChatAgent } from "@cloudflare/ai-chat";), code:typescript (import { Agent } from "agents";), Core Value, In This Reference, Package Entry Points, Quick Start, Reading Order (+3 more)
 
 ### Community 511 - "Community 511"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Callable Methods, Client Usage, code:typescript (import { Agent, callable } from "agents";), code:typescript (// Basic call), code:typescript (import { Agent, callable, StreamingResponse } from "agents";), code:typescript (await agent.call("streamResults", ["search term"], {), code:typescript (// Get list of callable methods on an agent), Introspection (+3 more)
 
 ### Community 512 - "Community 512"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Client Status, code:typescript (await this.saveMessages((existingMessages) => [), code:typescript (await this.persistMessages([), code:typescript (async checkNotifications(payload: unknown, schedule: Schedul), code:typescript (async onChatResponse(result: ChatResponseResult) {), code:tsx (const { isStreaming, isServerStreaming } = useAgentChat({ ag), `onChatResponse`, `persistMessages` — Save Without Triggering (+3 more)
 
 ### Community 513 - "Community 513"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Advanced Flags, C3 CLI Reference, code:bash (npm create cloudflare@latest [name] [-- flags]  # NPM requir), code:bash (CLOUDFLARE_API_TOKEN=xxx    # For deployment), code:bash (# TypeScript Worker), Core Flags, Deployment Flags, Environment Variables (+3 more)
 
 ### Community 514 - "Community 514"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Adaptive DDoS Profiles, Alerting, code:typescript (interface DDoSOverride {), code:block2 (Zone-level > Account-level), Common Categories, Dashboard Setup, DDoS Configuration, Expression Availability (+3 more)
 
 ### Community 515 - "Community 515"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Cloudflare Workers KV, code:bash (wrangler kv namespace create MY_NAMESPACE), code:typescript (// Write), Consistency Model, Core Operations, In This Reference, Overview, Quick Start (+3 more)
 
 ### Community 516 - "Community 516"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): code:block1 (Need to test Workers?), code:bash (npm i -D miniflare), code:json ({"type": "module"}), code:js (import { Miniflare } from "miniflare";), Features, Miniflare, Quick Start, Reading Order (+3 more)
 
 ### Community 517 - "Community 517"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Alternative: OpenTelemetry Export, Cloudflare Tail Workers, code:block1 (Need observability for Workers?), code:typescript (export default {), Core Concepts, Decision Tree, Quick Example, Reading Order (+3 more)
 
 ### Community 518 - "Community 518"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (11): Cloudflare Zaraz, code:javascript (// Track page view), code:block2 (What do you need?), Decision Tree, In This Reference, Key Features, Quick Start, Reading Order by Task (+3 more)
 
 ### Community 519 - "Community 519"
@@ -2671,71 +2675,71 @@ Cohesion: 0.21
 Nodes (12): blockConcurrencyWhile(), code:ts (async fetch(request: Request, env: Env, ctx: ExecutionContex), code:ts (async fetch(request: Request, env: Env): Promise<Response> {), code:ts (async fetch(request: Request, env: Env, ctx: ExecutionContex), code:ts (// Buffers entire body — crashes on large payloads), Concurrency, Input/Output Gates, Race Conditions with External I/O (+4 more)
 
 ### Community 520 - "Community 520"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): code:jsonc ({), code:typescript (import { defineConfig } from "vite";), code:bash (npx wrangler types), code:jsonc ({), Configuration, Key Rules, tsconfig, Type Generation (+2 more)
 
 ### Community 521 - "Community 521"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Cloudflare Email Service, code:jsonc (// wrangler.jsonc), code:typescript (const response = await env.EMAIL.send({), Common Mistakes, FIRST: Check Prerequisites, Quick Start — REST API, Quick Start — Workers Binding, References (+2 more)
 
 ### Community 522 - "Community 522"
-Cohesion: 0.18
+Cohesion: 0.21
 Nodes (10): Additional Resources, "Argo unavailable", Best Practices Summary, "Cannot enable/disable", code:typescript (const status = await client.argo.smartRouting.get({ zone_id:), code:typescript (import { RateLimitError } from 'cloudflare';), Common Errors, `editable: false` Error (+2 more)
 
 ### Community 523 - "Community 523"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Beta Status, Cloudflare Containers Skill Reference, code:typescript (import { Container } from "@cloudflare/containers";), Core Concepts, In This Reference, Quick Start, Reading Order, Routing Decision Tree (+2 more)
 
 ### Community 524 - "Community 524"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Architecture, Cloudflare Sandbox SDK, code:typescript (import { getSandbox, proxyToSandbox, type Sandbox } from '@c), code:jsonc ({), code:dockerfile (FROM docker.io/cloudflare/sandbox:0.7.0), Core APIs, Critical Rules, In This Reference (+2 more)
 
 ### Community 525 - "Community 525"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Access Control, Architecture, Cloudflare Secrets Store, Files, In This Reference, Limits (Beta), Overview, Reading Order by Task (+2 more)
 
 ### Community 526 - "Community 526"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Cloudflare Snippets Skill Reference, code:javascript (// Snippet: Add security headers), Description, Execution Model, In This Reference, Quick Start, Reading Order, See Also (+2 more)
 
 ### Community 527 - "Community 527"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Basic HTML, code:html (<script defer src='https://static.cloudflareinsights.com/bea), code:json ({), code:block3 (script-src 'self' https://static.cloudflareinsights.com;), code:typescript (// Load conditionally based on consent), Configuration, CSP Headers, Framework Examples (+2 more)
 
 ### Community 528 - "Community 528"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Cloudflare Workflows, code:typescript (import { WorkflowEntrypoint, WorkflowStep, WorkflowEvent } f), Core Concepts, In This Reference, Key Features, Quick Start, Reading Order, Retrieval (+2 more)
 
 ### Community 529 - "Community 529"
 Cohesion: 0.25
-Nodes (6): __Facade_ScheduledController__, wrapExportedHandler(), wrapWorkerEntrypoint(), __facade_register__(), wrapExportedHandler(), wrapWorkerEntrypoint()
+Nodes (4): __INTERNAL_WRANGLER_MIDDLEWARE__, __Facade_ScheduledController__, wrapExportedHandler(), wrapWorkerEntrypoint()
 
 ### Community 530 - "Community 530"
 Cohesion: 0.18
 Nodes (11): code:bash (# Create database), code:bash (# Execute SQL command (remote)), code:bash (# Create migration), code:bash (# Export schema and data), code:jsonc ({), Config Binding, D1 (SQL Database), Execute SQL (+3 more)
 
 ### Community 531 - "Community 531"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Available Tools, Browse the Web (Experimental), code:jsonc (// wrangler.jsonc), code:typescript (import { createBrowserTools } from "agents/browser/ai";), code:typescript (import { connectBrowser, CdpSession } from "agents/browser";), Low-Level API, Setup, Usage with AI SDK (+1 more)
 
 ### Community 532 - "Community 532"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Chat Tool Approvals (`needsApproval`), code:typescript (// In AgentWorkflow:), code:typescript (const tools = {), code:tsx (const { addToolApprovalResponse, addToolOutput } = useAgentC), code:tsx (addToolOutput(toolCallId, "output-error", "User rejected thi), Decision Guide, Human-in-the-Loop, Important (+1 more)
 
 ### Community 533 - "Community 533"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Authentication Methods, Cloudflare API Integration, code:block1 (How are you calling the Cloudflare API?), In This Reference, Quick Decision Tree, Rate Limits, Reading Order, SDK Selection (+1 more)
 
 ### Community 534 - "Community 534"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Cloudflare Artifacts, code:typescript (interface Env {), In This Reference, Overview, Quick Start, Reading Order, Recommended Workflow, See Also (+1 more)
 
 ### Community 535 - "Community 535"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): Cloudflare Durable Objects Storage, code:typescript (export class Counter extends DurableObject {), Core APIs, In This Reference, Overview, Quick Start, Reading Order, See Also (+1 more)
 
 ### Community 536 - "Community 536"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): code:jsonc ({), code:ts (// Structured JSON — searchable and filterable), code:ts (// Unstructured string logs — hard to query), code:ts (import { describe, it, expect } from "vitest";), Development & Testing, Enable Workers Logs and Traces, Observability, Test with @cloudflare/vitest-pool-workers (+1 more)
 
 ### Community 537 - "Community 537"
@@ -2743,23 +2747,23 @@ Cohesion: 0.20
 Nodes (10): Architecture, code:ts (async fetch(request: Request, env: Env): Promise<Response> {), code:ts (import { WorkerEntrypoint } from "cloudflare:workers";), code:jsonc ({), code:ts (import { Client } from "pg";), Error Handling, Use Hyperdrive for external database connections, Use Queues and Workflows for async and background work (+2 more)
 
 ### Community 538 - "Community 538"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (8): Client (React), code:bash (npm install @cloudflare/voice), code:typescript (import { Agent } from "agents";), code:tsx (import { useVoiceAgent } from "@cloudflare/voice/react";), Lifecycle Hooks, Server, STT/TTS Providers, Voice (Experimental)
 
 ### Community 539 - "Community 539"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (8): Cloudflare Browser Rendering Skill Reference, Decision Tree, In This Reference, Puppeteer vs Playwright, Reading Order, REST API vs Workers Bindings, See Also, Tier Limits Summary
 
 ### Community 540 - "Community 540"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (8): Choose Your Approach, Cloudflare Realtime SFU Reference, In This Reference, Quick Start, Reading Order, See Also, Setup, SFU vs RealtimeKit
 
 ### Community 541 - "Community 541"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (8): Cloudflare Static Assets Skill Reference, code:jsonc (// wrangler.jsonc), code:typescript (// src/index.ts), In This Reference, Quick Start, Reading Order, See Also, When to Use Workers Static Assets vs Pages
 
 ### Community 542 - "Community 542"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (8): Alarms, code:ts (// Destructuring ctx loses the this binding), code:ts (// Binding — direct, zero-cost), code:ts (// REST API from inside a Worker — unnecessary overhead), Durable Objects Rules & Best Practices, Explicit init() Method, RPC Methods, Use bindings for Cloudflare services, not REST APIs
 
 ### Community 543 - "Community 543"
@@ -2775,31 +2779,31 @@ Cohesion: 0.22
 Nodes (9): Build and Push Images, code:bash (# Build container image), code:bash (# List containers), code:bash (# List images in registry), code:bash (# List configured registries), Containers, Manage Containers, Manage External Registries (+1 more)
 
 ### Community 546 - "Community 546"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Available Channels, code:typescript (import { subscribe } from "agents/observability";), code:typescript (export class MyAgent extends Agent<Env, State> {), Observability, Per-Agent Override, Production: Tail Workers, Subscribe to Events
 
 ### Community 547 - "Community 547"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): code:typescript (export default {), code:typescript (export class MyAgent extends Agent<Env, State> {), code:bash (npm install web-push), code:typescript (import webpush from "web-push";), Push Notifications, Webhooks, Webhooks & Push Notifications
 
 ### Community 548 - "Community 548"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Cloudflare API Shield Reference, code:block1 (├─ Validate request/response structure → Schema Validation 2), Feature Selection, In This Reference, Quick Start, Reading Order, See Also
 
 ### Community 549 - "Community 549"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Binding Passthrough (Recommended), code:typescript (import { OpenFeature } from "@openfeature/server-sdk";), code:typescript (// ❌ Before (LaunchDarkly)), Evaluating Flags with OpenFeature (Workers), Flagship Patterns & Best Practices, Migration from Another Provider, Safe Deletion Workflow
 
 ### Community 550 - "Community 550"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Cloudflare Flagship, In This Reference, Key Concepts, Reading Order, See Also, Two Evaluation Paths, When to Use
 
 ### Community 551 - "Community 551"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Cloudflare Images Skill Reference, Core Methods, In This Reference, Key Features, Quick Decision Tree, Reading Order, See Also
 
 ### Community 552 - "Community 552"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): code:typescript (const sandbox = getSandbox(env.Sandbox, `session-${sessionId), code:typescript (const pythonCtx = await sandbox.createCodeContext({ language), code:typescript (try {), Common Patterns from Examples, Example Index, Sandbox SDK Examples, When to Use Which Example
 
 ### Community 553 - "Community 553"
@@ -2807,11 +2811,11 @@ Cohesion: 0.25
 Nodes (8): code:json ({), code:json ({), code:json ({), Country-Based Targeting with Logical AND/OR, Enterprise-Only Access, Percentage Rollout, Progressive Rollout Workflow, Targeting Rule Patterns
 
 ### Community 554 - "Community 554"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): Actions & Sensitivity, Cloudflare DDoS Protection, Plan Availability, Protection Types, Reading Order, See Also
 
 ### Community 555 - "Community 555"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): Cloudflare Spectrum Skill Reference, Decision Tree, Overview, Plan Capabilities, Reading Order, See Also
 
 ### Community 556 - "Community 556"
@@ -2819,8 +2823,8 @@ Cohesion: 0.29
 Nodes (7): code:ts (// Secure random UUID), code:ts (// Constant-time comparison — hash first to avoid length lea), code:ts (// Predictable — not cryptographically secure), code:ts (async fetch(request: Request, env: Env, ctx: ExecutionContex), Explicit error handling over passThroughOnException, Security, Use Web Crypto for secure token generation
 
 ### Community 557 - "Community 557"
-Cohesion: 0.33
-Nodes (7): code:jsonc ({), code:jsonc ({), Migrations, SQLite (Recommended), State Types, Storage, Store secrets with wrangler secret
+Cohesion: 0.29
+Nodes (8): code:ts (// Hand-written Env that drifts from actual bindings), code:jsonc ({), code:jsonc ({), Migrations, SQLite (Recommended), State Types, Storage, Store secrets with wrangler secret
 
 ### Community 558 - "Community 558"
 Cohesion: 0.29
@@ -2855,7 +2859,7 @@ Cohesion: 0.29
 Nodes (7): code:bash (# Local mode (default) - uses local storage simulation), code:jsonc ({), code:block9 (API_KEY=local-dev-key), Local Development, Local Secrets, Remote Bindings for Local Dev, Start Dev Server
 
 ### Community 566 - "Community 566"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): code:typescript (export class MyAgent extends Agent<Env, State> {), Durable Execution, Important, Key APIs, `runFiber`
 
 ### Community 567 - "Community 567"
@@ -2890,9 +2894,21 @@ Nodes (4): code:bash (# Check auth status), Common Issues, Debug Commands, Troub
 Cohesion: 0.67
 Nodes (3): code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), List All Flags (with pagination)
 
+### Community 575 - "Community 575"
+Cohesion: 0.07
+Nodes (34): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+26 more)
+
+### Community 578 - "Community 578"
+Cohesion: 0.08
+Nodes (29): add(), #addRoute(), ajax(), appendParams(), batchSend(), buildWildcardRegExp(), checkFeatures(), deleteFileParametersToMldev() (+21 more)
+
+### Community 579 - "Community 579"
+Cohesion: 0.40
+Nodes (5): Build evaluations first, code:json ({), Develop Skills iteratively with Claude, Evaluation and iteration, Observe how Claude navigates Skills
+
 ### Community 581 - "Community 581"
-Cohesion: 0.14
-Nodes (28): cmn(), createCanonicalRequest(), createStringToSign(), digest(), ff(), formatDate(), getCanonicalHeaderList(), getCredentialsWithoutSessionToken() (+20 more)
+Cohesion: 0.05
+Nodes (66): binaryEncode(), _binaryEncodeUserBroadcastPush(), cmn(), constructUrl(), containedBy(), contains(), createCanonicalRequest(), createStringToSign() (+58 more)
 
 ### Community 583 - "Community 583"
 Cohesion: 0.33
@@ -2907,48 +2923,48 @@ Cohesion: 0.03
 Nodes (145): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+137 more)
 
 ### Community 590 - "Community 590"
-Cohesion: 0.01
-Nodes (217): add(), #addRoute(), ajax(), appendParams(), applySettingDefaults(), batchSend(), buildAbortError(), buildAuthHeaders() (+209 more)
+Cohesion: 0.02
+Nodes (152): buildAbortError(), buildAuthHeaders(), buildQueryString(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel() (+144 more)
 
 ### Community 591 - "Community 591"
-Cohesion: 0.14
-Nodes (28): cmn(), createCanonicalRequest(), createStringToSign(), digest(), ff(), formatDate(), getCanonicalHeaderList(), getCredentialsWithoutSessionToken() (+20 more)
+Cohesion: 0.05
+Nodes (73): __awaiter(), bufferFromSecret(), cloneRequestState(), cmn(), constructUrl(), containedBy(), contains(), convertToBuffer() (+65 more)
 
 ### Community 592 - "Community 592"
 Cohesion: 0.04
 Nodes (44): 0. Working Assumptions, 10. Data Requirements, 11. Privacy, Safety, and Compliance Requirements, 12. Success Metrics, 13. Release Scope, 14. Risks and Mitigations, 15. Open Questions, 16. Launch Messaging (+36 more)
 
 ### Community 593 - "Community 593"
-Cohesion: 0.08
-Nodes (42): asResponse(), __asyncGenerator(), __asyncValues(), __await(), basePath(), _binaryDecode(), #clone(), cloneState() (+34 more)
+Cohesion: 0.14
+Nodes (25): __asyncGenerator(), __asyncValues(), __await(), _binaryDecode(), concatBytes(), decode(), decodeBroadcast(), decodePush() (+17 more)
 
 ### Community 594 - "Community 594"
 Cohesion: 0.03
-Nodes (27): __addChild(), addListener(), applyTransformOptsToQuery(), download(), dropTable(), fullBundleUrl(), __getChildren(), __getNativeTag() (+19 more)
+Nodes (23): __addChild(), addListener(), applyTransformOptsToQuery(), download(), fullBundleUrl(), __getChildren(), __getNativeTag(), __getPlatformConfig() (+15 more)
 
 ### Community 595 - "Community 595"
 Cohesion: 0.02
-Nodes (161): buildAbortError(), buildAuthHeaders(), buildQueryString(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel() (+153 more)
+Nodes (159): applySettingDefaults(), buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats() (+151 more)
 
 ### Community 596 - "Community 596"
 Cohesion: 0.06
-Nodes (44): arrayBuffer(), blob(), blobReader(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl() (+36 more)
+Nodes (39): arrayBuffer(), blob(), blobReader(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl() (+31 more)
 
 ### Community 597 - "Community 597"
 Cohesion: 0.03
-Nodes (138): addAuthHeaders(), apiCall(), asResponse(), authHeaders(), buildAllMatchers(), bytes(), calculateDefaultRetryTimeoutMillis(), cancel() (+130 more)
+Nodes (136): addAuthHeaders(), apiCall(), asResponse(), authHeaders(), buildAllMatchers(), bytes(), calculateDefaultRetryTimeoutMillis(), cancel() (+128 more)
 
 ### Community 598 - "Community 598"
 Cohesion: 0.03
 Nodes (143): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+135 more)
 
 ### Community 599 - "Community 599"
-Cohesion: 0.02
-Nodes (139): add(), #addRoute(), applyTransformOptsToQuery(), __awaiter(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), bufferFromSecret() (+131 more)
+Cohesion: 0.03
+Nodes (102): applyTransformOptsToQuery(), baseURLOverridden(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), buildBody(), buildHeaders(), buildRequest() (+94 more)
 
 ### Community 601 - "Community 601"
-Cohesion: 0.16
-Nodes (26): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+18 more)
+Cohesion: 0.03
+Nodes (126): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), __asyncGenerator(), __asyncValues() (+118 more)
 
 ### Community 602 - "Community 602"
 Cohesion: 0.33
@@ -2956,27 +2972,27 @@ Nodes (5): amount, customerName, email, mobile, name
 
 ### Community 603 - "Community 603"
 Cohesion: 0.05
-Nodes (62): asResponse(), __asyncGenerator(), __asyncValues(), __await(), basePath(), _binaryDecode(), checkFeatures(), #clone() (+54 more)
+Nodes (41): applySettingDefaults(), channel(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), ensureTrailingSlash() (+33 more)
 
 ### Community 605 - "Community 605"
 Cohesion: 0.03
-Nodes (139): addAuthHeaders(), apiCall(), asResponse(), authHeaders(), __awaiter(), bufferFromSecret(), bytes(), calculateDefaultRetryTimeoutMillis() (+131 more)
+Nodes (138): addAuthHeaders(), apiCall(), asResponse(), authHeaders(), buildAllMatchers(), bytes(), calculateDefaultRetryTimeoutMillis(), cancel() (+130 more)
 
 ### Community 606 - "Community 606"
 Cohesion: 0.09
 Nodes (28): asResponse(), basePath(), _binaryDecode(), #clone(), cloneState(), concatBytes(), decode(), decodeBroadcast() (+20 more)
 
 ### Community 607 - "Community 607"
-Cohesion: 0.05
+Cohesion: 0.04
 Nodes (43): 1. Explicit Negation in Rules, 2. Entry in Rationalization Table, 3. Red Flag Entry, 4. Update description, code:markdown (IMPORTANT: This is a real scenario. Choose and act.), code:yaml (description: Use when you wrote code before tests, when temp), code:markdown (your human partner: You read the skill and chose Option C an), code:markdown (Scenario: 200 lines done, forgot TDD, exhausted, dinner plan) (+35 more)
 
 ### Community 608 - "Community 608"
 Cohesion: 0.03
-Nodes (146): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+138 more)
+Nodes (144): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+136 more)
 
 ### Community 609 - "Community 609"
 Cohesion: 0.00
-Nodes (240): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+232 more)
+Nodes (265): acquireInitialRetryToken(), acquireTokenBucket(), ai2, algoList, allowedFields, authSchemes, authUsersById, __awaiter2() (+257 more)
 
 ### Community 610 - "Community 610"
 Cohesion: 0.09
@@ -2987,40 +3003,28 @@ Cohesion: 0.14
 Nodes (28): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+20 more)
 
 ### Community 612 - "Community 612"
-Cohesion: 0.02
-Nodes (126): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), clearHeartbeats(), close(), closeAndRetry() (+118 more)
+Cohesion: 0.03
+Nodes (124): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), close() (+116 more)
 
 ### Community 613 - "Community 613"
 Cohesion: 0.02
-Nodes (334): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+326 more)
+Nodes (335): audioTranscriptionConfigToMldev(), audioTranscriptionConfigToMldev$1(), authConfigToMldev(), authConfigToMldev$1(), authConfigToMldev$2(), authConfigToMldev$3(), authConfigToMldev$4(), batchJobDestinationFromMldev() (+327 more)
 
 ### Community 615 - "Community 615"
 Cohesion: 0.02
-Nodes (134): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), close() (+126 more)
-
-### Community 616 - "Community 616"
-Cohesion: 0.14
-Nodes (25): __asyncGenerator(), __asyncValues(), __await(), _binaryDecode(), concatBytes(), decode(), decodeBroadcast(), decodePush() (+17 more)
-
-### Community 617 - "Community 617"
-Cohesion: 0.04
-Nodes (62): ajax(), appendParams(), applySettingDefaults(), batchSend(), checkFeatures(), constructor(), createDeserializer(), createFetchClient() (+54 more)
-
-### Community 618 - "Community 618"
-Cohesion: 0.16
-Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), defaultIdempotencyKey(), defaultQuery(), getUserAgent() (+6 more)
+Nodes (126): buildAuthHeaders(), _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), clearHeartbeats(), close(), closeAndRetry() (+118 more)
 
 ### Community 619 - "Community 619"
-Cohesion: 0.09
-Nodes (29): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+21 more)
+Cohesion: 0.03
+Nodes (86): applyTransformOptsToQuery(), baseURLOverridden(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), buildBody(), buildHeaders(), buildRequest() (+78 more)
 
 ### Community 620 - "Community 620"
-Cohesion: 0.07
-Nodes (37): copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty2(), deleteBucket() (+29 more)
+Cohesion: 0.06
+Nodes (43): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), copy(), createBucket(), createIndex() (+35 more)
 
 ### Community 621 - "Community 621"
-Cohesion: 0.06
-Nodes (44): codeExecutionResult(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls(), _defineProperty() (+36 more)
+Cohesion: 0.05
+Nodes (52): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), codeExecutionResult(), copy(), createBucket() (+44 more)
 
 ### Community 622 - "Community 622"
 Cohesion: 0.03
@@ -3031,24 +3035,20 @@ Cohesion: 0.08
 Nodes (23): 1. Inisialisasi Kredensial & GTM Client, 1. Struktur Folder Wajib (Singular & Terbungkus), 2. Membuat Variabel Kustom (Custom Variable), 2. Penamaan ID Unik Wajib, 3. Casing Nilai Enum Harus Huruf Kapital Penuh (UPPERCASE), 3. Membuat Pemicu Kustom (Custom Trigger), 4. Membuat Tag Pelacakan (Custom HTML atau GA4 Event), 4. Penulisan Variabel di Filter Harus Menggunakan Kurung Kurawal Ganda `{{...}}` (+15 more)
 
 ### Community 624 - "Community 624"
-Cohesion: 0.03
-Nodes (109): applyTransformOptsToQuery(), __awaiter(), binaryEncode(), _binaryEncodeUserBroadcastPush(), bindCallerConfig(), bufferFromSecret(), cloneRequestState(), cmn() (+101 more)
+Cohesion: 0.14
+Nodes (27): cmn(), createStringToSign(), digest(), ff(), formatDate(), getCanonicalHeaderList(), getCredentialsWithoutSessionToken(), getSignature() (+19 more)
 
 ### Community 625 - "Community 625"
-Cohesion: 0.04
-Nodes (118): addAuthHeaders(), apiCall(), authHeaders(), buildAllMatchers(), bytes(), calculateDefaultRetryTimeoutMillis(), cancel(), CancelReadableStream() (+110 more)
+Cohesion: 0.03
+Nodes (147): addAuthHeaders(), apiCall(), asResponse(), authHeaders(), __awaiter(), bufferFromSecret(), bytes(), calculateDefaultRetryTimeoutMillis() (+139 more)
 
 ### Community 627 - "Community 627"
-Cohesion: 0.03
-Nodes (110): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), arrayBuffer(), batchSend() (+102 more)
+Cohesion: 0.02
+Nodes (180): add(), addAttribute(), addChildNode(), #addRoute(), ajax(), appendParams(), applyTransformOptsToQuery(), arrayBuffer() (+172 more)
 
 ### Community 628 - "Community 628"
 Cohesion: 0.12
 Nodes (19): container, accountId, containerId, name, publicId, usageContext, containerVersion, accountId (+11 more)
-
-### Community 629 - "Community 629"
-Cohesion: 0.16
-Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), defaultIdempotencyKey(), defaultQuery(), getUserAgent() (+6 more)
 
 ### Community 630 - "Community 630"
 Cohesion: 0.09
@@ -3056,19 +3056,15 @@ Nodes (28): asResponse(), basePath(), _binaryDecode(), #clone(), cloneState(), c
 
 ### Community 632 - "Community 632"
 Cohesion: 0.05
-Nodes (42): applySettingDefaults(), channel(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), generateCallbackId() (+34 more)
+Nodes (41): applySettingDefaults(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), generateCallbackId(), getChannel() (+33 more)
 
 ### Community 633 - "Community 633"
-Cohesion: 0.06
-Nodes (38): applySettingDefaults(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), getChannel(), getDefaultFetch() (+30 more)
+Cohesion: 0.05
+Nodes (45): applySettingDefaults(), channel(), constructor(), createDeserializer(), createFetchClient(), createSerializer(), _defineProperty3(), ensureTrailingSlash() (+37 more)
 
 ### Community 634 - "Community 634"
 Cohesion: 0.13
 Nodes (14): 1. Core Identity, 2. Logo & Iconography, 3. Color Palette, 4. Typography, 5. UI & Visual Styling, 6. Social Media & Marketing (Instagram), Aturan Penggunaan Logo (Do's and Don'ts), Body Font: **Plus Jakarta Sans** (+6 more)
-
-### Community 635 - "Community 635"
-Cohesion: 0.15
-Nodes (27): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+19 more)
 
 ### Community 636 - "Community 636"
 Cohesion: 0.05
@@ -3095,24 +3091,16 @@ Cohesion: 0.06
 Nodes (30): code:bash (# Run project's test suite), code:block10 (This will permanently delete:), code:bash (MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." re), code:bash (git branch -D <feature-branch>), code:bash (GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd), code:bash (MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." re), code:block2 (Tests failing (<N> failures). Must fix before completing:), code:bash (GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd) (+22 more)
 
 ### Community 643 - "Community 643"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): Acknowledging Correct Feedback, Code Review Reception, code:block1 (WHEN receiving code review feedback:), code:block10 (Reviewer: "Remove legacy code"), code:block11 (Reviewer: "Implement proper metrics tracking with database, ), code:block12 (your human partner: "Fix items 1-6"), code:block2 (IF any item is unclear:), code:block3 (your human partner: "Fix 1-6") (+21 more)
 
 ### Community 644 - "Community 644"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (29): 1a. Native Worktree Tools (preferred), 1b. Git Worktree Fallback, Assuming directory location, code:bash (GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd), code:bash (# If this returns a path, you're in a submodule, not a workt), code:bash (ls -d .worktrees 2>/dev/null     # Preferred (hidden)), code:bash (project=$(basename "$(git rev-parse --show-toplevel)")), code:bash (git check-ignore -q .worktrees 2>/dev/null || git check-igno) (+21 more)
-
-### Community 645 - "Community 645"
-Cohesion: 0.08
-Nodes (30): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), codeExecutionResult(), defaultIdempotencyKey(), defaultQuery() (+22 more)
 
 ### Community 646 - "Community 646"
 Cohesion: 0.14
 Nodes (28): addAttribute(), addChildNode(), c(), cc(), compose(), dateToUtcString(), decorateServiceException(), determineTimestampFormat() (+20 more)
-
-### Community 647 - "Community 647"
-Cohesion: 0.11
-Nodes (4): array(), componentWillUnmount(), remove(), V()
 
 ### Community 648 - "Community 648"
 Cohesion: 0.08
@@ -3127,7 +3115,7 @@ Cohesion: 0.09
 Nodes (23): Avoid assuming tools are installed, Checklist for effective Skills, Code and scripts, code:block52, code:block53, code:`markdown (## Form layout analysis), code:block55, code:block56 (bigquery-skill/) (+15 more)
 
 ### Community 651 - "Community 651"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (20): 1. Authority, 2. Commitment, 3. Scarcity, 4. Social Proof, 5. Unity, 6. Reciprocity, 7. Liking, code:markdown (✅ Write code before test? Delete it. Start over. No exceptio) (+12 more)
 
 ### Community 652 - "Community 652"
@@ -3143,7 +3131,7 @@ Cohesion: 0.10
 Nodes (19): code:block1 (NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST), code:block2 (For EACH component boundary:), code:bash (# Layer 1: Workflow), Common Rationalizations, Overview, Phase 1: Root Cause Investigation, Phase 2: Pattern Analysis, Phase 3: Hypothesis and Testing (+11 more)
 
 ### Community 655 - "Community 655"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): code:block1 (NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE), code:block2 (BEFORE claiming any status or expressing satisfaction:), code:block3 (✅ [Run test command] [See: 34/34 pass] "All tests pass"), code:block4 (✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restor), code:block5 (✅ [Run build] [See: exit 0] "Build passes"), code:block6 (✅ Re-read plan → Create checklist → Verify each → Report gap), code:block7 (✅ Agent reports success → Check VCS diff → Verify changes → ), Common Failures (+10 more)
 
 ### Community 656 - "Community 656"
@@ -3151,7 +3139,7 @@ Cohesion: 0.11
 Nodes (17): Code Examples, code:block1 (skills/), code:block14 (NO SKILL WITHOUT A FAILING TEST FIRST), code:markdown (---), Common Rationalizations for Skipping Testing, Directory Structure, Discovery Workflow, Overview (+9 more)
 
 ### Community 657 - "Community 657"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (16): Bite-Sized Task Granularity, code:markdown (# [Feature Name] Implementation Plan), code:`markdown (### Task N: [Component Name]), code:block3, code:block4, code:block5, Execution Handoff, File Structure (+8 more)
 
 ### Community 658 - "Community 658"
@@ -3159,32 +3147,20 @@ Cohesion: 0.12
 Nodes (15): Applying the Pattern, code:typescript (function createProject(name: string, workingDirectory: strin), code:typescript (function initializeWorkspace(projectDir: string, sessionId: ), code:typescript (async function gitInit(directory: string) {), code:typescript (async function gitInit(directory: string) {), Defense-in-Depth Validation, Example from Session, Key Insight (+7 more)
 
 ### Community 659 - "Community 659"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (13): Advantages, code:dot (digraph when_to_use {), code:dot (digraph process {), code:block3 (You: I'm using Subagent-Driven Development to execute this p), Example Workflow, Handling Implementer Status, Integration, Model Selection (+5 more)
 
 ### Community 660 - "Community 660"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (12): code:dot (digraph when_to_use {), code:typescript (// ❌ BEFORE: Guessing at timing), code:typescript (// Tool ticks every 100ms - need 2 ticks to verify partial o), Common Mistakes, Condition-Based Waiting, Core Pattern, Implementation, Overview (+4 more)
-
-### Community 661 - "Community 661"
-Cohesion: 0.16
-Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), defaultIdempotencyKey(), defaultQuery(), getUserAgent() (+6 more)
-
-### Community 662 - "Community 662"
-Cohesion: 0.16
-Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), defaultIdempotencyKey(), defaultQuery(), getUserAgent() (+6 more)
-
-### Community 663 - "Community 663"
-Cohesion: 0.16
-Nodes (14): baseURLOverridden(), buildBody(), buildHeaders(), buildRequest(), buildURL(), defaultIdempotencyKey(), defaultQuery(), getUserAgent() (+6 more)
 
 ### Community 664 - "Community 664"
 Cohesion: 0.14
 Nodes (14): Avoid deeply nested references, code:yaml (description: Analyze Excel spreadsheets, create pivot tables), code:yaml (description: Generate descriptive commit messages by analyzi), code:yaml (description: Helps with documents), code:yaml (description: Processes data), code:yaml (description: Does stuff with files), code:markdown (# SKILL.md), code:markdown (# SKILL.md) (+6 more)
 
 ### Community 665 - "Community 665"
-Cohesion: 0.15
-Nodes (13): [Analysis Title], Anti-patterns to avoid, Avoid offering too many options, Avoid Windows-style paths, Build evaluations first, code:json ({), code:`markdown (**Bad example: Too many choices** (confusing):), code:block44 (+5 more)
+Cohesion: 0.40
+Nodes (5): Anti-patterns to avoid, Avoid offering too many options, Avoid Windows-style paths, code:`markdown (**Bad example: Too many choices** (confusing):), code:block44
 
 ### Community 666 - "Community 666"
 Cohesion: 0.17
@@ -3203,15 +3179,15 @@ Cohesion: 0.17
 Nodes (12): Address "Spirit vs Letter" Arguments, Build Rationalization Table, Bulletproofing Skills Against Rationalization, Close Every Loophole Explicitly, code:markdown (Write code before test? Delete it.), code:markdown (Write code before test? Delete it. Start over.), code:markdown (**Violating the letter of the rules is violating the spirit ), code:markdown (| Excuse | Reality |) (+4 more)
 
 ### Community 670 - "Community 670"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): Executing Plans, Integration, Overview, Remember, Step 1: Load and Review Plan, Step 2: Execute Tasks, Step 3: Complete Development, The Process (+2 more)
 
 ### Community 671 - "Community 671"
-Cohesion: 0.18
+Cohesion: 0.21
 Nodes (10): code:dot (digraph skill_flow {), How to Access Skills, Instruction Priority, Platform Adaptation, Red Flags, Skill Priority, Skill Types, The Rule (+2 more)
 
 ### Community 672 - "Community 672"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (9): After the Design, Anti-Pattern: "This Is Too Simple To Need A Design", Brainstorming Ideas Into Designs, Checklist, code:dot (digraph brainstorming {), Key Principles, Process Flow, The Process (+1 more)
 
 ### Community 673 - "Community 673"
@@ -3219,16 +3195,16 @@ Cohesion: 0.20
 Nodes (10): Advanced: Skills with executable code, code:python (def process_file(path):), code:python (def process_file(path):), code:python (# HTTP requests typically complete within 30 seconds), code:python (TIMEOUT = 47  # Why 47?), code:`markdown (## Utility scripts), code:block50, code:block51 (+2 more)
 
 ### Community 674 - "Community 674"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (8): code:bash (BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main), code:block2 ([Just completed Task 2: Add verification function]), Example, How to Request, Integration with Workflows, Red Flags, Requesting Code Review, When to Request Review
 
 ### Community 675 - "Community 675"
-Cohesion: 0.31
-Nodes (7): combineGraphs(), { execSync }, extractDotBlocks(), fs, main(), path, renderToSvg()
+Cohesion: 0.42
+Nodes (8): combineGraphs(), { execSync }, extractDotBlocks(), extractGraphBody(), fs, main(), path, renderToSvg()
 
 ### Community 676 - "Community 676"
-Cohesion: 0.22
-Nodes (9): Avoid time-sensitive information, code:markdown (If you're doing this before August 2025, use the old API.), code:markdown (## Current method), code:`markdown (## Report structure), Common patterns, Content guidelines, Skill authoring best practices, Template pattern (+1 more)
+Cohesion: 0.40
+Nodes (5): Avoid time-sensitive information, code:markdown (If you're doing this before August 2025, use the old API.), code:markdown (## Current method), Content guidelines, Use consistent terminology
 
 ### Community 677 - "Community 677"
 Cohesion: 0.22
@@ -3239,35 +3215,35 @@ Cohesion: 0.22
 Nodes (9): code:block36, code:`markdown (## Commit message format), code:block38, code:block39, code:block40, code:markdown (## Document modification workflow), Conditional workflow pattern, Examples pattern (+1 more)
 
 ### Community 679 - "Community 679"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (6): code:toml ([features]), code:bash (GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd), Codex App Finishing, Codex Tool Mapping, Environment Detection, Subagent dispatch requires multi-agent support
 
 ### Community 680 - "Community 680"
-Cohesion: 0.29
-Nodes (6): [Analysis Title], code:block34, code:`markdown (## Report structure), Executive summary, Key findings, Recommendations
+Cohesion: 0.15
+Nodes (13): [Analysis Title], [Analysis Title], code:`markdown (## Report structure), code:block34, code:`markdown (## Report structure), Common patterns, Executive summary, Executive summary (+5 more)
 
 ### Community 681 - "Community 681"
 Cohesion: 0.29
 Nodes (7): code:block11 (defense-in-depth/), code:block12 (condition-based-waiting/), code:block13 (pptx/), File Organization, Self-Contained Skill, Skill with Heavy Reference, Skill with Reusable Tool
 
 ### Community 682 - "Community 682"
-Cohesion: 0.33
-Nodes (3): eventQueue, indicator, target
+Cohesion: 0.48
+Nodes (5): connect(), eventQueue, indicator, sendEvent(), target
 
 ### Community 683 - "Community 683"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): Code Reviewer Prompt Template, code:block1 (Task tool (general-purpose):), code:block2, code:block3 (### Strengths), Example Output
 
 ### Community 684 - "Community 684"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): Choose A, B, or C, code:block1 (PaymentError: Connection timeout to payments.api.com), Pressure Test 1: Emergency Production Fix, Scenario, Your Options
 
 ### Community 685 - "Community 685"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): Choose A, B, or C, code:block1 (Expected: { status: 'completed', amount: 100 }), Pressure Test 2: Sunk Cost + Exhaustion, Scenario, Your Options
 
 ### Community 686 - "Community 686"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (5): Additional Gemini CLI tools, Gemini CLI Tool Mapping, Parallel dispatch, Prompt filling, Subagent support
 
 ### Community 687 - "Community 687"
@@ -3275,15 +3251,19 @@ Cohesion: 0.33
 Nodes (6): Anti-Patterns, ❌ Code in Flowcharts, code:dot (step1 [label="import fs"];), ❌ Generic Labels, ❌ Multi-Language Dilution, ❌ Narrative Example
 
 ### Community 688 - "Community 688"
-Cohesion: 0.40
+Cohesion: 0.33
 Nodes (4): Choose A, B, or C, Pressure Test 3: Authority + Social Pressure, Scenario, Your Options
 
 ### Community 689 - "Community 689"
 Cohesion: 0.40
 Nodes (5): Discipline-Enforcing Skills (rules/requirements), Pattern Skills (mental models), Reference Skills (documentation/APIs), Technique Skills (how-to guides), Testing All Skill Types
 
+### Community 690 - "Community 690"
+Cohesion: 0.60
+Nodes (3): waitForEvent(), waitForEventCount(), waitForEventMatch()
+
 ### Community 691 - "Community 691"
-Cohesion: 0.50
+Cohesion: 0.40
 Nodes (3): Additional Copilot CLI tools, Async shell sessions, Copilot CLI Tool Mapping
 
 ### Community 692 - "Community 692"
@@ -3299,21 +3279,21 @@ Cohesion: 0.67
 Nodes (3): code:bash (./render-graphs.js ../some-skill           # Each diagram se), code:dot (digraph when_flowchart {), Flowchart Usage
 
 ## Knowledge Gaps
-- **6564 isolated node(s):** `name`, `description`, `requestFramePermissions`, `majorCapabilities`, `name` (+6559 more)
+- **6504 isolated node(s):** `name`, `description`, `requestFramePermissions`, `majorCapabilities`, `name` (+6499 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **46 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `string()` connect `Community 594` to `Community 646`, `Community 7`, `Community 140`, `Community 142`, `Community 145`, `Community 148`, `Community 155`, `Community 157`, `Community 159`, `Community 32`, `Community 415`, `Community 162`, `Community 163`, `Community 164`, `Community 160`, `Community 166`, `Community 167`, `Community 175`, `Community 73`, `Community 590`, `Community 338`, `Community 595`, `Community 597`, `Community 599`, `Community 601`, `Community 603`, `Community 605`, `Community 609`, `Community 611`, `Community 617`, `Community 489`, `Community 624`, `Community 625`, `Community 627`, `Community 635`, `Community 508`?**
-  _High betweenness centrality (0.192) - this node is a cross-community bridge._
-- **Why does `object()` connect `Community 145` to `Community 645`, `Community 647`, `Community 140`, `Community 155`, `Community 160`, `Community 162`, `Community 163`, `Community 165`, `Community 167`, `Community 172`, `Community 175`, `Community 187`, `Community 73`, `Community 590`, `Community 594`, `Community 596`, `Community 617`, `Community 619`, `Community 620`, `Community 621`, `Community 632`, `Community 633`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `t` connect `Community 338` to `Community 162`, `Community 167`, `Community 647`, `Community 140`, `Community 141`, `Community 145`, `Community 594`, `Community 157`, `Community 158`?**
+- **Why does `string()` connect `Community 157` to `Community 131`, `Community 646`, `Community 7`, `Community 140`, `Community 142`, `Community 145`, `Community 148`, `Community 155`, `Community 159`, `Community 32`, `Community 415`, `Community 162`, `Community 163`, `Community 164`, `Community 160`, `Community 166`, `Community 172`, `Community 175`, `Community 187`, `Community 578`, `Community 73`, `Community 590`, `Community 338`, `Community 594`, `Community 597`, `Community 599`, `Community 601`, `Community 605`, `Community 609`, `Community 611`, `Community 489`, `Community 619`, `Community 625`, `Community 627`, `Community 508`?**
+  _High betweenness centrality (0.184) - this node is a cross-community bridge._
+- **Why does `f()` connect `Community 338` to `Community 162`, `Community 131`, `Community 167`, `Community 140`, `Community 141`, `Community 145`, `Community 594`, `Community 157`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `__facade_register__()` connect `Community 73` to `Community 529`, `Community 159`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **What connects `name`, `description`, `requestFramePermissions` to the rest of the system?**
-  _6564 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _6504 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.1226215644820296 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

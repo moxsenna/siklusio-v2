@@ -21,6 +21,7 @@ import { supabase } from '../../src/lib/supabase';
 import { AvatarPicker } from '../../components/common/AvatarPicker';
 import { useUserAvatar } from '../../src/hooks/useUserAvatar';
 import { storage } from '../../src/lib/storage';
+import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
@@ -261,19 +262,19 @@ export default function SettingsScreen() {
       Object.keys(updated).forEach(key => {
         const d = new Date(key);
         if (d > changes.lastDate && updated[key]) {
-          updated[key] = {
+          updated[key] = stampDailyRecord({
             ...updated[key],
             isPeriod: false
-          };
+          });
         }
       });
 
-      updated[dateStr] = {
+      updated[dateStr] = stampDailyRecord({
         ...updated[dateStr],
         symptoms: updated[dateStr]?.symptoms || [],
         tasks: updated[dateStr]?.tasks || [],
         isPeriod: true
-      };
+      });
 
       return updated;
     });

@@ -5,6 +5,7 @@ import { AiReportModal } from '../../components/calendar/AiReportModal';
 import { useCycle } from '../../src/context/CycleContext';
 import { format } from 'date-fns';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
+import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 
 export default function CalendarScreen() {
   const { getDayInfo, activityHistory, setActivityHistory } = useCycle();
@@ -36,11 +37,11 @@ export default function CalendarScreen() {
 
       return {
         ...prev,
-        [dateKey]: {
+        [dateKey]: stampDailyRecord({
           ...record,
           tasks: record.tasks && record.tasks.length > 0 ? record.tasks : defaultTasks,
           isPeriod: newIsPeriod
-        }
+        })
       };
     });
   };

@@ -4,6 +4,7 @@ import { format, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { analytics } from '../../src/lib/analytics';
+import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
 import { HistoryView } from '../../components/habits/HistoryView';
@@ -94,10 +95,10 @@ export default function HabitsScreen() {
   const updateCurrentDay = (newData: Partial<typeof currentDayData>) => {
     setActivityHistory(prev => ({
       ...prev,
-      [dateKey]: {
+      [dateKey]: stampDailyRecord({
         ...currentDayData,
         ...newData
-      }
+      })
     }));
   };
 

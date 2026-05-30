@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { useCycle } from '../../src/context/CycleContext';
+import {
+  getCycleConfidenceMessage,
+  getPredictionDeltaMessage,
+} from '../../src/lib/cycleInsightCopy';
 
 interface CycleCardProps {
   displayPhase: string;
@@ -8,7 +12,13 @@ interface CycleCardProps {
 }
 
 export function CycleCard({ displayPhase, actionCardIcon }: CycleCardProps) {
-  const { cycleDay, daysToNextPeriod } = useCycle();
+  const {
+    cycleDay,
+    daysToNextPeriod,
+    predictedCycleLength,
+    cycleConfidence,
+    lastPredictionDeltaDays,
+  } = useCycle();
 
   const borderClass = useMemo(() => {
     if (displayPhase === 'Masa Subur' || displayPhase === 'Ovulasi') {
@@ -19,6 +29,9 @@ export function CycleCard({ displayPhase, actionCardIcon }: CycleCardProps) {
     }
     return 'border-primary/10'; // Soft default border
   }, [displayPhase]);
+
+  const confidenceMessage = getCycleConfidenceMessage(cycleConfidence);
+  const deltaMessage = getPredictionDeltaMessage(lastPredictionDeltaDays);
 
   return (
     <View className="w-full bg-surface rounded-[32px] p-[24px] shadow-sm border border-outline-variant items-center justify-center relative overflow-hidden">
@@ -44,6 +57,17 @@ export function CycleCard({ displayPhase, actionCardIcon }: CycleCardProps) {
         <Text className="text-[12px] uppercase tracking-widest text-on-background font-bold">
           Siklus Hari Ke-{cycleDay}
         </Text>
+      </View>
+
+      <View className="mt-4 items-center justify-center px-5 py-3 bg-surface-variant/60 rounded-2xl border border-outline-variant/40 z-10">
+        <Text className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+          {confidenceMessage} - {predictedCycleLength} hari
+        </Text>
+        {deltaMessage && (
+          <Text className="text-[11px] text-on-surface-variant text-center leading-relaxed mt-1">
+            {deltaMessage}
+          </Text>
+        )}
       </View>
     </View>
   );

@@ -1,5 +1,8 @@
 import { addDays, subDays, differenceInDays, startOfDay, format } from 'date-fns';
-import { parseLocalDate } from './dateUtils';
+import {
+  calculateAdaptiveCyclePrediction,
+  type PredictionConfidence,
+} from './cyclePrediction';
 
 export type CyclePhase = 'Menstrual' | 'Folikular' | 'Ovulasi' | 'Luteal';
 
@@ -14,6 +17,7 @@ export interface DailyRecord {
   symptoms: string[];
   tasks: Task[];
   isPeriod?: boolean;
+  updatedAt?: string;
 }
 
 export interface CycleCalculations {
@@ -26,6 +30,13 @@ export interface CycleCalculations {
   cycleDay: number;
   effectiveLastPeriod: Date;
   hasManualLogs: boolean;
+  predictedCycleLength: number;
+  predictedPeriodLength: number;
+  cycleConfidence: PredictionConfidence;
+  periodConfidence: PredictionConfidence;
+  lastPredictionDeltaDays: number | null;
+  lastPredictedPeriodDate: Date | null;
+  lastActualPeriodDate: Date | null;
 }
 
 /**
@@ -36,70 +47,28 @@ export function calculateCycleData(
   lastPeriodDate: Date | null,
   cycleLength: number,
   periodLength: number,
-  activityHistory: Record<string, DailyRecord>
+  activityHistory: Record<string, DailyRecord>,
+  todayOverride?: Date
 ): CycleCalculations & {
   getDayInfo: (date: Date) => { phase: CyclePhase; displayPhase: string; cycleDay: number; isManualPeriod: boolean };
 } {
   const safeCycleLength = Math.max(20, cycleLength || 28);
   const safePeriodLength = Math.max(1, periodLength || 5);
 
-  const today = startOfDay(new Date());
-  const normalizedLastPeriod = lastPeriodDate ? startOfDay(lastPeriodDate) : startOfDay(new Date());
+  const today = startOfDay(todayOverride ?? new Date());
+  const normalizedLastPeriod = lastPeriodDate ? startOfDay(lastPeriodDate) : today;
 
-  // 1. Dapatkan semua tanggal mulai haid manual dari riwayat aktivitas (diurutkan naik secara kronologis)
-  const manualPeriodStarts: Date[] = [];
-  const historyDates = Object.keys(activityHistory).sort(
-    (a, b) => parseLocalDate(a).getTime() - parseLocalDate(b).getTime()
-  );
+  const adaptivePrediction = calculateAdaptiveCyclePrediction({
+    lastPeriodDate,
+    fallbackCycleLength: safeCycleLength,
+    fallbackPeriodLength: safePeriodLength,
+    activityHistory,
+    today,
+  });
 
-  for (const dateKey of historyDates) {
-    if (activityHistory[dateKey]?.isPeriod) {
-      const dateObj = startOfDay(parseLocalDate(dateKey));
-      const prevDayKey = format(subDays(dateObj, 1), 'yyyy-MM-dd');
-      if (!activityHistory[prevDayKey]?.isPeriod) {
-        manualPeriodStarts.push(dateObj);
-      }
-    }
-  }
-
-  // 2. Hitung Rata-rata Panjang Haid (Period Length) secara dinamis dari catatan manual
-  let calculatedPeriodLength = safePeriodLength;
-  const periodDurations: number[] = [];
-  for (const start of manualPeriodStarts) {
-    let duration = 0;
-    let checkDate = start;
-    // Hitung berapa hari berurutan pengguna mencatat haid (maksimal batas wajar medis 15 hari)
-    while (activityHistory[format(checkDate, 'yyyy-MM-dd')]?.isPeriod && duration <= 15) {
-      duration++;
-      checkDate = addDays(checkDate, 1);
-    }
-    if (duration > 0) {
-      periodDurations.push(duration);
-    }
-  }
-  if (periodDurations.length > 0) {
-    calculatedPeriodLength = Math.round(periodDurations.reduce((a, b) => a + b, 0) / periodDurations.length);
-  }
-
-  // 3. Hitung Rata-rata Panjang Siklus (Cycle Length) secara dinamis
-  let calculatedCycleLength = safeCycleLength;
-  if (manualPeriodStarts.length >= 2) {
-    const cycleIntervals: number[] = [];
-    for (let i = 0; i < manualPeriodStarts.length - 1; i++) {
-      const diff = differenceInDays(manualPeriodStarts[i + 1], manualPeriodStarts[i]);
-      // Hanya gunakan interval wajar secara medis (20 hingga 45 hari) 
-      // untuk mencegah gap panjang (misal lupa log berbulan-bulan) merusak rata-rata
-      if (diff >= 20 && diff <= 45) {
-        cycleIntervals.push(diff);
-      }
-    }
-    if (cycleIntervals.length > 0) {
-      calculatedCycleLength = Math.round(cycleIntervals.reduce((a, b) => a + b, 0) / cycleIntervals.length);
-    }
-  }
-
-  const finalCycleLength = Math.max(20, calculatedCycleLength);
-  const finalPeriodLength = Math.max(1, calculatedPeriodLength);
+  const manualPeriodStarts = adaptivePrediction.manualPeriodStarts;
+  const finalCycleLength = adaptivePrediction.predictedCycleLength;
+  const finalPeriodLength = adaptivePrediction.predictedPeriodLength;
 
   // 4. Cari jangkar (anchor) terbaru, baik dari input manual maupun konfigurasi
   let bestAnchor = normalizedLastPeriod;
@@ -177,6 +146,13 @@ export function calculateCycleData(
     cycleDay,
     effectiveLastPeriod,
     hasManualLogs: manualPeriodStarts.length > 0,
+    predictedCycleLength: finalCycleLength,
+    predictedPeriodLength: finalPeriodLength,
+    cycleConfidence: adaptivePrediction.cycleConfidence,
+    periodConfidence: adaptivePrediction.periodConfidence,
+    lastPredictionDeltaDays: adaptivePrediction.lastPredictionDeltaDays,
+    lastPredictedPeriodDate: adaptivePrediction.lastPredictedPeriodDate,
+    lastActualPeriodDate: adaptivePrediction.lastActualPeriodDate,
     getDayInfo,
   };
 }

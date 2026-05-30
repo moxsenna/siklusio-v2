@@ -78,6 +78,19 @@ CREATE TABLE public.activity_history (
   UNIQUE(user_id, date_key) -- Ensure only one record per user per day
 );
 
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_activity_history_updated_at ON public.activity_history;
+CREATE TRIGGER trg_activity_history_updated_at
+  BEFORE UPDATE ON public.activity_history
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
 -- Enable RLS for activity_history
 ALTER TABLE public.activity_history ENABLE ROW LEVEL SECURITY;
 

@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { DatePickerField } from '../components/common/DatePickerField';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { storage } from '../src/lib/storage';
+import { stampDailyRecord } from '../src/lib/activityHistorySync';
 
 interface DropdownOption {
   label: string;
@@ -104,6 +105,7 @@ export default function OnboardingScreen() {
     lastPeriodDate, setLastPeriodDate,
     cycleLength, setCycleLength,
     periodLength, setPeriodLength,
+    setActivityHistory,
     husbandName, setHusbandName,
     husbandNickname, setHusbandNickname,
     husbandNumber, setHusbandNumber,
@@ -199,6 +201,16 @@ export default function OnboardingScreen() {
       const date = new Date(year, month, day);
       if (!isNaN(date.getTime())) {
         setLastPeriodDate(date);
+        const dateKey = format(date, 'yyyy-MM-dd');
+        setActivityHistory(prev => ({
+          ...prev,
+          [dateKey]: stampDailyRecord({
+            ...prev[dateKey],
+            symptoms: prev[dateKey]?.symptoms || [],
+            tasks: prev[dateKey]?.tasks || [],
+            isPeriod: true,
+          }),
+        }));
       }
       setCycleLength(Number(cycleInput));
       setPeriodLength(Number(periodInput));

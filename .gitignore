@@ -50,3 +50,6 @@ graphify-out/.graphify_*
 
 # Scratch folder
 scratch/
+
+# Local git worktrees
+.worktrees/

@@ -2,56 +2,148 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a lightweight AI "Resep Hari Ini" feature that generates two Indonesian recipes, a small grocery list, and phase-specific nutrition benefits for 15 AI credits.
+**Goal:** Build a lightweight AI "Resep Hari Ini" feature that saves paid generations so users can reopen today's recipes after reloads, tab switches, or app restarts.
 
-**Architecture:** Reuse the existing OpenRouter-backed `/api/generate-recipes` endpoint, but harden it with AI credit checks, stricter structured output, and runtime validation. Add a Habits tab card and modal that calls the endpoint, displays the result, and shows updated AI credit balance.
+**Architecture:** Add a Supabase `recipe_generations` table and store each valid AI result as `pending_charge` before charging credits. Reuse the existing OpenRouter-backed `/api/generate-recipes` endpoint, but make it credit-protected and persistent; add a read endpoint for today's active recipe. Add a Habits tab card and modal that first fetches the saved result, then generates only if none exists.
 
-**Tech Stack:** Hono on Cloudflare Workers, Supabase service-role RPC credit ledger, OpenRouter chat completions, Expo Router, React Native, NativeWind, Node `test`, TypeScript.
+**Tech Stack:** Supabase Postgres, Supabase CLI migrations, Hono on Cloudflare Workers, Supabase service-role RPC credit ledger, OpenRouter chat completions, Expo Router, React Native, NativeWind, Node `test`, TypeScript.
 
 ---
 
+## Product Rules
+
+- Cost: 15 AI credits per new generation.
+- Existing active result for the same user and date is free to reopen.
+- Credits are charged only after a valid result is saved in `recipe_generations`.
+- The credit ledger uses `feature = 'recipes_today'`, `reason = phase`, and `reference_id = recipe_generations.id`.
+- If OpenRouter fails, validation fails, or saving fails, no credit is charged.
+- If charging fails after save, the row remains `pending_charge` and must not be shown by the read endpoint.
+- Only one `active` recipe result is allowed per user/date; multiple `pending_charge` rows are allowed so a failed charge does not block retry.
+- The MVP does not include AI vision, weekly meal planning, full recipe history UI, or Mayar top-up changes.
+
 ## File Structure
+
+### Database
+
+- Create: `supabase/recipe_generations.sql`
+  - Saved recipe generations, RLS, service role policy, and lookup index.
+- Create: `supabase/migrations/YYYYMMDDHHMMSS_recipe_generations.sql`
+  - Supabase CLI migration copy of the schema.
 
 ### Backend
 
 - Modify: `backend/ai/schemas.ts`
   - Tighten `recipesGenerationSchema`.
-  - Add `TodayRecipeResult` fields for groceries, recipes, phase benefit, and disclaimer.
-  - Validate exactly 2 recipes and a small grocery list.
+  - Add `RecipesGenerationResult` fields for groceries, recipes, phase benefit, and disclaimer.
+  - Validate exactly 2 recipes and a 3-6 item grocery list.
+- Create: `backend/ai/recipeSummary.ts`
+  - Build a safe cycle snapshot for saved rows and prompts.
 - Modify: `backend/ai/helpers.test.ts`
-  - Add test for charging credits with nullable `referenceId`.
-  - Add test for rejecting invalid recipe payloads.
-- Modify: `backend/ai/credits.ts`
-  - Allow `chargeAiCredits` to accept `referenceId?: string | null`.
+  - Add recipe validator tests.
+  - Add recipe snapshot tests.
 - Modify: `backend/index.ts`
-  - Update `/api/generate-recipes` to precheck 15 credits, call OpenRouter, validate result, charge credits, and return `{ result, balance }`.
+  - Add `GET /api/recipes/today`.
+  - Update `POST /api/generate-recipes` to save, charge, activate, and return saved generation.
 
 ### Mobile
 
 - Create: `mobile-app/src/lib/todayRecipes.ts`
-  - Types and mapper for API results.
+  - Types and mappers for saved API results.
 - Create: `mobile-app/src/lib/todayRecipes.test.ts`
-  - Tests for mapper defaults and required fields.
+  - Tests for mapping saved API rows into UI-safe data.
 - Create: `mobile-app/components/habits/TodayRecipesCard.tsx`
   - Entry card in Habits tab.
 - Create: `mobile-app/components/habits/TodayRecipesModal.tsx`
-  - Generate and result modal.
+  - Fetch/generate/result modal.
 - Modify: `mobile-app/app/(tabs)/habits.tsx`
   - Insert "Resep Hari Ini" card below Habit Coach and pass cycle context.
 
 ---
 
-## Task 1: Backend Recipe Schema And Validator
+## Task 1: Recipe Generation Database Schema
+
+**Files:**
+- Create: `supabase/recipe_generations.sql`
+- Create: `supabase/migrations/20260531010400_recipe_generations.sql`
+
+- [ ] **Step 1: Create the SQL schema**
+
+Create `supabase/recipe_generations.sql`:
+
+```sql
+-- ============================================================
+-- Saved AI Resep Hari Ini generations
+-- Run after supabase/ai_credits.sql
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.recipe_generations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  generated_for_date DATE NOT NULL,
+  phase TEXT NOT NULL,
+  cycle_day INTEGER,
+  days_to_next_period INTEGER,
+  cycle_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+  result JSONB NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending_charge'
+    CHECK (status IN ('pending_charge', 'active', 'archived')),
+  ai_model TEXT NOT NULL,
+  credit_cost INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.recipe_generations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "service_role_full_access_recipe_generations" ON public.recipe_generations;
+CREATE POLICY "service_role_full_access_recipe_generations"
+ON public.recipe_generations TO service_role USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_recipe_generations_user_date
+ON public.recipe_generations(user_id, generated_for_date DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_recipe_generations_active_user_date
+ON public.recipe_generations(user_id, generated_for_date)
+WHERE status = 'active';
+```
+
+- [ ] **Step 2: Copy schema into a CLI migration**
+
+```powershell
+New-Item -ItemType Directory -Force supabase\migrations | Out-Null
+Copy-Item -LiteralPath supabase\recipe_generations.sql -Destination supabase\migrations\20260531010400_recipe_generations.sql
+```
+
+- [ ] **Step 3: Dry-run migration**
+
+```powershell
+npx.cmd supabase db push --dry-run
+```
+
+Expected: dry-run lists `20260531010400_recipe_generations.sql`.
+
+- [ ] **Step 4: Commit schema files**
+
+```powershell
+git add supabase/recipe_generations.sql supabase/migrations/20260531010400_recipe_generations.sql
+git commit -m "feat: add recipe generation table"
+```
+
+---
+
+## Task 2: Backend Recipe Schema And Snapshot Helpers
 
 **Files:**
 - Modify: `backend/ai/schemas.ts`
+- Create: `backend/ai/recipeSummary.ts`
 - Modify: `backend/ai/helpers.test.ts`
 
-- [ ] **Step 1: Add failing validator tests**
+- [ ] **Step 1: Add failing validator and snapshot tests**
 
 Add this to `backend/ai/helpers.test.ts`:
 
 ```ts
+import { buildRecipeCycleSnapshot } from "./recipeSummary";
 import { validateRecipesGeneration } from "./schemas";
 
 const validRecipePayload = {
@@ -100,17 +192,48 @@ test("validateRecipesGeneration rejects payload without exactly two recipes", ()
     /exactly 2 recipes/
   );
 });
+
+test("buildRecipeCycleSnapshot keeps only recipe context fields", () => {
+  const snapshot = buildRecipeCycleSnapshot({
+    phase: "Luteal",
+    cycleDay: 23,
+    daysToNextPeriod: 5,
+    nickname: "Maya",
+    privateNotes: "not for recipe prompt",
+  });
+
+  assert.deepEqual(snapshot, {
+    phase: "Luteal",
+    cycleDay: 23,
+    daysToNextPeriod: 5,
+  });
+});
 ```
 
-- [ ] **Step 2: Run the test to verify failure**
+- [ ] **Step 2: Run tests to verify failure**
 
 ```powershell
 npx.cmd tsx backend/ai/helpers.test.ts
 ```
 
-Expected: FAIL because `validateRecipesGeneration` currently accepts shallow payloads and does not enforce exactly two recipes.
+Expected: FAIL because `recipeSummary.ts` does not exist and the current validator is shallow.
 
-- [ ] **Step 3: Tighten recipe schema and validator**
+- [ ] **Step 3: Add recipe snapshot helper**
+
+Create `backend/ai/recipeSummary.ts`:
+
+```ts
+export function buildRecipeCycleSnapshot(body: any) {
+  return {
+    phase: body.phase || "unknown_phase",
+    cycleDay: typeof body.cycleDay === "number" ? body.cycleDay : null,
+    daysToNextPeriod:
+      typeof body.daysToNextPeriod === "number" ? body.daysToNextPeriod : null,
+  };
+}
+```
+
+- [ ] **Step 4: Tighten recipe schema and validator**
 
 In `backend/ai/schemas.ts`, replace `recipesGenerationSchema`, `RecipesGenerationResult`, and `validateRecipesGeneration` with:
 
@@ -236,7 +359,7 @@ export function validateRecipesGeneration(value: unknown): RecipesGenerationResu
 }
 ```
 
-- [ ] **Step 4: Run validator tests**
+- [ ] **Step 5: Run tests**
 
 ```powershell
 npx.cmd tsx backend/ai/helpers.test.ts
@@ -244,85 +367,111 @@ npx.cmd tsx backend/ai/helpers.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```powershell
-git add backend/ai/schemas.ts backend/ai/helpers.test.ts
+git add backend/ai/schemas.ts backend/ai/helpers.test.ts backend/ai/recipeSummary.ts
 git commit -m "feat: tighten recipe ai schema"
 ```
 
 ---
 
-## Task 2: Backend Credit-Protected Recipe Endpoint
+## Task 3: Backend Saved Recipe Endpoints
 
 **Files:**
-- Modify: `backend/ai/credits.ts`
-- Modify: `backend/ai/helpers.test.ts`
 - Modify: `backend/index.ts`
+- Modify: `backend/ai/helpers.test.ts`
 
-- [ ] **Step 1: Add failing nullable reference credit test**
+- [ ] **Step 1: Add failing route helper expectation test**
 
-Add this to `backend/ai/helpers.test.ts`:
+Add this test to `backend/ai/helpers.test.ts`:
 
 ```ts
-import { chargeAiCredits } from "./credits";
-
-test("chargeAiCredits allows nullable reference for stateless AI features", async () => {
-  let rpcPayload: Record<string, unknown> | null = null;
-  const supabaseAdmin = {
-    async rpc(name: string, params: Record<string, unknown>) {
-      assert.equal(name, "charge_ai_credits");
-      rpcPayload = params;
-      return { data: 85, error: null };
-    },
-  };
-
-  const balance = await chargeAiCredits({
-    supabaseAdmin,
+test("recipe credit charge should use saved generation id as reference", () => {
+  const generation = { id: "recipe-generation-1" };
+  const chargePayload = {
     userId: "user-1",
     amount: 15,
     feature: "recipes_today",
     reason: "Luteal",
-    referenceId: null,
+    referenceId: generation.id,
     metadata: { model: "test-model" },
-  });
+  };
 
-  assert.equal(balance, 85);
-  assert.equal(rpcPayload?.p_reference_id, null);
+  assert.equal(chargePayload.referenceId, "recipe-generation-1");
+  assert.equal(chargePayload.feature, "recipes_today");
+  assert.equal(chargePayload.amount, 15);
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [ ] **Step 2: Run tests**
 
 ```powershell
 npx.cmd tsx backend/ai/helpers.test.ts
 ```
 
-Expected: FAIL at TypeScript/runtime level because `referenceId` currently expects a string.
+Expected: PASS. This test documents the required endpoint contract before route edits.
 
-- [ ] **Step 3: Allow nullable reference IDs**
+- [ ] **Step 3: Add imports in `backend/index.ts`**
 
-In `backend/ai/credits.ts`, change the `chargeAiCredits` param type:
-
-```ts
-referenceId?: string | null;
-```
-
-And keep the RPC payload as:
+Add `buildRecipeCycleSnapshot`:
 
 ```ts
-p_reference_id: params.referenceId || null,
+import { buildRecipeCycleSnapshot } from "./ai/recipeSummary";
 ```
 
-- [ ] **Step 4: Update `/api/generate-recipes`**
+- [ ] **Step 4: Add `GET /api/recipes/today`**
 
-In `backend/index.ts`, replace the body of `/api/generate-recipes` with this behavior:
+Add this route before `/api/generate-recipes`:
+
+```ts
+app.get("/api/recipes/today", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const date = c.req.query("date");
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return c.json({ error: "Tanggal resep tidak valid." }, 400);
+    }
+
+    const { data: generation, error } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", date)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return c.json({
+      generation,
+      result: generation?.result || null,
+    });
+  } catch (error: any) {
+    console.error("[recipes/today]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil resep hari ini." }, 500);
+  }
+});
+```
+
+- [ ] **Step 5: Replace `/api/generate-recipes` with saved charge flow**
+
+Replace the current `/api/generate-recipes` route body with:
 
 ```ts
 app.post("/api/generate-recipes", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-recipes");
   try {
-    const { phase, cycleDay, daysToNextPeriod, nickname } = await c.req.json();
+    const body = await c.req.json();
+    const { phase, cycleDay, daysToNextPeriod, nickname, generatedForDate } = body;
+    const date = typeof generatedForDate === "string" ? generatedForDate : "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return c.json({ error: "Tanggal resep tidak valid." }, 400);
+    }
+
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
@@ -333,11 +482,32 @@ app.post("/api/generate-recipes", async (c) => {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
 
+    const { data: existingActive, error: existingError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", date)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (existingActive) {
+      return c.json({ generation: existingActive, result: existingActive.result, balance: null });
+    }
+
     const creditCost = 15;
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
     if (balance < creditCost) {
       return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
     }
+
+    const cycleSnapshot = buildRecipeCycleSnapshot({
+      phase,
+      cycleDay,
+      daysToNextPeriod,
+    });
 
     const ai = await callOpenRouterJson<any>({
       apiKey,
@@ -358,9 +528,7 @@ app.post("/api/generate-recipes", async (c) => {
           role: "user",
           content: JSON.stringify({
             nickname: nickname || "",
-            phase,
-            cycleDay,
-            daysToNextPeriod,
+            ...cycleSnapshot,
             requiredOutput: [
               "2 resep sederhana",
               "daftar belanja kecil 3-6 bahan",
@@ -382,17 +550,46 @@ app.post("/api/generate-recipes", async (c) => {
     });
 
     const result = validateRecipesGeneration(ai.data);
+
+    const { data: savedGeneration, error: saveError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .insert({
+        user_id: auth.user.id,
+        generated_for_date: date,
+        phase: cycleSnapshot.phase,
+        cycle_day: cycleSnapshot.cycleDay,
+        days_to_next_period: cycleSnapshot.daysToNextPeriod,
+        cycle_snapshot: cycleSnapshot,
+        result,
+        status: "pending_charge",
+        ai_model: ai.model,
+        credit_cost: creditCost,
+      })
+      .select()
+      .single();
+
+    if (saveError) throw saveError;
+
     const balanceAfter = await chargeAiCredits({
       supabaseAdmin: auth.supabaseAdmin,
       userId: auth.user.id,
       amount: creditCost,
       feature: "recipes_today",
-      reason: phase || "unknown_phase",
-      referenceId: null,
+      reason: cycleSnapshot.phase,
+      referenceId: savedGeneration.id,
       metadata: { model: ai.model, usage: ai.usage || null },
     });
 
-    return c.json({ result, balance: balanceAfter });
+    const { data: activeGeneration, error: activateError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("id", savedGeneration.id)
+      .select()
+      .single();
+
+    if (activateError) throw activateError;
+
+    return c.json({ generation: activeGeneration, result, balance: balanceAfter });
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter recipes error:", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat resep hari ini." }, 500);
@@ -400,25 +597,25 @@ app.post("/api/generate-recipes", async (c) => {
 });
 ```
 
-- [ ] **Step 5: Run backend tests and typecheck**
+- [ ] **Step 6: Run backend tests and typecheck**
 
 ```powershell
 npx.cmd tsx backend/ai/helpers.test.ts
-npx.cmd tsc --noEmit --skipLibCheck --module ESNext --moduleResolution bundler --target ES2022 backend/index.ts backend/ai/openRouter.ts backend/ai/schemas.ts backend/ai/credits.ts
+npx.cmd tsc --noEmit --skipLibCheck --module ESNext --moduleResolution bundler --target ES2022 backend/index.ts backend/ai/openRouter.ts backend/ai/schemas.ts backend/ai/credits.ts backend/ai/recipeSummary.ts
 ```
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```powershell
-git add backend/index.ts backend/ai/credits.ts backend/ai/helpers.test.ts
-git commit -m "feat: charge credits for recipe ai"
+git add backend/index.ts backend/ai/helpers.test.ts backend/ai/recipeSummary.ts
+git commit -m "feat: save today recipe generations"
 ```
 
 ---
 
-## Task 3: Mobile Recipe Types And Mapper
+## Task 4: Mobile Recipe Types And Saved Mapper
 
 **Files:**
 - Create: `mobile-app/src/lib/todayRecipes.ts`
@@ -431,41 +628,47 @@ Create `mobile-app/src/lib/todayRecipes.test.ts`:
 ```ts
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mapApiTodayRecipes } from './todayRecipes';
+import { mapApiTodayRecipeGeneration } from './todayRecipes';
 
-test('mapApiTodayRecipes normalizes recipe response for UI', () => {
-  const mapped = mapApiTodayRecipes({
-    phaseBenefit: 'Baik untuk fase luteal.',
-    groceries: [{ id: 1, name: 'Tempe', desc: 'Protein lokal.', emoji: 'soy' }],
-    recipes: [
-      {
-        id: 1,
-        title: 'Tumis Tempe',
-        description: 'Cepat dan hangat.',
-        cookingTime: '15 menit',
-        ingredients: ['tempe', 'bawang putih', 'kecap'],
-        steps: ['Potong tempe.', 'Tumis semua bahan.'],
-        phaseBenefit: 'Protein membantu kenyang.',
-        emoji: 'pan',
-      },
-      {
-        id: 2,
-        title: 'Telur Wortel',
-        description: 'Lauk praktis.',
-        cookingTime: '10 menit',
-        ingredients: ['telur', 'wortel', 'daun bawang'],
-        steps: ['Kocok telur.', 'Masak hingga matang.'],
-        phaseBenefit: 'Praktis untuk energi.',
-        emoji: 'egg',
-      },
-    ],
-    disclaimer: 'Panduan nutrisi umum.',
+test('mapApiTodayRecipeGeneration normalizes saved recipe response for UI', () => {
+  const mapped = mapApiTodayRecipeGeneration({
+    id: 'generation-1',
+    generated_for_date: '2026-05-31',
+    phase: 'Luteal',
+    credit_cost: 15,
+    result: {
+      phaseBenefit: 'Baik untuk fase luteal.',
+      groceries: [{ id: 1, name: 'Tempe', desc: 'Protein lokal.', emoji: 'soy' }],
+      recipes: [
+        {
+          id: 1,
+          title: 'Tumis Tempe',
+          description: 'Cepat dan hangat.',
+          cookingTime: '15 menit',
+          ingredients: ['tempe', 'bawang putih', 'kecap'],
+          steps: ['Potong tempe.', 'Tumis semua bahan.'],
+          phaseBenefit: 'Protein membantu kenyang.',
+          emoji: 'pan',
+        },
+        {
+          id: 2,
+          title: 'Telur Wortel',
+          description: 'Lauk praktis.',
+          cookingTime: '10 menit',
+          ingredients: ['telur', 'wortel', 'daun bawang'],
+          steps: ['Kocok telur.', 'Masak hingga matang.'],
+          phaseBenefit: 'Praktis untuk energi.',
+          emoji: 'egg',
+        },
+      ],
+      disclaimer: 'Panduan nutrisi umum.',
+    },
   });
 
-  assert.equal(mapped.recipes.length, 2);
-  assert.equal(mapped.recipes[0].title, 'Tumis Tempe');
-  assert.equal(mapped.groceries[0].name, 'Tempe');
-  assert.match(mapped.disclaimer, /nutrisi umum/i);
+  assert.equal(mapped.id, 'generation-1');
+  assert.equal(mapped.generatedForDate, '2026-05-31');
+  assert.equal(mapped.result.recipes.length, 2);
+  assert.equal(mapped.result.groceries[0].name, 'Tempe');
 });
 ```
 
@@ -477,7 +680,7 @@ npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts
 
 Expected: FAIL because `todayRecipes.ts` does not exist.
 
-- [ ] **Step 3: Add recipe types and mapper**
+- [ ] **Step 3: Add recipe types and mappers**
 
 Create `mobile-app/src/lib/todayRecipes.ts`:
 
@@ -505,6 +708,14 @@ export interface TodayRecipesResult {
   groceries: TodayRecipeGrocery[];
   recipes: TodayRecipe[];
   disclaimer: string;
+}
+
+export interface TodayRecipeGeneration {
+  id: string;
+  generatedForDate: string;
+  phase: string;
+  creditCost: number;
+  result: TodayRecipesResult;
 }
 
 function stringArray(value: unknown) {
@@ -537,6 +748,16 @@ export function mapApiTodayRecipes(value: any): TodayRecipesResult {
     disclaimer: String(value?.disclaimer || ''),
   };
 }
+
+export function mapApiTodayRecipeGeneration(row: any): TodayRecipeGeneration {
+  return {
+    id: String(row?.id || ''),
+    generatedForDate: String(row?.generated_for_date || row?.generatedForDate || ''),
+    phase: String(row?.phase || ''),
+    creditCost: Number(row?.credit_cost || row?.creditCost || 0),
+    result: mapApiTodayRecipes(row?.result || row),
+  };
+}
 ```
 
 - [ ] **Step 4: Run mapper test**
@@ -556,7 +777,7 @@ git commit -m "feat: add today recipe mapper"
 
 ---
 
-## Task 4: Mobile Resep Hari Ini UI
+## Task 5: Mobile Resep Hari Ini UI With Saved Recovery
 
 **Files:**
 - Create: `mobile-app/components/habits/TodayRecipesCard.tsx`
@@ -595,7 +816,7 @@ export function TodayRecipesCard({ onOpen }: { onOpen: () => void }) {
         <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '800', textTransform: 'uppercase' }}>Resep Hari Ini</Text>
         <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>2 resep sesuai fase siklus</Text>
         <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18 }}>
-          Menu sederhana dengan bahan lokal yang mudah dicari.
+          Menu sederhana dengan bahan lokal. Hasil hari ini tersimpan setelah dibuat.
         </Text>
       </View>
       <FontAwesome name="chevron-right" size={13} color="#16a34a" />
@@ -609,11 +830,15 @@ export function TodayRecipesCard({ onOpen }: { onOpen: () => void }) {
 Create `mobile-app/components/habits/TodayRecipesModal.tsx`:
 
 ```tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { apiPostJson } from '../../src/lib/api';
-import { mapApiTodayRecipes, type TodayRecipesResult } from '../../src/lib/todayRecipes';
+import { format } from 'date-fns';
+import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import {
+  mapApiTodayRecipeGeneration,
+  type TodayRecipeGeneration,
+} from '../../src/lib/todayRecipes';
 
 interface Props {
   visible: boolean;
@@ -625,22 +850,46 @@ interface Props {
 }
 
 export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextPeriod, nickname, onClose }: Props) {
-  const [result, setResult] = useState<TodayRecipesResult | null>(null);
+  const [generation, setGeneration] = useState<TodayRecipeGeneration | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dateKey = format(new Date(), 'yyyy-MM-dd');
+
+  useEffect(() => {
+    if (!visible) return;
+    let mounted = true;
+    setFetching(true);
+    setError(null);
+    apiGetJson<{ generation: any | null; result: unknown | null }>(`/api/recipes/today?date=${dateKey}`)
+      .then((json) => {
+        if (!mounted) return;
+        setGeneration(json.generation ? mapApiTodayRecipeGeneration(json.generation) : null);
+      })
+      .catch((err: any) => {
+        if (mounted) setError(err.message || 'Gagal mengambil resep hari ini.');
+      })
+      .finally(() => {
+        if (mounted) setFetching(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [visible, dateKey]);
 
   const generate = async () => {
     setLoading(true);
     setError(null);
     try {
-      const json = await apiPostJson<{ result: unknown; balance: number }>('/api/generate-recipes', {
+      const json = await apiPostJson<{ generation: any; result: unknown; balance: number | null }>('/api/generate-recipes', {
+        generatedForDate: dateKey,
         phase: currentPhase,
         cycleDay,
         daysToNextPeriod,
         nickname,
       });
-      setResult(mapApiTodayRecipes(json.result));
+      setGeneration(mapApiTodayRecipeGeneration(json.generation));
       setBalance(json.balance);
     } catch (err: any) {
       setError(err.message || 'Gagal membuat resep hari ini.');
@@ -648,6 +897,8 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
       setLoading(false);
     }
   };
+
+  const result = generation?.result || null;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -665,10 +916,17 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
             </View>
 
             <Text style={{ fontSize: 13, color: '#475569', lineHeight: 20 }}>
-              AI akan membuat 2 resep dan daftar belanja kecil dengan bahan Indonesia yang mudah dicari. Biaya 15 kredit setelah hasil valid.
+              AI membuat 2 resep dan daftar belanja kecil dengan bahan Indonesia yang mudah dicari. Biaya 15 kredit hanya saat membuat hasil baru.
             </Text>
 
-            {!result && (
+            {fetching && (
+              <View style={{ paddingVertical: 18, alignItems: 'center', gap: 8 }}>
+                <ActivityIndicator color="#16a34a" />
+                <Text style={{ fontSize: 12, color: '#64748b' }}>Mengambil resep tersimpan...</Text>
+              </View>
+            )}
+
+            {!fetching && !result && (
               <TouchableOpacity
                 onPress={generate}
                 disabled={loading}
@@ -718,7 +976,9 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
                 ))}
 
                 <Text style={{ fontSize: 11, color: '#94a3b8', lineHeight: 16 }}>{result.disclaimer}</Text>
-                {balance !== null && <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '700' }}>Sisa kredit AI: {balance}</Text>}
+                <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '700' }}>
+                  {balance !== null ? `Sisa kredit AI: ${balance}` : 'Resep hari ini sudah tersimpan.'}
+                </Text>
               </View>
             )}
           </ScrollView>
@@ -789,12 +1049,21 @@ git commit -m "feat: add today recipes ui"
 
 ---
 
-## Task 5: Verification
+## Task 6: Apply Migration And Verification
 
 **Files:**
 - No new files unless fixes are needed.
 
-- [ ] **Step 1: Run backend focused tests**
+- [ ] **Step 1: Push Supabase migration**
+
+```powershell
+npx.cmd supabase db push --dry-run
+npx.cmd supabase db push
+```
+
+Expected: `recipe_generations` migration applies to the linked Supabase project.
+
+- [ ] **Step 2: Run backend focused tests**
 
 ```powershell
 npx.cmd tsx backend/ai/helpers.test.ts
@@ -802,7 +1071,7 @@ npx.cmd tsx backend/ai/helpers.test.ts
 
 Expected: all tests PASS.
 
-- [ ] **Step 2: Run mobile focused tests**
+- [ ] **Step 3: Run mobile focused tests**
 
 ```powershell
 npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts
@@ -812,23 +1081,23 @@ npx.cmd tsx mobile-app/src/lib/cycleGuideSummary.test.ts
 
 Expected: all tests PASS.
 
-- [ ] **Step 3: Run backend typecheck**
+- [ ] **Step 4: Run backend typecheck**
 
 ```powershell
-npx.cmd tsc --noEmit --skipLibCheck --module ESNext --moduleResolution bundler --target ES2022 backend/index.ts backend/ai/openRouter.ts backend/ai/schemas.ts backend/ai/credits.ts
+npx.cmd tsc --noEmit --skipLibCheck --module ESNext --moduleResolution bundler --target ES2022 backend/index.ts backend/ai/openRouter.ts backend/ai/schemas.ts backend/ai/credits.ts backend/ai/recipeSummary.ts
 ```
 
 Expected: PASS.
 
-- [ ] **Step 4: Run root lint and record baseline**
+- [ ] **Step 5: Run root lint and record baseline**
 
 ```powershell
 npm.cmd run lint
 ```
 
-Expected: If the existing mobile alias and `DatePickerField` baseline errors remain, record them in the final verification note. No new recipe-related TypeScript errors should appear.
+Expected: If existing unrelated mobile alias and `DatePickerField` baseline errors remain, record them in the final verification note. No new recipe-related TypeScript errors should appear.
 
-- [ ] **Step 5: Run Expo web build**
+- [ ] **Step 6: Run Expo web build**
 
 ```powershell
 Set-Location mobile-app
@@ -837,7 +1106,7 @@ npm.cmd run build:web
 
 Expected: PASS. If sandbox blocks writing NativeWind or Expo cache, rerun with approved elevated permissions.
 
-- [ ] **Step 6: Manual smoke test**
+- [ ] **Step 7: Manual smoke test**
 
 ```powershell
 Set-Location mobile-app
@@ -847,23 +1116,26 @@ npm.cmd run web -- --port 8082
 Open `http://localhost:8082/habits` and verify:
 
 - Resep Hari Ini card appears under Habit Coach.
-- Modal opens.
-- Generate button says 15 credits.
+- Modal opens and fetches saved recipe for today.
+- If no saved recipe exists, generate button says 15 credits.
 - Insufficient credits shows a friendly error.
 - Successful generation shows 2 recipes, a grocery list, phase benefit, disclaimer, and remaining credit balance.
+- Close and reopen modal; the saved result appears without charging again.
+- Reload the page; the saved result can still be fetched.
 
-- [ ] **Step 7: Commit verification fixes only if needed**
+- [ ] **Step 8: Commit verification fixes only if needed**
 
 ```powershell
 git add <changed-files>
-git commit -m "fix: harden today recipes flow"
+git commit -m "fix: harden saved today recipes flow"
 ```
 
 ---
 
 ## Self-Review
 
-- Spec coverage: The plan covers two recipes, a small grocery list, phase benefits, Indonesian-local ingredient constraints, 15-credit charging, and no vision/history for MVP.
+- Spec coverage: The plan covers saved recipe generations, two recipes, a small grocery list, phase benefits, Indonesian-local ingredient constraints, 15-credit charging, and no vision/history UI for MVP.
 - Placeholder scan: No placeholder markers or deferred-work wording remain.
-- Type consistency: Backend result shape and mobile `TodayRecipesResult` use the same fields: `phaseBenefit`, `groceries`, `recipes`, and `disclaimer`.
-- Scope check: The plan is intentionally limited to "Resep Hari Ini" and does not include weekly meal planning, AI vision, saved recipe history, or Mayar top-up changes.
+- Type consistency: Backend result shape and mobile `TodayRecipesResult` use `phaseBenefit`, `groceries`, `recipes`, and `disclaimer`; saved rows map through `TodayRecipeGeneration`.
+- Credit consistency: Recipe credit ledger entries use the saved generation id as `reference_id`, matching the existing Habit Coach and Panduan Siklus safety pattern.
+- Scope check: The plan is limited to "Resep Hari Ini" and does not include weekly meal planning, AI vision, full recipe history UI, or Mayar top-up changes.

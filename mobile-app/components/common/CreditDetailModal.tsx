@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
-import { supabase } from '../../src/lib/supabase';
+import { apiGetJson, apiPostJson } from '../../src/lib/api';
 
 interface TopUpPackage {
   id: string;
@@ -35,24 +35,11 @@ export function CreditDetailModal({ visible, onClose }: { visible: boolean, onCl
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession) return;
+      const bData = await apiGetJson<{ balance: number }>('/api/ai/credits');
+      setBalance(bData.balance ?? 0);
       
-      const balanceRes = await fetch('https://app.siklusio.web.id/api/ai/credits', {
-        headers: { 'Authorization': `Bearer ${currentSession.access_token}` }
-      });
-      if (balanceRes.ok) {
-        const bData = await balanceRes.json();
-        setBalance(bData.balance || 0);
-      }
-      
-      const histRes = await fetch('https://app.siklusio.web.id/api/ai/credits/history', {
-        headers: { 'Authorization': `Bearer ${currentSession.access_token}` }
-      });
-      if (histRes.ok) {
-        const hData = await histRes.json();
-        setHistory(hData.history || []);
-      }
+      const hData = await apiGetJson<{ history: any[] }>('/api/ai/credits/history');
+      setHistory(hData.history || []);
     } catch (e) {
       console.warn("Error fetching credits:", e);
     }
@@ -62,30 +49,19 @@ export function CreditDetailModal({ visible, onClose }: { visible: boolean, onCl
   const handleTopUp = async (pkg: TopUpPackage) => {
     setLoadingTopup(pkg.id);
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession) return;
-
-      const res = await fetch('https://app.siklusio.web.id/api/checkout/topup', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${currentSession.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          packageId: pkg.id,
-          price: pkg.price,
-          credits: pkg.credits
-        })
+      const data = await apiPostJson<{ paymentUrl?: string; error?: string }>('/api/checkout/topup', {
+        packageId: pkg.id,
+        price: pkg.price,
+        credits: pkg.credits
       });
-      const data = await res.json();
       if (data.paymentUrl) {
         Linking.openURL(data.paymentUrl);
       } else {
         alert(data.error || "Gagal membuat tautan pembayaran");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Topup error:", e);
-      alert("Terjadi kesalahan sistem. Silakan coba lagi nanti.");
+      alert(e.message || "Terjadi kesalahan sistem. Silakan coba lagi nanti.");
     }
     setLoadingTopup(null);
   };

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'siklusio-cache-v1';
+const CACHE_NAME = 'siklusio-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -25,6 +25,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('SW: Clearing old cache:', cache);
             return caches.delete(cache);
           }
         })
@@ -34,29 +35,34 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch handler - REQUIRED for PWA installability prompt
+// Fetch handler - Stale-While-Revalidate with API bypass
 self.addEventListener('fetch', (event) => {
   if (!event.request.url.startsWith('http')) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
+  // 1. NEVER cache API requests (always fetch from network)
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+  // 2. Stale-While-Revalidate strategy for static assets
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Fallback if network fails
+          return cachedResponse;
         });
 
-        return response;
-      }).catch(() => {
-        return caches.match('/index.html');
+        // Return cached response instantly if available, otherwise fetch from network
+        return cachedResponse || fetchPromise;
       });
     })
   );
 });
+

@@ -6,26 +6,27 @@ import { useCycle } from '../src/context/CycleContext';
 
 export default function IndexPage() {
   const { session, isLoading: authLoading } = useAuth();
-  const { isOnboardingCompleted } = useCycle();
+  const { isOnboardingCompleted, isProfileLoading } = useCycle();
   const router = useRouter();
-  const navigatedRef = useRef(false);
+  const lastNavigatedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (authLoading) return;
-    // Only navigate ONCE — without this guard, any re-render of CycleProvider
-    // (which can be triggered by other state updates) re-runs router.replace
-    // and creates an infinite navigation loop in React Navigation 7.
-    if (navigatedRef.current) return;
-    navigatedRef.current = true;
+    // Wait for auth session and wait for cloud profile to finish fetching (if logged in)
+    if (authLoading || (session && isProfileLoading)) return;
 
+    let targetPath = '';
     if (!session) {
-      router.replace('/auth');
+      targetPath = '/auth';
     } else if (!isOnboardingCompleted) {
-      router.replace('/onboarding');
+      targetPath = '/onboarding';
     } else {
-      router.replace('/(tabs)/dashboard');
+      targetPath = '/(tabs)/dashboard';
     }
-  }, [session, authLoading, isOnboardingCompleted, router]);
+
+    if (lastNavigatedRef.current === targetPath) return;
+    lastNavigatedRef.current = targetPath;
+    router.replace(targetPath as any);
+  }, [session, authLoading, isOnboardingCompleted, isProfileLoading, router]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fdf2f8' }}>

@@ -3,6 +3,7 @@ import { subDays, format } from 'date-fns';
 import { parseLocalDate } from '../lib/dateUtils';
 import { storage } from '../lib/storage';
 import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   CyclePhase,
   Task,
@@ -59,6 +60,7 @@ interface CycleContextType {
   getDayInfo: (date: Date) => { phase: string; displayPhase: string; cycleDay: number; isManualPeriod: boolean };
   isOnboardingCompleted: boolean;
   setIsOnboardingCompleted: (val: boolean) => void;
+  isProfileLoading: boolean;
 }
 
 const CycleContext = createContext<CycleContextType | undefined>(undefined);
@@ -125,6 +127,8 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   const [targetSaving, setTargetSaving] = usePersistentState<number>('hs_v3_targetSaving', 0);
   const [currentSaving, setCurrentSaving] = usePersistentState<number>('hs_v3_currentSaving', 0);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = usePersistentState<boolean>('hs_onboardingCompleted', false);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const profileSyncUserRef = useRef<string | null>(null);
   const activityInitialSyncUserRef = useRef<string | null>(null);
   const activityInitialSyncDoneUserRef = useRef<string | null>(null);
   const activitySyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -160,6 +164,84 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         });
     }
   }, [lastPeriodDate, cycleLength, periodLength]);
+
+  useEffect(() => {
+    profileSyncUserRef.current = null;
+    if (user?.id) {
+      setIsProfileLoading(true);
+    } else {
+      setIsProfileLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || profileSyncUserRef.current === user.id) return;
+    profileSyncUserRef.current = user.id;
+
+    let cancelled = false;
+
+    const loadCloudProfile = async () => {
+      try {
+        if (!supabase) {
+          setIsProfileLoading(false);
+          return;
+        }
+
+        const { data: cloudProfile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (cancelled) return;
+
+        if (error) {
+          console.warn('[CycleContext] Gagal memuat profil cloud:', error);
+          setIsProfileLoading(false);
+          return;
+        }
+
+        if (cloudProfile) {
+          const hasCompletedOnboardingCloud = !!(cloudProfile.nickname || cloudProfile.last_period_date);
+
+          if (hasCompletedOnboardingCloud) {
+            if (cloudProfile.nickname) setUserNickname(cloudProfile.nickname);
+            if (cloudProfile.children_count) setChildrenCount(cloudProfile.children_count);
+            if (cloudProfile.cycle_length) setCycleLength(Number(cloudProfile.cycle_length));
+            if (cloudProfile.period_length) setPeriodLength(Number(cloudProfile.period_length));
+            if (cloudProfile.last_period_date) {
+              setLastPeriodDate(parseLocalDate(cloudProfile.last_period_date));
+            }
+            if (cloudProfile.husband_name) setHusbandName(cloudProfile.husband_name);
+            if (cloudProfile.husband_nickname) setHusbandNickname(cloudProfile.husband_nickname);
+            if (cloudProfile.husband_number) setHusbandNumber(cloudProfile.husband_number);
+            if (cloudProfile.birth_date) {
+              setUserBirthDate(parseLocalDate(cloudProfile.birth_date));
+            }
+            if (cloudProfile.avatar_url) setAvatarUrl(cloudProfile.avatar_url);
+            if (cloudProfile.avatar_kind) setAvatarKind(cloudProfile.avatar_kind as 'preset' | 'custom' | null);
+            if (cloudProfile.target_saving) setTargetSaving(Number(cloudProfile.target_saving));
+            if (cloudProfile.current_saving) setCurrentSaving(Number(cloudProfile.current_saving));
+
+            setIsOnboardingCompleted(true);
+            console.info('[CycleContext] Profil pengguna berhasil di-sync dari cloud, otomatis menyelesaikan onboarding.');
+          }
+        }
+      } catch (e) {
+        console.warn('[CycleContext] Exception saat load cloud profile:', e);
+      } finally {
+        if (!cancelled) {
+          setIsProfileLoading(false);
+        }
+      }
+    };
+
+    loadCloudProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     activityInitialSyncUserRef.current = null;
@@ -248,6 +330,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
       targetSaving, setTargetSaving,
       currentSaving, setCurrentSaving,
       isOnboardingCompleted, setIsOnboardingCompleted,
+      isProfileLoading,
       ...cycleData,
     }),
     [
@@ -258,6 +341,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
       husbandName, husbandNickname, husbandNumber,
       targetSaving, currentSaving,
       isOnboardingCompleted,
+      isProfileLoading,
       cycleData,
     ]
   );

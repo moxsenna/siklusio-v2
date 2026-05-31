@@ -1,16 +1,16 @@
 # Graph Report - remix_-siklusio  (2026-05-31)
 
 ## Corpus Check
-- 1127 files · ~809,522 words
+- 1136 files · ~820,298 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 12958 nodes · 16141 edges · 704 communities (658 shown, 46 thin omitted)
+- 13067 nodes · 16272 edges · 728 communities (683 shown, 45 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 14 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c48dbcb4`
+- Built from commit: `a9f8ad02`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -701,6 +701,29 @@
 - [[_COMMUNITY_Community 689|Community 689]]
 - [[_COMMUNITY_Community 690|Community 690]]
 - [[_COMMUNITY_Community 703|Community 703]]
+- [[_COMMUNITY_Community 704|Community 704]]
+- [[_COMMUNITY_Community 705|Community 705]]
+- [[_COMMUNITY_Community 706|Community 706]]
+- [[_COMMUNITY_Community 707|Community 707]]
+- [[_COMMUNITY_Community 708|Community 708]]
+- [[_COMMUNITY_Community 709|Community 709]]
+- [[_COMMUNITY_Community 710|Community 710]]
+- [[_COMMUNITY_Community 711|Community 711]]
+- [[_COMMUNITY_Community 712|Community 712]]
+- [[_COMMUNITY_Community 714|Community 714]]
+- [[_COMMUNITY_Community 715|Community 715]]
+- [[_COMMUNITY_Community 716|Community 716]]
+- [[_COMMUNITY_Community 717|Community 717]]
+- [[_COMMUNITY_Community 718|Community 718]]
+- [[_COMMUNITY_Community 719|Community 719]]
+- [[_COMMUNITY_Community 720|Community 720]]
+- [[_COMMUNITY_Community 721|Community 721]]
+- [[_COMMUNITY_Community 722|Community 722]]
+- [[_COMMUNITY_Community 723|Community 723]]
+- [[_COMMUNITY_Community 724|Community 724]]
+- [[_COMMUNITY_Community 725|Community 725]]
+- [[_COMMUNITY_Community 726|Community 726]]
+- [[_COMMUNITY_Community 727|Community 727]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `s` - 179 edges
@@ -726,59 +749,59 @@
 - `normalizeDateKey()` --calls--> `string()`  [INFERRED]
   mobile-app/src/lib/activityHistorySync.ts → mobile-app/.expo/audit-export/_expo/static/js/web/entry-79aede259881aaeffeb015697aba664c.js
 
-## Communities (704 total, 46 thin omitted)
+## Communities (728 total, 45 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.01
-Nodes (272): [A,E], [A,M], [A,v], abort(), {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b} (+264 more)
+Nodes (262): [A,E], [A,M], [A,v], {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b}, {addOptionsGetter:d} (+254 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.03
-Nodes (77): alert(), array(), b(), binaryEncode(), cancelTasks(), catch(), cf(), create() (+69 more)
+Cohesion: 0.04
+Nodes (7): $(), _initRealtimeClient(), _initSupabaseAuthClient(), J(), measureLayout(), o(), removeEventListener()
 
 ### Community 2 - "Community 2"
-Cohesion: 0.02
-Nodes (33): addChangeListener(), assert(), cancel(), canPush(), clear(), clearInteractionHandle(), componentWillUnmount(), configureNextLayoutAnimation() (+25 more)
+Cohesion: 0.06
+Nodes (65): ad(), Ae(), af(), ai(), Au(), bf(), bi(), cn() (+57 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.04
-Nodes (124): ad(), addEventListener(), af(), ai(), Al(), Au(), bf(), bi() (+116 more)
+Cohesion: 0.08
+Nodes (62): Al(), bl(), bu(), ci(), cl(), di(), dl(), ef() (+54 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.03
-Nodes (17): add(), backIndex(), dropTable(), eo(), __getNativeAnimationConfig(), hex(), hexa(), l() (+9 more)
+Cohesion: 0.04
+Nodes (4): emitChange(), l(), n, Re()
 
 ### Community 5 - "Community 5"
 Cohesion: 0.03
-Nodes (19): __addChild(), applyTransformOptsToQuery(), download(), exists(), fullBundleUrl(), __getChildren(), _getFinalPath(), __getNativeConfig() (+11 more)
+Nodes (9): __addChild(), __getAnimatedValue(), __getNativeConfig(), __getNativeTag(), __getValue(), __removeChild(), __startNativeAnimation(), toJSON() (+1 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.02
-Nodes (51): cancelRefEvent(), cancelTimeout(), channel(), clearHeartbeats(), connect(), connectWithFallback(), destroy(), disconnect() (+43 more)
+Cohesion: 0.03
+Nodes (30): cancel(), connect(), connectWithFallback(), deactivateAndFlush(), dispose(), f(), flushSendBuffer(), _handleTokenChanged() (+22 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.02
-Nodes (9): createInteractionHandle(), focus(), focusTextInput(), __getAnimatedValue(), getStateForHref(), __getValue(), __onAnimatedValueUpdateReceived(), s (+1 more)
+Cohesion: 0.03
+Nodes (4): addEventListener(), createInteractionHandle(), getStateForHref(), s
 
 ### Community 8 - "Community 8"
-Cohesion: 0.04
-Nodes (130): ac(), Ae(), ao(), At(), Ba(), bc(), bd(), bn() (+122 more)
+Cohesion: 0.10
+Nodes (51): ac(), bc(), cc(), Ce(), dc(), du(), ec(), ee() (+43 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.06
-Nodes (8): a(), binaryDecode(), decodeBroadcast(), decodePush(), decodeReply(), _getAccessToken(), _listenForAuthEvents(), onConnMessage()
+Cohesion: 0.07
+Nodes (4): a(), _getAccessToken(), is(), _listenForAuthEvents()
 
 ### Community 10 - "Community 10"
-Cohesion: 0.05
-Nodes (40): c, ca(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls() (+32 more)
+Cohesion: 0.12
+Nodes (15): 10. Komunitas Anonim & Column-Level Privacy Hardening, 11. Sistem Afiliasi & Mayar Checkout Integration, 12. SyncManager (Last-Write-Wins Offline Sync), 13. Portal Admin & Panel Moderasi, 1. Onboarding Personal & Profil Siklus, 2. Core Cycle Engine (Pelacakan Fase & Ovulasi), 3. Dashboard Interaktif & Dynamic Action Cards, 4. Daily Habits Logging & Symptom Tracking (+7 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.05
 Nodes (48): Authentication Middleware, Basic API Route, Calling API Routes from Client, code:block1 (app/), code:ts (export async function POST(request: Request) {), code:bash (npx expo serve), code:bash (curl http://localhost:8081/api/hello), code:bash (npm install -g eas-cli) (+40 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.02
-Nodes (30): $(), addListener(), computeBlankness(), computeViewableItems(), current(), deactivateAndFlush(), __debouncedOnEnd(), deviceName() (+22 more)
+Cohesion: 0.04
+Nodes (47): ajax(), batchSend(), c, ca(), copy(), createBucket(), createIndex(), createNamespace() (+39 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.04
@@ -798,7 +821,7 @@ Nodes (43): 1. Explicit Negation in Rules, 2. Entry in Rationalization Table, 3.
 
 ### Community 17 - "Community 17"
 Cohesion: 0.08
-Nodes (33): AvatarPicker(), AvatarPickerProps, HeaderProfileButton(), CommentsModal(), CommentsModalProps, ComposerModal(), ComposerModalProps, PHASE_OPTIONS (+25 more)
+Nodes (32): AvatarPicker(), AvatarPickerProps, CommentsModal(), CommentsModalProps, ComposerModal(), ComposerModalProps, PHASE_OPTIONS, PostCard() (+24 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.05
@@ -829,8 +852,8 @@ Cohesion: 0.05
 Nodes (38): Animated Components (`src/tw/animated.tsx`), Apple System Colors with CSS Variables, code:bash (# Install dependencies), code:tsx (import { View, Text, ScrollView, Image } from "@/tw";), code:css (@layer theme {), code:css (@media ios {), code:css (/* src/css/sf.css */), code:tsx (<Text className="text-sf-text">Primary text</Text>) (+30 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.11
-Nodes (23): AuthScreen(), IndexPage(), unstable_settings, CustomDropdownProps, DropdownOption, OnboardingScreen(), AuthContext, AuthContextType (+15 more)
+Cohesion: 0.13
+Nodes (19): AuthScreen(), IndexPage(), unstable_settings, CustomDropdownProps, DropdownOption, OnboardingScreen(), AuthContext, AuthContextType (+11 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.05
@@ -845,8 +868,8 @@ Cohesion: 0.05
 Nodes (37): App Endpoints, Base URL and Auth, Binding API (Workers), Client Provider (`FlagshipClientProvider`), code:typescript (type FlagshipEvaluationContext = Record<string, string | num), code:json ({), code:json ({), code:json ({) (+29 more)
 
 ### Community 29 - "Community 29"
-Cohesion: 0.09
-Nodes (29): HabitCoachCard(), Props, HabitCoachSheet(), initialQuestions, Props, renewalQuestions, HabitPlanWeekView(), DailyRecord (+21 more)
+Cohesion: 0.08
+Nodes (34): HabitCoachCard(), Props, HabitCoachSheet(), initialQuestions, Props, renewalQuestions, HabitPlanWeekView(), getLocalWeekEnd() (+26 more)
 
 ### Community 30 - "Community 30"
 Cohesion: 0.05
@@ -861,8 +884,8 @@ Cohesion: 0.06
 Nodes (36): code:typescript (import { Container } from "@cloudflare/containers";), code:typescript (onStart() {), code:typescript (onStop() {), code:typescript (onError(error: Error) {), code:typescript (onActivityExpired(): boolean {), code:typescript (export class ScheduledContainer extends Container {), code:typescript (const state = await container.getState();), code:typescript (export class MyContainer extends Container {) (+28 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.10
-Nodes (24): AdminAffiliatePanel(), toErrorMessage(), AdminModerationQueueRow, AdminUser, escapeCsvCell(), QueueItem, ReportRow, AffiliatePage() (+16 more)
+Cohesion: 0.09
+Nodes (25): AdminAffiliatePanel(), toErrorMessage(), AdminModerationQueueRow, AdminUser, escapeCsvCell(), QueueItem, ReportRow, AffiliatePage() (+17 more)
 
 ### Community 34 - "Community 34"
 Cohesion: 0.05
@@ -1013,8 +1036,8 @@ Cohesion: 0.06
 Nodes (29): API Protection, Block AI Scrapers, Bot Management Patterns, code:txt (# High security for checkout), code:txt (Public content: High threshold (score < 10)), code:txt (1. Default deny (all scores < 30)), code:typescript (import type { IncomingRequestCfProperties } from '@cloudflar), code:txt (# Enterprise: Combine bot score with JWT validation) (+21 more)
 
 ### Community 71 - "Community 71"
-Cohesion: 0.11
-Nodes (27): ActivityDailyRecord, ActivityHistory, AdaptiveCyclePrediction, AdaptiveCyclePredictionInput, calculateAdaptiveCyclePrediction(), calculateLastPredictionDelta(), clamp(), confidenceForValues() (+19 more)
+Cohesion: 0.12
+Nodes (23): AiReportModal(), AiReportModalProps, HistoryView(), normalizeDateKey(), ActivityDailyRecord, ActivityHistory, AdaptiveCyclePrediction, AdaptiveCyclePredictionInput (+15 more)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.06
@@ -1118,7 +1141,7 @@ Nodes (27): API Reference, Callback Signatures, Client-Side JavaScript API, code
 
 ### Community 97 - "Community 97"
 Cohesion: 0.07
-Nodes (27): ai, allowedFields, app, authUsersById, body, buffer, code, cycleSnapshot (+19 more)
+Nodes (29): ai, allowedFields, app, authUsersById, body, buffer, code, cycleSnapshot (+21 more)
 
 ### Community 98 - "Community 98"
 Cohesion: 0.07
@@ -1217,12 +1240,12 @@ Cohesion: 0.07
 Nodes (25): code:typescript (interface ForwardableEmailMessage {), code:typescript (import { createMimeMessage } from 'mimetext';), code:typescript (import {), code:typescript (if (blockList.includes(message.from)) {), code:typescript (await message.forward('inbox@example.com');), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (interface SendEmail {) (+17 more)
 
 ### Community 122 - "Community 122"
-Cohesion: 0.14
-Nodes (17): useCycle(), ActionCard(), ActionCardProps, AffirmationCard(), CycleCard(), CycleCardProps, MessageModal(), MessageModalProps (+9 more)
+Cohesion: 0.16
+Nodes (15): HeaderProfileButton(), useCycle(), ActionCard(), ActionCardProps, AffirmationCard(), CycleCard(), CycleCardProps, MessageModal() (+7 more)
 
 ### Community 123 - "Community 123"
-Cohesion: 0.12
-Nodes (21): AiReportModal(), AiReportModalProps, HistoryView(), ActivityHistoryMap, ActivityHistoryRow, activityHistoryToRows(), ActivityHistoryUpsertRow, hasDoneTask() (+13 more)
+Cohesion: 0.14
+Nodes (20): ActivityHistoryMap, ActivityHistoryRow, activityHistoryToRows(), ActivityHistoryUpsertRow, hasDoneTask(), isAuthoritativeLocalRecord(), mergeActivityHistories(), normalizeRecord() (+12 more)
 
 ### Community 124 - "Community 124"
 Cohesion: 0.07
@@ -1657,8 +1680,8 @@ Cohesion: 0.10
 Nodes (19): 401/403: "Unauthorized", 5400: "Invalid image format", 5401: "Image too large", 5403: "Image transformation failed", 9413: "Rate limit exceeded", Anti-Patterns, AVIF Gotchas, code:typescript (format: 'auto' // Recommended - negotiates best format) (+11 more)
 
 ### Community 232 - "Community 232"
-Cohesion: 0.15
-Nodes (15): CalendarGrid(), CalendarGridProps, CycleGuideCard(), Props, CycleGuideModal(), Props, buildCycleGuidePreview(), BuildCycleGuidePreviewInput (+7 more)
+Cohesion: 0.10
+Nodes (24): CalendarGrid(), CalendarGridProps, CycleGuideCard(), Props, CycleGuideModal(), buildCycleGuidePreview(), BuildCycleGuidePreviewInput, countObservedDays() (+16 more)
 
 ### Community 233 - "Community 233"
 Cohesion: 0.10
@@ -2301,8 +2324,8 @@ Cohesion: 0.14
 Nodes (12): Best Practices, code:bash (wrangler --version  # Requires v4.x+), code:bash (npm install -D wrangler@latest), code:bash (# Initialize new project), code:bash (# Create Pages project), FIRST: Check if Wrangler is installed, and if not, install it, Key Guidelines, Pages (Frontend Deployment) (+4 more)
 
 ### Community 393 - "Community 393"
-Cohesion: 0.19
-Nodes (9): messages, snapshot, buildCycleGuideSnapshot(), messages, summary, userPayload, summarizeActivityHistory(), buildCycleGuideMessages() (+1 more)
+Cohesion: 0.25
+Nodes (8): messages, summary, userPayload, hasDateRangeOverlap(), isDateKey(), isValidHabitCoachWindow(), summarizeActivityHistory(), buildHabitCoachMessages()
 
 ### Community 394 - "Community 394"
 Cohesion: 0.14
@@ -2441,8 +2464,8 @@ Cohesion: 0.17
 Nodes (11): code:sql (-- Deprecated (do not use)), code:sql (create policy "example" on table_name for select), code:sql (create policy "example" on table_name for update), code:bash (supabase --help                    # All top-level commands), Core Principles, Making and Committing Schema Changes, Reference Guides, Supabase (+3 more)
 
 ### Community 428 - "Community 428"
-Cohesion: 0.20
-Nodes (8): chargeAiCredits(), getAiCreditBalance(), grantPremiumInitialAiCredits(), body, calls, parsed, plan, supabaseAdmin
+Cohesion: 0.18
+Nodes (9): chargeAiCredits(), getAiCreditBalance(), grantPremiumInitialAiCredits(), body, calls, parsed, plan, result (+1 more)
 
 ### Community 429 - "Community 429"
 Cohesion: 0.21
@@ -2649,8 +2672,8 @@ Cohesion: 0.22
 Nodes (7): Cloudflare Images Skill Reference, Core Methods, In This Reference, Key Features, Quick Decision Tree, Reading Order, See Also
 
 ### Community 480 - "Community 480"
-Cohesion: 0.22
-Nodes (4): analytics, AnalyticsManager, EventParams, firebaseAnalyticsModule
+Cohesion: 0.05
+Nodes (6): abort(), close(), __debouncedOnEnd(), h(), replaceTransport(), stop()
 
 ### Community 481 - "Community 481"
 Cohesion: 0.28
@@ -3272,6 +3295,10 @@ Nodes (3): App Store (Production), TestFlight (Beta Testing), TestFlight vs App 
 Cohesion: 0.67
 Nodes (3): code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), code:bash (curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \), List All Flags (with pagination)
 
+### Community 647 - "Community 647"
+Cohesion: 0.50
+Nodes (3): ASSETS_TO_CACHE, fetchPromise, responseToCache
+
 ### Community 649 - "Community 649"
 Cohesion: 0.67
 Nodes (3): code:tsx (<NativeTabs.Trigger name="index" disableAutomaticContentInse), code:tsx (// In the screen), Safe Area Handling (SDK 55+)
@@ -3288,25 +3315,117 @@ Nodes (3): code:bash (./render-graphs.js ../some-skill           # Each diagram 
 Cohesion: 0.12
 Nodes (16): 1. Latar Belakang & Tujuan, 2.1 Palet Warna & Gradien Modern, 2.2 Glassmorphism & Hover Micro-animations, 2. Perubahan Desain Sistem Visual (CSS), 3.1 Hero Section: Mockup Handphone Cerdas, 3.2 Seksi Baru: Asisten AI Pintar (Ditambahkan ke Fitur), 3.3 Reframe Pricing: Bonus 500 Kredit AI, 3. Komponen & Tata Letak Landing Page (+8 more)
 
+### Community 704 - "Community 704"
+Cohesion: 0.21
+Nodes (12): TwwSanctuaryModal(), TwwSanctuaryModalProps, cleanText(), getTwwLetterSections(), getTwwTitle(), splitLegacyReassurance(), sections, TWW_MUSIC_MAP (+4 more)
+
+### Community 705 - "Community 705"
+Cohesion: 0.18
+Nodes (10): Architecture, Credit Rule, Data Flow, Error Handling, Goal, MVP Output, Out Of Scope, Product Boundary (+2 more)
+
+### Community 706 - "Community 706"
+Cohesion: 0.20
+Nodes (10): code:tsx (import React from 'react';), code:tsx (import React, { useEffect, useState } from 'react';), code:ts (import { TodayRecipesCard } from '../../components/habits/To), code:ts (const { currentPhase, cycleDay, daysToNextPeriod, activityHi), code:ts (const [recipesOpen, setRecipesOpen] = useState(false);), code:tsx (<View className="mb-6">), code:tsx (<TodayRecipesModal), code:powershell (npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts) (+2 more)
+
+### Community 707 - "Community 707"
+Cohesion: 0.22
+Nodes (9): code:powershell (npx.cmd supabase db push --dry-run), code:powershell (npx.cmd tsx backend/ai/helpers.test.ts), code:powershell (npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts), code:powershell (npx.cmd tsc --noEmit --skipLibCheck --module ESNext --module), code:powershell (npm.cmd run lint), code:powershell (Set-Location mobile-app), code:powershell (Set-Location mobile-app), code:powershell (git add <changed-files>) (+1 more)
+
+### Community 708 - "Community 708"
+Cohesion: 0.25
+Nodes (7): Backend, Database, File Structure, Mobile, Product Rules, Resep Hari Ini Implementation Plan, Self-Review
+
+### Community 709 - "Community 709"
+Cohesion: 0.25
+Nodes (8): code:ts (test("recipe credit charge should use saved generation id as), code:powershell (npx.cmd tsx backend/ai/helpers.test.ts), code:ts (import { buildRecipeCycleSnapshot } from "./ai/recipeSummary), code:ts (app.get("/api/recipes/today", async (c) => {), code:ts (app.post("/api/generate-recipes", async (c) => {), code:powershell (npx.cmd tsx backend/ai/helpers.test.ts), code:powershell (git add backend/index.ts backend/ai/helpers.test.ts backend/), Task 3: Backend Saved Recipe Endpoints
+
+### Community 710 - "Community 710"
+Cohesion: 0.29
+Nodes (7): code:powershell (git add backend/ai/schemas.ts backend/ai/helpers.test.ts bac), code:ts (import { buildRecipeCycleSnapshot } from "./recipeSummary";), code:powershell (npx.cmd tsx backend/ai/helpers.test.ts), code:ts (export function buildRecipeCycleSnapshot(body: any) {), code:ts (export const recipesGenerationSchema = {), code:powershell (npx.cmd tsx backend/ai/helpers.test.ts), Task 2: Backend Recipe Schema And Snapshot Helpers
+
+### Community 711 - "Community 711"
+Cohesion: 0.33
+Nodes (6): code:ts (import test from 'node:test';), code:powershell (npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts), code:ts (export interface TodayRecipeGrocery {), code:powershell (npx.cmd tsx mobile-app/src/lib/todayRecipes.test.ts), code:powershell (git add mobile-app/src/lib/todayRecipes.ts mobile-app/src/li), Task 4: Mobile Recipe Types And Saved Mapper
+
+### Community 712 - "Community 712"
+Cohesion: 0.40
+Nodes (5): code:sql (-- =========================================================), code:powershell (New-Item -ItemType Directory -Force supabase\migrations | Ou), code:powershell (npx.cmd supabase db push --dry-run), code:powershell (git add supabase/recipe_generations.sql supabase/migrations/), Task 1: Recipe Generation Database Schema
+
+### Community 714 - "Community 714"
+Cohesion: 0.04
+Nodes (50): appendParams(), b(), binaryEncode(), cancelTasks(), cf(), cloneRequestState(), create(), current() (+42 more)
+
+### Community 715 - "Community 715"
+Cohesion: 0.03
+Nodes (22): cancelRefEvent(), cancelTimeout(), canPush(), configureNextLayoutAnimation(), decode(), destroy(), disconnect(), leave() (+14 more)
+
+### Community 716 - "Community 716"
+Cohesion: 0.22
+Nodes (4): analytics, AnalyticsManager, EventParams, firebaseAnalyticsModule
+
+### Community 717 - "Community 717"
+Cohesion: 0.06
+Nodes (12): add(), addChangeListener(), bd(), clear(), clearInteractionHandle(), delete(), get(), init() (+4 more)
+
+### Community 718 - "Community 718"
+Cohesion: 0.08
+Nodes (23): catch(), channel(), computeViewableItems(), dn(), fetchRequest(), _genPromise(), getChannels(), getInitialState() (+15 more)
+
+### Community 719 - "Community 719"
+Cohesion: 0.09
+Nodes (41): ao(), Ba(), bo(), cd(), co(), De(), Do(), fo() (+33 more)
+
+### Community 720 - "Community 720"
+Cohesion: 0.08
+Nodes (20): addListener(), applyTransformOptsToQuery(), computeBlankness(), download(), dropTable(), exists(), fullBundleUrl(), _getFinalPath() (+12 more)
+
+### Community 721 - "Community 721"
+Cohesion: 0.06
+Nodes (31): containedBy(), contains(), eq(), gt(), gte(), ilike(), ilikeAllOf(), ilikeAnyOf() (+23 more)
+
+### Community 722 - "Community 722"
+Cohesion: 0.10
+Nodes (30): At(), bn(), cr(), er(), et(), eu(), ff(), fr() (+22 more)
+
+### Community 723 - "Community 723"
+Cohesion: 0.11
+Nodes (6): array(), componentWillUnmount(), ja(), object(), remove(), V()
+
+### Community 724 - "Community 724"
+Cohesion: 0.12
+Nodes (13): hasReceived(), inPendingSyncState(), isMember(), joinRef(), onClose(), onError(), onMessage(), onOpen() (+5 more)
+
+### Community 725 - "Community 725"
+Cohesion: 0.38
+Nodes (4): messages, snapshot, buildCycleGuideSnapshot(), buildCycleGuideMessages()
+
+### Community 726 - "Community 726"
+Cohesion: 0.67
+Nodes (6): as(), ls(), os(), rs(), ts(), us()
+
+### Community 727 - "Community 727"
+Cohesion: 0.47
+Nodes (5): binaryDecode(), decodeBroadcast(), decodePush(), decodeReply(), onConnMessage()
+
 ## Knowledge Gaps
-- **6030 isolated node(s):** `name`, `description`, `requestFramePermissions`, `majorCapabilities`, `name` (+6025 more)
+- **6106 isolated node(s):** `name`, `description`, `requestFramePermissions`, `majorCapabilities`, `name` (+6101 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **46 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **45 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `string()` connect `Community 4` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 33`, `Community 5`, `Community 6`, `Community 480`, `Community 71`, `Community 10`, `Community 12`, `Community 17`, `Community 123`, `Community 29`?**
+- **Why does `string()` connect `Community 720` to `Community 0`, `Community 480`, `Community 1`, `Community 3`, `Community 4`, `Community 5`, `Community 6`, `Community 33`, `Community 71`, `Community 232`, `Community 714`, `Community 715`, `Community 12`, `Community 717`, `Community 718`, `Community 716`, `Community 17`, `Community 29`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `o()` connect `Community 12` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 5`, `Community 6`, `Community 7`, `Community 8`, `Community 9`, `Community 10`?**
+- **Why does `l()` connect `Community 4` to `Community 0`, `Community 1`, `Community 480`, `Community 3`, `Community 2`, `Community 5`, `Community 6`, `Community 7`, `Community 9`, `Community 714`, `Community 715`, `Community 12`, `Community 717`, `Community 718`, `Community 720`, `Community 723`, `Community 724`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `normalizeDateKey()` connect `Community 123` to `Community 4`?**
+- **Why does `normalizeDateKey()` connect `Community 71` to `Community 720`, `Community 123`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
 - **What connects `name`, `description`, `requestFramePermissions` to the rest of the system?**
-  _6030 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _6106 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.006451167288299489 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.005732493560250741 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.03190574475404197 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.037654320987654324 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.020044742729306488 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.062004662004662 - nodes in this community are weakly interconnected._

@@ -14,6 +14,7 @@ import { MessageModal } from '../../components/dashboard/MessageModal';
 import { TwwActionCard } from '../../components/dashboard/TwwActionCard';
 import { TwwSanctuaryModal } from '../../components/dashboard/TwwSanctuaryModal';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
+import { HeaderCreditChip } from '../../components/common/HeaderCreditChip';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -67,7 +68,10 @@ export default function DashboardScreen() {
               {dateString}
             </Text>
           </View>
-          <HeaderProfileButton />
+          <View className="flex-row items-center gap-3">
+            <HeaderCreditChip />
+            <HeaderProfileButton />
+          </View>
         </View>
 
         {/* Affirmation Card between Date Header and Cycle Card Circle */}

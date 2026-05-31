@@ -118,7 +118,12 @@ Sistem ledger server-side yang aman untuk menjamin transparansi, keamanan, dan k
 Fase menunggu dua minggu (luteal) pasca-ovulasi hingga periode haid berikutnya sering kali memicu kecemasan hebat bagi pejuang promil (*symptom spotting*). TWW Sanctuary hadir sebagai ruang aman emosional.
 
 *   **Latihan Pernapasan (Breathing Exercise):** Fitur pemandu napas interaktif (tarik napas, tahan, embuskan) dengan animasi visual yang menenangkan untuk menurunkan tingkat stres secara instan. Pemandu napas ini bersifat opsional (tidak wajib dipicu oleh AI).
-*   **Audio Relaksasi:** Pemutar audio terintegrasi yang menyajikan musik latar berfrekuensi menenangkan (menggunakan berkas `tww_meditation.mp3`) untuk menemani waktu istirahat pengguna.
+*   **Audio Relaksasi & 4 Pilihan "Suasana Hati" (Mood Ambiances):** Pemutar audio terintegrasi yang menyajikan 4 kategori suasana suara relaksasi dinamis yang dapat dipilih oleh pengguna secara instan sesuai kondisi emosionalnya:
+    1.  **🍃 Suara Alam** (trek `tww_acoustic_nature.mp3` - melodi aliran sungai dan angin hutan untuk memulihkan cemas/panik).
+    2.  **🧘‍♀️ Meditasi** (trek `tww_deep_healing.mp3` - frekuensi meditasi dalam dengan deru ombak laut untuk bimbingan napas).
+    3.  **☕ Santai** (trek `tww_lofi_chill.mp3` - alunan lofi piano lembut dan intim pengiring menulis jurnal emosi).
+    4.  **✨ Tidur** (trek `tww_cinematic_lullaby.mp3` - instrumen selendang bintang pengantar tidur malam nyenyak).
+    Sistem aset dirancang menggunakan metode *lazy-loading getter* agar tidak memicu eror pemrosesan biner berekstensi `.mp3` pada rangkaian tes unit lokal di sisi server Node.js, namun dimuat dan dijalankan secara optimal pada runtime mobile.
 *   **Jurnal Emosi Harian:** Pengguna dapat menumpahkan perasaan cemas, harapan, atau kekhawatiran mereka dalam bentuk tulisan privat.
 *   **AI Calming Reassurance ("Surat Tenang"):** Pengguna mengirimkan isi jurnal emosinya untuk dianalisis oleh AI. AI backend mengembalikan struktur respons yang sangat detail dan granular: `title`, `opening`, `validation`, `grounding`, `affirmation`, `breathingTip`, dan `closing`. AI menggunakan sapaan intim "kamu" (menghindari kata kaku "Anda" atau "Bunda") dan disesuaikan langsung dengan nama panggilan pengguna untuk membangun kedekatan emosional sejati tanpa janji medis palsu.
 *   **Tampilan Animasi & Auto-Scroll Sekuensial:** Di aplikasi mobile, respons AI disajikan sebagai **"Surat Tenang"** yang muncul bagian demi bagian secara bergantian menggunakan transisi animasi *fade* dan *slide-up* yang halus. Layar juga akan melakukan *auto-scroll* secara perlahan ke bawah untuk memandu mata pengguna, kecuali jika pengguna menyentuh layar atau melakukan *scroll* secara manual.

@@ -85,9 +85,10 @@ export default function CommunityScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background dark:bg-[#120917]">
       <ScrollView
         style={{ flex: 1 }}
+        className="bg-pink-50 dark:bg-[#120917]"
         contentContainerStyle={{
           padding: 24,
           paddingBottom: 100,
@@ -113,10 +114,10 @@ export default function CommunityScreen() {
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
-            <Text className="text-3xl font-bold text-on-background">
+            <Text className="text-3xl font-bold text-fuchsia-950 dark:text-pink-50">
               Komunitas
             </Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+            <Text className="text-xs uppercase tracking-widest text-pink-700 dark:text-pink-300 font-bold mt-1">
               Ruang Saling Mendukung
             </Text>
           </View>
@@ -127,17 +128,17 @@ export default function CommunityScreen() {
         <TouchableOpacity
           onPress={() => setComposerOpen(true)}
           activeOpacity={0.9}
-          className="bg-surface border border-outline-variant rounded-[24px] p-4 flex-row items-center gap-3.5 mb-2 shadow-sm active:scale-[0.99]"
+          className="bg-white dark:bg-[#1c0f24] border border-pink-200 dark:border-[#ec4899]/15 rounded-[24px] p-4 flex-row items-center gap-3.5 mb-2 shadow-sm active:scale-[0.99]"
         >
-          <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center shrink-0">
+          <View className="w-10 h-10 rounded-full bg-pink-100 dark:bg-purple-950/40 items-center justify-center shrink-0">
             <Text className="text-lg">🌸</Text>
           </View>
-          <View className="flex-1 bg-surface-variant border border-outline-variant/40 rounded-full px-4 py-3 justify-center">
-            <Text className="text-xs text-on-surface-variant/70 font-medium">
+          <View className="flex-1 bg-pink-50 dark:bg-purple-950/20 border border-pink-205/40 dark:border-[#ec4899]/10 rounded-full px-4 py-3 justify-center">
+            <Text className="text-xs text-pink-909/70 dark:text-pink-300 font-medium">
               Bagikan cerita, curhat, atau info promil Bunda hari ini... ✨
             </Text>
           </View>
-          <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center shrink-0">
+          <View className="w-8 h-8 rounded-full bg-primary/20 dark:bg-[#ec4899]/30 items-center justify-center shrink-0">
             <FontAwesome name="pencil" size={14} color="#ec4899" />
           </View>
         </TouchableOpacity>

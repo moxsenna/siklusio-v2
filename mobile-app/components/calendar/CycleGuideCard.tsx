@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import type { CycleGuidePreview } from '../../src/lib/cycleGuideSummary';
+import { useTheme } from '../../src/context/ThemeContext';
 
 interface Props {
   preview: CycleGuidePreview;
@@ -9,51 +10,50 @@ interface Props {
 }
 
 export function CycleGuideCard({ preview, onOpen }: Props) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+  const accentColor = isDark ? '#ec4899' : '#db2777';
+
   return (
     <TouchableOpacity
       onPress={onOpen}
       activeOpacity={0.9}
-      style={{
-        marginTop: 24,
-        backgroundColor: '#fdf2f8',
-        borderWidth: 1,
-        borderColor: '#fbcfe8',
-        borderRadius: 28,
-        padding: 18,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 14,
-      }}
+      className="mt-6 bg-pink-50 dark:bg-[#1c0f24] border border-pink-200 dark:border-[#ec4899]/15 rounded-[28px] p-[18px] flex-row items-center gap-[14px]"
     >
       <View
-        style={{
-          width: 46,
-          height: 46,
-          borderRadius: 16,
-          backgroundColor: '#fce7f3',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        className="w-[46px] h-[46px] rounded-[16px] bg-pink-100 dark:bg-purple-950/40 items-center justify-center"
       >
-        <FontAwesome name="calendar-check-o" size={18} color="#db2777" />
+        <FontAwesome name="calendar-check-o" size={18} color={accentColor} />
       </View>
 
-      <View style={{ flex: 1, gap: 4 }}>
-        <Text style={{ fontSize: 11, color: '#db2777', fontWeight: '800', textTransform: 'uppercase' }}>
+      <View className="flex-1 gap-1">
+        <Text 
+          style={{ color: accentColor }}
+          className="text-[11px] font-extrabold uppercase"
+        >
           Panduan Siklus
         </Text>
-        <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>
+        <Text 
+          style={{ color: isDark ? '#fdf2f8' : '#111827' }} 
+          className="text-base font-extrabold"
+        >
           {preview.title}
         </Text>
-        <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18 }}>
+        <Text 
+          style={{ color: isDark ? '#fbcfe8' : '#475569' }} 
+          className="text-xs leading-[18px]"
+        >
           {preview.summary}
         </Text>
-        <Text style={{ fontSize: 11, color: '#db2777', fontWeight: '700' }}>
+        <Text 
+          style={{ color: accentColor }} 
+          className="text-[11px] font-bold"
+        >
           Akurasi: {preview.confidenceLabel}
         </Text>
       </View>
 
-      <FontAwesome name="chevron-right" size={13} color="#db2777" />
+      <FontAwesome name="chevron-right" size={13} color={accentColor} />
     </TouchableOpacity>
   );
 }

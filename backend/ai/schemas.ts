@@ -183,10 +183,13 @@ export function validateCycleGuide(value: unknown): CycleGuideAiResult {
 export const recipesGenerationSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["groceries", "recipes"],
+  required: ["phaseBenefit", "groceries", "recipes", "disclaimer"],
   properties: {
+    phaseBenefit: { type: "string" },
     groceries: {
       type: "array",
+      minItems: 3,
+      maxItems: 6,
       items: {
         type: "object",
         additionalProperties: false,
@@ -195,28 +198,50 @@ export const recipesGenerationSchema = {
           id: { type: "integer" },
           name: { type: "string" },
           desc: { type: "string" },
-          emoji: { type: "string" }
-        }
-      }
+          emoji: { type: "string" },
+        },
+      },
     },
     recipes: {
       type: "array",
+      minItems: 2,
+      maxItems: 2,
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["id", "title", "description", "ingredients", "emoji"],
+        required: [
+          "id",
+          "title",
+          "description",
+          "cookingTime",
+          "ingredients",
+          "steps",
+          "phaseBenefit",
+          "emoji",
+        ],
         properties: {
           id: { type: "integer" },
           title: { type: "string" },
           description: { type: "string" },
+          cookingTime: { type: "string" },
           ingredients: {
             type: "array",
-            items: { type: "string" }
+            minItems: 3,
+            maxItems: 8,
+            items: { type: "string" },
           },
-          emoji: { type: "string" }
-        }
-      }
-    }
+          steps: {
+            type: "array",
+            minItems: 2,
+            maxItems: 6,
+            items: { type: "string" },
+          },
+          phaseBenefit: { type: "string" },
+          emoji: { type: "string" },
+        },
+      },
+    },
+    disclaimer: { type: "string" },
   }
 };
 
@@ -280,7 +305,18 @@ export const calmingReassuranceSchema = {
 
 export interface RecipesGenerationResult {
   groceries: Array<{ id: number; name: string; desc: string; emoji: string }>;
-  recipes: Array<{ id: number; title: string; description: string; ingredients: string[]; emoji: string }>;
+  phaseBenefit: string;
+  recipes: Array<{
+    id: number;
+    title: string;
+    description: string;
+    cookingTime: string;
+    ingredients: string[];
+    steps: string[];
+    phaseBenefit: string;
+    emoji: string;
+  }>;
+  disclaimer: string;
 }
 
 export interface CycleReportResult {
@@ -312,6 +348,44 @@ export function validateRecipesGeneration(value: unknown): RecipesGenerationResu
   if (!isPlainRecord(value) || !Array.isArray(value.groceries) || !Array.isArray(value.recipes)) {
     throw new Error("Invalid recipes generation payload");
   }
+  assertString(value.phaseBenefit, "Recipe phase benefit is required");
+  assertString(value.disclaimer, "Recipe disclaimer is required");
+
+  if (value.groceries.length < 3 || value.groceries.length > 6) {
+    throw new Error("Recipe grocery list must contain 3 to 6 items");
+  }
+  if (value.recipes.length !== 2) {
+    throw new Error("Recipe generation must contain exactly 2 recipes");
+  }
+
+  value.groceries.forEach((item) => {
+    if (!isPlainRecord(item)) throw new Error("Invalid grocery item payload");
+    if (typeof item.id !== "number") throw new Error("Grocery id is required");
+    assertString(item.name, "Grocery name is required");
+    assertString(item.desc, "Grocery desc is required");
+    assertString(item.emoji, "Grocery emoji is required");
+  });
+
+  value.recipes.forEach((recipe) => {
+    if (!isPlainRecord(recipe)) throw new Error("Invalid recipe payload");
+    if (typeof recipe.id !== "number") throw new Error("Recipe id is required");
+    assertString(recipe.title, "Recipe title is required");
+    assertString(recipe.description, "Recipe description is required");
+    assertString(recipe.cookingTime, "Recipe cooking time is required");
+    assertString(recipe.phaseBenefit, "Recipe phase benefit is required");
+    assertString(recipe.emoji, "Recipe emoji is required");
+
+    if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length < 3 || recipe.ingredients.length > 8) {
+      throw new Error("Recipe ingredients must contain 3 to 8 items");
+    }
+    if (!Array.isArray(recipe.steps) || recipe.steps.length < 2 || recipe.steps.length > 6) {
+      throw new Error("Recipe steps must contain 2 to 6 items");
+    }
+
+    recipe.ingredients.forEach((item) => assertString(item, "Recipe ingredient is required"));
+    recipe.steps.forEach((item) => assertString(item, "Recipe step is required"));
+  });
+
   return value as unknown as RecipesGenerationResult;
 }
 

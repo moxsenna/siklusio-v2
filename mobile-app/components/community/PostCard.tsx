@@ -12,6 +12,7 @@ import {
 } from '../../src/lib/communityTypes';
 import { resolveAvatarSource } from '../../src/lib/avatars';
 import { PostReactionState } from '../../src/hooks/useCommunityFeed';
+import { useTheme } from '../../src/context/ThemeContext';
 
 interface PostCardProps {
   post: CommunityFeedItem;
@@ -30,6 +31,9 @@ export function PostCard({
   onReport,
   onDeleteOwn,
 }: PostCardProps) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
+
   const dateLabel = (() => {
     try {
       return format(new Date(post.created_at), "d MMM 'pukul' HH:mm", {
@@ -61,10 +65,10 @@ export function PostCard({
   return (
     <View
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: isDark ? '#1c0f24' : '#fff',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: '#f1e6eb',
+        borderColor: isDark ? 'rgba(236,72,153,0.15)' : '#f1e6eb',
         padding: 18,
         gap: 12,
       }}
@@ -83,7 +87,7 @@ export function PostCard({
               width: 36,
               height: 36,
               borderRadius: 18,
-              backgroundColor: '#e2e8f0',
+              backgroundColor: isDark ? '#120917' : '#e2e8f0',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -91,7 +95,7 @@ export function PostCard({
             <FontAwesome
               name="user-secret"
               size={16}
-              color="#64748b"
+              color={isDark ? '#ec4899' : '#64748b'}
             />
           </View>
         ) : (
@@ -109,7 +113,7 @@ export function PostCard({
                     height: 36,
                     borderRadius: 18,
                     borderWidth: 1,
-                    borderColor: '#fce7f3',
+                    borderColor: isDark ? 'rgba(236,72,153,0.15)' : '#fce7f3',
                   }}
                 />
               );
@@ -120,7 +124,7 @@ export function PostCard({
                   width: 36,
                   height: 36,
                   borderRadius: 18,
-                  backgroundColor: '#fce7f3',
+                  backgroundColor: isDark ? '#120917' : '#fce7f3',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -132,10 +136,10 @@ export function PostCard({
         )}
 
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#1e1b20' }}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', color: isDark ? '#fdf2f8' : '#1e1b20' }}>
             {post.display_name}
           </Text>
-          <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+          <Text style={{ fontSize: 11, color: isDark ? '#fbcfe8' : '#94a3b8', marginTop: 2 }}>
             {dateLabel}
             {post.phase_tag ? ` · ${post.phase_tag}` : ''}
           </Text>
@@ -147,7 +151,7 @@ export function PostCard({
             accessibilityLabel="Hapus postingan"
             style={{ padding: 6 }}
           >
-            <FontAwesome name="trash-o" size={16} color="#94a3b8" />
+            <FontAwesome name="trash-o" size={16} color={isDark ? '#fbcfe8' : '#94a3b8'} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
@@ -155,7 +159,7 @@ export function PostCard({
             accessibilityLabel="Laporkan postingan"
             style={{ padding: 6 }}
           >
-            <FontAwesome name="flag-o" size={16} color="#94a3b8" />
+            <FontAwesome name="flag-o" size={16} color={isDark ? '#fbcfe8' : '#94a3b8'} />
           </TouchableOpacity>
         )}
       </View>
@@ -165,7 +169,7 @@ export function PostCard({
         style={{
           fontSize: 14,
           lineHeight: 21,
-          color: '#1e1b20',
+          color: isDark ? '#fbcfe8' : '#1e1b20',
         }}
       >
         {post.content}
@@ -195,9 +199,9 @@ export function PostCard({
                 paddingVertical: 6,
                 paddingHorizontal: 10,
                 borderRadius: 16,
-                backgroundColor: mine ? '#fce7f3' : '#f8fafc',
+                backgroundColor: mine ? (isDark ? 'rgba(236,72,153,0.2)' : '#fce7f3') : (isDark ? '#120917' : '#f8fafc'),
                 borderWidth: 1,
-                borderColor: mine ? '#ec4899' : '#f1e6eb',
+                borderColor: mine ? '#ec4899' : (isDark ? 'rgba(236,72,153,0.15)' : '#f1e6eb'),
               }}
             >
               <Text style={{ fontSize: 14 }}>{REACTION_EMOJI[rx]}</Text>
@@ -205,7 +209,7 @@ export function PostCard({
                 style={{
                   fontSize: 12,
                   fontWeight: 'bold',
-                  color: mine ? '#ec4899' : '#64748b',
+                  color: mine ? '#ec4899' : (isDark ? '#fbcfe8' : '#64748b'),
                 }}
               >
                 {count}
@@ -223,7 +227,7 @@ export function PostCard({
           gap: 12,
           paddingTop: 8,
           borderTopWidth: 1,
-          borderTopColor: '#f8fafc',
+          borderTopColor: isDark ? 'rgba(236,72,153,0.15)' : '#f8fafc',
         }}
       >
         <TouchableOpacity
@@ -235,11 +239,11 @@ export function PostCard({
             paddingVertical: 6,
             paddingHorizontal: 10,
             borderRadius: 14,
-            backgroundColor: '#f8fafc',
+            backgroundColor: isDark ? '#120917' : '#f8fafc',
           }}
         >
-          <FontAwesome name="comment-o" size={14} color="#64748b" />
-          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#64748b' }}>
+          <FontAwesome name="comment-o" size={14} color={isDark ? '#fbcfe8' : '#64748b'} />
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: isDark ? '#fbcfe8' : '#64748b' }}>
             {post.comment_count} Komentar
           </Text>
         </TouchableOpacity>

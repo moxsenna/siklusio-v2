@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import type { HabitCoachPlan } from '../../src/lib/habitCoachTypes';
+import { useTheme } from '../../src/context/ThemeContext';
 
 interface Props {
   plan: HabitCoachPlan | null;
@@ -22,59 +23,52 @@ export function HabitCoachCard({
   todayDayNumber = null,
   onOpen,
 }: Props) {
+  const { colorScheme } = useTheme();
+  const isDark = colorScheme === 'dark';
   const hasPlan = Boolean(plan);
   const creditCost = hasPlan ? 60 : 50;
   const ctaLabel = hasPlan ? 'Buat Ulang' : 'Generate';
+  const brandColor = isDark ? '#ec4899' : '#be185d';
 
   return (
     <View
-      style={{
-        backgroundColor: '#ffffff',
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: '#f1d6e8',
-        gap: 16,
-      }}
+      className="bg-white dark:bg-[#1c0f24] rounded-[24px] padding-[20px] border border-pink-200 dark:border-[#ec4899]/15 gap-4"
+      style={{ padding: 20 }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
         <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 16,
-            backgroundColor: '#fce7f3',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="w-11 h-11 rounded-[16px] bg-pink-100 dark:bg-purple-950/40 items-center justify-center"
         >
-          <FontAwesome name="compass" size={18} color="#be185d" />
+          <FontAwesome name="compass" size={18} color={brandColor} />
         </View>
 
         <View style={{ flex: 1, gap: 4 }}>
-          <Text style={{ fontSize: 11, color: '#be185d', fontWeight: '800', textTransform: 'uppercase' }}>
+          <Text 
+            style={{ color: brandColor }} 
+            className="text-[11px] font-extrabold uppercase"
+          >
             Habit Coach
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <Text style={{ fontSize: 18, color: '#111827', fontWeight: '800' }}>
+            <Text 
+              style={{ color: isDark ? '#fdf2f8' : '#111827' }} 
+              className="text-lg font-extrabold"
+            >
               {hasPlan ? 'Rencana mingguan aktif' : 'Buat rencana 7 hari'}
             </Text>
             {hasPlan && (
               <View
-                style={{
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                  borderRadius: 999,
-                  backgroundColor: '#fdf2f8',
-                  borderWidth: 1,
-                  borderColor: '#f9a8d4',
-                }}
+                className="px-2 py-0.5 rounded-full bg-pink-50 dark:bg-purple-950/40 border border-pink-300 dark:border-[#ec4899]/30"
               >
-                <Text style={{ fontSize: 10, fontWeight: '800', color: '#be185d' }}>AKTIF</Text>
+                <Text style={{ color: brandColor }} className="text-[10px] font-extrabold">AKTIF</Text>
               </View>
             )}
           </View>
-          <Text numberOfLines={3} style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>
+          <Text 
+             numberOfLines={3} 
+             style={{ color: isDark ? '#fbcfe8' : '#64748b' }} 
+             className="text-xs leading-[18px]"
+          >
             {hasPlan
               ? plan?.coachSummary || 'Coach menyiapkan target kecil yang bisa kamu ceklis setiap hari.'
               : 'Diskusi singkat, lalu coach susun habit realistis dari hari ini sampai 7 hari ke depan.'}
@@ -84,39 +78,42 @@ export function HabitCoachCard({
 
       {hasPlan && (
         <View
-          style={{
-            backgroundColor: '#f8fafc',
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: '#e2e8f0',
-            padding: 12,
-            gap: 4,
-          }}
+          className="bg-pink-50/30 dark:bg-purple-950/20 rounded-[16px] border border-pink-200/50 dark:border-[#ec4899]/10 p-3 gap-1"
+          style={{ padding: 12 }}
         >
-          <Text style={{ fontSize: 10, color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>
+          <Text 
+            style={{ color: isDark ? '#ec4899' : '#64748b' }} 
+            className="text-[10px] font-bold uppercase"
+          >
             {todayDayNumber ? `Hari ${todayDayNumber} dari 7` : 'Plan aktif'}
           </Text>
-          <Text style={{ fontSize: 14, color: '#0f172a', fontWeight: '700', lineHeight: 20 }}>
+          <Text 
+            style={{ color: isDark ? '#fdf2f8' : '#0f172a' }} 
+            className="text-sm font-bold leading-5 mt-0.5"
+          >
             {todayFocus || 'Review plan hari ini'}
           </Text>
-          <Text style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>
+          <Text 
+            style={{ color: isDark ? '#fbcfe8' : '#64748b' }} 
+            className="text-xs leading-[18px] mt-0.5"
+          >
             {plan?.weekStart} sampai {plan?.weekEnd} - {todayTaskCount} target kecil hari ini.
           </Text>
         </View>
       )}
 
       {!hasPlan && (
-        <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: -4 }}>
+        <Text style={{ color: isDark ? '#fbcfe8' : '#94a3b8' }} className="text-[11px] mt-[-4px]">
           Belum ada plan aktif untuk hari ini.
         </Text>
       )}
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 11, color: '#64748b', fontWeight: '700' }}>
+          <Text style={{ color: isDark ? '#fdf2f8' : '#64748b' }} className="text-[11px] font-semibold">
             Saldo AI: {balance === null ? '-' : balance} kredit
           </Text>
-          <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+          <Text style={{ color: isDark ? '#fbcfe8' : '#94a3b8' }} className="text-[11px] mt-0.5">
             {creditCost} kredit - {hasPlan ? 'rebuild 7 hari' : 'plan baru'}
           </Text>
         </View>
@@ -129,7 +126,7 @@ export function HabitCoachCard({
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: '#be185d',
+            backgroundColor: brandColor,
             borderRadius: 16,
             paddingHorizontal: 14,
             paddingVertical: 11,

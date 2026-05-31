@@ -23,6 +23,7 @@ import {
 } from "./ai/schemas";
 import { summarizeActivityHistory } from "./ai/habitSummary";
 import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
+import { buildRecipeCycleSnapshot } from "./ai/recipeSummary";
 import { type HabitCoachCycleDay } from "./ai/habitCoachFoundation";
 import {
   buildHabitCoachActiveOverlapConflict,
@@ -173,11 +174,48 @@ app.get("/", (c) => {
   return c.text("Siklusio API Server (Hono + Cloudflare Workers) is running.");
 });
 
+app.get("/api/recipes/today", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const date = c.req.query("date");
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return c.json({ error: "Tanggal resep tidak valid." }, 400);
+    }
+
+    const { data: generation, error } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", date)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return c.json({
+      generation,
+      result: generation?.result || null,
+    });
+  } catch (error: any) {
+    console.error("[recipes/today]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil resep hari ini." }, 500);
+  }
+});
+
 // API Route for generating recipes and groceries (OpenRouter AI)
 app.post("/api/generate-recipes", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-recipes");
   try {
-    const { phase } = await c.req.json();
+    const body = await c.req.json();
+    const { phase, cycleDay, daysToNextPeriod, nickname, generatedForDate } = body;
+    const date = typeof generatedForDate === "string" ? generatedForDate : "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return c.json({ error: "Tanggal resep tidak valid." }, 400);
+    }
+
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       console.error("<-- [BACKEND] No API key!");
@@ -188,7 +226,33 @@ app.post("/api/generate-recipes", async (c) => {
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
     }
-    console.log("--> [BACKEND] Phase requested:", phase);
+
+    const { data: existingActive, error: existingError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", date)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (existingActive) {
+      return c.json({ generation: existingActive, result: existingActive.result, balance: null });
+    }
+
+    const creditCost = 15;
+    const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+    if (balance < creditCost) {
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
+    }
+
+    const cycleSnapshot = buildRecipeCycleSnapshot({
+      phase,
+      cycleDay,
+      daysToNextPeriod,
+    });
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
     const ai = await callOpenRouterJson<any>({
@@ -196,30 +260,87 @@ app.post("/api/generate-recipes", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
+        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
+        "google/gemini-2.5-flash-lite",
       ],
       messages: [
         {
+          role: "system",
+          content:
+            "Kamu adalah asisten resep harian Siklusio untuk pengguna Indonesia. Beri resep sederhana, murah, dan mudah dimasak. Jangan memberi klaim medis, diagnosis, atau janji kehamilan. Output wajib JSON valid sesuai schema.",
+        },
+        {
           role: "user",
-          content: `Generate smart grocery recommendations for a pregnant or trying-to-conceive woman, specifically currently in the ${phase} phase of her menstrual cycle.
-          Also generate 2 simple, healthy daily recipes suitable for this phase.
-          IMPORTANT: 
-          1. All generated text (names, descriptions, titles, ingredients) MUST be in Indonesian (Bahasa Indonesia).
-          2. ONLY recommend groceries and ingredients that are very common, affordable, and easy to find in local Indonesian traditional markets (pasar) or standard Indonesian supermarkets (e.g., bayam, tempe, tahu, ikan kembung, telur ayam, kangkung, dll.). Avoid western/rare ingredients like quinoa, asparagus, berries, or salmon if there are cheaper common local alternatives like ikan kembung, ayam, atau pisang.`,
-        }
+          content: JSON.stringify({
+            nickname: nickname || "",
+            ...cycleSnapshot,
+            requiredOutput: [
+              "2 resep sederhana",
+              "daftar belanja kecil 3-6 bahan",
+              "penjelasan manfaat untuk fase saat ini",
+              "estimasi waktu masak",
+            ],
+            ingredientRules: [
+              "Gunakan bahan lokal Indonesia yang murah dan mudah ditemukan.",
+              "Prioritaskan telur, tempe, tahu, ayam, ikan kembung, ikan pindang, bayam, kangkung, wortel, labu siam, pisang, ubi, kacang hijau, beras, jahe, kunyit.",
+              "Hindari salmon, quinoa, asparagus, berries impor, chia seed, almond milk, Greek yogurt mahal, dan bahan wellness luar negeri.",
+              "Tulis semua teks dalam Bahasa Indonesia dengan sapaan kamu, bukan Anda.",
+            ],
+          }),
+        },
       ],
       responseSchemaName: "recipes_generation",
       responseSchema: recipesGenerationSchema,
+      maxCompletionTokens: 1400,
     });
 
     console.log("--> [BACKEND] Received OpenRouter response.");
     const result = validateRecipesGeneration(ai.data);
-    console.log("<-- [BACKEND] Returning success.");
-    return c.json(result);
+
+    const { data: savedGeneration, error: saveError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .insert({
+        user_id: auth.user.id,
+        generated_for_date: date,
+        phase: cycleSnapshot.phase,
+        cycle_day: cycleSnapshot.cycleDay,
+        days_to_next_period: cycleSnapshot.daysToNextPeriod,
+        cycle_snapshot: cycleSnapshot,
+        result,
+        status: "pending_charge",
+        ai_model: ai.model,
+        credit_cost: creditCost,
+      })
+      .select()
+      .single();
+
+    if (saveError) throw saveError;
+
+    const balanceAfter = await chargeAiCredits({
+      supabaseAdmin: auth.supabaseAdmin,
+      userId: auth.user.id,
+      amount: creditCost,
+      feature: "recipes_today",
+      reason: cycleSnapshot.phase,
+      referenceId: savedGeneration.id,
+      metadata: { model: ai.model, usage: ai.usage || null },
+    });
+
+    const { data: activeGeneration, error: activateError } = await auth.supabaseAdmin
+      .from("recipe_generations")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("id", savedGeneration.id)
+      .select()
+      .single();
+
+    if (activateError) throw activateError;
+
+    console.log("<-- [BACKEND] Returning saved recipes success.");
+    return c.json({ generation: activeGeneration, result, balance: balanceAfter });
   } catch (error: any) {
-    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
-    console.error(error.stack || error);
-    return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Sesuatu yang tidak terduga terjadi" }, 500);
+    console.error("<-- [BACKEND] OpenRouter recipes error:", error.stack || error);
+    return c.json({ error: error.message || "Gagal membuat resep hari ini." }, 500);
   }
 });
 
@@ -347,8 +468,10 @@ app.post("/api/generate-habits-insight", async (c) => {
 // API Route for TWW Sanctuary AI Reassurance (OpenRouter AI)
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
+  let reassuranceNickname = "";
   try {
     const { nickname, userJournal } = await c.req.json();
+    reassuranceNickname = typeof nickname === "string" ? nickname : "";
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
@@ -395,9 +518,29 @@ app.post("/api/generate-calming-reassurance", async (c) => {
     const result = validateCalmingReassurance(ai.data);
     return c.json(result);
   } catch (error: any) {
-    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
+    console.error("<-- [BACKEND] OpenRouter API Error / Exception, executing beautiful local fallback rescue:");
     console.error(error.stack || error);
-    return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat pesan penenang" }, 500);
+
+    const safeName = reassuranceNickname.trim() ? reassuranceNickname.trim() : "Bunda";
+
+    // High-fidelity fallback response that perfectly satisfies calmingReassuranceSchema
+    const fallbackResponse = {
+      title: "Menatap Hari dengan Teduh 🌸",
+      opening: `${safeName}, aku di sini bersamamu mendengarkan suara hatimu yang lelah menduga-duga.`,
+      validation: "Menunggu di masa dua minggu (TWW) ini memang terasa sangat panjang dan menguras emosi. Kekecewaan bulanan di masa lalu membuat setiap tanda kecil di tubuh terasa menegangkan. Sangat wajar jika jiwamu merasa lelah dan cemas.",
+      grounding: "Tarik napas hangat dan rasakan kakimu menapak bumi dengan kokoh. Detik ini aman untukmu. Jiwamu penuh tempat perlindungan.",
+      affirmation: "Aku mempercayai kebijaksanaan tubuhku, melepaskan kendali atas esok hari, dan memilih damai di detik ini.",
+      breathingTip: "Hembuskan napas secara perlahan-lahan dari mulut bagai meniup lilin kecil, kendorkan bahu dan rahangmu.",
+      closing: "Kamu telah berikhtiar dengan sangat indah. Mari beristirahat sejenak dari kekhawatiran.",
+      reassurance: `${safeName}, aku di sini bersamamu mendengarkan suara hatimu yang lelah menduga-duga. Menunggu di masa dua minggu (TWW) ini memang terasa sangat panjang dan menguras emosi. Kekecewaan bulanan di masa lalu membuat setiap tanda kecil di tubuh terasa menegangkan. Sangat wajar jika jiwamu merasa lelah dan cemas. Tarik napas hangat dan rasakan kakimu menapak bumi dengan kokoh. Detik ini aman untukmu. Jiwamu penuh tempat perlindungan. Aku mempercayai kebijaksanaan tubuhku, melepaskan kendali atas esok hari, dan memilih damai di detik ini. Kamu telah berikhtiar dengan sangat indah. Mari beristirahat sejenak dari kekhawatiran.`
+    };
+
+    try {
+      const validated = validateCalmingReassurance(fallbackResponse);
+      return c.json(validated);
+    } catch (fallbackErr: any) {
+      return c.json({ error: "Gagal memproses pesan penenangan: " + (error.message || String(error)) }, 500);
+    }
   }
 });
 

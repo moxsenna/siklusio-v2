@@ -58,13 +58,13 @@ export default function DashboardScreen() {
   }, [completionPercent, currentPhase, isFertile, isStrictOvulation]);
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-pink-50 dark:bg-[#120917]">
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }} className="bg-pink-50 dark:bg-[#120917]">
         {/* Custom Header */}
         <View className="mb-6 pt-4 border-b border-primary/20 pb-4 flex-row justify-between items-end">
           <View className="flex-1 pr-3">
-            <Text className="text-3xl font-bold text-on-background">Halo, {userNickname}</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+            <Text className="text-3xl font-bold text-fuchsia-950 dark:text-pink-50">Halo, {userNickname}</Text>
+            <Text className="text-xs uppercase tracking-widest text-pink-700 dark:text-pink-300 font-bold mt-1">
               {dateString}
             </Text>
           </View>
@@ -102,10 +102,10 @@ export default function DashboardScreen() {
                 setIsMessageModalOpen(true);
                 analytics.logEvent('click_husband_message', { phase: displayPhase });
               }}
-              className="w-full bg-pink-50 py-[16px] rounded-[24px] items-center justify-center flex-row shadow-sm border border-pink-100 active:scale-95"
+              className="w-full bg-pink-50 dark:bg-purple-950/40 py-[16px] rounded-[24px] items-center justify-center flex-row shadow-sm border border-pink-100 dark:border-[#ec4899]/15 active:scale-95"
             >
               <Text className="text-xl mr-3">💝</Text>
-              <Text className="text-pink-600 font-bold uppercase text-xs tracking-widest">
+              <Text className="text-pink-600 dark:text-pink-400 font-bold uppercase text-xs tracking-widest">
                 Kirim Pesan Suami
               </Text>
             </TouchableOpacity>

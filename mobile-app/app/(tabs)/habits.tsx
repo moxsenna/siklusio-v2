@@ -25,6 +25,8 @@ import { AiRecommendationSection } from '../../components/habits/AiRecommendatio
 import { HabitCoachCard } from '../../components/habits/HabitCoachCard';
 import { HabitCoachSheet } from '../../components/habits/HabitCoachSheet';
 import { HistoryView } from '../../components/habits/HistoryView';
+import { TodayRecipesCard } from '../../components/habits/TodayRecipesCard';
+import { TodayRecipesModal } from '../../components/habits/TodayRecipesModal';
 
 // Error boundary wrapper untuk HistoryView yang crash di native
 class HistoryErrorBoundary extends React.Component<
@@ -64,7 +66,15 @@ function HistoryViewSafe(props: any) {
 }
 
 export default function HabitsScreen() {
-  const { currentPhase, activityHistory, setActivityHistory, userNickname, getDayInfo } = useCycle();
+  const {
+    currentPhase,
+    daysToNextPeriod,
+    cycleDay,
+    activityHistory,
+    setActivityHistory,
+    userNickname,
+    getDayInfo,
+  } = useCycle();
   const [, startTransition] = useTransition();
   
   const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
@@ -75,6 +85,7 @@ export default function HabitsScreen() {
   const [coachLoading, setCoachLoading] = useState(false);
   const [coachError, setCoachError] = useState<string | null>(null);
   const [coachFetching, setCoachFetching] = useState(false);
+  const [recipesOpen, setRecipesOpen] = useState(false);
   const [replaceActivePlan, setReplaceActivePlan] = useState(false);
   const [replacementWarning, setReplacementWarning] = useState<{
     activeUntil?: string | null;
@@ -347,38 +358,38 @@ export default function HabitsScreen() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background dark:bg-[#120917]">
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }} className="bg-pink-50 dark:bg-[#120917]">
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
-            <Text className="text-3xl font-bold text-on-background">Halo, {userNickname}</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Gimana kabarmu hari ini?</Text>
+            <Text className="text-3xl font-bold text-fuchsia-950 dark:text-pink-50">Halo, {userNickname}</Text>
+            <Text className="text-xs uppercase tracking-widest text-pink-700 dark:text-pink-300 font-bold mt-1">Gimana kabarmu hari ini?</Text>
           </View>
           <HeaderProfileButton />
         </View>
 
         {/* Tab Toggle Daily vs History */}
-        <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
+        <View className="flex-row bg-pink-100 dark:bg-purple-950/40 p-1 rounded-2xl mb-6 shadow-inner">
           <TouchableOpacity 
             onPress={() => startTransition(() => setViewMode('daily'))}
             className={`flex-1 py-3 rounded-xl items-center ${
-              viewMode === 'daily' ? 'bg-surface shadow-sm' : ''
+              viewMode === 'daily' ? 'bg-white dark:bg-[#1c0f24] shadow-sm' : ''
             }`}
           >
             <Text className={`text-sm font-bold ${
-              viewMode === 'daily' ? 'text-primary' : 'text-on-surface-variant/70'
+              viewMode === 'daily' ? 'text-primary dark:text-[#ec4899]' : 'text-pink-900/70 dark:text-pink-400'
             }`}>Harian</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             onPress={() => startTransition(() => setViewMode('history'))}
             className={`flex-1 py-3 rounded-xl items-center ${
-              viewMode === 'history' ? 'bg-surface shadow-sm' : ''
+              viewMode === 'history' ? 'bg-white dark:bg-[#1c0f24] shadow-sm' : ''
             }`}
           >
             <Text className={`text-sm font-bold ${
-              viewMode === 'history' ? 'text-primary' : 'text-on-surface-variant/70'
+              viewMode === 'history' ? 'text-primary dark:text-[#ec4899]' : 'text-pink-900/70 dark:text-pink-400'
             }`}>📊 Histori</Text>
           </TouchableOpacity>
         </View>
@@ -386,24 +397,24 @@ export default function HabitsScreen() {
         {viewMode === 'daily' ? (
           <View className="space-y-6">
             {/* Date Switcher */}
-            <View className="flex-row justify-between items-center bg-surface px-4 py-3 rounded-2xl border border-outline-variant shadow-sm mb-4">
+            <View className="flex-row justify-between items-center bg-white dark:bg-[#1c0f24] px-4 py-3 rounded-2xl border border-pink-200 dark:border-[#ec4899]/15 shadow-sm mb-4">
               <TouchableOpacity 
                 onPress={handlePrevDay} 
                 disabled={viewedDateOffset <= dateOffsetBounds.minOffset}
-                className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
+                className="w-9 h-9 rounded-full items-center justify-center bg-pink-100 dark:bg-purple-950/40"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset <= dateOffsetBounds.minOffset ? 'opacity-30' : 'text-primary'}`}>←</Text>
+                <Text className={`text-xl font-bold ${viewedDateOffset <= dateOffsetBounds.minOffset ? 'opacity-30' : 'text-primary dark:text-[#ec4899]'}`}>←</Text>
               </TouchableOpacity>
               
               <View className="items-center">
-                <Text className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                <Text className="text-[10px] font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider">
                   Tanggal Fokus
                 </Text>
-                <Text className="text-sm font-bold text-on-surface mt-1">
+                <Text className="text-sm font-bold text-fuchsia-800 dark:text-[#fdf2f8] mt-1">
                   {viewedDateOffset === 0 ? 'Hari ini' : dateString}
                 </Text>
                 {selectedPlanDayNumber && (
-                  <Text className="text-[10px] font-bold text-primary mt-1">
+                  <Text className="text-[10px] font-bold text-primary dark:text-[#ec4899] mt-1">
                     Hari {selectedPlanDayNumber} dari 7
                   </Text>
                 )}
@@ -412,9 +423,9 @@ export default function HabitsScreen() {
               <TouchableOpacity 
                 onPress={handleNextDay}
                 disabled={viewedDateOffset >= dateOffsetBounds.maxOffset}
-                className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
+                className="w-9 h-9 rounded-full items-center justify-center bg-pink-100 dark:bg-purple-950/40"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset >= dateOffsetBounds.maxOffset ? 'opacity-30' : 'text-primary'}`}>→</Text>
+                <Text className={`text-xl font-bold ${viewedDateOffset >= dateOffsetBounds.maxOffset ? 'opacity-30' : 'text-primary dark:text-[#ec4899]'}`}>→</Text>
               </TouchableOpacity>
             </View>
             
@@ -435,30 +446,38 @@ export default function HabitsScreen() {
               />
             </View>
 
+            <View className="mb-6">
+              <TodayRecipesCard
+                balance={aiCreditBalance}
+                loading={coachFetching}
+                onOpen={() => setRecipesOpen(true)}
+              />
+            </View>
+
             {/* Progress Header */}
-            <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant relative overflow-hidden mb-6">
+            <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15 relative overflow-hidden mb-6">
               <View className="flex-row items-center justify-between z-10">
                 <View className="flex-1 pr-4">
-                  <Text className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
+                  <Text className="text-xs font-bold uppercase tracking-wider text-primary dark:text-[#ec4899] mb-2">
                     {isFutureDate ? 'Preview Plan' : 'Progres Hari Ini'}
                   </Text>
-                  <Text className="text-2xl font-bold text-on-background mb-2">
+                  <Text className="text-2xl font-bold text-fuchsia-950 dark:text-[#fdf2f8] mb-2">
                     {tasks.length > 0 ? `${completed} dari ${tasks.length} Selesai` : 'Belum ada target'}
                   </Text>
-                  <Text className="text-sm text-on-surface-variant leading-relaxed font-medium">
+                  <Text className="text-sm text-pink-700 dark:text-pink-300 leading-relaxed font-medium">
                     {getMotivationalMessage(percent)}
                   </Text>
                 </View>
                 
-                <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-                  <Text className="text-xl font-bold text-primary">{tasks.length > 0 ? `${percent}%` : '-'}</Text>
+                <View className="w-16 h-16 rounded-full bg-primary/10 dark:bg-pink-950/40 items-center justify-center">
+                  <Text className="text-xl font-bold text-primary dark:text-pink-400">{tasks.length > 0 ? `${percent}%` : '-'}</Text>
                 </View>
               </View>
             </View>
 
             {/* Daily Checklist */}
-            <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant mb-6">
-              <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
+            <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15 mb-6">
+              <Text className="text-sm font-bold tracking-wide text-fuchsia-800 dark:text-[#fdf2f8] mb-6">
                 {selectedPlanDayNumber ? `Target Plan Hari ${selectedPlanDayNumber}` : 'Target Habit Coach'}
               </Text>
 
@@ -472,11 +491,11 @@ export default function HabitsScreen() {
               
               <View className="gap-3">
                 {tasks.length === 0 && (
-                  <View className="bg-surface-variant/50 border border-outline-variant rounded-2xl p-4">
-                    <Text className="text-sm font-bold text-on-surface mb-1">
+                  <View className="bg-pink-100/50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-2xl p-4">
+                    <Text className="text-sm font-bold text-fuchsia-805 dark:text-pink-50 mb-1">
                       Kamu perlu generate plan 7 hari dulu.
                     </Text>
-                    <Text className="text-xs text-on-surface-variant leading-5">
+                    <Text className="text-xs text-pink-700 dark:text-pink-300 leading-5">
                       Setelah plan aktif, target harian dari Habit Coach akan muncul di sini. Checklist fallback lama tidak ditampilkan sebagai task AI.
                     </Text>
                   </View>
@@ -488,29 +507,29 @@ export default function HabitsScreen() {
                     onPress={() => toggleTask(task.id)}
                     disabled={isFutureDate}
                     className={`flex-row items-center justify-between p-4 rounded-2xl border ${
-                      task.done ? 'bg-surface-variant/50 border-outline-variant shadow-sm' : 'bg-surface border-outline-variant hover:border-primary/50'
+                      task.done ? 'bg-pink-100/40 dark:bg-purple-950/40 border-pink-200 dark:border-[#ec4899]/15 shadow-sm' : 'bg-white dark:bg-[#1a0f24] border-pink-200 dark:border-[#ec4899]/15 hover:border-primary/50'
                     }`}
                   >
                     <View className="flex-row items-start gap-4 flex-1 pr-3">
-                      <View className={`w-12 h-12 rounded-2xl items-center justify-center bg-surface border border-outline-variant ${task.done ? 'opacity-50' : ''}`}>
+                      <View className={`w-12 h-12 rounded-2xl items-center justify-center bg-white dark:bg-[#1c0f24] border border-pink-200 dark:border-[#ec4899]/15 ${task.done ? 'opacity-50' : ''}`}>
                         <Text className="text-2xl">{task.emoji}</Text>
                       </View>
                       <View className="flex-1">
-                        <Text className={`text-base font-bold leading-6 ${task.done ? 'text-on-surface-variant opacity-60 line-through' : 'text-on-surface'}`}>
+                        <Text className={`text-base font-bold leading-6 ${task.done ? 'text-pink-700 dark:text-pink-400 opacity-60 line-through' : 'text-fuchsia-805 dark:text-pink-50'}`}>
                           {task.text}
                         </Text>
                         {task.reason ? (
-                          <Text className="text-xs text-on-surface-variant leading-5 mt-1">
+                          <Text className="text-xs text-pink-700 dark:text-pink-300 leading-5 mt-1">
                             {task.reason}
                           </Text>
                         ) : null}
-                        <Text className={`text-xs font-bold uppercase tracking-wider mt-2 ${task.done ? 'text-green-500' : isFutureDate ? 'text-on-surface-variant' : 'text-primary'}`}>
+                        <Text className={`text-xs font-bold uppercase tracking-wider mt-2 ${task.done ? 'text-green-500' : isFutureDate ? 'text-pink-700 dark:text-pink-400' : 'text-primary dark:text-[#ec4899]'}`}>
                           {isFutureDate ? 'Bisa diceklis nanti' : task.done ? 'Selesai' : 'Yuk Bisa!'}
                         </Text>
                       </View>
                     </View>
                     <View className={`w-8 h-8 rounded-full border-2 items-center justify-center ${
-                      task.done ? 'border-green-500 bg-green-500' : isFutureDate ? 'border-outline-variant bg-surface-variant' : 'border-outline-variant bg-surface'
+                      task.done ? 'border-green-500 bg-green-500' : isFutureDate ? 'border-pink-200 dark:border-[#ec4899]/30 bg-pink-100 dark:bg-purple-950/40' : 'border-pink-200 dark:border-[#ec4899]/30 bg-white dark:bg-[#1c0f24]'
                     }`}>
                       {task.done && <Text className="text-white font-bold text-xs">✓</Text>}
                     </View>
@@ -520,8 +539,8 @@ export default function HabitsScreen() {
             </View>
             
             {/* Symptoms Tracker */}
-            <View className="bg-surface rounded-[32px] p-6 border border-outline-variant mb-6">
-               <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
+            <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 border border-pink-200 dark:border-[#ec4899]/15 mb-6">
+               <Text className="text-sm font-bold tracking-wide text-fuchsia-800 dark:text-[#fdf2f8] mb-6">
                  💝 Apa yang kamu rasakan?
                </Text>
                <View className="flex-row flex-wrap gap-3">
@@ -533,13 +552,13 @@ export default function HabitsScreen() {
                        onPress={() => toggleSymptom(symptom.id)}
                        disabled={isFutureDate}
                        className={`flex-row items-center gap-2 px-4 py-3 rounded-2xl shadow-sm ${
-                         isActive 
-                           ? 'bg-surface border-primary border-2 text-primary' 
-                           : 'bg-surface-variant text-on-surface-variant border-transparent'
+                         isActive
+                           ? 'bg-white dark:bg-[#1a0f24] border-primary dark:border-[#ec4899] border-2'
+                           : 'bg-pink-100 dark:bg-purple-950/40 border-transparent'
                        }`}
                      >
                        <Text className="text-lg">{symptom.emoji}</Text>
-                       <Text className="text-sm font-bold text-on-background">{symptom.label}</Text>
+                       <Text className="text-sm font-bold text-fuchsia-950 dark:text-[#fdf2f8]">{symptom.label}</Text>
                      </TouchableOpacity>
                    );
                  })}
@@ -557,7 +576,7 @@ export default function HabitsScreen() {
             )}
           </View>
         ) : (
-          <View className="bg-white rounded-[32px] p-6 shadow-sm border border-outline-variant">
+          <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
             <HistoryViewSafe 
               historyFilter={historyFilter} 
               setHistoryFilter={setHistoryFilter} 
@@ -566,6 +585,15 @@ export default function HabitsScreen() {
           </View>
         )}
       </ScrollView>
+      <TodayRecipesModal
+        visible={recipesOpen}
+        currentPhase={currentPhase}
+        cycleDay={cycleDay}
+        daysToNextPeriod={daysToNextPeriod}
+        nickname={userNickname}
+        onClose={() => setRecipesOpen(false)}
+        onBalanceChange={setAiCreditBalance}
+      />
       <HabitCoachSheet
         visible={coachOpen}
         mode={activeHabitCoachPlan ? 'renewal' : 'initial'}

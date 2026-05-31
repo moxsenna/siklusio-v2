@@ -33,15 +33,15 @@ export function CalendarGrid({ currentMonth, setCurrentMonth, onSelectDate, sele
   };
 
   return (
-    <View className="bg-surface rounded-[32px] p-[24px] shadow-sm border border-outline-variant">
+    <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-[24px] shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
       {/* Month Navigation */}
       <View className="flex-row justify-between items-center mb-[32px]">
-        <TouchableOpacity onPress={prevMonth} className="w-10 h-10 rounded-full bg-surface-variant items-center justify-center">
-          <Text className="text-lg font-bold text-primary">←</Text>
+        <TouchableOpacity onPress={prevMonth} className="w-10 h-10 rounded-full bg-pink-100 dark:bg-purple-950/40 items-center justify-center">
+          <Text className="text-lg font-bold text-primary dark:text-[#ec4899]">←</Text>
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-on-background">{getMonthNameIndonesian(currentMonth)}</Text>
-        <TouchableOpacity onPress={nextMonth} className="w-10 h-10 rounded-full bg-surface-variant items-center justify-center">
-          <Text className="text-lg font-bold text-primary">→</Text>
+        <Text className="text-xl font-bold text-fuchsia-950 dark:text-[#fdf2f8]">{getMonthNameIndonesian(currentMonth)}</Text>
+        <TouchableOpacity onPress={nextMonth} className="w-10 h-10 rounded-full bg-pink-100 dark:bg-purple-950/40 items-center justify-center">
+          <Text className="text-lg font-bold text-primary dark:text-[#ec4899]">→</Text>
         </TouchableOpacity>
       </View>
 
@@ -49,7 +49,7 @@ export function CalendarGrid({ currentMonth, setCurrentMonth, onSelectDate, sele
       <View className="flex-row mb-[16px]">
         {weekDaysHeader.map(day => (
           <View key={day} style={{ width: '14.28%' }} className="items-center">
-            <Text className="text-[10px] font-bold tracking-widest uppercase opacity-40 text-on-background">
+            <Text className="text-[10px] font-bold tracking-widest uppercase opacity-45 dark:opacity-80 text-fuchsia-950 dark:text-pink-300">
               {day}
             </Text>
           </View>
@@ -69,23 +69,23 @@ export function CalendarGrid({ currentMonth, setCurrentMonth, onSelectDate, sele
           const isLoggedPeriod = record?.isPeriod;
 
           let bgClass = 'bg-transparent';
-          let textClass = 'text-on-background';
+          let textClass = 'text-fuchsia-950 dark:text-[#fdf2f8]';
           
           if (isCurrentMonth) {
             if (status === 'Masa Subur') {
-              bgClass = 'bg-secondary';
-              textClass = 'text-on-secondary font-bold';
+              bgClass = 'bg-secondary dark:bg-teal-950/60';
+              textClass = 'text-on-secondary dark:text-teal-400 font-bold';
             } else if (status === 'Ovulasi') {
-              bgClass = 'bg-tertiary';
-              textClass = 'text-on-tertiary font-bold';
+              bgClass = 'bg-tertiary dark:bg-teal-700';
+              textClass = 'text-on-tertiary dark:text-white font-bold';
             }
             
             if (isLoggedPeriod) {
-              bgClass = 'bg-primary';
-              textClass = 'text-on-primary font-bold';
+              bgClass = 'bg-primary dark:bg-pink-600';
+              textClass = 'text-on-primary dark:text-white font-bold';
             } else if (status === 'Menstruasi') {
-              bgClass = 'bg-primary/20';
-              textClass = 'text-primary font-bold';
+              bgClass = 'bg-primary/20 dark:bg-pink-950/40';
+              textClass = 'text-primary dark:text-pink-400 font-bold';
             }
           }
 
@@ -108,26 +108,26 @@ export function CalendarGrid({ currentMonth, setCurrentMonth, onSelectDate, sele
       </View>
 
       {/* Legend */}
-      <View className="pt-[24px] mt-6 border-t border-outline-variant/30 flex-row flex-wrap justify-center gap-x-4 gap-y-2">
+      <View className="pt-[24px] mt-6 border-t border-pink-200/30 dark:border-[#ec4899]/15 flex-row flex-wrap justify-center gap-x-4 gap-y-2">
          <View className="flex-row items-center gap-[6px]">
-           <View className="w-3 h-3 rounded-full bg-primary/20" />
-           <Text className="text-[10px] uppercase font-bold text-on-background/70">Prediksi Haid</Text>
+           <View className="w-3 h-3 rounded-full bg-primary/20 dark:bg-pink-950/40" />
+           <Text className="text-[10px] uppercase font-bold text-fuchsia-950/70 dark:text-pink-300">Prediksi Haid</Text>
          </View>
          <View className="flex-row items-center gap-[6px]">
-           <View className="w-3 h-3 rounded-full bg-primary" />
-           <Text className="text-[10px] uppercase font-bold text-on-background/70">Haid (Catatan)</Text>
+           <View className="w-3 h-3 rounded-full bg-primary dark:bg-pink-600" />
+           <Text className="text-[10px] uppercase font-bold text-fuchsia-950/70 dark:text-pink-300">Haid (Catatan)</Text>
          </View>
          <View className="flex-row items-center gap-[6px]">
-           <View className="w-3 h-3 rounded-full bg-secondary" />
-           <Text className="text-[10px] uppercase font-bold text-on-background/70">Subur</Text>
+           <View className="w-3 h-3 rounded-full bg-secondary dark:bg-teal-950/60" />
+           <Text className="text-[10px] uppercase font-bold text-fuchsia-950/70 dark:text-pink-300">Subur</Text>
          </View>
          <View className="flex-row items-center gap-[6px]">
-           <View className="w-3 h-3 rounded-full bg-tertiary" />
-           <Text className="text-[10px] uppercase font-bold text-on-background/70">Ovulasi</Text>
+           <View className="w-3 h-3 rounded-full bg-tertiary dark:bg-teal-700" />
+           <Text className="text-[10px] uppercase font-bold text-fuchsia-950/70 dark:text-pink-300">Ovulasi</Text>
          </View>
          <View className="flex-row items-center gap-[6px]">
-           <View className="w-3 h-3 rounded-full border border-primary bg-transparent" />
-           <Text className="text-[10px] uppercase font-bold text-on-background/70">Hari Ini</Text>
+           <View className="w-3 h-3 rounded-full border border-primary dark:border-[#ec4899] bg-transparent" />
+           <Text className="text-[10px] uppercase font-bold text-fuchsia-950/70 dark:text-pink-300">Hari Ini</Text>
          </View>
       </View>
     </View>

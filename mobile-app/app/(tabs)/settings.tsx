@@ -21,11 +21,13 @@ import { supabase } from '../../src/lib/supabase';
 import { AvatarPicker } from '../../components/common/AvatarPicker';
 import { useUserAvatar } from '../../src/hooks/useUserAvatar';
 import { storage } from '../../src/lib/storage';
+import { useTheme } from '../../src/context/ThemeContext';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
   const { avatarUrl, avatarKind, updateAvatar } = useUserAvatar();
+  const { themeMode, setThemeMode } = useTheme();
   
   // Detect active tab from route search parameters
   const { tab } = useLocalSearchParams<{ tab?: string }>();
@@ -340,7 +342,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background dark:bg-[#120917]">
       
       {/* Dynamic Toast Notification Banner */}
       {toast && (
@@ -386,42 +388,42 @@ export default function SettingsScreen() {
         </Animated.View>
       )}
 
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }} className="bg-pink-50 dark:bg-[#120917]">
         
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-2">
-            <Text className="text-3xl font-bold text-on-background">Pengaturan</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Privasi dan Akun</Text>
+            <Text className="text-3xl font-bold text-fuchsia-950 dark:text-pink-50">Pengaturan</Text>
+            <Text className="text-xs uppercase tracking-widest text-pink-700 dark:text-pink-300 font-bold mt-1">Privasi dan Akun</Text>
             {user && (
-              <Text className="text-[12px] font-mono font-bold mt-1 text-primary break-all">{user.email}</Text>
+              <Text className="text-[12px] font-mono font-bold mt-1 text-primary dark:text-[#ec4899] break-all">{user.email}</Text>
             )}
           </View>
         </View>
 
         {/* Tab Toggle: Edit Profil vs Pengaturan Siklus */}
-        <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
+        <View className="flex-row bg-pink-100 dark:bg-purple-950/40 p-1 rounded-2xl mb-6 shadow-inner">
           <TouchableOpacity 
             onPress={() => setActiveViewTab('profile')}
             className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === 'profile' ? 'bg-surface shadow-sm' : ''
+              activeViewTab === 'profile' ? 'bg-white dark:bg-[#1c0f24] shadow-sm' : ''
             }`}
           >
             <FontAwesome name="user" size={14} color={activeViewTab === 'profile' ? '#ec4899' : '#94a3b8'} />
             <Text className={`text-sm font-bold ${
-              activeViewTab === 'profile' ? 'text-primary' : 'text-on-surface-variant/70'
+              activeViewTab === 'profile' ? 'text-primary dark:text-[#ec4899]' : 'text-pink-900/70 dark:text-pink-400'
             }`}>Profil & Pasangan</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             onPress={() => setActiveViewTab('cycle')}
             className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === 'cycle' ? 'bg-surface shadow-sm' : ''
+              activeViewTab === 'cycle' ? 'bg-white dark:bg-[#1c0f24] shadow-sm' : ''
             }`}
           >
             <FontAwesome name="cog" size={14} color={activeViewTab === 'cycle' ? '#ec4899' : '#94a3b8'} />
             <Text className={`text-sm font-bold ${
-              activeViewTab === 'cycle' ? 'text-primary' : 'text-on-surface-variant/70'
+              activeViewTab === 'cycle' ? 'text-primary dark:text-[#ec4899]' : 'text-pink-900/70 dark:text-pink-400'
             }`}>Siklus & Celengan</Text>
           </TouchableOpacity>
         </View>
@@ -432,20 +434,20 @@ export default function SettingsScreen() {
           {activeViewTab === 'cycle' && (
             <>
               {/* Card 1: Pengaturan Siklus */}
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+              <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
                 <View className="flex-row items-center gap-3 mb-4">
                   <FontAwesome name="calendar" size={18} color="#ec4899" />
-                  <Text className="text-base font-bold text-on-surface">Pengaturan Siklus</Text>
+                  <Text className="text-base font-bold text-fuchsia-800 dark:text-[#fdf2f8]">Pengaturan Siklus</Text>
                 </View>
 
                 <View className="gap-4">
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">HPHT (Hari Pertama Haid Terakhir)</Text>
+                    <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">HPHT (Hari Pertama Haid Terakhir)</Text>
                     <TouchableOpacity
                       onPress={() => setIsDatePickerVisible(true)}
-                      className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 flex-row justify-between items-center"
+                      className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl p-3 flex-row justify-between items-center"
                     >
-                      <Text className="text-sm text-on-surface font-semibold">
+                      <Text className="text-sm text-fuchsia-850 dark:text-pink-50 font-semibold">
                         {formatToLongIndonesianDate(new Date(selectedYear, selectedMonth - 1, selectedDay))}
                       </Text>
                       <FontAwesome name="calendar" size={16} color="#ec4899" />
@@ -454,30 +456,30 @@ export default function SettingsScreen() {
 
                   <View className="flex-row gap-4">
                     <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Siklus</Text>
+                      <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Siklus</Text>
                       <View className="relative justify-center">
                         <TextInput
                           value={cycleInput}
                           onChangeText={setCycleInput}
                           keyboardType="number-pad"
                           placeholderTextColor="#ec489950"
-                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
+                          className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl pl-4 pr-12 py-3 text-sm text-fuchsia-850 dark:text-pink-50"
                         />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                        <Text className="absolute right-3 text-xs text-pink-700 dark:text-pink-400 font-bold">Hari</Text>
                       </View>
                     </View>
 
                     <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Haid</Text>
+                      <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Haid</Text>
                       <View className="relative justify-center">
                         <TextInput
                           value={periodInput}
                           onChangeText={setPeriodInput}
                           keyboardType="number-pad"
                           placeholderTextColor="#ec489950"
-                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
+                          className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl pl-4 pr-12 py-3 text-sm text-fuchsia-850 dark:text-pink-50"
                         />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                        <Text className="absolute right-3 text-xs text-pink-700 dark:text-pink-400 font-bold">Hari</Text>
                       </View>
                     </View>
                   </View>
@@ -492,39 +494,39 @@ export default function SettingsScreen() {
               </View>
 
               {/* Card 2: Pengaturan Tabungan */}
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+              <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
                 <View className="flex-row items-center gap-3 mb-4">
                   <FontAwesome name="money" size={18} color="#0d9488" />
-                  <Text className="text-base font-bold text-on-surface">Pengaturan Tabungan</Text>
+                  <Text className="text-base font-bold text-fuchsia-800 dark:text-[#fdf2f8]">Pengaturan Tabungan</Text>
                 </View>
 
                 <View className="gap-4">
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Tabungan Terkumpul</Text>
+                    <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Total Tabungan Terkumpul</Text>
                     <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <Text className="absolute left-4 text-sm font-bold text-pink-700 dark:text-pink-400">Rp</Text>
                       <TextInput
                         value={currentSavingInput}
                         onChangeText={setCurrentSavingInput}
                         keyboardType="number-pad"
                         placeholder="0"
                         placeholderTextColor="#ec489950"
-                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
+                        className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl pl-12 pr-4 py-3 text-sm text-fuchsia-850 dark:text-pink-50"
                       />
                     </View>
                   </View>
 
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Target Tabungan</Text>
+                    <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Target Tabungan</Text>
                     <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <Text className="absolute left-4 text-sm font-bold text-pink-700 dark:text-pink-400">Rp</Text>
                       <TextInput
                         value={targetSavingInput}
                         onChangeText={setTargetSavingInput}
                         keyboardType="number-pad"
                         placeholder="0"
                         placeholderTextColor="#ec489950"
-                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
+                        className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl pl-12 pr-4 py-3 text-sm text-fuchsia-850 dark:text-pink-50"
                       />
                     </View>
                   </View>
@@ -538,53 +540,25 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
-              {/* Card 3: AI Server */}
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-                <View className="flex-row items-center gap-3 mb-4">
-                  <View className="w-9 h-9 rounded-full bg-indigo-100 items-center justify-center">
-                    <FontAwesome name="magic" size={16} color="#4f46e5" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-bold text-on-surface">Asisten AI Siklusio</Text>
-                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">OpenRouter Server</Text>
-                  </View>
-                </View>
-
-                <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 gap-3">
-                  <Text className="text-xs text-indigo-900/90 leading-relaxed">
-                    Semua fitur AI sekarang memakai OpenRouter dari server Siklusio. Kamu tidak perlu memasukkan Gemini API Key pribadi di aplikasi.
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      storage.removeItem('hs_gemini_api_key');
-                      showToast('Kunci Gemini lama dibersihkan dari perangkat.', 'info');
-                    }}
-                    className="w-full py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
-                  >
-                    <Text className="text-white font-bold text-xs uppercase tracking-wider">Bersihkan Kunci Lama</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
               {/* Card 4: Pengaturan Pengingat */}
               <TouchableOpacity 
                 onPress={handleReminderToggle}
-                className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
+                className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-4 flex-1 pr-4">
-                  <View className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? 'bg-primary/20 text-primary' : 'bg-surface-variant text-on-surface-variant'}`}>
+                  <View className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? 'bg-pink-100 dark:bg-pink-950/30 text-primary' : 'bg-pink-50 dark:bg-purple-950/40'}`}>
                     <FontAwesome name="bell" size={18} color={dailyReminder ? '#ec4899' : '#888'} />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">Pengingat Harian & Promil</Text>
-                    <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
+                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-fuchsia-850 dark:text-[#fdf2f8]">Pengingat Harian & Promil</Text>
+                    <Text className="text-[10px] font-mono opacity-55 dark:opacity-80 mt-1 leading-relaxed text-pink-700 dark:text-pink-300">
                       Kirim notifikasi fase siklus, masa ovulasi, dan pengingat nutrisi.
                     </Text>
                   </View>
                 </View>
                 
                 {/* Custom Toggle Switch */}
-                <View className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? 'bg-primary' : 'bg-surface-variant'}`}>
+                <View className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? 'bg-primary dark:bg-pink-600' : 'bg-pink-150 dark:bg-purple-950/40'}`}>
                   <View className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? 'self-end' : 'self-start'}`} />
                 </View>
               </TouchableOpacity>
@@ -592,20 +566,20 @@ export default function SettingsScreen() {
               {/* Card 5: Program Afiliasi */}
               <TouchableOpacity 
                 onPress={() => router.push('/affiliate')}
-                className="bg-pink-50 rounded-[32px] p-6 shadow-sm border border-pink-100 flex-row items-center justify-between"
+                className="bg-pink-50 dark:bg-purple-950/20 rounded-[32px] p-6 shadow-sm border border-pink-100 dark:border-[#ec4899]/15 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-4 flex-1 pr-4">
-                  <View className="w-10 h-10 rounded-full bg-pink-100 items-center justify-center">
+                  <View className="w-10 h-10 rounded-full bg-pink-100 dark:bg-purple-950/40 items-center justify-center">
                     <FontAwesome name="gift" size={18} color="#db2777" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-pink-900">Program Afiliasi 🌸</Text>
-                    <Text className="text-[10px] font-mono text-pink-700 opacity-80 mt-1 leading-relaxed">
+                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-pink-900 dark:text-pink-300">Program Afiliasi 🌸</Text>
+                    <Text className="text-[10px] font-mono text-pink-700 dark:text-pink-400 opacity-85 mt-1 leading-relaxed">
                       Dapatkan komisi untuk setiap bunda yang bergabung lewat referal Anda.
                     </Text>
                   </View>
                 </View>
-                <View className="w-8 h-8 rounded-full bg-pink-100 items-center justify-center">
+                <View className="w-8 h-8 rounded-full bg-pink-100 dark:bg-purple-950/40 items-center justify-center">
                   <FontAwesome name="chevron-right" size={12} color="#ec4899" />
                 </View>
               </TouchableOpacity>
@@ -614,17 +588,17 @@ export default function SettingsScreen() {
 
           {activeViewTab === 'profile' && (
             /* Card 3: Profil & Pasangan */
-            <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
+            <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-6 shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
               <View className="flex-row items-center gap-3 mb-2">
                 <FontAwesome name="heart" size={18} color="#ec4899" />
-                <Text className="text-base font-bold text-on-surface">Profil & Pasangan</Text>
+                <Text className="text-base font-bold text-fuchsia-800 dark:text-[#fdf2f8]">Profil & Pasangan</Text>
               </View>
-              <Text className="text-[10px] font-mono text-on-surface-variant opacity-60 mb-4">
+              <Text className="text-[10px] font-mono text-pink-700 dark:text-pink-300 opacity-80 mb-4">
                 Atur foto profil, nama panggilan Anda, dan kontak WhatsApp suami.
               </Text>
 
               {/* Avatar Picker moved here inside the card */}
-              <View className="items-center justify-center mb-6 mt-2 pb-5 border-b border-purple-100">
+              <View className="items-center justify-center mb-6 mt-2 pb-5 border-b border-purple-100 dark:border-[#ec4899]/15">
                 <AvatarPicker
                   value={avatarUrl}
                   kind={avatarKind}
@@ -638,48 +612,48 @@ export default function SettingsScreen() {
                   }}
                   size={80}
                 />
-                <Text className="text-[10px] text-primary/80 font-bold uppercase tracking-wider mt-2.5">
+                <Text className="text-[10px] text-primary/80 dark:text-pink-400 font-bold uppercase tracking-wider mt-2.5">
                   Ketuk untuk Mengubah Foto Profil
                 </Text>
               </View>
 
               <View className="gap-4">
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Anda</Text>
+                  <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Nama Panggilan Anda</Text>
                   <TextInput
                     value={userNickname}
                     onChangeText={setUserNickname}
                     placeholder="Cth: Bunda, Sayang"
                     placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                    className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl p-3 text-sm text-fuchsia-850 dark:text-pink-50"
                   />
                 </View>
 
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Suami</Text>
+                  <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Nama Suami</Text>
                   <TextInput
                     value={husbandName}
                     onChangeText={setHusbandName}
                     placeholder="Cth: Budi Susanto"
                     placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                    className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl p-3 text-sm text-fuchsia-850 dark:text-pink-50"
                   />
                 </View>
 
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Suami</Text>
+                  <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider mb-2">Nama Panggilan Suami</Text>
                   <TextInput
                     value={husbandNickname}
                     onChangeText={setHusbandNickname}
                     placeholder="Cth: Mas, Sayang, Koko"
                     placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
+                    className="w-full bg-pink-50 dark:bg-purple-950/40 border border-pink-200 dark:border-[#ec4899]/15 rounded-xl p-3 text-sm text-fuchsia-850 dark:text-pink-50"
                   />
                 </View>
 
                 <View>
                   <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nomor WhatsApp Suami</Text>
+                    <Text className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider">Nomor WhatsApp Suami</Text>
                     {errorPhone ? (
                       <Text className="text-[10px] text-error font-medium">{errorPhone}</Text>
                     ) : null}
@@ -693,7 +667,7 @@ export default function SettingsScreen() {
                     placeholder="Cth: 6281234567890"
                     keyboardType="phone-pad"
                     placeholderTextColor="#ec489950"
-                    className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? 'border-error text-error' : 'border-outline-variant text-on-surface'}`}
+                    className={`w-full bg-pink-50 dark:bg-purple-950/40 border rounded-xl p-3 text-sm ${errorPhone ? 'border-error text-error' : 'border-pink-200 dark:border-[#ec4899]/15 text-fuchsia-850 dark:text-pink-50'}`}
                   />
                 </View>
 

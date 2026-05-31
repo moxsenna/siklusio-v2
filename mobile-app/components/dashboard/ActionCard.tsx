@@ -74,12 +74,12 @@ export function ActionCard({ onOpenMessageModal, isFertile, isStrictOvulation }:
 
   return (
     <View className="w-full pb-8">
-      <View className="bg-surface rounded-[32px] p-[24px] shadow-sm border border-outline-variant">
-        <View className={`w-12 h-12 ${iconBgClass} rounded-2xl items-center justify-center mb-[16px]`}>
+      <View className="bg-white dark:bg-[#1c0f24] rounded-[32px] p-[24px] shadow-sm border border-pink-200 dark:border-[#ec4899]/15">
+        <View className={`w-12 h-12 ${iconBgClass} dark:bg-purple-950/40 rounded-2xl items-center justify-center mb-[16px]`}>
           <Text className="text-2xl">{actionCard.icon}</Text>
         </View>
-        <Text className="text-sm font-bold text-on-background mb-[4px]">{actionCard.title}</Text>
-        <Text className="text-[10px] text-on-background opacity-50 leading-relaxed min-h-[40px] font-bold">
+        <Text className="text-sm font-bold text-fuchsia-950 dark:text-[#fdf2f8] mb-[4px]">{actionCard.title}</Text>
+        <Text className="text-[10px] text-fuchsia-950 dark:text-[#fbcfe8] opacity-50 dark:opacity-80 leading-relaxed min-h-[40px] font-bold">
           {actionCard.desc}
         </Text>
         

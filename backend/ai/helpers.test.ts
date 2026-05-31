@@ -2,8 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { getAiCreditBalance, grantPremiumInitialAiCredits } from "./credits";
 import { buildOpenRouterRequestBody, parseOpenRouterJsonContent } from "./openRouter";
-import { validateHabitCoachPlan, validateCalmingReassurance } from "./schemas";
+import { validateHabitCoachPlan, validateCalmingReassurance, validateRecipesGeneration } from "./schemas";
 import { buildHabitCoachDayTasks } from "./habitCoachFoundation";
+import { buildRecipeCycleSnapshot } from "./recipeSummary";
 
 const makeTask = (id: string) => ({
   id,
@@ -45,6 +46,39 @@ const makePersonalizedTasks = () => [
     reason: "Membantu tubuh terasa lebih tenang.",
   },
 ];
+
+const validRecipePayload = {
+  phaseBenefit:
+    "Di fase luteal, makanan hangat berserat dan protein sederhana bisa membantu energi terasa lebih stabil.",
+  groceries: [
+    { id: 1, name: "Tempe", desc: "Protein nabati murah dan mudah dicari.", emoji: "soy" },
+    { id: 2, name: "Bayam", desc: "Sayur hijau lokal untuk variasi serat.", emoji: "leaf" },
+    { id: 3, name: "Telur", desc: "Protein praktis untuk masakan cepat.", emoji: "egg" },
+  ],
+  recipes: [
+    {
+      id: 1,
+      title: "Tumis Bayam Tempe",
+      description: "Menu hangat sederhana untuk makan siang.",
+      cookingTime: "15 menit",
+      ingredients: ["bayam", "tempe", "bawang putih"],
+      steps: ["Cuci bayam.", "Tumis bawang putih.", "Masukkan tempe dan bayam."],
+      phaseBenefit: "Protein dan serat membantu kenyang lebih lama.",
+      emoji: "pan",
+    },
+    {
+      id: 2,
+      title: "Telur Dadar Wortel",
+      description: "Lauk cepat dengan bahan warung.",
+      cookingTime: "10 menit",
+      ingredients: ["telur", "wortel", "daun bawang"],
+      steps: ["Kocok telur.", "Campur wortel.", "Masak di teflon."],
+      phaseBenefit: "Protein telur mendukung energi harian.",
+      emoji: "egg",
+    },
+  ],
+  disclaimer: "Panduan ini bersifat nutrisi umum, bukan pengganti saran medis.",
+};
 
 test("parseOpenRouterJsonContent accepts fenced JSON", () => {
   const parsed = parseOpenRouterJsonContent<{ summary: string }>(
@@ -117,6 +151,57 @@ test("validateHabitCoachPlan rejects days with more than five personalized tasks
     () => validateHabitCoachPlan(plan),
     /Each habit coach day must contain 3 to 5 personalized tasks/
   );
+});
+
+test("validateRecipesGeneration accepts local Indonesian recipe payload", () => {
+  const result = validateRecipesGeneration(validRecipePayload);
+
+  assert.equal(result.recipes.length, 2);
+  assert.equal(result.groceries.length, 3);
+  assert.match(result.phaseBenefit, /fase luteal/i);
+});
+
+test("validateRecipesGeneration rejects payload without exactly two recipes", () => {
+  assert.throws(
+    () =>
+      validateRecipesGeneration({
+        ...validRecipePayload,
+        recipes: [validRecipePayload.recipes[0]],
+      }),
+    /exactly 2 recipes/
+  );
+});
+
+test("buildRecipeCycleSnapshot keeps only recipe context fields", () => {
+  const snapshot = buildRecipeCycleSnapshot({
+    phase: "Luteal",
+    cycleDay: 23,
+    daysToNextPeriod: 5,
+    nickname: "Maya",
+    privateNotes: "not for recipe prompt",
+  });
+
+  assert.deepEqual(snapshot, {
+    phase: "Luteal",
+    cycleDay: 23,
+    daysToNextPeriod: 5,
+  });
+});
+
+test("recipe credit charge should use saved generation id as reference", () => {
+  const generation = { id: "recipe-generation-1" };
+  const chargePayload = {
+    userId: "user-1",
+    amount: 15,
+    feature: "recipes_today",
+    reason: "Luteal",
+    referenceId: generation.id,
+    metadata: { model: "test-model" },
+  };
+
+  assert.equal(chargePayload.referenceId, "recipe-generation-1");
+  assert.equal(chargePayload.feature, "recipes_today");
+  assert.equal(chargePayload.amount, 15);
 });
 
 test("buildHabitCoachDayTasks prepends water and phase foundations", () => {

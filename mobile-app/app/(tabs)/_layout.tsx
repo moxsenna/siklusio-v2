@@ -5,7 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '../../src/context/ThemeContext';
 import { useAuth } from '../../src/context/AuthContext';
 
 function TabBarIcon(props: {
@@ -38,11 +38,11 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { session, isLoading } = useAuth();
   const activeColor = Colors[colorScheme ?? 'light'].tint;
-  const inactiveColor = colorScheme === 'dark' ? '#64748b' : '#94a3b8';
+  const inactiveColor = colorScheme === 'dark' ? '#c084fc' : '#94a3b8';
 
   // Tambah padding bottom dinamis: minimal 14px, atau ikuti safe area inset
   const bottomPadding = Math.max(insets.bottom, 14);
@@ -70,14 +70,14 @@ export default function TabLayout() {
         animation: 'none',
         tabBarStyle: {
           height: 70 + bottomPadding,
-          backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#ffffff',
+          backgroundColor: colorScheme === 'dark' ? '#1c0f24' : '#ffffff',
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           borderTopWidth: 1,
           borderLeftWidth: 1,
           borderRightWidth: 1,
           borderBottomWidth: 0,
-          borderColor: colorScheme === 'dark' ? '#1e293b' : '#f1f5f9',
+          borderColor: colorScheme === 'dark' ? '#2e1c3a' : '#f1f5f9',
           paddingTop: 8,
           paddingBottom: bottomPadding,
           shadowColor: '#000',

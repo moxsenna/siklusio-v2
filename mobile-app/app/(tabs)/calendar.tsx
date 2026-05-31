@@ -106,12 +106,12 @@ export default function CalendarScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background dark:bg-[#120917]">
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }} className="bg-pink-50 dark:bg-[#120917]">
         <View className="flex-row justify-between items-end mb-6 pt-4 border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
-            <Text className="text-3xl font-bold text-on-background">Kalender</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+            <Text className="text-3xl font-bold text-fuchsia-950 dark:text-pink-50">Kalender</Text>
+            <Text className="text-xs uppercase tracking-widest text-pink-700 dark:text-pink-300 font-bold mt-1">
               Pelacakan Siklus & Ovulasi
             </Text>
           </View>
@@ -137,35 +137,35 @@ export default function CalendarScreen() {
           const isPeriod = isLoggedPeriod || info.displayPhase === 'Menstruasi';
 
           let phaseDesc = '';
-          let phaseColor = 'text-on-surface-variant';
+          let phaseColor = 'text-pink-700 dark:text-pink-300';
           let phaseLabel = 'Siklus';
 
           if (isPeriod) {
             phaseDesc = `Fase: Menstruasi (Hari ke-${info.cycleDay}) - Direkomendasikan istirahat dan hidrasi`;
-            phaseColor = 'text-primary';
+            phaseColor = 'text-primary dark:text-[#ec4899]';
             phaseLabel = 'Haid';
           } else if (info.displayPhase === 'Masa Subur') {
             phaseDesc = 'Fase: Masa Subur (Peluang hamil tinggi) - Rekomendasi promil aktif';
-            phaseColor = 'text-teal-600 font-bold';
+            phaseColor = 'text-teal-600 dark:text-teal-400 font-bold';
             phaseLabel = 'Subur';
           } else if (info.displayPhase === 'Ovulasi') {
             phaseDesc = 'Fase: Hari Ovulasi (Peluang hamil tertinggi) - Promil aktif sangat relevan';
-            phaseColor = 'text-teal-700 font-bold';
+            phaseColor = 'text-teal-700 dark:text-teal-300 font-bold';
             phaseLabel = 'Ovulasi';
           } else {
             phaseDesc = `Fase: Luteal atau masa tenang (Siklus hari ke-${info.cycleDay})`;
-            phaseColor = 'text-indigo-500 font-bold';
+            phaseColor = 'text-indigo-500 dark:text-indigo-305/70 font-bold';
             phaseLabel = 'Luteal';
           }
 
           return (
-            <View className="bg-surface p-6 mt-6 rounded-[32px] border border-outline-variant shadow-sm flex-col gap-4">
+            <View className="bg-white dark:bg-[#1c0f24] p-6 mt-6 rounded-[32px] border border-pink-200 dark:border-[#ec4899]/15 shadow-sm flex-col gap-4">
               <View className="flex-row items-center gap-4">
-                <View className="w-12 h-12 rounded-2xl bg-surface-variant items-center justify-center">
-                  <Text className="text-xs font-bold text-primary">{phaseLabel}</Text>
+                <View className="w-12 h-12 rounded-2xl bg-pink-100 dark:bg-purple-950/40 items-center justify-center">
+                  <Text className="text-xs font-bold text-primary dark:text-[#ec4899]">{phaseLabel}</Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-[10px] uppercase tracking-widest opacity-60 font-bold text-on-surface">
+                  <Text className="text-[10px] uppercase tracking-widest opacity-60 font-bold text-fuchsia-800 dark:text-[#fdf2f8]">
                     {getFormattedSelectedDate(selectedDate)}
                   </Text>
                   <Text className={`text-sm mt-0.5 leading-normal ${phaseColor}`}>{phaseDesc}</Text>
@@ -177,11 +177,11 @@ export default function CalendarScreen() {
                 className={`w-full py-3.5 rounded-2xl items-center justify-center border flex-row gap-2 active:scale-[0.98] ${
                   isLoggedPeriod
                     ? 'bg-primary border-primary shadow-sm shadow-primary/20'
-                    : 'bg-transparent border-primary/45'
+                    : 'bg-transparent border-primary/45 dark:border-[#ec4899]/30'
                 }`}
               >
                 <Text className={`text-[10px] uppercase font-bold tracking-wider ${
-                  isLoggedPeriod ? 'text-on-primary' : 'text-primary'
+                  isLoggedPeriod ? 'text-on-primary' : 'text-primary dark:text-[#ec4899]'
                 }`}>
                   {isLoggedPeriod ? 'Haid Tercatat (Ketuk untuk Hapus)' : 'Tandai Sedang Menstruasi'}
                 </Text>

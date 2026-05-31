@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   // Tentukan path ke semua komponen React Native Anda
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",

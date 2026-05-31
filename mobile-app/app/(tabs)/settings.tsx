@@ -39,7 +39,6 @@ export default function SettingsScreen() {
     }
   }, [tab]);
 
-  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
   const toastOpacity = React.useRef(new Animated.Value(0)).current;
   const toastTranslateY = React.useRef(new Animated.Value(-20)).current;
@@ -83,22 +82,6 @@ export default function SettingsScreen() {
     }, 3000);
   };
 
-  useEffect(() => {
-    const savedKey = storage.getItem('hs_gemini_api_key') || '';
-    setGeminiApiKey(savedKey);
-  }, []);
-
-  const handleApiKeySubmit = () => {
-    const trimmed = geminiApiKey.trim();
-    if (trimmed) {
-      storage.setItem('hs_gemini_api_key', trimmed);
-      showToast('Kunci Pintar AI Bunda berhasil diaktifkan! 🔑', 'success');
-    } else {
-      storage.removeItem('hs_gemini_api_key');
-      showToast('Kunci Pintar AI Bunda telah dihapus! 🗑️', 'info');
-    }
-  };
-  
   const { 
     lastPeriodDate, setLastPeriodDate,
     cycleLength, setCycleLength,
@@ -555,138 +538,31 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
-              {/* Card 3: Kunci Pintar AI (BYOK) */}
+              {/* Card 3: AI Server */}
               <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
                 <View className="flex-row items-center gap-3 mb-4">
                   <View className="w-9 h-9 rounded-full bg-indigo-100 items-center justify-center">
-                    <FontAwesome name="key" size={16} color="#4f46e5" />
+                    <FontAwesome name="magic" size={16} color="#4f46e5" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-base font-bold text-on-surface">🔑 Kunci Pintar AI Bunda</Text>
-                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">Bring Your Own Key (BYOK)</Text>
+                    <Text className="text-base font-bold text-on-surface">Asisten AI Siklusio</Text>
+                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">OpenRouter Server</Text>
                   </View>
                 </View>
 
-                <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 mb-4 gap-3">
-                  <Text className="text-xs font-semibold text-indigo-950 leading-relaxed">
-                    🌸 <Text className="font-bold text-indigo-700">Apa itu Kunci Pintar AI?</Text>
-                  </Text>
+                <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 gap-3">
                   <Text className="text-xs text-indigo-900/90 leading-relaxed">
-                    SiklusIo dilengkapi asisten AI pintar yang bisa diajak curhat (Pojok Tenang AI), membuat Laporan Harian AI, dan memberikan saran cerdas.
+                    Semua fitur AI sekarang memakai OpenRouter dari server Siklusio. Kamu tidak perlu memasukkan Gemini API Key pribadi di aplikasi.
                   </Text>
-                  <Text className="text-xs text-indigo-900/90 leading-relaxed font-semibold">
-                    Biar asisten AI ini bisa menjawab curhat Bunda secara gratis, super cepat tanpa antre, dan tanpa batas kuota harian, Bunda bisa memasukkan "Kunci Pintar" (Gemini API Key) milik Bunda sendiri.
-                  </Text>
-                  
-                  <View className="border-t border-indigo-200/50 pt-3">
-                    <Text className="text-xs font-bold text-indigo-950 mb-2">💡 Cara Mudah Mendapatkannya (100% Gratis & Aman):</Text>
-                    
-                    <View className="gap-2 pl-1">
-                      <View className="flex-row gap-2 items-start">
-                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
-                          <Text className="text-[10px] font-bold text-indigo-700">1</Text>
-                        </View>
-                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
-                          Ketuk tombol <Text className="font-semibold text-indigo-700">"Dapatkan Kunci Gratis ↗️"</Text> di bawah untuk membuka halaman pendaftaran resmi Google.
-                        </Text>
-                      </View>
-
-                      <View className="flex-row gap-2 items-start">
-                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
-                          <Text className="text-[10px] font-bold text-indigo-700">2</Text>
-                        </View>
-                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
-                          Masuk dengan akun <Text className="font-semibold">Gmail/Google</Text> Bunda yang biasa dipakai.
-                        </Text>
-                      </View>
-
-                      <View className="flex-row gap-2 items-start">
-                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
-                          <Text className="text-[10px] font-bold text-indigo-700">3</Text>
-                        </View>
-                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
-                          Klik tombol biru bertuliskan <Text className="font-semibold text-indigo-700">"Create API Key"</Text>, lalu salin (copy) kode rahasia yang muncul (biasanya diawali huruf <Text className="font-mono text-[11px] bg-indigo-100 px-1 rounded font-bold">AIzaSy...</Text>).
-                        </Text>
-                      </View>
-
-                      <View className="flex-row gap-2 items-start">
-                        <View className="w-5 h-5 rounded-full bg-indigo-200 items-center justify-center shrink-0 mt-0.5">
-                          <Text className="text-[10px] font-bold text-indigo-700">4</Text>
-                        </View>
-                        <Text className="text-xs text-indigo-900 flex-1 leading-relaxed">
-                          Tempel (paste) kodenya di kolom di bawah ini, lalu klik <Text className="font-bold text-indigo-700">Simpan Kunci Pintar</Text>. Selesai! 🎉
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View className="bg-white/80 rounded-xl p-3 border border-indigo-100 flex-row gap-2.5 items-start mt-1">
-                    <Text className="text-sm">🛡️</Text>
-                    <Text className="text-[11px] text-indigo-950/80 leading-relaxed flex-1">
-                      <Text className="font-bold">Jaminan Aman & Privat:</Text> Kunci rahasia ini disimpan langsung di dalam memori HP Bunda sendiri. Tidak ada pihak luar maupun SiklusIo yang bisa mengintip atau menyalahgunakannya.
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="gap-4">
-                  <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Kunci Gemini API Key Bunda</Text>
-                    <View className="relative justify-center">
-                      <TextInput
-                        value={geminiApiKey}
-                        onChangeText={setGeminiApiKey}
-                        secureTextEntry={true}
-                        placeholder="Tempel kunci rahasia Bunda di sini..."
-                        placeholderTextColor="#a5b4fc"
-                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface font-mono"
-                      />
-                      {geminiApiKey ? (
-                        <TouchableOpacity 
-                          onPress={() => {
-                            setGeminiApiKey('');
-                            storage.removeItem('hs_gemini_api_key');
-                            showToast('Kunci Pintar AI Bunda telah dihapus! 🗑️', 'info');
-                          }}
-                          className="absolute right-3 w-8 h-8 rounded-full items-center justify-center bg-red-50 active:bg-red-100"
-                        >
-                          <FontAwesome name="trash" size={14} color="#ef4444" />
-                        </TouchableOpacity>
-                      ) : (
-                        <View className="absolute right-4">
-                          <FontAwesome name="lock" size={14} color="#94a3b8" />
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  <View className="flex-row gap-3">
-                    <TouchableOpacity
-                      onPress={() => {
-                        const url = 'https://aistudio.google.com/app/apikey';
-                        if (Platform.OS === 'web') {
-                          window.open(url, '_blank');
-                        } else {
-                          import('react-native').then(({ Linking }) => {
-                            Linking.openURL(url).catch((err) => {
-                              console.error("Gagal membuka tautan:", err);
-                              Alert.alert("Eror", "Gagal membuka halaman web. Silakan buka browser dan ketik aistudio.google.com/app/apikey secara manual.");
-                            });
-                          });
-                        }
-                      }}
-                      className="flex-1 py-3 bg-indigo-50 border border-indigo-200 rounded-2xl items-center justify-center flex-row gap-2 active:bg-indigo-100"
-                    >
-                      <FontAwesome name="external-link" size={12} color="#4f46e5" />
-                      <Text className="text-indigo-700 font-bold text-xs uppercase tracking-wider">Dapatkan Kunci Gratis</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      onPress={handleApiKeySubmit}
-                      className="flex-1 py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
-                    >
-                      <Text className="text-white font-bold text-xs uppercase tracking-wider">Simpan Kunci</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      storage.removeItem('hs_gemini_api_key');
+                      showToast('Kunci Gemini lama dibersihkan dari perangkat.', 'info');
+                    }}
+                    className="w-full py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
+                  >
+                    <Text className="text-white font-bold text-xs uppercase tracking-wider">Bersihkan Kunci Lama</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 

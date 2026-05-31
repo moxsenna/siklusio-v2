@@ -95,6 +95,51 @@ export function getPlanTasksForDate(plan: HabitCoachPlan | null, dateKey: string
   }));
 }
 
+function taskSignature(task: Task) {
+  return `${(task.text || "").trim().toLowerCase()}::${task.category || ""}`;
+}
+
+export function mergeCoachTasksWithSavedState(
+  plannedTasks: Task[],
+  savedTasks?: Task[]
+): Task[] {
+  if (!savedTasks || savedTasks.length === 0) {
+    return plannedTasks;
+  }
+
+  const savedByCoachTaskId = new Map<string, Task>();
+  const savedBySignature = new Map<string, Task>();
+  const plannedCoachPlanIds = new Set(
+    plannedTasks.map((task) => task.coachPlanId).filter(Boolean)
+  );
+
+  for (const savedTask of savedTasks) {
+    if (
+      savedTask.coachPlanId &&
+      plannedCoachPlanIds.size > 0 &&
+      !plannedCoachPlanIds.has(savedTask.coachPlanId)
+    ) {
+      continue;
+    }
+
+    if (savedTask.coachTaskId) {
+      savedByCoachTaskId.set(savedTask.coachTaskId, savedTask);
+    }
+    savedBySignature.set(taskSignature(savedTask), savedTask);
+  }
+
+  return plannedTasks.map((task) => {
+    const match =
+      (task.coachTaskId ? savedByCoachTaskId.get(task.coachTaskId) : undefined) ||
+      savedBySignature.get(taskSignature(task));
+
+    return {
+      ...task,
+      done: Boolean(match?.done),
+    };
+  });
+}
+
 export function summarizeHabitPlanCompletion(
   plan: HabitCoachPlan,
   activityHistory: Record<string, DailyRecord>

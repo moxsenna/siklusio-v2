@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useMemo, useTransition } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
-import { addDays, format, subDays } from 'date-fns';
+import { addDays, format, startOfDay, subDays } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { analytics } from '../../src/lib/analytics';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 import { apiGetJson, apiPostJson } from '../../src/lib/api';
 import {
-  getLocalWeekEnd,
-  getLocalWeekStart,
   getPlanTasksForDate,
+  mergeCoachTasksWithSavedState,
   mapApiHabitPlan,
   summarizeHabitPlanCompletion,
 } from '../../src/lib/habitCoachPlan';
@@ -18,7 +17,6 @@ import type { CoachQuestionAnswer, HabitCoachPlan } from '../../src/lib/habitCoa
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
 import { HabitCoachCard } from '../../components/habits/HabitCoachCard';
 import { HabitCoachSheet } from '../../components/habits/HabitCoachSheet';
-import { HabitPlanWeekView } from '../../components/habits/HabitPlanWeekView';
 import { HistoryView } from '../../components/habits/HistoryView';
 
 // Error boundary wrapper untuk HistoryView yang crash di native
@@ -84,13 +82,14 @@ export default function HabitsScreen() {
   }, [viewedDate]);
 
   const dateKey = format(viewedDate, 'yyyy-MM-dd');
+  const todayDateKey = useMemo(() => format(new Date(), 'yyyy-MM-dd'), []);
 
   useEffect(() => {
     let mounted = true;
     setCoachFetching(true);
 
     Promise.all([
-      apiGetJson<{ plan: any | null }>('/api/habit-coach/current'),
+      apiGetJson<{ plan: any | null }>(`/api/habit-coach/current?date=${todayDateKey}`),
       apiGetJson<{ balance: number }>('/api/ai/credits'),
     ])
       .then(([planResponse, creditResponse]) => {
@@ -108,7 +107,7 @@ export default function HabitsScreen() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [todayDateKey]);
   
   // Dynamic Tasks Based on Phase
   const fallbackTasks = useMemo(() => {
@@ -135,14 +134,23 @@ export default function HabitsScreen() {
     () => getPlanTasksForDate(habitCoachPlan, dateKey),
     [habitCoachPlan, dateKey]
   );
+  const todayCoachTasks = useMemo(
+    () => getPlanTasksForDate(habitCoachPlan, todayDateKey),
+    [habitCoachPlan, todayDateKey]
+  );
+  const todayPlanFocus = useMemo(
+    () => habitCoachPlan?.days.find((day) => day.dateKey === todayDateKey)?.focus || null,
+    [habitCoachPlan, todayDateKey]
+  );
   const savedDayData = activityHistory[dateKey];
-  const savedTasksBelongToCoach =
-    Boolean(habitCoachPlan) &&
-    Boolean(savedDayData?.tasks?.some(task => task.coachPlanId === habitCoachPlan?.id));
+  const mergedCoachTasks = useMemo(
+    () => mergeCoachTasksWithSavedState(coachTasks, savedDayData?.tasks),
+    [coachTasks, savedDayData?.tasks]
+  );
   const currentDayData = {
     ...(savedDayData || {}),
     tasks: coachTasks.length > 0
-      ? (savedTasksBelongToCoach ? savedDayData?.tasks || coachTasks : coachTasks)
+      ? mergedCoachTasks
       : (savedDayData?.tasks || fallbackTasks),
     symptoms: savedDayData?.symptoms || [],
   };
@@ -216,11 +224,11 @@ export default function HabitsScreen() {
 
     try {
       const mode = habitCoachPlan ? 'renewal' : 'initial';
-      const targetStart = habitCoachPlan
-        ? addDays(new Date(`${habitCoachPlan.weekEnd}T00:00:00`), 1)
-        : getLocalWeekStart(viewedDate);
-      const weekStart = mode === 'renewal' ? targetStart : getLocalWeekStart(viewedDate);
-      const weekEnd = mode === 'renewal' ? addDays(weekStart, 6) : getLocalWeekEnd(viewedDate);
+      const weekStart =
+        mode === 'renewal' && habitCoachPlan
+          ? addDays(new Date(`${habitCoachPlan.weekEnd}T00:00:00`), 1)
+          : startOfDay(new Date());
+      const weekEnd = addDays(weekStart, 6);
       const dateKeys = Array.from({ length: 7 }, (_, index) => format(addDays(weekStart, index), 'yyyy-MM-dd'));
       const previousSummary = habitCoachPlan
         ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
@@ -239,7 +247,8 @@ export default function HabitsScreen() {
         previousSummary,
       });
 
-      setHabitCoachPlan(mapApiHabitPlan(json.plan));
+      const refreshed = await apiGetJson<{ plan: any | null }>(`/api/habit-coach/current?date=${todayDateKey}`);
+      setHabitCoachPlan(refreshed.plan ? mapApiHabitPlan(refreshed.plan) : mapApiHabitPlan(json.plan));
       setAiCreditBalance(json.balance);
       setCoachOpen(false);
     } catch (error: any) {
@@ -314,19 +323,24 @@ export default function HabitsScreen() {
               <TouchableOpacity 
                 onPress={handlePrevDay} 
                 disabled={viewedDateOffset <= -60}
-                className="p-2 rounded-full"
+                className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
                 <Text className={`text-xl font-bold ${viewedDateOffset <= -60 ? 'opacity-30' : 'text-primary'}`}>←</Text>
               </TouchableOpacity>
               
-              <Text className="text-sm font-bold text-on-surface tracking-wide uppercase">
-                {viewedDateOffset === 0 ? '✨ Hari Ini ✨' : viewedDateOffset === -1 ? 'Kemarin' : dateString}
-              </Text>
+              <View className="items-center">
+                <Text className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                  Tanggal Fokus
+                </Text>
+                <Text className="text-sm font-bold text-on-surface mt-1">
+                  {viewedDateOffset === 0 ? 'Hari ini' : viewedDateOffset === -1 ? 'Kemarin' : dateString}
+                </Text>
+              </View>
               
               <TouchableOpacity 
                 onPress={handleNextDay}
                 disabled={viewedDateOffset >= 0}
-                className="p-2 rounded-full"
+                className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
                 <Text className={`text-xl font-bold ${viewedDateOffset >= 0 ? 'opacity-30' : 'text-primary'}`}>→</Text>
               </TouchableOpacity>
@@ -337,18 +351,14 @@ export default function HabitsScreen() {
                 plan={habitCoachPlan}
                 balance={aiCreditBalance}
                 loading={coachFetching}
+                todayFocus={todayPlanFocus}
+                todayTaskCount={todayCoachTasks.length}
                 onOpen={() => {
                   setCoachError(null);
                   setCoachOpen(true);
                 }}
               />
             </View>
-
-            {habitCoachPlan && (
-              <View className="mb-6">
-                <HabitPlanWeekView plan={habitCoachPlan} />
-              </View>
-            )}
 
             {/* Progress Header */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant relative overflow-hidden mb-6">
@@ -370,7 +380,7 @@ export default function HabitsScreen() {
             {/* Daily Checklist */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant mb-6">
               <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
-                🎯 Target Hari Ini
+                Target Hari Ini
               </Text>
               
               <View className="gap-3">
@@ -382,12 +392,14 @@ export default function HabitsScreen() {
                       task.done ? 'bg-surface-variant/50 border-outline-variant shadow-sm' : 'bg-surface border-outline-variant hover:border-primary/50'
                     }`}
                   >
-                    <View className="flex-row items-center gap-4">
+                    <View className="flex-row items-center gap-4 flex-1 pr-3">
                       <View className={`w-12 h-12 rounded-2xl items-center justify-center bg-surface border border-outline-variant ${task.done ? 'opacity-50' : ''}`}>
                         <Text className="text-2xl">{task.emoji}</Text>
                       </View>
-                      <View>
-                        <Text className={`text-base font-bold ${task.done ? 'text-on-surface-variant opacity-60 line-through' : 'text-on-surface'}`}>{task.text}</Text>
+                      <View className="flex-1">
+                        <Text className={`text-base font-bold leading-6 ${task.done ? 'text-on-surface-variant opacity-60 line-through' : 'text-on-surface'}`}>
+                          {task.text}
+                        </Text>
                         <Text className={`text-xs font-bold uppercase tracking-wider mt-1 ${task.done ? 'text-green-500' : 'text-primary'}`}>{task.done ? 'Selesai ✓' : 'Yuk Bisa!'}</Text>
                       </View>
                     </View>

@@ -22,10 +22,10 @@ import {
 } from "./ai/schemas";
 import { summarizeActivityHistory } from "./ai/habitSummary";
 import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
+import { isDateKey, isValidHabitCoachWindow } from "./ai/habitCoachWindow";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
-  GEMINI_API_KEY?: string;
   OPENROUTER_API_KEY: string;
   OPENROUTER_FREE_MODEL?: string;
   OPENROUTER_PAID_MODEL?: string;
@@ -154,9 +154,7 @@ app.post("/api/generate-recipes", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
       ],
       messages: [
         {
@@ -204,9 +202,7 @@ app.post("/api/generate-cycle-report", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
       ],
       messages: [
         {
@@ -265,9 +261,7 @@ app.post("/api/generate-habits-insight", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
       ],
       messages: [
         {
@@ -324,9 +318,7 @@ app.post("/api/generate-calming-reassurance", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
       ],
       messages: [
         {
@@ -340,7 +332,17 @@ app.post("/api/generate-calming-reassurance", async (c) => {
           2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ''}".
           3. JANGAN PERNAH memanggil/menyebut pengguna dengan sebutan "Bunda" maupun kata formal "Anda" (selalu gunakan "kamu" atau nama panggilannya).
           4. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
-          5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.`,
+          5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
+
+          Output wajib berupa JSON pendek sesuai schema:
+          - title: judul hangat maksimal 7 kata, tanpa awalan titik dua, bullet, atau tanda baca.
+          - opening: 1 kalimat pembuka personal.
+          - validation: 1-2 kalimat validasi perasaan.
+          - grounding: 1-2 kalimat ajakan kembali ke saat ini.
+          - affirmation: 1 kalimat afirmasi singkat dari sudut pandang "aku".
+          - breathingTip: 1 instruksi napas praktis dan lembut.
+          - closing: 1 kalimat penutup hangat.
+          - reassurance: gabungan opening, validation, grounding, affirmation, dan closing agar app versi lama tetap bisa membaca hasilnya.`,
         }
       ],
       responseSchemaName: "calming_reassurance",
@@ -375,11 +377,25 @@ app.get("/api/habit-coach/current", async (c) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
-    const { data: plan, error } = await auth.supabaseAdmin
+    const date = c.req.query("date");
+    const hasDateFilter = isDateKey(date);
+    if (date && !hasDateFilter) {
+      return c.json({ error: "Parameter date tidak valid." }, 400);
+    }
+
+    let planQuery = auth.supabaseAdmin
       .from("habit_coach_plans")
       .select("*, habit_coach_plan_days(*)")
       .eq("user_id", auth.user.id)
-      .eq("status", "active")
+      .eq("status", "active");
+
+    if (hasDateFilter && date) {
+      planQuery = planQuery
+        .lte("week_start", date)
+        .gte("week_end", date);
+    }
+
+    const { data: plan, error } = await planQuery
       .order("week_start", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -400,10 +416,11 @@ app.post("/api/habit-coach/generate", async (c) => {
     const body = await c.req.json();
     const dateKeys = Array.isArray(body.dateKeys) ? body.dateKeys : [];
     if (
-      typeof body.weekStart !== "string" ||
-      typeof body.weekEnd !== "string" ||
-      dateKeys.length !== 7 ||
-      !dateKeys.every((dateKey: unknown) => typeof dateKey === "string")
+      !isValidHabitCoachWindow({
+        weekStart: body.weekStart,
+        weekEnd: body.weekEnd,
+        dateKeys,
+      })
     ) {
       return c.json({ error: "Data minggu habit tidak valid." }, 400);
     }
@@ -415,14 +432,16 @@ app.post("/api/habit-coach/generate", async (c) => {
       .from("habit_coach_plans")
       .select("id")
       .eq("user_id", auth.user.id)
-      .eq("week_start", body.weekStart)
       .eq("status", "active")
+      .lte("week_start", body.weekEnd)
+      .gte("week_end", body.weekStart)
+      .limit(1)
       .maybeSingle();
 
     if (existingError) throw existingError;
     if (existingActive) {
       return c.json({
-        error: "Rencana habit minggu ini sudah aktif.",
+        error: "Rencana habit aktif untuk rentang tanggal ini sudah ada.",
         planId: existingActive.id,
       }, 409);
     }
@@ -449,11 +468,7 @@ app.post("/api/habit-coach/generate", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
-        "qwen/qwen3-235b-a22b-2507",
-        "mistralai/mistral-small-3.2-24b-instruct",
       ],
       messages: buildHabitCoachMessages({
         nickname: body.nickname || "",
@@ -579,11 +594,7 @@ app.post("/api/cycle-guide/generate", async (c) => {
       model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
       fallbackModels: [
         "nvidia/nemotron-3-super-120b-a12b:free",
-        "google/gemma-4-31b-it:free",
         c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-        "google/gemini-2.5-flash-lite",
-        "qwen/qwen3-235b-a22b-2507",
-        "mistralai/mistral-small-3.2-24b-instruct",
       ],
       messages: buildCycleGuideMessages({
         nickname: body.nickname || "",

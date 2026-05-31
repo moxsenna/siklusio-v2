@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { format } from 'date-fns';
 import {
+  mergeCoachTasksWithSavedState,
   getLocalWeekStart,
   mapApiHabitPlan,
   summarizeHabitPlanCompletion,
@@ -47,6 +48,66 @@ test('getPlanTasksForDate maps coach tasks into daily checklist tasks', () => {
   assert.equal(tasks[0].text, 'Minum air 6 gelas');
   assert.equal(tasks[0].coachPlanId, 'plan-1');
   assert.equal(tasks[0].category, 'hydration');
+});
+
+test('mergeCoachTasksWithSavedState keeps plan text while preserving completion state', () => {
+  const plannedTasks = getPlanTasksForDate(plan, '2026-05-25');
+  const savedTasks = [
+    {
+      ...plannedTasks[0],
+      text: 'Old copied text',
+      done: true,
+    },
+    {
+      id: 99,
+      text: 'Unrelated old task',
+      emoji: 'star',
+      done: true,
+      coachPlanId: 'plan-1',
+      coachTaskId: 'legacy-other',
+      category: 'rest' as const,
+      reason: '',
+    },
+  ];
+
+  const merged = mergeCoachTasksWithSavedState(plannedTasks, savedTasks);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].text, 'Minum air 6 gelas');
+  assert.equal(merged[0].done, true);
+});
+
+test('mergeCoachTasksWithSavedState falls back to text and category when coachTaskId is missing', () => {
+  const plannedTasks = getPlanTasksForDate(plan, '2026-05-25');
+  const savedTasks = [
+    {
+      id: 1,
+      text: 'Minum air 6 gelas',
+      emoji: 'water',
+      done: true,
+      coachPlanId: 'plan-1',
+      category: 'hydration' as const,
+      reason: '',
+    },
+  ];
+
+  const merged = mergeCoachTasksWithSavedState(plannedTasks, savedTasks);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].done, true);
+});
+
+test('mergeCoachTasksWithSavedState ignores completion from another coach plan', () => {
+  const plannedTasks = getPlanTasksForDate(plan, '2026-05-25');
+  const savedTasks = [
+    {
+      ...plannedTasks[0],
+      done: true,
+      coachPlanId: 'old-plan',
+    },
+  ];
+
+  const merged = mergeCoachTasksWithSavedState(plannedTasks, savedTasks);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].done, false);
 });
 
 test('summarizeHabitPlanCompletion counts completed coach tasks only', () => {

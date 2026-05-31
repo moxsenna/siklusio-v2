@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { getAiCreditBalance, grantPremiumInitialAiCredits } from "./credits";
 import { buildOpenRouterRequestBody, parseOpenRouterJsonContent } from "./openRouter";
-import { validateHabitCoachPlan } from "./schemas";
+import { validateHabitCoachPlan, validateCalmingReassurance } from "./schemas";
 
 const makeTask = (id: string) => ({
   id,
@@ -41,6 +41,30 @@ test("buildOpenRouterRequestBody orders primary model before fallbacks", () => {
 
   assert.deepEqual(body.models, ["qwen/free", "openai/cheap"]);
   assert.equal("model" in body, false);
+  assert.equal(body.max_tokens, 1800);
+  assert.equal("max_completion_tokens" in body, false);
+  assert.deepEqual(body.reasoning, { effort: "none", exclude: true });
+  assert.equal((body.messages as any[])[0].role, "system");
+  assert.match((body.messages as any[])[0].content, /Return only valid JSON/);
+});
+
+test("buildOpenRouterRequestBody caps fallback routing to three models", () => {
+  const body = buildOpenRouterRequestBody({
+    apiKey: "test-key",
+    model: "qwen/free",
+    fallbackModels: [
+      "qwen/free",
+      "nvidia/free",
+      "openai/cheap",
+      "google/gemini",
+      "mistral/small",
+    ],
+    messages: [{ role: "user", content: "Halo" }],
+    responseSchemaName: "test_schema",
+    responseSchema: { type: "object" },
+  });
+
+  assert.deepEqual(body.models, ["qwen/free", "nvidia/free", "openai/cheap"]);
 });
 
 test("validateHabitCoachPlan rejects days with fewer than three tasks", () => {
@@ -50,6 +74,33 @@ test("validateHabitCoachPlan rejects days with fewer than three tasks", () => {
   assert.throws(
     () => validateHabitCoachPlan(plan),
     /Each habit coach day must contain 3 to 5 tasks/
+  );
+});
+
+test("validateCalmingReassurance requires structured letter sections with legacy fields", () => {
+  const result = validateCalmingReassurance({
+    title: "Kamu tidak sendirian",
+    opening: "Aku dengar rasa cemasmu hari ini.",
+    validation: "Perasaanmu valid dan tidak berlebihan.",
+    grounding: "Untuk saat ini, cukup kembali ke napasmu.",
+    affirmation: "Aku boleh pelan-pelan.",
+    reassurance: "Aku dengar rasa cemasmu hari ini. Perasaanmu valid dan tidak berlebihan.",
+    breathingTip: "Tarik napas 4 detik, tahan 2 detik, hembuskan 4 detik.",
+    closing: "Aku di sini menemanimu.",
+  });
+
+  assert.equal(result.title, "Kamu tidak sendirian");
+  assert.equal(result.breathingTip.includes("Tarik napas"), true);
+});
+
+test("validateCalmingReassurance rejects legacy-only reassurance payload", () => {
+  assert.throws(
+    () =>
+      validateCalmingReassurance({
+        reassurance: "Kamu tidak sendirian.",
+        breathingTip: "Tarik napas pelan.",
+      }),
+    /Calming reassurance title is required/
   );
 });
 

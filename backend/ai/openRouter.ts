@@ -40,14 +40,26 @@ export function parseOpenRouterJsonContent<T>(content: string): T {
 }
 
 export function buildOpenRouterRequestBody(options: OpenRouterChatOptions) {
-  const fallbackModels = (options.fallbackModels || []).filter(
-    (model): model is string => Boolean(model && model.trim())
-  );
+  const models = [options.model, ...(options.fallbackModels || [])]
+    .filter((model): model is string => Boolean(model && model.trim()))
+    .map((model) => model.trim())
+    .filter((model, index, allModels) => allModels.indexOf(model) === index)
+    .slice(0, 3);
 
   const body: Record<string, unknown> = {
-    messages: options.messages,
+    messages: [
+      {
+        role: "system",
+        content: `Return only valid JSON matching the ${options.responseSchemaName} schema. Do not include markdown, prose, or reasoning.`,
+      },
+      ...options.messages,
+    ],
     temperature: 0.4,
-    max_completion_tokens: options.maxCompletionTokens ?? 1800,
+    max_tokens: options.maxCompletionTokens ?? 1800,
+    reasoning: {
+      effort: "none",
+      exclude: true,
+    },
     response_format: {
       type: "json_schema",
       json_schema: {
@@ -58,10 +70,10 @@ export function buildOpenRouterRequestBody(options: OpenRouterChatOptions) {
     },
   };
 
-  if (fallbackModels.length > 0) {
-    body.models = [options.model, ...fallbackModels];
+  if (models.length > 1) {
+    body.models = models;
   } else {
-    body.model = options.model;
+    body.model = models[0] || options.model;
   }
 
   return body;

@@ -28,9 +28,6 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
         recentHistory[k] = activityHistory[k];
       });
 
-      const { storage } = await import('../../src/lib/storage');
-      const userApiKey = storage.getItem('hs_gemini_api_key') || '';
-
       const payload = {
         phase: currentPhase,
         cycleDay,
@@ -40,7 +37,6 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
           end: fertileWindowEnd ? format(fertileWindowEnd, 'yyyy-MM-dd') : ''
         },
         cycleData: recentHistory,
-        userApiKey,
         nickname: userNickname
       };
 

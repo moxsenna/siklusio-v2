@@ -63,15 +63,11 @@ export function AiRecommendationSection({
     setResult(null);
 
     try {
-      const { storage } = await import('../../src/lib/storage');
-      const userApiKey = storage.getItem('hs_gemini_api_key') || '';
-
       const weeklyData = collectWeeklyData();
       const json = await apiPostJson<AiInsightResult>('/api/generate-habits-insight', {
         weeklyData,
         currentPhase,
         nickname,
-        userApiKey,
       });
       setResult(json);
     } catch (e: any) {

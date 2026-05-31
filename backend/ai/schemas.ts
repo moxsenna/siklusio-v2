@@ -256,10 +256,25 @@ export const habitsInsightSchema = {
 export const calmingReassuranceSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["reassurance", "breathingTip"],
+  required: [
+    "title",
+    "opening",
+    "validation",
+    "grounding",
+    "affirmation",
+    "reassurance",
+    "breathingTip",
+    "closing",
+  ],
   properties: {
+    title: { type: "string" },
+    opening: { type: "string" },
+    validation: { type: "string" },
+    grounding: { type: "string" },
+    affirmation: { type: "string" },
     reassurance: { type: "string" },
-    breathingTip: { type: "string" }
+    breathingTip: { type: "string" },
+    closing: { type: "string" },
   }
 };
 
@@ -283,8 +298,14 @@ export interface HabitsInsightResult {
 }
 
 export interface CalmingReassuranceResult {
+  title: string;
+  opening: string;
+  validation: string;
+  grounding: string;
+  affirmation: string;
   reassurance: string;
   breathingTip: string;
+  closing: string;
 }
 
 export function validateRecipesGeneration(value: unknown): RecipesGenerationResult {
@@ -312,5 +333,13 @@ export function validateCalmingReassurance(value: unknown): CalmingReassuranceRe
   if (!isPlainRecord(value)) {
     throw new Error("Invalid calming reassurance payload");
   }
+  assertString(value.title, "Calming reassurance title is required");
+  assertString(value.opening, "Calming reassurance opening is required");
+  assertString(value.validation, "Calming reassurance validation is required");
+  assertString(value.grounding, "Calming reassurance grounding is required");
+  assertString(value.affirmation, "Calming reassurance affirmation is required");
+  assertString(value.reassurance, "Calming reassurance legacy reassurance is required");
+  assertString(value.breathingTip, "Calming reassurance breathing tip is required");
+  assertString(value.closing, "Calming reassurance closing is required");
   return value as unknown as CalmingReassuranceResult;
 }

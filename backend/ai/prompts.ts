@@ -25,6 +25,7 @@ export function buildHabitCoachMessages(input: {
           "Tulis dalam Bahasa Indonesia dengan kata kamu, bukan Anda.",
           "Habit harus bisa diceklis, spesifik, dan selesai kurang dari 10 menit kecuali user memilih tantangan tinggi.",
           "Jangan membuat plan yang sama persis setiap hari.",
+          "coachSummary wajib singkat, cukup 1 sampai 2 kalimat (maksimal 28 kata).",
         ],
       }),
     },

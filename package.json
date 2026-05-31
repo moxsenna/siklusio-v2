@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Express API server (Gemini + Supabase admin) for Siklusio. Mobile app lives in mobile-app/.",
+  "description": "Hono API server (OpenRouter + Supabase admin) for Siklusio. Mobile app lives in mobile-app/.",
   "scripts": {
     "dev": "wrangler dev backend/index.ts --port 3000",
     "deploy": "wrangler deploy backend/index.ts",

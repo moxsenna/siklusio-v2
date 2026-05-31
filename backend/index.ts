@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
 import { chargeAiCredits, getAiCreditBalance, grantPremiumInitialAiCredits } from "./ai/credits";
+import { getAiCreditHistory } from "./ai/history";
 import { buildCycleGuideMessages, buildHabitCoachMessages } from "./ai/prompts";
 import {
   cycleGuideSchema,
@@ -369,6 +370,105 @@ app.get("/api/ai/credits", async (c) => {
   } catch (error: any) {
     console.error("[ai/credits]", error.stack || error);
     return c.json({ error: error.message || "Gagal mengambil saldo kredit AI." }, 500);
+  }
+});
+
+app.get("/api/ai/credits/history", async (c) => {
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const history = await getAiCreditHistory(auth.supabaseAdmin, auth.user.id);
+    return c.json({ history });
+  } catch (error: any) {
+    console.error("[ai/credits/history]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil riwayat kredit AI." }, 500);
+  }
+});
+
+// Hono Endpoint for topup AI Credits
+app.post("/api/checkout/topup", async (c) => {
+  console.log("--> [BACKEND] Received request /api/checkout/topup");
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const { packageId, price, credits } = await c.req.json();
+    
+    if (!packageId || !price || !credits) {
+      return c.json({ error: "Data paket topup tidak lengkap." }, 400);
+    }
+
+    const mayarKey = c.env.MAYAR_API_KEY;
+    if (!mayarKey) {
+      return c.json({ error: "Konfigurasi pembayaran belum tersedia." }, 500);
+    }
+
+    // Call Mayar API
+    const finalAmount = price;
+    const { supabaseAdmin, user } = auth;
+    
+    // Get user details
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("name, whatsapp_number")
+      .eq("id", user.id)
+      .maybeSingle();
+      
+    const name = profile?.name || user.email?.split("@")[0] || "User";
+    const whatsapp = profile?.whatsapp_number || "-";
+    const email = user.email || "";
+
+    console.log("--> Calling Mayar API to create topup link...");
+    const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${mayarKey}`,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: `Top Up Kredit AI Siklusio (${credits} Kredit)`,
+        amount: finalAmount,
+        description: `Top up saldo kredit AI Siklusio sebanyak ${credits} kredit.`,
+        redirectUrl: "https://app.siklusio.web.id/auth?status=topup_success",
+        email: email,
+        mobile: whatsapp,
+        customerName: name,
+      })
+    });
+
+    const resJson: any = await response.json();
+    
+    if (!response.ok || resJson.statusCode !== 200) {
+      console.error("Mayar API error response:", resJson);
+      return c.json({ error: "Gagal membuat tautan pembayaran. Silakan coba lagi." }, 500);
+    }
+
+    const paymentUrl = resJson.data?.link;
+    const mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
+
+    // Create ai_credit_topups record
+    const { error: insertErr } = await supabaseAdmin
+      .from("ai_credit_topups")
+      .insert({
+        user_id: user.id,
+        mayar_link: paymentUrl,
+        mayar_transaction_id: mayarTxId,
+        amount_rp: finalAmount,
+        credits_amount: credits,
+        status: "pending",
+      });
+
+    if (insertErr) {
+      console.error("DB Insert topup error:", insertErr);
+      return c.json({ error: "Gagal memproses permintaan topup." }, 500);
+    }
+
+    return c.json({ paymentUrl });
+  } catch (error: any) {
+    console.error("<-- Checkout topup error:", error.stack || error);
+    return c.json({ error: "Terjadi kesalahan internal pada server topup." }, 500);
   }
 });
 
@@ -1551,8 +1651,57 @@ app.post("/api/payment/webhook", async (c) => {
 
     const supabaseAdmin = getSupabaseAdmin(c);
 
-    // [FIX-1] Idempotency check: if this transaction was already processed, skip
+    // [FIX-1] Idempotency & Top-Up check:
     if (mayarTransactionId) {
+      // 1. Check if it is a top-up transaction
+      const { data: topup, error: topupErr } = await supabaseAdmin
+        .from("ai_credit_topups")
+        .select("*")
+        .eq("mayar_transaction_id", mayarTransactionId)
+        .maybeSingle();
+
+      if (topupErr) {
+        console.error("Database query topup error:", topupErr);
+      }
+
+      if (topup) {
+        if (topup.status === "paid") {
+          console.log(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
+          return c.json({ status: "ok", message: "Topup already processed" }, 200);
+        }
+
+        console.log(`--> Processing successful topup for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
+        
+        // Grant credits to user using RPC grant_ai_credits
+        const { data: balanceAfter, error: grantErr } = await supabaseAdmin.rpc("grant_ai_credits", {
+          p_user_id: topup.user_id,
+          p_amount: topup.credits_amount,
+          p_feature: "topup",
+          p_reason: `Mayar Top-up ${topup.credits_amount} Kredit`,
+          p_reference_id: topup.id,
+          p_metadata: { mayar_transaction_id: mayarTransactionId },
+        });
+
+        if (grantErr) {
+          console.error("Error granting topup credits:", grantErr);
+          return c.json({ error: "Failed to grant topup credits" }, 500);
+        }
+
+        // Update topup record status to paid
+        const { error: updateErr } = await supabaseAdmin
+          .from("ai_credit_topups")
+          .update({ status: "paid", paid_at: new Date().toISOString() })
+          .eq("id", topup.id);
+
+        if (updateErr) {
+          console.error("Error updating topup status:", updateErr);
+        }
+
+        console.log(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
+        return c.json({ status: "ok", message: "Topup successful", balance: balanceAfter }, 200);
+      }
+
+      // 2. Check if this transaction was already processed as an affiliate conversion
       const { data: existingConversion } = await supabaseAdmin
         .from("affiliate_conversions")
         .select("id")

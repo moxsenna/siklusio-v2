@@ -30,6 +30,15 @@ export interface HabitCoachPlanDay {
   tasks: HabitCoachTask[];
 }
 
+export interface HabitCoachCycleDay {
+  dateKey: string;
+  dayIndex: number;
+  phase: string;
+  displayPhase: string;
+  cycleDay: number;
+  isManualPeriod: boolean;
+}
+
 export interface HabitCoachPlan {
   id: string;
   weekStart: string;

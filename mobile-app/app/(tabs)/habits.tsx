@@ -1,17 +1,24 @@
 import React, { useEffect, useState, useMemo, useTransition } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
-import { addDays, format, startOfDay, subDays } from 'date-fns';
+import { addDays, format, startOfDay } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { analytics } from '../../src/lib/analytics';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
-import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import { ApiError, apiGetJson, apiPostJson } from '../../src/lib/api';
 import {
   getPlanTasksForDate,
   mergeCoachTasksWithSavedState,
   mapApiHabitPlan,
   summarizeHabitPlanCompletion,
 } from '../../src/lib/habitCoachPlan';
+import {
+  buildHabitCoachCycleDays,
+  buildSevenDayPlanWindow,
+  getPlanDateOffsetBounds,
+  getPlanDayNumber,
+  isFuturePlanDate,
+} from '../../src/lib/habitCoachFlow';
 import type { CoachQuestionAnswer, HabitCoachPlan } from '../../src/lib/habitCoachTypes';
 
 import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
@@ -57,7 +64,7 @@ function HistoryViewSafe(props: any) {
 }
 
 export default function HabitsScreen() {
-  const { currentPhase, activityHistory, setActivityHistory, userNickname } = useCycle();
+  const { currentPhase, activityHistory, setActivityHistory, userNickname, getDayInfo } = useCycle();
   const [, startTransition] = useTransition();
   
   const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
@@ -68,11 +75,16 @@ export default function HabitsScreen() {
   const [coachLoading, setCoachLoading] = useState(false);
   const [coachError, setCoachError] = useState<string | null>(null);
   const [coachFetching, setCoachFetching] = useState(false);
+  const [replaceActivePlan, setReplaceActivePlan] = useState(false);
+  const [replacementWarning, setReplacementWarning] = useState<{
+    activeUntil?: string | null;
+    message?: string | null;
+  } | null>(null);
   
-  const [viewedDateOffset, setViewedDateOffset] = useState(0); // 0 = today, -1 = yesterday
+  const [viewedDateOffset, setViewedDateOffset] = useState(0); // 0 = today, positive values are future plan days
   
   const viewedDate = useMemo(() => {
-    return subDays(new Date(), Math.abs(viewedDateOffset));
+    return addDays(startOfDay(new Date()), viewedDateOffset);
   }, [viewedDateOffset]);
 
   const dateString = useMemo(() => {
@@ -130,18 +142,49 @@ export default function HabitsScreen() {
     return baseTasks;
   }, [currentPhase]);
 
+  const activeHabitCoachPlan = useMemo(
+    () => (getPlanDayNumber(habitCoachPlan, todayDateKey) ? habitCoachPlan : null),
+    [habitCoachPlan, todayDateKey]
+  );
+  const coachPlanOffsetBounds = useMemo(
+    () => getPlanDateOffsetBounds(activeHabitCoachPlan, todayDateKey),
+    [activeHabitCoachPlan, todayDateKey]
+  );
+  const dateOffsetBounds = useMemo(
+    () => ({
+      minOffset: -60,
+      maxOffset: Math.max(0, coachPlanOffsetBounds.maxOffset),
+    }),
+    [coachPlanOffsetBounds.maxOffset]
+  );
+
+  useEffect(() => {
+    setViewedDateOffset((current) =>
+      Math.min(Math.max(current, dateOffsetBounds.minOffset), dateOffsetBounds.maxOffset)
+    );
+  }, [dateOffsetBounds.minOffset, dateOffsetBounds.maxOffset]);
+
   const coachTasks = useMemo(
-    () => getPlanTasksForDate(habitCoachPlan, dateKey),
-    [habitCoachPlan, dateKey]
+    () => getPlanTasksForDate(activeHabitCoachPlan, dateKey),
+    [activeHabitCoachPlan, dateKey]
   );
   const todayCoachTasks = useMemo(
-    () => getPlanTasksForDate(habitCoachPlan, todayDateKey),
-    [habitCoachPlan, todayDateKey]
+    () => getPlanTasksForDate(activeHabitCoachPlan, todayDateKey),
+    [activeHabitCoachPlan, todayDateKey]
   );
   const todayPlanFocus = useMemo(
-    () => habitCoachPlan?.days.find((day) => day.dateKey === todayDateKey)?.focus || null,
-    [habitCoachPlan, todayDateKey]
+    () => activeHabitCoachPlan?.days.find((day) => day.dateKey === todayDateKey)?.focus || null,
+    [activeHabitCoachPlan, todayDateKey]
   );
+  const selectedPlanDayNumber = useMemo(
+    () => getPlanDayNumber(activeHabitCoachPlan, dateKey),
+    [activeHabitCoachPlan, dateKey]
+  );
+  const todayPlanDayNumber = useMemo(
+    () => getPlanDayNumber(activeHabitCoachPlan, todayDateKey),
+    [activeHabitCoachPlan, todayDateKey]
+  );
+  const isFutureDate = isFuturePlanDate(dateKey, todayDateKey);
   const savedDayData = activityHistory[dateKey];
   const mergedCoachTasks = useMemo(
     () => mergeCoachTasksWithSavedState(coachTasks, savedDayData?.tasks),
@@ -151,7 +194,7 @@ export default function HabitsScreen() {
     ...(savedDayData || {}),
     tasks: coachTasks.length > 0
       ? mergedCoachTasks
-      : (savedDayData?.tasks || fallbackTasks),
+      : [],
     symptoms: savedDayData?.symptoms || [],
   };
   const tasks = currentDayData.tasks;
@@ -168,6 +211,8 @@ export default function HabitsScreen() {
   };
 
   const toggleTask = (id: number) => {
+    if (isFutureDate) return;
+
     startTransition(() => {
       const task = tasks.find(t => t.id === id);
       if (task) {
@@ -186,6 +231,8 @@ export default function HabitsScreen() {
   };
 
   const toggleSymptom = (id: string) => {
+    if (isFutureDate) return;
+
     startTransition(() => {
       const isAdding = !symptoms.includes(id);
       if (isAdding) {
@@ -203,7 +250,7 @@ export default function HabitsScreen() {
   };
 
   const handlePrevDay = () => {
-    if (viewedDateOffset > -60) {
+    if (viewedDateOffset > dateOffsetBounds.minOffset) {
       startTransition(() => {
         setViewedDateOffset(prev => prev - 1);
       });
@@ -211,7 +258,7 @@ export default function HabitsScreen() {
   };
 
   const handleNextDay = () => {
-    if (viewedDateOffset < 0) {
+    if (viewedDateOffset < dateOffsetBounds.maxOffset) {
       startTransition(() => {
         setViewedDateOffset(prev => prev + 1);
       });
@@ -223,13 +270,9 @@ export default function HabitsScreen() {
     setCoachError(null);
 
     try {
-      const mode = habitCoachPlan ? 'renewal' : 'initial';
-      const weekStart =
-        mode === 'renewal' && habitCoachPlan
-          ? addDays(new Date(`${habitCoachPlan.weekEnd}T00:00:00`), 1)
-          : startOfDay(new Date());
-      const weekEnd = addDays(weekStart, 6);
-      const dateKeys = Array.from({ length: 7 }, (_, index) => format(addDays(weekStart, index), 'yyyy-MM-dd'));
+      const mode = activeHabitCoachPlan ? 'renewal' : 'initial';
+      const planWindow = buildSevenDayPlanWindow(new Date());
+      const cycleDays = buildHabitCoachCycleDays(planWindow.dateKeys, getDayInfo);
       const previousSummary = habitCoachPlan
         ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
         : null;
@@ -239,19 +282,41 @@ export default function HabitsScreen() {
         answers,
         nickname: userNickname,
         userGoal: answers.find((answer) => answer.id === 'goal' || answer.id === 'next_focus')?.answer || 'habit sehat',
-        weekStart: format(weekStart, 'yyyy-MM-dd'),
-        weekEnd: format(weekEnd, 'yyyy-MM-dd'),
-        dateKeys,
+        weekStart: planWindow.weekStart,
+        weekEnd: planWindow.weekEnd,
+        dateKeys: planWindow.dateKeys,
         activityHistory,
-        cycleSnapshot: { currentPhase },
-        previousSummary,
+        cycleSnapshot: { currentPhase, cycleDays },
+        cycleDays,
+        ...(previousSummary ? { previousSummary } : {}),
+        replaceActivePlan,
       });
 
       const refreshed = await apiGetJson<{ plan: any | null }>(`/api/habit-coach/current?date=${todayDateKey}`);
       setHabitCoachPlan(refreshed.plan ? mapApiHabitPlan(refreshed.plan) : mapApiHabitPlan(json.plan));
       setAiCreditBalance(json.balance);
+      setViewedDateOffset(0);
+      setReplaceActivePlan(false);
+      setReplacementWarning(null);
       setCoachOpen(false);
     } catch (error: any) {
+      if (error instanceof ApiError && error.status === 409 && error.code === 'ACTIVE_PLAN_OVERLAP') {
+        const payload = (error.payload || {}) as {
+          activeUntil?: string | null;
+          message?: string | null;
+        };
+
+        setReplacementWarning({
+          activeUntil: payload.activeUntil,
+          message:
+            payload.message ||
+            `Kamu masih punya plan sampai ${payload.activeUntil || '-'}. Jika lanjut, coach akan membangun ulang plan dari hari ini sampai 7 hari ke depan.`,
+        });
+        setReplaceActivePlan(true);
+        setCoachOpen(true);
+        return;
+      }
+
       const message = error?.message || 'Gagal membuat rencana habit.';
       setCoachError(message);
       if (Platform.OS !== 'web') {
@@ -266,6 +331,8 @@ export default function HabitsScreen() {
   const percent = Math.round((completed / tasks.length) * 100) || 0;
 
   const getMotivationalMessage = (percent: number) => {
+    if (!activeHabitCoachPlan) return 'Generate plan 7 hari dulu agar target harian dari coach muncul di sini.';
+    if (isFutureDate) return 'Ini preview plan. Checkbox baru aktif saat tanggalnya tiba.';
     if (percent === 100) return `Luar biasa, ${userNickname}! Semua target hari ini selesai. Bangga banget! 💕`;
     if (percent >= 50) return `Keren! Separuh jalan terlewati, semangat terus ya! ✨`;
     if (percent > 0) return `Awal yang bagus, ${userNickname}. Yuk, pelan-pelan selesaikan sisanya! 🌟`;
@@ -322,10 +389,10 @@ export default function HabitsScreen() {
             <View className="flex-row justify-between items-center bg-surface px-4 py-3 rounded-2xl border border-outline-variant shadow-sm mb-4">
               <TouchableOpacity 
                 onPress={handlePrevDay} 
-                disabled={viewedDateOffset <= -60}
+                disabled={viewedDateOffset <= dateOffsetBounds.minOffset}
                 className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset <= -60 ? 'opacity-30' : 'text-primary'}`}>←</Text>
+                <Text className={`text-xl font-bold ${viewedDateOffset <= dateOffsetBounds.minOffset ? 'opacity-30' : 'text-primary'}`}>←</Text>
               </TouchableOpacity>
               
               <View className="items-center">
@@ -333,28 +400,36 @@ export default function HabitsScreen() {
                   Tanggal Fokus
                 </Text>
                 <Text className="text-sm font-bold text-on-surface mt-1">
-                  {viewedDateOffset === 0 ? 'Hari ini' : viewedDateOffset === -1 ? 'Kemarin' : dateString}
+                  {viewedDateOffset === 0 ? 'Hari ini' : dateString}
                 </Text>
+                {selectedPlanDayNumber && (
+                  <Text className="text-[10px] font-bold text-primary mt-1">
+                    Hari {selectedPlanDayNumber} dari 7
+                  </Text>
+                )}
               </View>
               
               <TouchableOpacity 
                 onPress={handleNextDay}
-                disabled={viewedDateOffset >= 0}
+                disabled={viewedDateOffset >= dateOffsetBounds.maxOffset}
                 className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset >= 0 ? 'opacity-30' : 'text-primary'}`}>→</Text>
+                <Text className={`text-xl font-bold ${viewedDateOffset >= dateOffsetBounds.maxOffset ? 'opacity-30' : 'text-primary'}`}>→</Text>
               </TouchableOpacity>
             </View>
             
             <View className="mb-6">
               <HabitCoachCard
-                plan={habitCoachPlan}
+                plan={activeHabitCoachPlan}
                 balance={aiCreditBalance}
                 loading={coachFetching}
                 todayFocus={todayPlanFocus}
                 todayTaskCount={todayCoachTasks.length}
+                todayDayNumber={todayPlanDayNumber}
                 onOpen={() => {
                   setCoachError(null);
+                  setReplacementWarning(null);
+                  setReplaceActivePlan(false);
                   setCoachOpen(true);
                 }}
               />
@@ -364,15 +439,19 @@ export default function HabitsScreen() {
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant relative overflow-hidden mb-6">
               <View className="flex-row items-center justify-between z-10">
                 <View className="flex-1 pr-4">
-                  <Text className="text-xs font-bold uppercase tracking-wider text-primary mb-2">Progres Hari Ini</Text>
-                  <Text className="text-2xl font-bold text-on-background mb-2">{completed} dari {tasks.length} Selesai</Text>
+                  <Text className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
+                    {isFutureDate ? 'Preview Plan' : 'Progres Hari Ini'}
+                  </Text>
+                  <Text className="text-2xl font-bold text-on-background mb-2">
+                    {tasks.length > 0 ? `${completed} dari ${tasks.length} Selesai` : 'Belum ada target'}
+                  </Text>
                   <Text className="text-sm text-on-surface-variant leading-relaxed font-medium">
                     {getMotivationalMessage(percent)}
                   </Text>
                 </View>
                 
                 <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-                  <Text className="text-xl font-bold text-primary">{percent}%</Text>
+                  <Text className="text-xl font-bold text-primary">{tasks.length > 0 ? `${percent}%` : '-'}</Text>
                 </View>
               </View>
             </View>
@@ -380,19 +459,39 @@ export default function HabitsScreen() {
             {/* Daily Checklist */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant mb-6">
               <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
-                Target Hari Ini
+                {selectedPlanDayNumber ? `Target Plan Hari ${selectedPlanDayNumber}` : 'Target Habit Coach'}
               </Text>
+
+              {isFutureDate && tasks.length > 0 && (
+                <View className="bg-primary/5 border border-primary/10 rounded-2xl p-4 mb-4">
+                  <Text className="text-xs font-bold text-primary leading-5">
+                    Preview lembut: checkbox baru bisa dipakai saat tanggal ini tiba. Untuk sekarang, kamu bisa melihat rencananya dulu.
+                  </Text>
+                </View>
+              )}
               
               <View className="gap-3">
+                {tasks.length === 0 && (
+                  <View className="bg-surface-variant/50 border border-outline-variant rounded-2xl p-4">
+                    <Text className="text-sm font-bold text-on-surface mb-1">
+                      Kamu perlu generate plan 7 hari dulu.
+                    </Text>
+                    <Text className="text-xs text-on-surface-variant leading-5">
+                      Setelah plan aktif, target harian dari Habit Coach akan muncul di sini. Checklist fallback lama tidak ditampilkan sebagai task AI.
+                    </Text>
+                  </View>
+                )}
+
                 {tasks.map(task => (
                   <TouchableOpacity 
                     key={task.id} 
                     onPress={() => toggleTask(task.id)}
+                    disabled={isFutureDate}
                     className={`flex-row items-center justify-between p-4 rounded-2xl border ${
                       task.done ? 'bg-surface-variant/50 border-outline-variant shadow-sm' : 'bg-surface border-outline-variant hover:border-primary/50'
                     }`}
                   >
-                    <View className="flex-row items-center gap-4 flex-1 pr-3">
+                    <View className="flex-row items-start gap-4 flex-1 pr-3">
                       <View className={`w-12 h-12 rounded-2xl items-center justify-center bg-surface border border-outline-variant ${task.done ? 'opacity-50' : ''}`}>
                         <Text className="text-2xl">{task.emoji}</Text>
                       </View>
@@ -400,11 +499,18 @@ export default function HabitsScreen() {
                         <Text className={`text-base font-bold leading-6 ${task.done ? 'text-on-surface-variant opacity-60 line-through' : 'text-on-surface'}`}>
                           {task.text}
                         </Text>
-                        <Text className={`text-xs font-bold uppercase tracking-wider mt-1 ${task.done ? 'text-green-500' : 'text-primary'}`}>{task.done ? 'Selesai ✓' : 'Yuk Bisa!'}</Text>
+                        {task.reason ? (
+                          <Text className="text-xs text-on-surface-variant leading-5 mt-1">
+                            {task.reason}
+                          </Text>
+                        ) : null}
+                        <Text className={`text-xs font-bold uppercase tracking-wider mt-2 ${task.done ? 'text-green-500' : isFutureDate ? 'text-on-surface-variant' : 'text-primary'}`}>
+                          {isFutureDate ? 'Bisa diceklis nanti' : task.done ? 'Selesai' : 'Yuk Bisa!'}
+                        </Text>
                       </View>
                     </View>
                     <View className={`w-8 h-8 rounded-full border-2 items-center justify-center ${
-                      task.done ? 'border-green-500 bg-green-500' : 'border-outline-variant bg-surface'
+                      task.done ? 'border-green-500 bg-green-500' : isFutureDate ? 'border-outline-variant bg-surface-variant' : 'border-outline-variant bg-surface'
                     }`}>
                       {task.done && <Text className="text-white font-bold text-xs">✓</Text>}
                     </View>
@@ -425,6 +531,7 @@ export default function HabitsScreen() {
                      <TouchableOpacity
                        key={symptom.id}
                        onPress={() => toggleSymptom(symptom.id)}
+                       disabled={isFutureDate}
                        className={`flex-row items-center gap-2 px-4 py-3 rounded-2xl shadow-sm ${
                          isActive 
                            ? 'bg-surface border-primary border-2 text-primary' 
@@ -439,7 +546,7 @@ export default function HabitsScreen() {
                </View>
             </View>
 
-            {!habitCoachPlan && (
+            {!activeHabitCoachPlan && (
               <View className="mt-4">
                 <AiRecommendationSection
                   currentPhase={currentPhase}
@@ -461,12 +568,17 @@ export default function HabitsScreen() {
       </ScrollView>
       <HabitCoachSheet
         visible={coachOpen}
-        mode={habitCoachPlan ? 'renewal' : 'initial'}
+        mode={activeHabitCoachPlan ? 'renewal' : 'initial'}
         loading={coachLoading}
         error={coachError}
         balance={aiCreditBalance}
+        replacementWarning={replacementWarning}
         onClose={() => {
-          if (!coachLoading) setCoachOpen(false);
+          if (!coachLoading) {
+            setCoachOpen(false);
+            setReplacementWarning(null);
+            setReplaceActivePlan(false);
+          }
         }}
         onGenerate={handleGenerateCoachPlan}
       />

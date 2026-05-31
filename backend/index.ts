@@ -23,7 +23,12 @@ import {
 } from "./ai/schemas";
 import { summarizeActivityHistory } from "./ai/habitSummary";
 import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
-import { isDateKey, isValidHabitCoachWindow } from "./ai/habitCoachWindow";
+import { type HabitCoachCycleDay } from "./ai/habitCoachFoundation";
+import {
+  buildHabitCoachActiveOverlapConflict,
+  saveHabitCoachPlanWithCharge,
+} from "./ai/habitCoachPlanLifecycle";
+import { isDateKey, isValidHabitCoachWindow, shouldReplaceActivePlan } from "./ai/habitCoachWindow";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
@@ -126,6 +131,42 @@ const requireAdmin = async (c: any) => {
 // ------------------------------------------------------------
 // API Routes
 // ------------------------------------------------------------
+
+const normalizeHabitCoachCycleDays = (
+  value: unknown,
+  dateKeys: string[],
+  cycleSnapshot: Record<string, unknown>
+): HabitCoachCycleDay[] => {
+  const rawDays = Array.isArray(value) ? value : [];
+  const rawByDate = new Map<string, any>();
+
+  rawDays.forEach((raw) => {
+    if (raw && typeof raw === "object" && isDateKey((raw as any).dateKey)) {
+      rawByDate.set((raw as any).dateKey, raw);
+    }
+  });
+
+  return dateKeys.map((dateKey, index) => {
+    const raw = rawByDate.get(dateKey) || rawDays[index] || {};
+    const phase =
+      typeof raw?.phase === "string"
+        ? raw.phase
+        : typeof cycleSnapshot.currentPhase === "string"
+          ? cycleSnapshot.currentPhase
+          : "";
+    const displayPhase = typeof raw?.displayPhase === "string" ? raw.displayPhase : phase;
+    const cycleDay = Number.isFinite(Number(raw?.cycleDay)) ? Number(raw.cycleDay) : null;
+
+    return {
+      dateKey,
+      dayIndex: typeof raw?.dayIndex === "number" ? raw.dayIndex : index + 1,
+      phase,
+      displayPhase,
+      cycleDay,
+      isManualPeriod: raw?.isManualPeriod === true,
+    };
+  });
+};
 
 // Welcome Route
 app.get("/", (c) => {
@@ -527,23 +568,26 @@ app.post("/api/habit-coach/generate", async (c) => {
 
     const mode = body.mode === "renewal" ? "renewal" : "initial";
     const creditCost = mode === "renewal" ? 60 : 50;
+    const replaceActivePlan = shouldReplaceActivePlan(body.replaceActivePlan);
 
-    const { data: existingActive, error: existingError } = await auth.supabaseAdmin
+    const { data: overlappingActivePlans, error: existingError } = await auth.supabaseAdmin
       .from("habit_coach_plans")
-      .select("id")
+      .select("id, week_start, week_end")
       .eq("user_id", auth.user.id)
       .eq("status", "active")
       .lte("week_start", body.weekEnd)
       .gte("week_end", body.weekStart)
-      .limit(1)
-      .maybeSingle();
+      .order("week_end", { ascending: false });
 
     if (existingError) throw existingError;
-    if (existingActive) {
-      return c.json({
-        error: "Rencana habit aktif untuk rentang tanggal ini sudah ada.",
-        planId: existingActive.id,
-      }, 409);
+    const activeOverlaps = Array.isArray(overlappingActivePlans) ? overlappingActivePlans : [];
+    const overlapConflict = buildHabitCoachActiveOverlapConflict({
+      activeOverlaps,
+      replaceActivePlan,
+      fallbackWeekEnd: body.weekEnd,
+    });
+    if (overlapConflict) {
+      return c.json(overlapConflict, 409);
     }
 
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
@@ -558,6 +602,7 @@ app.post("/api/habit-coach/generate", async (c) => {
         }))
       : [];
     const cycleSnapshot = body.cycleSnapshot || {};
+    const cycleDays = normalizeHabitCoachCycleDays(body.cycleDays, dateKeys, cycleSnapshot);
     const previousSummary = {
       ...(body.previousSummary || {}),
       activity: summarizeActivityHistory(body.activityHistory || {}),
@@ -575,6 +620,7 @@ app.post("/api/habit-coach/generate", async (c) => {
         mode,
         answers,
         cycleSnapshot,
+        cycleDays,
         previousSummary,
       }),
       responseSchemaName: "habit_coach_plan",
@@ -584,9 +630,15 @@ app.post("/api/habit-coach/generate", async (c) => {
 
     const result = validateHabitCoachPlan(ai.data);
 
-    const { data: savedPlan, error: insertPlanError } = await auth.supabaseAdmin
-      .from("habit_coach_plans")
-      .insert({
+    const { plan, balance: balanceAfter } = await saveHabitCoachPlanWithCharge({
+      supabaseAdmin: auth.supabaseAdmin,
+      userId: auth.user.id,
+      replaceActivePlan,
+      activeOverlaps,
+      dateKeys,
+      cycleDays,
+      aiDays: result.days,
+      planInsert: {
         user_id: auth.user.id,
         week_start: body.weekStart,
         week_end: body.weekEnd,
@@ -599,47 +651,21 @@ app.post("/api/habit-coach/generate", async (c) => {
         coach_summary: result.coachSummary,
         ai_model: ai.model,
         credit_cost: creditCost,
-      })
-      .select()
-      .single();
-
-    if (insertPlanError) throw insertPlanError;
-
-    const days = result.days.map((day, index) => ({
-      plan_id: savedPlan.id,
-      date_key: dateKeys[index],
-      day_index: index + 1,
-      focus: day.focus,
-      tasks: day.tasks,
-    }));
-
-    const { error: insertDaysError } = await auth.supabaseAdmin
-      .from("habit_coach_plan_days")
-      .insert(days);
-
-    if (insertDaysError) throw insertDaysError;
-
-    const balanceAfter = await chargeAiCredits({
-      supabaseAdmin: auth.supabaseAdmin,
-      userId: auth.user.id,
-      amount: creditCost,
-      feature: "habit_coach",
-      reason: mode,
-      referenceId: savedPlan.id,
-      metadata: { model: ai.model, usage: ai.usage || null },
+      },
+      charge: (referenceId) =>
+        chargeAiCredits({
+          supabaseAdmin: auth.supabaseAdmin,
+          userId: auth.user.id,
+          amount: creditCost,
+          feature: "habit_coach",
+          reason: mode,
+          referenceId,
+          metadata: { model: ai.model, usage: ai.usage || null },
+        }),
     });
 
-    const { data: activatedPlan, error: activateError } = await auth.supabaseAdmin
-      .from("habit_coach_plans")
-      .update({ status: "active" })
-      .eq("id", savedPlan.id)
-      .select()
-      .single();
-
-    if (activateError) throw activateError;
-
     return c.json({
-      plan: { ...activatedPlan, habit_coach_plan_days: days },
+      plan,
       balance: balanceAfter,
     });
   } catch (error: any) {

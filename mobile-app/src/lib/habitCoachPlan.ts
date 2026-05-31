@@ -23,11 +23,28 @@ function normalizeCategory(value: unknown): HabitCategory {
     : 'emotional';
 }
 
+function normalizeTaskEmoji(value: unknown) {
+  const raw = String(value || 'star').trim();
+  const emojiMap: Record<string, string> = {
+    water: '💧',
+    heat: '♨️',
+    warmth: '♨️',
+    walking: '🚶',
+    walk: '🚶',
+    stretch: '🧘',
+    relief: '🌿',
+    sparkles: '✨',
+    star: '✨',
+  };
+
+  return emojiMap[raw.toLowerCase()] || raw;
+}
+
 function normalizeCoachTask(task: any, index: number): HabitCoachTask {
   return {
     id: String(task?.id || `task-${index + 1}`),
     text: String(task?.text || ''),
-    emoji: String(task?.emoji || 'star'),
+    emoji: normalizeTaskEmoji(task?.emoji),
     category: normalizeCategory(task?.category),
     reason: String(task?.reason || ''),
   };
@@ -86,7 +103,7 @@ export function getPlanTasksForDate(plan: HabitCoachPlan | null, dateKey: string
   return planDay.tasks.map((task, index) => ({
     id: index + 1,
     text: task.text,
-    emoji: task.emoji,
+    emoji: normalizeTaskEmoji(task.emoji),
     done: false,
     coachPlanId: plan.id,
     coachTaskId: task.id,

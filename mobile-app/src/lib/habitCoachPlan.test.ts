@@ -46,6 +46,7 @@ test('getPlanTasksForDate maps coach tasks into daily checklist tasks', () => {
   const tasks = getPlanTasksForDate(plan, '2026-05-25');
   assert.equal(tasks.length, 1);
   assert.equal(tasks[0].text, 'Minum air 6 gelas');
+  assert.equal(tasks[0].emoji, '💧');
   assert.equal(tasks[0].coachPlanId, 'plan-1');
   assert.equal(tasks[0].category, 'hydration');
 });

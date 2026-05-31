@@ -136,7 +136,7 @@ export function validateHabitCoachPlan(value: unknown): HabitCoachAiPlan {
     }
     assertString(day.focus, "Habit coach day focus is required");
     if (day.tasks.length < 3 || day.tasks.length > 5) {
-      throw new Error("Each habit coach day must contain 3 to 5 tasks");
+      throw new Error("Each habit coach day must contain 3 to 5 personalized tasks");
     }
 
     day.tasks.forEach((task) => {

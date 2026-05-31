@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { getAiCreditBalance, grantPremiumInitialAiCredits } from "./credits";
 import { buildOpenRouterRequestBody, parseOpenRouterJsonContent } from "./openRouter";
 import { validateHabitCoachPlan, validateCalmingReassurance } from "./schemas";
+import { buildHabitCoachDayTasks } from "./habitCoachFoundation";
 
 const makeTask = (id: string) => ({
   id,
@@ -20,6 +21,30 @@ const makeValidHabitPlan = () => ({
     tasks: [makeTask("a"), makeTask("b"), makeTask("c")],
   })),
 });
+
+const makePersonalizedTasks = () => [
+  {
+    id: "protein",
+    text: "Tambahkan telur rebus saat sarapan",
+    emoji: "egg",
+    category: "nutrition",
+    reason: "Protein membantu kenyang lebih lama.",
+  },
+  {
+    id: "journal",
+    text: "Catat satu sinyal tubuh yang terasa jelas",
+    emoji: "memo",
+    category: "promil",
+    reason: "Membantu mengenali pola harian.",
+  },
+  {
+    id: "breath",
+    text: "Tarik napas pelan selama 2 menit",
+    emoji: "wind",
+    category: "emotional",
+    reason: "Membantu tubuh terasa lebih tenang.",
+  },
+];
 
 test("parseOpenRouterJsonContent accepts fenced JSON", () => {
   const parsed = parseOpenRouterJsonContent<{ summary: string }>(
@@ -67,14 +92,245 @@ test("buildOpenRouterRequestBody caps fallback routing to three models", () => {
   assert.deepEqual(body.models, ["qwen/free", "nvidia/free", "openai/cheap"]);
 });
 
-test("validateHabitCoachPlan rejects days with fewer than three tasks", () => {
+test("validateHabitCoachPlan rejects days with fewer than three personalized tasks", () => {
   const plan = makeValidHabitPlan();
   plan.days[0].tasks = [makeTask("a"), makeTask("b")];
 
   assert.throws(
     () => validateHabitCoachPlan(plan),
-    /Each habit coach day must contain 3 to 5 tasks/
+    /Each habit coach day must contain 3 to 5 personalized tasks/
   );
+});
+
+test("validateHabitCoachPlan rejects days with more than five personalized tasks", () => {
+  const plan = makeValidHabitPlan();
+  plan.days[0].tasks = [
+    makeTask("a"),
+    makeTask("b"),
+    makeTask("c"),
+    makeTask("d"),
+    makeTask("e"),
+    makeTask("f"),
+  ];
+
+  assert.throws(
+    () => validateHabitCoachPlan(plan),
+    /Each habit coach day must contain 3 to 5 personalized tasks/
+  );
+});
+
+test("buildHabitCoachDayTasks prepends water and phase foundations", () => {
+  const tasks = buildHabitCoachDayTasks(
+    makePersonalizedTasks(),
+    {
+      dateKey: "2026-06-01",
+      dayIndex: 1,
+      phase: "Ovulation",
+      displayPhase: "Ovulasi",
+      cycleDay: 14,
+      isManualPeriod: false,
+    }
+  );
+
+  assert.equal(tasks.length, 5);
+  assert.equal(tasks[0].id, "foundation-water");
+  assert.equal(tasks[0].text, "Minum air putih 2 liter bertahap");
+  assert.equal(tasks[0].category, "hydration");
+  assert.equal(tasks[0].source, "system");
+  assert.match(tasks[0].reason, /cervical mucus/i);
+  assert.equal(tasks[1].id, "foundation-ovulation-walk");
+  assert.equal(tasks[1].text, "Jalan santai 10 menit setelah makan");
+  assert.equal(tasks[1].category, "movement");
+});
+
+test("buildHabitCoachDayTasks picks phase foundations and filters duplicates", () => {
+  const phaseCases = [
+    ["Menstrual", "foundation-menstrual-warmth"],
+    ["Folikular", "foundation-follicular-stretch"],
+    ["Luteal", "foundation-luteal-release"],
+    ["unknown", "foundation-luteal-release"],
+  ] as const;
+
+  for (const [phase, expectedId] of phaseCases) {
+    const tasks = buildHabitCoachDayTasks(
+      makePersonalizedTasks(),
+      {
+        dateKey: "2026-06-01",
+        dayIndex: 1,
+        phase,
+        displayPhase: phase,
+        cycleDay: 1,
+        isManualPeriod: phase === "Menstrual",
+      }
+    );
+    assert.equal(tasks[1].id, expectedId);
+  }
+
+  const tasks = buildHabitCoachDayTasks(
+    [
+      {
+        id: "ai-water",
+        text: "Minum air putih 2 liter bertahap",
+        emoji: "water",
+        category: "hydration",
+        reason: "Agar tubuh terhidrasi.",
+      },
+      {
+        id: "ai-warmth",
+        text: "Kompres hangat perut bawah 10 menit",
+        emoji: "heat",
+        category: "rest",
+        reason: "Membantu rasa nyaman.",
+      },
+      {
+        id: "breath",
+        text: "Tarik napas pelan selama 2 menit",
+        emoji: "wind",
+        category: "emotional",
+        reason: "Membantu tubuh terasa lebih tenang.",
+      },
+      {
+        id: "protein",
+        text: "Tambahkan telur rebus saat sarapan",
+        emoji: "egg",
+        category: "nutrition",
+        reason: "Protein membantu kenyang lebih lama.",
+      },
+      {
+        id: "journal",
+        text: "Catat satu sinyal tubuh yang terasa jelas",
+        emoji: "memo",
+        category: "promil",
+        reason: "Membantu mengenali pola harian.",
+      },
+    ],
+    {
+      dateKey: "2026-06-01",
+      dayIndex: 1,
+      phase: "Menstrual",
+      displayPhase: "Menstruasi",
+      cycleDay: 2,
+      isManualPeriod: true,
+    }
+  );
+
+  assert.deepEqual(
+    tasks.map((task) => task.id),
+    ["foundation-water", "foundation-menstrual-warmth", "breath", "protein", "journal"]
+  );
+});
+
+test("buildHabitCoachDayTasks rejects underfilled days after duplicate filtering", () => {
+  assert.throws(
+    () =>
+      buildHabitCoachDayTasks(
+        [
+          {
+            id: "ai-water",
+            text: "Minum air putih 2 liter bertahap",
+            emoji: "water",
+            category: "hydration",
+            reason: "Agar tubuh terhidrasi.",
+          },
+          {
+            id: "ai-warmth",
+            text: "Kompres hangat perut bawah 10 menit",
+            emoji: "heat",
+            category: "rest",
+            reason: "Membantu rasa nyaman.",
+          },
+          {
+            id: "breath",
+            text: "Tarik napas pelan selama 2 menit",
+            emoji: "wind",
+            category: "emotional",
+            reason: "Membantu tubuh terasa lebih tenang.",
+          },
+        ],
+        {
+          dateKey: "2026-06-01",
+          dayIndex: 1,
+          phase: "Menstrual",
+          displayPhase: "Menstruasi",
+          cycleDay: 2,
+          isManualPeriod: true,
+        }
+      ),
+    /Habit coach day must keep at least 3 personalized tasks/
+  );
+});
+
+test("buildHabitCoachDayTasks keeps saved totals between five and seven", () => {
+  const tasks = buildHabitCoachDayTasks(
+    [
+      ...makePersonalizedTasks(),
+      {
+        id: "sleep",
+        text: "Matikan layar 10 menit sebelum tidur",
+        emoji: "moon",
+        category: "rest",
+        reason: "Tidur lebih tenang mendukung pemulihan.",
+      },
+      {
+        id: "snack",
+        text: "Siapkan camilan kacang kecil untuk sore",
+        emoji: "nuts",
+        category: "nutrition",
+        reason: "Camilan seimbang membantu energi lebih stabil.",
+      },
+    ],
+    {
+      dateKey: "2026-06-03",
+      dayIndex: 3,
+      phase: "Luteal",
+      displayPhase: "Luteal",
+      cycleDay: 21,
+      isManualPeriod: false,
+    }
+  );
+
+  assert.equal(tasks.length >= 5, true);
+  assert.equal(tasks.length <= 7, true);
+  assert.equal(tasks.length, 7);
+});
+
+test("buildHabitCoachDayTasks keeps personalized non-foundation drink tasks", () => {
+  const tasks = buildHabitCoachDayTasks(
+    [
+      {
+        id: "vitamin",
+        text: "Minum vitamin sesuai anjuran dokter setelah sarapan",
+        emoji: "pill",
+        category: "promil",
+        reason: "Membantu rutinitas promil tetap konsisten.",
+      },
+      {
+        id: "snack",
+        text: "Siapkan camilan kacang kecil untuk sore",
+        emoji: "nuts",
+        category: "nutrition",
+        reason: "Camilan seimbang membantu energi lebih stabil.",
+      },
+      {
+        id: "breath",
+        text: "Tarik napas pelan selama 2 menit",
+        emoji: "wind",
+        category: "emotional",
+        reason: "Membantu tubuh terasa lebih tenang.",
+      },
+    ],
+    {
+      dateKey: "2026-06-03",
+      dayIndex: 3,
+      phase: "Luteal",
+      displayPhase: "Luteal",
+      cycleDay: 21,
+      isManualPeriod: false,
+    }
+  );
+
+  assert.equal(tasks.some((task) => task.id === "vitamin"), true);
+  assert.equal(tasks.length, 5);
 });
 
 test("validateCalmingReassurance requires structured letter sections with legacy fields", () => {

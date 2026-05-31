@@ -9,6 +9,7 @@ interface Props {
   loading?: boolean;
   todayFocus?: string | null;
   todayTaskCount?: number;
+  todayDayNumber?: number | null;
   onOpen: () => void;
 }
 
@@ -18,16 +19,18 @@ export function HabitCoachCard({
   loading = false,
   todayFocus = null,
   todayTaskCount = 0,
+  todayDayNumber = null,
   onOpen,
 }: Props) {
   const hasPlan = Boolean(plan);
   const creditCost = hasPlan ? 60 : 50;
+  const ctaLabel = hasPlan ? 'Buat Ulang' : 'Generate';
 
   return (
     <View
       style={{
         backgroundColor: '#ffffff',
-        borderRadius: 28,
+        borderRadius: 24,
         padding: 20,
         borderWidth: 1,
         borderColor: '#f1d6e8',
@@ -74,12 +77,12 @@ export function HabitCoachCard({
           <Text numberOfLines={3} style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>
             {hasPlan
               ? plan?.coachSummary || 'Coach menyiapkan target kecil yang bisa kamu ceklis setiap hari.'
-              : 'Diskusi singkat, lalu coach susun habit yang realistis untuk minggu ini.'}
+              : 'Diskusi singkat, lalu coach susun habit realistis dari hari ini sampai 7 hari ke depan.'}
           </Text>
         </View>
       </View>
 
-      {hasPlan && todayFocus && (
+      {hasPlan && (
         <View
           style={{
             backgroundColor: '#f8fafc',
@@ -91,16 +94,20 @@ export function HabitCoachCard({
           }}
         >
           <Text style={{ fontSize: 10, color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>
-            Fokus Hari Ini
+            {todayDayNumber ? `Hari ${todayDayNumber} dari 7` : 'Plan aktif'}
           </Text>
-          <Text style={{ fontSize: 14, color: '#0f172a', fontWeight: '700' }}>{todayFocus}</Text>
-          <Text style={{ fontSize: 12, color: '#64748b' }}>{todayTaskCount} target kecil siap dikerjakan.</Text>
+          <Text style={{ fontSize: 14, color: '#0f172a', fontWeight: '700', lineHeight: 20 }}>
+            {todayFocus || 'Review plan hari ini'}
+          </Text>
+          <Text style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>
+            {plan?.weekStart} sampai {plan?.weekEnd} - {todayTaskCount} target kecil hari ini.
+          </Text>
         </View>
       )}
 
-      {hasPlan && (
+      {!hasPlan && (
         <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: -4 }}>
-          Periode plan: {plan?.weekStart} sampai {plan?.weekEnd}
+          Belum ada plan aktif untuk hari ini.
         </Text>
       )}
 
@@ -110,7 +117,7 @@ export function HabitCoachCard({
             Saldo AI: {balance === null ? '-' : balance} kredit
           </Text>
           <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
-            {creditCost} kredit
+            {creditCost} kredit - {hasPlan ? 'rebuild 7 hari' : 'plan baru'}
           </Text>
         </View>
 
@@ -134,7 +141,7 @@ export function HabitCoachCard({
             <FontAwesome name={hasPlan ? 'refresh' : 'magic'} size={13} color="#fff" />
           )}
           <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>
-            {hasPlan ? 'Review Plan' : 'Mulai'}
+            {ctaLabel}
           </Text>
         </TouchableOpacity>
       </View>

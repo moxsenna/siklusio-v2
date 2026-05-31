@@ -1,8 +1,11 @@
+import type { HabitCoachCycleDay } from "./habitCoachFoundation";
+
 export function buildHabitCoachMessages(input: {
   nickname: string;
   mode: "initial" | "renewal";
   answers: Array<{ question: string; answer: string }>;
   cycleSnapshot: Record<string, unknown>;
+  cycleDays?: HabitCoachCycleDay[];
   previousSummary: Record<string, unknown>;
 }) {
   return [
@@ -18,13 +21,16 @@ export function buildHabitCoachMessages(input: {
         mode: input.mode,
         answers: input.answers,
         cycleSnapshot: input.cycleSnapshot,
+        cycleDays: input.cycleDays || [],
         previousSummary: input.previousSummary,
         rules: [
-          "Setiap hari berisi 3 sampai 5 habit kecil.",
+          "Setiap hari berisi 3 sampai 5 habit personal tambahan; backend akan menambahkan 2 habit fondasi sistem.",
+          "Gunakan cycleDays untuk menyesuaikan setiap hari dengan fase aktual setiap tanggal, bukan hanya currentPhase.",
           "Gunakan bahan dan aktivitas yang realistis untuk pengguna Indonesia.",
           "Tulis dalam Bahasa Indonesia dengan kata kamu, bukan Anda.",
           "Habit harus bisa diceklis, spesifik, dan selesai kurang dari 10 menit kecuali user memilih tantangan tinggi.",
           "Jangan membuat plan yang sama persis setiap hari.",
+          "Jangan duplikasi tugas fondasi hidrasi atau fondasi fase seperti minum air, kompres hangat, jalan santai, atau peregangan fase.",
           "coachSummary wajib singkat, cukup 1 sampai 2 kalimat (maksimal 28 kata).",
         ],
       }),

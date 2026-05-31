@@ -26,6 +26,15 @@ export default function Root({ children }: { children: React.ReactNode }) {
                     console.error('SW registration failed:', err);
                   });
                 });
+
+                // Auto-reload the page when the new service worker takes control
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                  if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                  }
+                });
               }
             `
           }}

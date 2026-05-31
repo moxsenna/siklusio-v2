@@ -122,16 +122,60 @@ function isFoundationDuplicate(task: HabitCoachTask, phaseFoundation: HabitCoach
   return isHydrationDuplicate(task) || isPhaseDuplicate(task, phaseFoundation);
 }
 
+const fallbackPersonalizedTasks: HabitCoachTask[] = [
+  {
+    id: "fallback-protein",
+    text: "Makan lauk berprotein 1 porsi hari ini",
+    emoji: "egg",
+    category: "nutrition",
+    reason: "Protein membantu energi lebih stabil dan mendukung rutinitas promil harian.",
+    source: "system-fallback",
+  },
+  {
+    id: "fallback-evening-reset",
+    text: "Rapikan area tidur 5 menit sebelum istirahat",
+    emoji: "moon",
+    category: "rest",
+    reason: "Lingkungan tidur yang lebih rapi membantu tubuh lebih mudah masuk mode istirahat.",
+    source: "system-fallback",
+  },
+  {
+    id: "fallback-body-note",
+    text: "Catat 1 sinyal tubuh sebelum tidur",
+    emoji: "memo",
+    category: "promil",
+    reason: "Catatan kecil membantu mengenali pola tubuh tanpa membuat hari terasa berat.",
+    source: "system-fallback",
+  },
+];
+
+function taskSignature(task: HabitCoachTask) {
+  return `${normalizeText(task.id)}::${normalizeText(task.text)}`;
+}
+
+function fillPersonalizedTasks(tasks: HabitCoachTask[]) {
+  const filled = [...tasks];
+  const seen = new Set(filled.map(taskSignature));
+
+  for (const fallback of fallbackPersonalizedTasks) {
+    if (filled.length >= 3) break;
+    const signature = taskSignature(fallback);
+    if (seen.has(signature)) continue;
+    filled.push(fallback);
+    seen.add(signature);
+  }
+
+  return filled;
+}
+
 export function buildHabitCoachDayTasks(
   aiTasks: HabitCoachTask[],
   cycleDay?: HabitCoachCycleDay
 ): HabitCoachTask[] {
   const foundations = getHabitCoachFoundationTasks(cycleDay);
-  const personalizedTasks = aiTasks.filter((task) => !isFoundationDuplicate(task, foundations[1]));
-
-  if (personalizedTasks.length < 3) {
-    throw new Error("Habit coach day must keep at least 3 personalized tasks after filtering foundation duplicates");
-  }
+  const personalizedTasks = fillPersonalizedTasks(
+    aiTasks.filter((task) => !isFoundationDuplicate(task, foundations[1]))
+  );
 
   return [...foundations, ...personalizedTasks.slice(0, 5)];
 }

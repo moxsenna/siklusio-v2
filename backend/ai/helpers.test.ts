@@ -220,44 +220,53 @@ test("buildHabitCoachDayTasks picks phase foundations and filters duplicates", (
   );
 });
 
-test("buildHabitCoachDayTasks rejects underfilled days after duplicate filtering", () => {
-  assert.throws(
-    () =>
-      buildHabitCoachDayTasks(
-        [
-          {
-            id: "ai-water",
-            text: "Minum air putih 2 liter bertahap",
-            emoji: "water",
-            category: "hydration",
-            reason: "Agar tubuh terhidrasi.",
-          },
-          {
-            id: "ai-warmth",
-            text: "Kompres hangat perut bawah 10 menit",
-            emoji: "heat",
-            category: "rest",
-            reason: "Membantu rasa nyaman.",
-          },
-          {
-            id: "breath",
-            text: "Tarik napas pelan selama 2 menit",
-            emoji: "wind",
-            category: "emotional",
-            reason: "Membantu tubuh terasa lebih tenang.",
-          },
-        ],
-        {
-          dateKey: "2026-06-01",
-          dayIndex: 1,
-          phase: "Menstrual",
-          displayPhase: "Menstruasi",
-          cycleDay: 2,
-          isManualPeriod: true,
-        }
-      ),
-    /Habit coach day must keep at least 3 personalized tasks/
+test("buildHabitCoachDayTasks fills underfilled days after duplicate filtering", () => {
+  const tasks = buildHabitCoachDayTasks(
+    [
+      {
+        id: "ai-water",
+        text: "Minum air putih 2 liter bertahap",
+        emoji: "water",
+        category: "hydration",
+        reason: "Agar tubuh terhidrasi.",
+      },
+      {
+        id: "ai-warmth",
+        text: "Kompres hangat perut bawah 10 menit",
+        emoji: "heat",
+        category: "rest",
+        reason: "Membantu rasa nyaman.",
+      },
+      {
+        id: "breath",
+        text: "Tarik napas pelan selama 2 menit",
+        emoji: "wind",
+        category: "emotional",
+        reason: "Membantu tubuh terasa lebih tenang.",
+      },
+    ],
+    {
+      dateKey: "2026-06-01",
+      dayIndex: 1,
+      phase: "Menstrual",
+      displayPhase: "Menstruasi",
+      cycleDay: 2,
+      isManualPeriod: true,
+    }
   );
+
+  assert.equal(tasks.length, 5);
+  assert.deepEqual(
+    tasks.map((task) => task.id),
+    [
+      "foundation-water",
+      "foundation-menstrual-warmth",
+      "breath",
+      "fallback-protein",
+      "fallback-evening-reset",
+    ]
+  );
+  assert.equal(tasks.every((task) => task.text.length > 0), true);
 });
 
 test("buildHabitCoachDayTasks keeps saved totals between five and seven", () => {

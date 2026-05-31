@@ -506,62 +506,63 @@ test("saveHabitCoachPlanWithCharge cleans up and restores old plan when charge f
   ]);
 });
 
-test("saveHabitCoachPlanWithCharge does not insert or charge when day building fails", async () => {
+test("saveHabitCoachPlanWithCharge fills underbuilt generated days before insert", async () => {
   const { calls, supabaseAdmin } = createLifecycleSupabaseMock();
 
-  await assert.rejects(
-    () =>
-      saveHabitCoachPlanWithCharge({
-        supabaseAdmin,
-        userId: "user-1",
-        replaceActivePlan: true,
-        activeOverlaps: [{ id: "old-plan", week_end: "2026-06-06" }],
-        dateKeys: lifecycleDateKeys,
-        cycleDays: [
+  const result = await saveHabitCoachPlanWithCharge({
+    supabaseAdmin,
+    userId: "user-1",
+    replaceActivePlan: true,
+    activeOverlaps: [{ id: "old-plan", week_start: "2026-05-25", week_end: "2026-06-06" }],
+    dateKeys: lifecycleDateKeys,
+    cycleDays: [
+      {
+        dateKey: "2026-05-31",
+        phase: "Menstrual",
+        displayPhase: "Menstruasi",
+        isManualPeriod: true,
+      },
+    ],
+    aiDays: [
+      {
+        focus: "Underfilled",
+        tasks: [
           {
-            dateKey: "2026-05-31",
-            phase: "Menstrual",
-            displayPhase: "Menstruasi",
-            isManualPeriod: true,
+            id: "ai-water",
+            text: "Minum air putih 2 liter bertahap",
+            emoji: "water",
+            category: "hydration",
+            reason: "Agar tubuh terhidrasi.",
           },
-        ],
-        aiDays: [
           {
-            focus: "Underfilled",
-            tasks: [
-              {
-                id: "ai-water",
-                text: "Minum air putih 2 liter bertahap",
-                emoji: "water",
-                category: "hydration",
-                reason: "Agar tubuh terhidrasi.",
-              },
-              {
-                id: "ai-warmth",
-                text: "Kompres hangat perut bawah 10 menit",
-                emoji: "heat",
-                category: "rest",
-                reason: "Membantu rasa nyaman.",
-              },
-              makeLifecycleTask("only-one", "emotional"),
-            ],
+            id: "ai-warmth",
+            text: "Kompres hangat perut bawah 10 menit",
+            emoji: "heat",
+            category: "rest",
+            reason: "Membantu rasa nyaman.",
           },
+          makeLifecycleTask("only-one", "emotional"),
         ],
-        planInsert: {
-          user_id: "user-1",
-          week_start: "2026-05-31",
-          week_end: "2026-06-06",
-          status: "pending_charge",
-        },
-        async charge(referenceId) {
-          calls.push(`charge:${referenceId}`);
-          return 450;
-        },
-      }),
-    /Habit coach day must keep at least 3 personalized tasks/
-  );
+      },
+    ],
+    planInsert: {
+      user_id: "user-1",
+      week_start: "2026-05-31",
+      week_end: "2026-06-06",
+      status: "pending_charge",
+    },
+    async charge(referenceId) {
+      calls.push(`charge:${referenceId}`);
+      return 450;
+    },
+  });
 
-  assert.deepEqual(calls, []);
+  assert.equal(result.plan.habit_coach_plan_days[0].tasks.length, 5);
+  assert.equal(
+    result.plan.habit_coach_plan_days[0].tasks.some((task: any) => task.id === "fallback-protein"),
+    true
+  );
+  assert.equal(calls.includes("charge:new-plan"), true);
 });
 
 test("shouldReplaceActivePlan only accepts literal true", () => {

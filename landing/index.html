@@ -257,7 +257,7 @@
     
     /* Hero Section */
     .hero {
-      padding: 160px 0 100px;
+      padding: clamp(100px, 12vh, 160px) 0 80px;
       position: relative;
       overflow: hidden;
     }
@@ -275,19 +275,20 @@
     .hero-inner {
       display: flex;
       align-items: center;
-      gap: 64px;
+      gap: 48px;
       flex-wrap: wrap;
     }
     .hero-text {
       flex: 1.2;
-      min-width: 320px;
+      min-width: 300px;
     }
     .hero h1 {
-      font-size: clamp(34px, 4.5vw, 54px);
+      font-size: clamp(30px, 5.5vw, 54px);
       font-weight: 800;
       color: var(--slate-900);
-      line-height: 1.15;
-      margin-bottom: 24px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
     }
     .hero h1 span {
       background: linear-gradient(135deg, var(--pink-500), var(--violet-600));
@@ -297,16 +298,17 @@
       color: var(--pink-500);
     }
     .hero p {
-      font-size: 17px;
+      font-size: clamp(15px, 2vw, 17px);
       color: var(--slate-600);
-      margin-bottom: 36px;
+      margin-bottom: 28px;
       max-width: 580px;
-      line-height: 1.8;
+      line-height: 1.7;
     }
     .hero-buttons {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 24px;
     }
     .hero-badge {
       display: inline-flex;
@@ -314,27 +316,48 @@
       gap: 8px;
       background: rgba(252, 231, 243, 0.7);
       color: var(--pink-700);
-      padding: 8px 18px;
+      padding: 6px 14px;
       border-radius: 30px;
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 24px;
+      font-size: 11.5px;
+      font-weight: 800;
+      margin-bottom: 20px;
       border: 1px solid var(--pink-200);
+    }
+
+    /* PWA Banner Kaca */
+    .pwa-banner {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px dashed var(--ai-purple-border);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 580px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .pwa-banner-text {
+      font-size: 13.5px;
+      color: var(--slate-700);
+      line-height: 1.6;
+      font-weight: 600;
     }
     
     /* Phone Mockup */
     .hero-mockup {
       flex: 0.8;
-      min-width: 280px;
+      min-width: 260px;
       position: relative;
     }
     .phone-frame {
-      width: 280px;
-      height: 570px;
+      width: 270px;
+      height: 550px;
       background: #0f172a;
-      border-radius: 40px;
-      border: 10px solid var(--slate-900);
-      box-shadow: 0 30px 70px -15px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.05);
+      border-radius: 38px;
+      border: 9px solid var(--slate-900);
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.05);
       overflow: hidden;
       position: relative;
       margin: 0 auto;
@@ -344,21 +367,21 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 130px;
-      height: 25px;
+      width: 120px;
+      height: 22px;
       background: var(--slate-900);
-      border-radius: 0 0 16px 16px;
+      border-radius: 0 0 14px 14px;
       z-index: 5;
     }
     .phone-screen {
       width: 100%;
       height: 100%;
       background: #fff5f9;
-      padding: 42px 14px 14px;
+      padding: 38px 12px 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       scrollbar-width: none;
     }
     .phone-screen::-webkit-scrollbar {
@@ -369,12 +392,12 @@
       margin-bottom: 2px;
     }
     .mock-header h3 {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 800;
       color: var(--slate-900);
     }
     .mock-header p {
-      font-size: 9px;
+      font-size: 8.5px;
       color: var(--slate-400);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -383,27 +406,27 @@
     }
     .mock-card {
       background: #fff;
-      border-radius: 18px;
-      padding: 14px;
+      border-radius: 16px;
+      padding: 12px;
       border: 1px solid rgba(252, 231, 243, 0.9);
       box-shadow: 0 6px 18px -4px rgba(236, 72, 153, 0.05);
     }
     .mock-phase {
       background: var(--pink-100);
       color: var(--pink-600);
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 9px;
       font-weight: 800;
       display: inline-block;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .mock-circle {
-      width: 90px;
-      height: 90px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      border: 6px solid var(--teal-100);
-      margin: 8px auto;
+      border: 5px solid var(--teal-100);
+      margin: 6px auto;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -411,12 +434,12 @@
       background: #fff;
     }
     .mock-circle-num {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--slate-900);
     }
     .mock-circle-label {
-      font-size: 8px;
+      font-size: 7.5px;
       color: var(--slate-400);
       text-transform: uppercase;
       font-weight: 700;
@@ -424,37 +447,51 @@
     .mock-tabs {
       display: flex;
       background: #fff;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--pink-100);
       margin-top: auto;
-      padding: 3px;
+      padding: 2px;
       flex-shrink: 0;
     }
     .mock-tab {
       flex: 1;
       text-align: center;
-      padding: 8px 2px;
-      font-size: 8.5px;
+      padding: 6px 2px;
+      font-size: 8px;
       font-weight: 700;
       color: var(--slate-400);
     }
     .mock-tab.active {
       color: var(--pink-500);
       background: var(--pink-50);
-      border-radius: 10px;
+      border-radius: 8px;
     }
     @media(max-width: 768px) {
+      .hero {
+        padding-top: 110px;
+      }
+      .hero-inner {
+        flex-direction: column;
+        gap: 36px;
+      }
       .hero-mockup {
-        flex: 0 0 auto;
         width: 100%;
         display: flex;
         justify-content: center;
-        order: -1;
+        order: -1; /* Mockup HP diletakkan paling atas pada layar HP */
       }
       .phone-frame {
-        width: 250px;
-        height: 510px;
+        width: 240px;
+        height: 490px;
+      }
+      .btn {
+        width: 100%; /* Tombol memenuhi lebar layar di HP agar ramah sentuh */
+      }
+      .hero-buttons {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
       }
     }
     
@@ -874,7 +911,7 @@
         <li><a href="#testimoni">Cerita Sukses</a></li>
       </ul>
       <div class="nav-actions">
-        <a href="https://app.siklusio.web.id" class="nav-login">Login / Masuk</a>
+        <a href="https://app.siklusio.web.id" class="nav-login">📱 Buka Aplikasi PWA</a>
       </div>
     </div>
   </nav>
@@ -887,9 +924,18 @@
           <div class="hero-badge">✨ 100% Bebas Iklan & Mengutamakan Privasi Medis Anda</div>
           <h1>Untuk Setiap Air Mata yang Terhapus Sunyi, & Setiap Harapan yang <span>Belum Padam</span></h1>
           <p>Siklusio hadir sebagai sahabat setia yang memeluk erat perjuangan promilmu. Lacak jendela subur secara medis akurat, peroleh panduan asisten AI personal, dan bersandarlah di komunitas hangat sesama pejuang garis dua. Kami di sini untuk menemani setiap langkah ikhtiarmu.</p>
+          
+          <!-- PWA Glassmorphic Banner -->
+          <div class="pwa-banner">
+            <span style="font-size: 20px;">💡</span>
+            <div class="pwa-banner-text">
+              <strong>Aplikasi Web Instan (PWA):</strong> Langsung pakai tanpa download Play Store! Ketuk menu browser Anda lalu pilih <strong>'Tambahkan ke Layar Utama'</strong> (Add to Home Screen) untuk akses instan.
+            </div>
+          </div>
+
           <div class="hero-buttons">
-            <a href="checkout.html" class="btn btn-primary">💝 Mulai Ikhtiar Premium</a>
-            <a href="#fitur" class="btn btn-outline">Lihat Seluruh Fitur →</a>
+            <a href="https://app.siklusio.web.id" class="btn btn-primary">💝 Buka App PWA (Gratis)</a>
+            <a href="checkout.html" class="btn btn-outline">Aktifkan Premium 🌟</a>
           </div>
         </div>
         <!-- Phone Mockup -->
@@ -1138,12 +1184,12 @@
         </div>
         
         <p style="font-size:13.5px; opacity:0.85; max-width:600px; margin:-12px auto 28px; line-height:1.6;">
-          🎁 <b>Bonus Istimewa:</b> Pembelian Lifetime Premium hari ini langsung mendapatkan **500 Kredit AI** secara instan di dalam dompet digital Bunda. Kredit ini setara dengan ratusan kali tanya-jawab asisten Habit Coach & prediksi ovulasi cerdas!
+          🎁 <b>Bonus Istimewa:</b> Pembelian Lifetime Premium hari ini langsung mengaktifkan status premium Anda secara otomatis di aplikasi PWA, lengkap dengan **500 Kredit AI** instan untuk Habit Coach & prediksi ovulasi cerdas!
         </p>
         
-        <a href="checkout.html" class="btn">Ambil Akses Premium & Mulai Ikhtiar</a>
+        <a href="checkout.html" class="btn">Aktifkan Akses Premium Seumur Hidup</a>
         <p class="pricing-footnote">
-          *Setara dengan satu porsi bakso hangat atau satu cangkir es kopi kekinian yang habis sekali minum, namun manfaat aplikasi ini mendampingimu selamanya sampai si kecil lahir.
+          *Setara dengan satu porsi bakso hangat atau satu cangkir es kopi kekinian yang habis sekali minum, namun manfaat aplikasi ini mendampingimu selamanya di PWA sampai si kecil lahir.
         </p>
       </div>
     </div>

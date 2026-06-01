@@ -25,6 +25,8 @@ import { AiRecommendationSection } from '../../components/habits/AiRecommendatio
 import { HabitCoachCard } from '../../components/habits/HabitCoachCard';
 import { HabitCoachSheet } from '../../components/habits/HabitCoachSheet';
 import { HistoryView } from '../../components/habits/HistoryView';
+import { TodayRecipesCard } from '../../components/habits/TodayRecipesCard';
+import { TodayRecipesModal } from '../../components/habits/TodayRecipesModal';
 
 // Error boundary wrapper untuk HistoryView yang crash di native
 class HistoryErrorBoundary extends React.Component<
@@ -64,7 +66,15 @@ function HistoryViewSafe(props: any) {
 }
 
 export default function HabitsScreen() {
-  const { currentPhase, activityHistory, setActivityHistory, userNickname, getDayInfo } = useCycle();
+  const {
+    currentPhase,
+    cycleDay,
+    daysToNextPeriod,
+    activityHistory,
+    setActivityHistory,
+    userNickname,
+    getDayInfo,
+  } = useCycle();
   const [, startTransition] = useTransition();
   
   const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
@@ -72,6 +82,7 @@ export default function HabitsScreen() {
   const [habitCoachPlan, setHabitCoachPlan] = useState<HabitCoachPlan | null>(null);
   const [aiCreditBalance, setAiCreditBalance] = useState<number | null>(null);
   const [coachOpen, setCoachOpen] = useState(false);
+  const [recipesOpen, setRecipesOpen] = useState(false);
   const [coachLoading, setCoachLoading] = useState(false);
   const [coachError, setCoachError] = useState<string | null>(null);
   const [coachFetching, setCoachFetching] = useState(false);
@@ -435,6 +446,14 @@ export default function HabitsScreen() {
               />
             </View>
 
+            <View className="mb-6">
+              <TodayRecipesCard
+                currentPhase={currentPhase}
+                balance={aiCreditBalance}
+                onOpen={() => setRecipesOpen(true)}
+              />
+            </View>
+
             {/* Progress Header */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant relative overflow-hidden mb-6">
               <View className="flex-row items-center justify-between z-10">
@@ -566,6 +585,16 @@ export default function HabitsScreen() {
           </View>
         )}
       </ScrollView>
+      <TodayRecipesModal
+        visible={recipesOpen}
+        generatedForDate={todayDateKey}
+        currentPhase={currentPhase}
+        cycleDay={cycleDay}
+        daysToNextPeriod={daysToNextPeriod}
+        nickname={userNickname}
+        onBalanceChange={setAiCreditBalance}
+        onClose={() => setRecipesOpen(false)}
+      />
       <HabitCoachSheet
         visible={coachOpen}
         mode={activeHabitCoachPlan ? 'renewal' : 'initial'}

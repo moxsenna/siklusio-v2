@@ -2,8 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { getAiCreditBalance, grantPremiumInitialAiCredits } from "./credits";
 import { buildOpenRouterRequestBody, parseOpenRouterJsonContent } from "./openRouter";
-import { validateHabitCoachPlan, validateCalmingReassurance } from "./schemas";
+import {
+  validateHabitCoachPlan,
+  validateCalmingReassurance,
+  validateRecipesGeneration,
+} from "./schemas";
 import { buildHabitCoachDayTasks } from "./habitCoachFoundation";
+import { buildRecipeCycleSnapshot } from "./recipeSummary";
 
 const makeTask = (id: string) => ({
   id,
@@ -45,6 +50,38 @@ const makePersonalizedTasks = () => [
     reason: "Membantu tubuh terasa lebih tenang.",
   },
 ];
+
+const validRecipePayload = {
+  phaseBenefit: "Makanan kaya zat besi bantu menjaga energi tetap stabil di fase ini.",
+  groceries: [
+    { id: 1, name: "Bayam", desc: "Sayur hijau kaya folat", emoji: "🥬" },
+    { id: 2, name: "Telur", desc: "Sumber protein harian", emoji: "🥚" },
+    { id: 3, name: "Tempe", desc: "Protein nabati terjangkau", emoji: "🫘" },
+  ],
+  recipes: [
+    {
+      id: 1,
+      title: "Tumis Bayam Telur",
+      description: "Menu cepat untuk sarapan atau makan malam ringan.",
+      cookingTime: "15 menit",
+      ingredients: ["Bayam", "Telur", "Bawang putih"],
+      steps: ["Tumis bawang putih sebentar", "Masukkan bayam dan telur, lalu aduk rata"],
+      phaseBenefit: "Membantu asupan zat besi saat tubuh mudah lelah.",
+      emoji: "🍳",
+    },
+    {
+      id: 2,
+      title: "Tempe Panggang Kecap",
+      description: "Menu sederhana dengan rasa gurih manis.",
+      cookingTime: "20 menit",
+      ingredients: ["Tempe", "Kecap manis", "Bawang merah"],
+      steps: ["Iris tipis tempe", "Panggang lalu oles kecap"],
+      phaseBenefit: "Protein tempe bantu kenyang lebih lama.",
+      emoji: "🍽️",
+    },
+  ],
+  disclaimer: "Ini saran umum, sesuaikan dengan kondisi kesehatanmu.",
+};
 
 test("parseOpenRouterJsonContent accepts fenced JSON", () => {
   const parsed = parseOpenRouterJsonContent<{ summary: string }>(
@@ -90,6 +127,52 @@ test("buildOpenRouterRequestBody caps fallback routing to three models", () => {
   });
 
   assert.deepEqual(body.models, ["qwen/free", "nvidia/free", "openai/cheap"]);
+});
+
+test("validateRecipesGeneration accepts local Indonesian recipe payload", () => {
+  const result = validateRecipesGeneration(validRecipePayload);
+  assert.equal(result.recipes.length, 2);
+  assert.equal(result.groceries.length, 3);
+  assert.equal(result.phaseBenefit.length > 0, true);
+});
+
+test("validateRecipesGeneration rejects payload without exactly two recipes", () => {
+  assert.throws(
+    () =>
+      validateRecipesGeneration({
+        ...validRecipePayload,
+        recipes: [validRecipePayload.recipes[0]],
+      }),
+    /exactly 2 recipes/
+  );
+});
+
+test("buildRecipeCycleSnapshot keeps only recipe context fields", () => {
+  const snapshot = buildRecipeCycleSnapshot({
+    phase: "Luteal",
+    cycleDay: 24,
+    daysToNextPeriod: 5,
+    privateNotes: "hidden",
+  });
+
+  assert.deepEqual(snapshot, {
+    phase: "Luteal",
+    cycleDay: 24,
+    daysToNextPeriod: 5,
+  });
+});
+
+test("recipe credit charge payload should use saved generation id as reference", () => {
+  const generation = { id: "recipe-generation-1" };
+  const chargePayload = {
+    amount: 15,
+    feature: "recipes_today",
+    reason: "Luteal",
+    referenceId: generation.id,
+  };
+
+  assert.equal(chargePayload.referenceId, "recipe-generation-1");
+  assert.equal(chargePayload.feature, "recipes_today");
 });
 
 test("validateHabitCoachPlan rejects days with fewer than three personalized tasks", () => {

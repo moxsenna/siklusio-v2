@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <!-- Google Tag Manager -->
@@ -10,357 +10,195 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Aktivasi Akun Premium Siklusio — Langkah Nyata Ikhtiar Promilmu.">
+  <meta name="description" content="Aktivasi Siklusio Premium Lifetime — sekali bayar untuk pendamping promil yang lebih terarah, tenang, dan privat.">
   <meta name="theme-color" content="#ec4899">
-  <title>Aktivasi Siklusio Premium — Langkah Nyata Ikhtiar Promilmu 🌸</title>
+  <title>Aktivasi Siklusio Premium Lifetime — Rp 37.000 Sekali Bayar</title>
   <link rel="icon" type="image/webp" href="./logo.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --pink-50: #fdf2f8;
-      --pink-100: #fce7f3;
-      --pink-200: #fbcfe8;
-      --pink-400: #f472b6;
-      --pink-500: #ec4899;
-      --pink-600: #db2777;
-      --pink-700: #be185d;
-      
-      --violet-50: #faf5ff;
-      --violet-100: #f3e8ff;
-      --violet-200: #e9d5ff;
-      --violet-500: #a855f7;
-      --violet-600: #9333ea;
-      --violet-700: #7e22ce;
-
-      --teal-50: #f0fdfa;
-      --teal-100: #ccfbf1;
-      --teal-500: #14b8a6;
-      --teal-700: #0f766e;
-      
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-300: #cbd5e1;
-      --slate-400: #94a3b8;
-      --slate-600: #475569;
-      --slate-700: #334155;
-      --slate-800: #1e293b;
-      --slate-900: #0f172a;
+      --pink:#ec4899; --pink-dark:#db2777; --violet:#9333ea; --teal:#14b8a6;
+      --bg:#fdf2f8; --bg2:#faf5ff; --bg3:#f0fdfa;
+      --text:#172033; --muted:#64748b; --card:#ffffff; --border:rgba(236,72,153,.16);
+      --gradient:linear-gradient(135deg,#ec4899 0%,#9333ea 100%);
+      --shadow:0 24px 70px rgba(147,51,234,.14);
     }
-    
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--slate-800);
-      background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 50%, #f0fdfa 100%);
-      background-attachment: fixed;
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(236,72,153,.14), transparent 34%),
+        radial-gradient(circle at 88% 20%, rgba(147,51,234,.12), transparent 32%),
+        radial-gradient(circle at 48% 94%, rgba(20,184,166,.10), transparent 36%),
+        linear-gradient(135deg,var(--bg) 0%,var(--bg2) 50%,var(--bg3) 100%);
+      min-height:100vh;
+      line-height:1.65;
     }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 24px;
-      width: 100%;
-    }
+    a { color:inherit; text-decoration:none; }
+    .container { width:100%; max-width:1120px; margin:0 auto; padding:0 22px; }
+    .grad-text { background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
     header {
-      padding: 24px 0;
-      border-bottom: 1px solid rgba(252, 231, 243, 0.5);
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(10px);
+      position:sticky; top:0; z-index:20;
+      padding:14px 0;
+      background:rgba(255,255,255,.72);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(236,72,153,.12);
     }
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      object-fit: cover;
-    }
-    .logo-text {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--slate-900);
-      font-family: 'Outfit', sans-serif;
-    }
-    .back-link {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--slate-600);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .back-link:hover {
-      color: var(--pink-600);
-    }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon { width:38px; height:38px; border-radius:12px; object-fit:cover; }
+    .logo-text { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; letter-spacing:-.5px; }
+    .back-link { font-size:13px; font-weight:800; color:var(--pink-dark); padding:9px 14px; border-radius:999px; background:rgba(236,72,153,.08); border:1px solid rgba(236,72,153,.16); }
 
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      padding: 60px 0;
+    main { padding:42px 0 56px; }
+    .top-strip {
+      display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+      margin-bottom:22px;
+      font-size:13px; font-weight:800; color:var(--violet);
     }
+    .strip-pill { padding:7px 12px; border-radius:999px; background:rgba(255,255,255,.76); border:1px solid rgba(147,51,234,.15); box-shadow:0 8px 22px rgba(147,51,234,.06); }
 
     .checkout-wrapper {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 40px;
-      align-items: start;
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);
+      gap:26px;
+      align-items:start;
     }
+    .hero-card, .form-card, .summary-box {
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.9);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(20px);
+    }
+    .hero-card { padding:34px; margin-bottom:22px; position:relative; overflow:hidden; }
+    .hero-card::after {
+      content:""; position:absolute; width:220px; height:220px; border-radius:50%;
+      right:-90px; top:-90px; background:radial-gradient(circle,rgba(236,72,153,.20),transparent 68%);
+    }
+    .eyebrow { display:inline-flex; align-items:center; gap:8px; padding:7px 13px; border-radius:999px; background:rgba(236,72,153,.08); color:var(--pink-dark); font-size:12px; font-weight:900; letter-spacing:.4px; text-transform:uppercase; margin-bottom:16px; }
+    .hero-title { font-family:'Outfit',sans-serif; font-size:42px; line-height:1.06; font-weight:900; letter-spacing:-1.4px; margin-bottom:14px; max-width:620px; }
+    .hero-sub { font-size:16px; color:var(--muted); max-width:660px; margin-bottom:24px; }
+    .value-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .value-mini { background:#fff; border:1px solid rgba(236,72,153,.10); border-radius:18px; padding:14px; }
+    .value-mini strong { display:block; font-family:'Outfit',sans-serif; font-size:18px; line-height:1.15; margin-bottom:3px; }
+    .value-mini span { display:block; color:var(--muted); font-size:12px; line-height:1.45; }
 
-    @media (max-width: 850px) {
-      .checkout-wrapper {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-    }
-
-    /* Checkout Card */
-    .card {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 32px;
-      padding: 40px;
-      box-shadow: 0 20px 50px -15px rgba(236, 72, 153, 0.08);
-    }
-
-    .card-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--slate-900);
-      margin-bottom: 8px;
-    }
-    .card-subtitle {
-      font-size: 14.5px;
-      color: var(--slate-600);
-      margin-bottom: 32px;
-    }
-
-    /* Form Fields */
-    .form-group {
-      margin-bottom: 24px;
-    }
-    .form-label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--slate-700);
-      margin-bottom: 8px;
-    }
-    .form-control {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 16px;
-      border: 2px solid var(--slate-200);
-      background: rgba(255, 255, 255, 0.9);
-      font-family: inherit;
-      font-size: 15px;
-      color: var(--slate-900);
-      font-weight: 500;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: var(--pink-400);
-      box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.08);
-      background: #fff;
-    }
-
-    /* Alert Banner */
-    .alert {
-      padding: 16px 20px;
-      border-radius: 18px;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 28px;
-      display: none;
-      border-width: 1px;
-    }
-    .alert-danger {
-      background: #fef2f2;
-      color: #991b1b;
-      border-color: #fca5a5;
-    }
-    .alert-success {
-      background: #f0fdf4;
-      color: #166534;
-      border-color: #86efac;
-    }
-
-    /* Summary Side */
-    .summary-box {
-      background: linear-gradient(135deg, rgba(253, 242, 248, 0.8) 0%, rgba(243, 232, 255, 0.7) 100%);
-      border-radius: 32px;
-      padding: 36px;
-      border: 1px solid var(--pink-100);
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.02);
-    }
-    .summary-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--slate-900);
-      margin-bottom: 20px;
-    }
-    .summary-list {
-      list-style: none;
-      margin-bottom: 28px;
-    }
-    .summary-item {
-      display: flex;
-      align-items: start;
-      gap: 12px;
-      font-size: 14px;
-      color: var(--slate-700);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .summary-check {
-      color: var(--pink-600);
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-
-    /* Reframe Pricing */
-    .price-container {
-      border-top: 1px dashed var(--pink-200);
-      padding-top: 24px;
-      margin-top: 24px;
-    }
-    .price-label {
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--pink-600);
-    }
-    .price-value {
-      font-family: 'Outfit', sans-serif;
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--slate-900);
-      margin: 4px 0 8px;
-    }
-    .price-meta {
-      font-size: 12.5px;
-      color: var(--slate-600);
-      font-style: italic;
-      line-height: 1.5;
-    }
-
-    /* Submit Button & Loader */
-    .btn-submit {
-      width: 100%;
-      padding: 18px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, var(--pink-500) 0%, var(--pink-600) 100%);
-      color: #fff;
-      font-weight: 800;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 8px 25px -4px rgba(236, 72, 153, 0.4);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .btn-submit:hover:not(:disabled) {
-      background: linear-gradient(135deg, var(--pink-600) 0%, var(--pink-700) 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 16px 30px -4px rgba(236, 72, 153, 0.5);
-    }
-    .btn-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-      display: none;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Safety trust badge */
-    .trust-badges {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-top: 32px;
-      opacity: 0.7;
-    }
-    .trust-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--slate-600);
-    }
-
-    /* Referral badge */
+    .form-card { padding:30px; }
+    .card-title { font-family:'Outfit',sans-serif; font-size:28px; line-height:1.15; font-weight:900; margin-bottom:8px; }
+    .card-subtitle { color:var(--muted); font-size:14px; margin-bottom:22px; }
+    .progress-line { display:flex; gap:8px; margin-bottom:24px; }
+    .progress-step { flex:1; height:6px; border-radius:999px; background:rgba(236,72,153,.16); overflow:hidden; }
+    .progress-step:nth-child(1), .progress-step:nth-child(2) { background:var(--gradient); }
+    .alert { padding:14px 16px; border-radius:16px; font-size:13.5px; font-weight:700; margin-bottom:18px; display:none; border:1px solid; }
+    .alert-danger { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
+    .alert-success { background:#ecfdf5; color:#065f46; border-color:#99f6e4; }
     .referral-banner {
-      display: none;
-      padding: 14px 20px;
-      border-radius: 18px;
-      font-size: 13.5px;
-      font-weight: 600;
-      margin-bottom: 24px;
-      background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%);
-      color: var(--violet-700);
-      border: 1px solid var(--violet-200);
-      align-items: center;
-      gap: 10px;
+      display:none; align-items:center; gap:10px;
+      padding:13px 15px; border-radius:16px; font-size:13px; font-weight:800;
+      margin-bottom:18px; background:linear-gradient(135deg,#faf5ff,#fdf2f8);
+      color:#6d28d9; border:1px solid #e9d5ff;
     }
-    .referral-banner .ref-code {
-      font-weight: 800;
-      color: var(--pink-600);
+    .ref-code { color:var(--pink-dark); font-weight:900; }
+
+    .form-group { margin-bottom:18px; }
+    .form-label { display:flex; justify-content:space-between; gap:10px; margin-bottom:7px; font-size:13px; font-weight:900; color:#26344d; }
+    .label-hint { font-size:11px; color:var(--muted); font-weight:700; }
+    .form-control {
+      width:100%; padding:15px 16px; border-radius:16px; border:2px solid #e2e8f0;
+      background:#fff; font-family:inherit; font-size:15px; color:#0f172a; font-weight:600;
+      transition:.22s ease;
+    }
+    .form-control:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 4px rgba(236,72,153,.10); }
+    .helper { font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.5; }
+    .coupon-wrap { margin-top:22px; padding-top:20px; border-top:1px dashed rgba(148,163,184,.55); }
+
+    .btn-submit {
+      width:100%; margin-top:4px; padding:18px 20px; border:none; border-radius:19px;
+      background:var(--gradient); color:#fff; font-size:15px; font-weight:900; letter-spacing:.7px;
+      cursor:pointer; box-shadow:0 14px 34px rgba(236,72,153,.35);
+      transition:transform .2s ease, box-shadow .2s ease; display:flex; align-items:center; justify-content:center; gap:10px;
+      text-transform:uppercase;
+    }
+    .btn-submit:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 20px 42px rgba(236,72,153,.44); }
+    .btn-submit:disabled { opacity:.65; cursor:not-allowed; }
+    .spinner { width:19px; height:19px; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite; display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .privacy-note {
+      margin-top:16px; padding:13px 14px; border-radius:16px;
+      background:rgba(20,184,166,.08); color:#0f766e; font-size:12px; font-weight:800; line-height:1.55;
+    }
+    .trust-badges { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px; }
+    .trust-badge { border:1px solid rgba(236,72,153,.12); background:#fff; border-radius:14px; padding:10px; text-align:center; font-size:11.5px; font-weight:800; color:#475569; line-height:1.35; }
+
+    .summary-box { padding:30px; position:sticky; top:92px; }
+    .order-badge { display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border-radius:999px; background:rgba(20,184,166,.10); color:#0f766e; font-size:12px; font-weight:900; margin-bottom:14px; }
+    .summary-title { font-family:'Outfit',sans-serif; font-size:26px; line-height:1.15; font-weight:900; margin-bottom:16px; }
+    .price-card { background:linear-gradient(135deg,#fdf2f8,#faf5ff); border:1px solid rgba(236,72,153,.18); border-radius:24px; padding:20px; margin-bottom:20px; }
+    .price-label { font-size:12px; font-weight:900; color:var(--pink-dark); text-transform:uppercase; letter-spacing:.8px; }
+    .price-value { font-family:'Outfit',sans-serif; font-size:46px; font-weight:900; line-height:1; margin:6px 0; letter-spacing:-1px; }
+    .price-meta { color:var(--muted); font-size:13px; line-height:1.55; }
+    .benefit-list { list-style:none; display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+    .benefit-list li { display:flex; gap:11px; align-items:flex-start; color:#334155; font-size:14px; line-height:1.5; }
+    .check { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(236,72,153,.10); color:var(--pink-dark); font-weight:900; font-size:13px; }
+    .bonus-box { padding: 24px; border-radius: 24px; background:#fff; border:1px dashed rgba(147,51,234,.30); margin-top:18px; }
+    .bonus-label { display:inline-block; background:rgba(147,51,234,.10); color:#7e22ce; border-radius:999px; padding:4px 9px; font-size:10.5px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
+    .bonus-title { font-size:14px; font-weight:900; line-height:1.45; margin-bottom:10px; }
+    .bonus-box img { width:100%; border-radius:14px; box-shadow:0 8px 24px rgba(236,72,153,.12); border:2px solid #fff; }
+
+    /* CHECKOUT BONUS SLIDER */
+    .checkout-bonus-slider {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      border: 2px solid #fff;
+      box-shadow: 0 8px 24px rgba(236,72,153,.12);
+      background: linear-gradient(135deg, rgba(236,72,153,.05) 0%, rgba(147,51,234,.05) 100%);
+    }
+    .checkout-bonus-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+    .checkout-bonus-slide.active {
+      opacity: 1;
     }
 
-    footer {
-      padding: 30px 0;
-      text-align: center;
-      font-size: 13px;
-      color: var(--slate-600);
-      background: rgba(255,255,255,0.4);
-      border-top: 1px solid rgba(252, 231, 243, 0.5);
+    .faq-mini { margin-top:22px; display:grid; gap:10px; }
+    .faq-mini details { background:rgba(255,255,255,.82); border:1px solid rgba(236,72,153,.12); border-radius:16px; padding:13px 14px; }
+    .faq-mini summary { cursor:pointer; font-size:13px; font-weight:900; color:#334155; }
+    .faq-mini p { margin-top:8px; color:var(--muted); font-size:12.5px; line-height:1.6; }
+
+    footer { padding:26px 0; text-align:center; color:var(--muted); font-size:12.5px; background:rgba(255,255,255,.48); border-top:1px solid rgba(236,72,153,.10); }
+
+    @media (max-width: 920px) {
+      main { padding:28px 0 42px; }
+      .checkout-wrapper { grid-template-columns:1fr; }
+      .summary-box { position:static; order:-1; }
+      .hero-title { font-size:34px; }
+      .value-row { grid-template-columns:1fr; }
+    }
+    @media (max-width: 560px) {
+      .container { padding:0 12px; }
+      .back-link { font-size:12px; padding:8px 10px; }
+      .logo-text { font-size:19px; }
+      .hero-card, .form-card, .summary-box { border-radius:20px; padding:16px; }
+      .bonus-box { padding: 12px; border-radius: 16px; }
+      .hero-title { font-size:29px; }
+      .trust-badges { grid-template-columns:1fr; }
+      .price-value { font-size:40px; }
     }
   </style>
 </head>
@@ -370,133 +208,184 @@
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
-  <!-- HEADER -->
   <header>
     <div class="container header-inner">
       <a href="index.html" class="logo">
         <img src="./logo.webp" alt="Siklusio Logo" class="logo-icon">
         <span class="logo-text">Siklusio</span>
       </a>
-      <a href="index.html" class="back-link">← Kembali ke Landing Page</a>
+      <a href="index.html" class="back-link">← Lihat detail fitur</a>
     </div>
   </header>
 
-  <!-- MAIN SECTION -->
   <main>
     <div class="container">
+      <div class="top-strip">
+        <span class="strip-pill">🌸 Premium Lifetime</span>
+        <span class="strip-pill">💳 Sekali bayar</span>
+        <span class="strip-pill">🔒 Bebas iklan pihak ketiga</span>
+      </div>
+
+      <section class="hero-card">
+        <div class="eyebrow">Aktivasi Premium Siklusio</div>
+        <h1 class="hero-title">Satu langkah kecil untuk promil yang <span class="grad-text">lebih terarah dan lebih tenang.</span></h1>
+        <p class="hero-sub">
+          Aktifkan akses penuh Siklusio untuk memahami fase tubuh, menata kebiasaan promil, mengurangi cemas saat TWW, dan melibatkan suami dengan cara yang lebih hangat.
+        </p>
+        <div class="value-row">
+          <div class="value-mini"><strong>1× bayar</strong><span>Akses Premium Lifetime tanpa langganan bulanan.</span></div>
+          <div class="value-mini"><strong>Rp 37.000</strong><span>Setara jajan kecil, manfaatnya menemani jangka panjang.</span></div>
+          <div class="value-mini"><strong>500 kredit AI</strong><span>Bonus awal untuk panduan personal dan Surat Tenang.</span></div>
+        </div>
+      </section>
+
       <div class="checkout-wrapper">
-        <!-- Form Section -->
-        <div class="card">
-          <h2 class="card-title">Aktivasi Akun Premium</h2>
-          <p class="card-subtitle">Langkah awal ikhtiar terbaik Bunda. Isi formulir pendaftaran di bawah ini untuk membuat akun personal Anda.</p>
-          
-          <!-- Referral Banner -->
-          <div id="referralBanner" class="referral-banner">
-            <span>🌸 Sesi rujukan aktif: <span id="referralCode" class="ref-code"></span></span>
-            <span id="referralDiscount" style="margin-left: auto; font-size: 12px; color: var(--teal-700); font-weight: 700;"></span>
+        <section class="form-card">
+          <h2 class="card-title">Buat akun Bunda</h2>
+          <p class="card-subtitle">Isi data singkat di bawah ini. Setelah pembayaran selesai, Bunda bisa masuk ke aplikasi dan mulai onboarding personal.</p>
+
+          <div class="progress-line" aria-hidden="true">
+            <div class="progress-step"></div>
+            <div class="progress-step"></div>
+            <div class="progress-step"></div>
           </div>
 
-          <!-- Alerts -->
+          <div id="referralBanner" class="referral-banner">
+            <span>🌸 Kode rujukan aktif: <span id="referralCode" class="ref-code"></span></span>
+            <span id="referralDiscount" style="margin-left:auto;font-size:12px;color:#0f766e;font-weight:900;"></span>
+          </div>
+
           <div id="errorAlert" class="alert alert-danger"></div>
           <div id="successAlert" class="alert alert-success"></div>
 
           <form id="checkoutForm">
             <div class="form-group">
-              <label class="form-label" for="inputName">Nama Lengkap Bunda</label>
-              <input type="text" id="inputName" class="form-control" placeholder="Contoh: Bunda Dina" required autocomplete="name">
+              <label class="form-label" for="inputName">Nama Lengkap <span class="label-hint">untuk akun</span></label>
+              <input type="text" id="inputName" class="form-control" placeholder="Contoh: Dina Rahma" required autocomplete="name">
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="inputWhatsapp">Nomor WhatsApp Aktif</label>
-              <input type="tel" id="inputWhatsapp" class="form-control" placeholder="Contoh: 08123456789" required autocomplete="tel">
-              <p style="font-size: 11px; color: var(--slate-600); margin-top: 6px; font-style: italic;">
-                *Pastikan nomor WhatsApp Anda aktif untuk menerima template pesan suami & konfirmasi pendaftaran.
-              </p>
+              <label class="form-label" for="inputWhatsapp">Nomor WhatsApp Aktif <span class="label-hint">untuk konfirmasi</span></label>
+              <input type="tel" id="inputWhatsapp" class="form-control" placeholder="Contoh: 08123456789" required autocomplete="tel" inputmode="tel">
+              <p class="helper">Pastikan nomor aktif agar konfirmasi dan bantuan aktivasi mudah diterima.</p>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="inputEmail">Alamat Email Bunda</label>
-              <input type="email" id="inputEmail" class="form-control" placeholder="nama@email.com" required autocomplete="email">
-              <p style="font-size: 11px; color: var(--slate-600); margin-top: 6px; font-style: italic;">
-                *Email ini akan digunakan untuk login di aplikasi setelah pembayaran selesai.
-              </p>
+              <label class="form-label" for="inputEmail">Email Login <span class="label-hint">untuk masuk aplikasi</span></label>
+              <input type="email" id="inputEmail" class="form-control" placeholder="nama@email.com" required autocomplete="email" inputmode="email">
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="inputPassword">Kata Sandi Akun</label>
-              <input type="password" id="inputPassword" class="form-control" placeholder="Minimal 6 karakter" required autocomplete="new-password" minlength="6">
-              <p style="font-size: 11px; color: var(--slate-600); margin-top: 6px; font-style: italic;">
-                *Gunakan kata sandi yang mudah Bunda ingat untuk masuk ke aplikasi.
-              </p>
+              <label class="form-label" for="inputPassword">Kata Sandi <span class="label-hint">minimal 6 karakter</span></label>
+              <input type="password" id="inputPassword" class="form-control" placeholder="Buat kata sandi akun" required autocomplete="new-password" minlength="6">
             </div>
 
-            <div class="form-group" style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #cbd5e1;">
-              <label class="form-label" for="inputCoupon">Kode Kupon / Promo (Opsional)</label>
-              <input type="text" id="inputCoupon" class="form-control" placeholder="Punya kode kupon? Masukkan di sini" style="text-transform: uppercase;">
-              <p style="font-size: 11px; color: var(--slate-600); margin-top: 6px; font-style: italic;">
-                *Diskon akan otomatis diterapkan pada tagihan pembayaran Mayar selanjutnya. Jika gratis 100%, Bunda akan langsung masuk ke aplikasi.
-              </p>
+            <div class="form-group coupon-wrap">
+              <label class="form-label" for="inputCoupon">Kode Kupon <span class="label-hint">opsional</span></label>
+              <input type="text" id="inputCoupon" class="form-control" placeholder="Masukkan kode jika ada" style="text-transform:uppercase;">
+              <p class="helper">Punya kode dari teman atau promo Siklusio? Masukkan di sini sebelum lanjut bayar.</p>
             </div>
 
             <button type="submit" id="btnSubmit" class="btn-submit">
               <div id="btnSpinner" class="spinner"></div>
-              <span id="btnText">Daftar & Bayar Sekarang</span>
+              <span id="btnText">Aktifkan Premium Sekarang</span>
             </button>
           </form>
 
-          <div class="trust-badges">
-            <div class="trust-badge">🔒 Keamanan SSL 256-bit</div>
-            <div class="trust-badge">🛡️ Privasi Medis 100% Terjaga</div>
-            <div class="trust-badge">💳 Mayar Gateway Aman</div>
+          <div class="privacy-note">
+            🔒 Siklusio dibuat bebas iklan pihak ketiga agar data siklus, cerita promil, dan perjalanan emosional Bunda tetap terasa aman.
           </div>
-        </div>
 
-        <!-- Summary Section -->
-        <div class="summary-box">
-          <h3 class="summary-title">Rangkuman Akses Premium</h3>
-          <ul class="summary-list">
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>Akses Premium Selamanya (Lifetime)</strong> — Tanpa biaya langganan bulanan tersembunyi.</span>
-            </li>
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>100% Bebas Iklan</strong> — Menjamin privasi data medis & emosional sensitif Bunda sepenuhnya aman.</span>
-            </li>
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>Pelacak Ovulasi Medis</strong> — Kalkulator presisi masa subur agar ikhtiar berpeluang maksimal.</span>
-            </li>
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>Analisis & Insight AI Cerdass</strong> — Pendampingan promil oleh dokter virtual AI 24/7 di saku Bunda.</span>
-            </li>
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>Ruang Aman Komunitas</strong> — Berbagi cerita, saran herbal, dan doa bersama bunda hebat lainnya secara anonim.</span>
-            </li>
-            <li class="summary-item">
-              <span class="summary-check">✓</span>
-              <span><strong>Jembatan Rasa Suami</strong> — Fitur kirim pesan otomatis ke WhatsApp suami untuk momentum ikhtiar harmonis.</span>
-            </li>
+          <div class="trust-badges">
+            <div class="trust-badge">💳 Pembayaran aman</div>
+            <div class="trust-badge">🌸 Sekali bayar</div>
+            <div class="trust-badge">🤍 Data privat</div>
+          </div>
+        </section>
+
+        <aside class="summary-box">
+          <span class="order-badge">Ringkasan Pesanan</span>
+          <h3 class="summary-title">Siklusio Premium Lifetime</h3>
+
+          <div class="price-card">
+            <div class="price-label">Total aktivasi hari ini</div>
+            <div class="price-value">Rp 37.000</div>
+            <p class="price-meta">Sekali bayar untuk akses penuh. Tidak ada langganan bulanan.</p>
+          </div>
+
+          <ul class="benefit-list">
+            <li><span class="check">✓</span><span><strong>Pelacak siklus & masa subur</strong> agar Bunda tahu fase tubuh tanpa menebak-nebak.</span></li>
+            <li><span class="check">✓</span><span><strong>Panduan AI personal</strong> untuk kebiasaan promil, nutrisi, istirahat, dan rencana 7 hari.</span></li>
+            <li><span class="check">✓</span><span><strong>Pojok Tenang TWW</strong> dengan napas terpandu, audio relaksasi, jurnal, dan Surat Tenang AI.</span></li>
+            <li><span class="check">✓</span><span><strong>Jembatan Pesan Suami</strong> untuk mengajak pasangan berikhtiar tanpa terasa canggung.</span></li>
+            <li><span class="check">✓</span><span><strong>Komunitas anonim</strong> untuk berbagi cerita, doa, dan dukungan dengan lebih nyaman.</span></li>
+            <li><span class="check">✓</span><span><strong>Bonus 500 kredit AI</strong> langsung untuk akun Premium baru.</span></li>
           </ul>
 
-          <div class="price-container">
-            <span class="price-label">Patungan Operasional & Gotong-Royong</span>
-            <div class="price-value">Rp 37.000</div>
-            <p class="price-meta">
-              Bukan "harga komersial". Ini investasi kasih sayang seumur hidup untuk menjaga server web, AI, dan database Siklusio tetap berjalan tanpa mengorbankan data Bunda ke pengiklan pihak ketiga.
+          <div class="bonus-box">
+            <span class="bonus-label">Bonus Aktivasi</span>
+            <p class="bonus-title">🎁 WhatsApp Sticker Pack “Pejuang Garis Dua” untuk menyemangati ikhtiar bersama pasangan.</p>
+            <img src="assets/stiker pack.webp" alt="Bonus WhatsApp Sticker Pack Pejuang Garis Dua">
+          </div>
+
+          <div class="bonus-box">
+            <span class="bonus-label" style="background: rgba(20, 184, 166, 0.1); color: #14b8a6;">4 Bonus Digital Eksklusif</span>
+            <p class="bonus-title" style="margin-bottom: 12px; font-weight: 800;">🎁 Dapatkan 4 panduan praktis yang bisa langsung dibaca dari HP:</p>
+
+            <!-- Auto-playing Image Slider -->
+            <div class="checkout-bonus-slider">
+              <img src="assets/kalender.webp" alt="Kalender Promil 30 Hari" class="checkout-bonus-slide active">
+              <img src="assets/tww.webp" alt="TWW Survival Kit" class="checkout-bonus-slide">
+              <img src="assets/promil hemat planner.webp" alt="Promil Hemat Planner" class="checkout-bonus-slide">
+              <img src="assets/kamus.webp" alt="Kamus Sinyal Tubuh Bunda" class="checkout-bonus-slide">
+            </div>
+
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; padding: 0;">
+              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
+                <strong style="color: var(--pink-dark);">• Kalender Promil 30 Hari</strong><br>
+                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Bantu Bunda memulai promil lebih rapi, ringan, dan terarah.</span>
+              </li>
+              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
+                <strong style="color: var(--pink-dark);">• TWW Survival Kit</strong><br>
+                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Panduan menenangkan hati saat dua minggu menanti setelah masa subur.</span>
+              </li>
+              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
+                <strong style="color: var(--pink-dark);">• Promil Hemat Planner</strong><br>
+                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Worksheet tabungan dan biaya promil agar Bunda dan suami lebih siap.</span>
+              </li>
+              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
+                <strong style="color: var(--pink-dark);">• Kamus Sinyal Tubuh Bunda</strong><br>
+                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Panduan memahami gejala siklus tanpa langsung panik.</span>
+              </li>
+            </ul>
+
+            <p style="font-size: 11px; color: var(--muted); margin-top: 14px; line-height: 1.45; font-style: italic; border-top: 1px dashed rgba(236,72,153,.15); padding-top: 10px;">
+              * Bonus ini dibuat untuk menemani perjalanan promil Bunda dari sisi tubuh, hati, pasangan, dan persiapan biaya.
             </p>
           </div>
-        </div>
+
+          <div class="faq-mini">
+            <details>
+              <summary>Apakah ini langganan bulanan?</summary>
+              <p>Bukan. Premium Lifetime cukup dibayar sekali untuk akses penuh tanpa biaya bulanan.</p>
+            </details>
+            <details>
+              <summary>Setelah bayar, saya harus apa?</summary>
+              <p>Bunda akan diarahkan ke pembayaran aman. Setelah selesai, gunakan email dan kata sandi yang dibuat di halaman ini untuk masuk ke aplikasi.</p>
+            </details>
+            <details>
+              <summary>Apakah Siklusio menggantikan dokter?</summary>
+              <p>Tidak. Siklusio adalah pendamping promil harian dan edukasi personal, bukan pengganti konsultasi dokter kandungan.</p>
+            </details>
+          </div>
+        </aside>
       </div>
     </div>
   </main>
 
-  <!-- FOOTER -->
   <footer>
     <div class="container">
-      <p>© 2026 Siklusio — Dibuat dengan segenap cinta & doa di Indonesia.</p>
+      <p>© 2026 Siklusio — Dibuat dengan cinta dan doa untuk Bunda Indonesia.</p>
     </div>
   </footer>
 
@@ -504,7 +393,6 @@
   <script>
     window.dataLayer = window.dataLayer || [];
 
-    // Trigger standard GA4 begin_checkout event
     window.dataLayer.push({
       event: 'begin_checkout',
       ecommerce: {
@@ -530,16 +418,12 @@
     const referralDiscountEl = document.getElementById('referralDiscount');
     const inputCoupon = document.getElementById('inputCoupon');
 
-    // Force actual input value to uppercase so it matches DB codes
     inputCoupon.addEventListener('input', function() {
       const pos = this.selectionStart;
       this.value = this.value.toUpperCase();
       this.setSelectionRange(pos, pos);
     });
 
-    // ============================================================
-    // Affiliate Referral Tracking [FIX-3]
-    // ============================================================
     function getApiBase() {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:3000';
@@ -547,7 +431,6 @@
       return 'https://api.siklusio.web.id';
     }
 
-    // Detect ?ref=KODE from URL and store in localStorage (Last-Click Wins)
     (function detectReferral() {
       const params = new URLSearchParams(window.location.search);
       const refParam = params.get('ref');
@@ -556,7 +439,6 @@
         localStorage.setItem('siklusio_ref_code', refCode);
         console.log('--> Referral code detected from URL:', refCode);
 
-        // Push to GTM
         window.dataLayer.push({
           event: 'referral_detected',
           ref_code: refCode
@@ -565,7 +447,6 @@
       }
     })();
 
-    // Validate stored referral code via backend and show badge
     (async function initReferral() {
       const storedRef = localStorage.getItem('siklusio_ref_code');
       if (!storedRef) return;
@@ -575,20 +456,17 @@
         const data = await res.json();
 
         if (data.valid) {
-          // Show referral banner
           referralCodeEl.textContent = storedRef;
           if (data.discountLabel) {
             referralDiscountEl.textContent = data.discountLabel;
           }
           referralBanner.style.display = 'flex';
 
-          // Auto-fill coupon input if empty (same code as coupon)
           if (!inputCoupon.value) {
             inputCoupon.value = storedRef;
           }
           console.log('--> Referral validated:', storedRef, data.discountLabel);
 
-          // Push to GTM
           window.dataLayer.push({
             event: 'referral_validated',
             ref_code: storedRef,
@@ -596,7 +474,6 @@
           });
           console.log('--> GTM Event: referral_validated', { ref_code: storedRef, discount_label: data.discountLabel });
         } else {
-          // Invalid code — remove from localStorage
           localStorage.removeItem('siklusio_ref_code');
           console.log('--> Referral code invalid, removed:', storedRef);
         }
@@ -605,19 +482,16 @@
       }
     })();
 
-    // API URL resolution - adaptive for production & local dev testing
     function getApiUrl() {
       return getApiBase() + '/api/checkout/register';
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      // Clear alert banners
+
       errorAlert.style.display = 'none';
       successAlert.style.display = 'none';
 
-      // Gather input data
       const name = document.getElementById('inputName').value.trim();
       const whatsapp = document.getElementById('inputWhatsapp').value.trim();
       const email = document.getElementById('inputEmail').value.trim();
@@ -625,12 +499,10 @@
       const couponCode = inputCoupon.value.trim().toUpperCase();
       const affiliateCode = localStorage.getItem('siklusio_ref_code') || '';
 
-      // Basic client validation
       if (!name || !whatsapp || !email || !password) {
-        const errMsg = 'Semua kolom pendaftaran wajib diisi.';
+        const errMsg = 'Mohon lengkapi semua data akun terlebih dahulu.';
         showError(errMsg);
 
-        // Push error to dataLayer
         window.dataLayer.push({
           event: 'checkout_error',
           error_type: 'client_validation',
@@ -639,10 +511,9 @@
         return;
       }
       if (password.length < 6) {
-        const errMsg = 'Password minimal harus terdiri dari 6 karakter.';
+        const errMsg = 'Kata sandi minimal 6 karakter ya, Bunda.';
         showError(errMsg);
 
-        // Push error to dataLayer
         window.dataLayer.push({
           event: 'checkout_error',
           error_type: 'client_validation',
@@ -651,10 +522,9 @@
         return;
       }
 
-      // Enter loading state
       btnSubmit.disabled = true;
       btnSpinner.style.display = 'inline-block';
-      btnText.innerText = 'Memproses Pendaftaran...';
+      btnText.innerText = 'Menyiapkan Pembayaran...';
 
       try {
         console.log('--> Sending registration request to:', getApiUrl());
@@ -676,18 +546,15 @@
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error || 'Terjadi kesalahan sistem pendaftaran.');
+          throw new Error(result.error || 'Terjadi kendala saat menyiapkan pendaftaran.');
         }
 
-        // Clear referral code after successful checkout
         localStorage.removeItem('siklusio_ref_code');
 
-        // Show success alert
-        successAlert.innerText = 'Pendaftaran berhasil disimpan! Mengalihkan ke gerbang pembayaran aman Mayar...';
+        successAlert.innerText = 'Akun berhasil disiapkan. Mengalihkan Bunda ke halaman pembayaran aman...';
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
 
-        // Push successful purchase_initiated event to GTM (standard GA4 style)
         window.dataLayer.push({
           event: 'purchase_initiated',
           ref_code: affiliateCode || '',
@@ -706,17 +573,15 @@
         });
         console.log('--> GTM Event: purchase_initiated', { ref_code: affiliateCode, coupon: couponCode });
 
-        // Redirect to unique Mayar payment request invoice link!
         setTimeout(() => {
           window.location.href = result.paymentUrl;
-        }, 1200);
+        }, 900);
 
       } catch (err) {
         console.error('Checkout error:', err);
-        const errMsg = err.message || 'Gagal menghubungi server pendaftaran. Silakan periksa koneksi internet Anda.';
+        const errMsg = err.message || 'Belum berhasil terhubung. Periksa koneksi internet Bunda, lalu coba lagi.';
         showError(errMsg);
-        
-        // Push error to dataLayer
+
         window.dataLayer.push({
           event: 'checkout_error',
           error_type: 'server_error',
@@ -724,21 +589,28 @@
         });
         console.log('--> GTM Event: checkout_error', { error_type: 'server_error', error_message: errMsg });
 
-        // Reset loading state
         btnSubmit.disabled = false;
         btnSpinner.style.display = 'none';
-        btnText.innerText = 'Daftar & Bayar Sekarang';
+        btnText.innerText = 'Aktifkan Premium Sekarang';
       }
     });
 
     function showError(msg) {
       errorAlert.innerText = msg;
       errorAlert.style.display = 'block';
-      
-      // Smooth scroll to top of card so user sees the error
-      document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ─── Checkout Bonus Slider ───
+    const bonusSlides = document.querySelectorAll('.checkout-bonus-slide');
+    let bonusCur = 0;
+    if (bonusSlides.length > 0) {
+      setInterval(() => {
+        bonusSlides[bonusCur].classList.remove('active');
+        bonusCur = (bonusCur + 1) % bonusSlides.length;
+        bonusSlides[bonusCur].classList.add('active');
+      }, 3000);
     }
   </script>
-
 </body>
 </html>

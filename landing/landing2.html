@@ -256,6 +256,48 @@ nav {
 .float-2 { bottom: 80px; left: -30px; animation: floatY 3s 1.5s ease-in-out infinite; }
 .float-icon { font-size: 18px; }
 
+/* Dynamic slideshow and mockup frames */
+.phone-slideshow {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.phone-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  border-radius: 32px;
+}
+.phone-slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+.feature-mockup-frame {
+  margin-top: 20px;
+  border-radius: 20px;
+  background: var(--slate-900);
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 6px solid var(--slate-800);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+.feature-mockup-frame:hover {
+  transform: scale(1.02);
+}
+.feature-mockup-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+
 /* ── SOCIAL PROOF STRIP ── */
 .strip {
   background: var(--slate-900);
@@ -612,48 +654,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="phone-frame">
           <div class="phone-notch"></div>
           <div class="phone-screen">
-            <div class="app-bar">
-              <div class="app-logo">Siklusio</div>
-              <div class="app-avatar"></div>
-            </div>
-            <div class="app-greeting">Selamat pagi,</div>
-            <div class="app-name outfit">Bunda Hebat 👋</div>
-            
-            <div class="cycle-card">
-              <div class="cycle-card-header">
-                <span class="cycle-card-title outfit">Siklus Hari Ini</span>
-                <span class="cycle-badge">Hari ke-14 (Puncak)</span>
-              </div>
-              <div class="cycle-days">
-                <div class="cycle-day past">10</div>
-                <div class="cycle-day past">11</div>
-                <div class="cycle-day past">12</div>
-                <div class="cycle-day past">13</div>
-                <div class="cycle-day today">14</div>
-                <div class="cycle-day fertile">15</div>
-                <div class="cycle-day fertile">16</div>
-              </div>
-            </div>
-
-            <div class="ai-card" style="margin-bottom: 8px;">
-              <div class="ai-tag">🤖 AI Recommendation</div>
-              <div class="ai-text">Masa subur puncakmu <span class="ai-accent">hari ini</span>! Waktu terbaik untuk berikhtiar bersama pasangan.</div>
-            </div>
-
-            <div class="partner-card-mockup" style="background:var(--white); border-radius:14px; padding:10px 12px; box-shadow:0 2px 10px rgba(236,72,153,0.06); margin-bottom:12px; border-left:4px solid var(--pink)">
-              <div style="font-size:9.5px; font-weight:800; color:var(--pink-dark); text-transform:uppercase; margin-bottom:2px; display:flex; align-items:center; gap:4px">💌 Pesan Suami Aktif</div>
-              <div style="font-size:10px; color:var(--slate-600); font-style:italic; line-height:1.45">"Pah, hari ini waktu terbaik kita berikhtiar. Pulang kerja nanti kita quality time ya... 💜"</div>
-            </div>
-            
-            <div class="stats-row">
-              <div class="stat-mini">
-                <div class="stat-mini-num outfit">28</div>
-                <div class="stat-mini-lbl">Hari rata-rata siklus</div>
-              </div>
-              <div class="stat-mini">
-                <div class="stat-mini-num outfit">96%</div>
-                <div class="stat-mini-lbl">Akurasi prediksi AI</div>
-              </div>
+            <div class="phone-slideshow">
+              <img src="assets/CYCLE TRACKING SIO.webp" alt="Siklusio Cycle Tracking" class="phone-slide active" />
+              <img src="assets/FERTILE WINDOW SIO.webp" alt="Siklusio Fertile Window" class="phone-slide" />
+              <img src="assets/PROMIL COACH SIO.webp" alt="Siklusio AI Promil Coach" class="phone-slide" />
+              <img src="assets/EMOTIONAL SUPPORT SIO.webp" alt="Siklusio Emotional Support" class="phone-slide" />
             </div>
           </div>
         </div>
@@ -744,22 +749,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="feature-text">AI Siklusio menganalisis tren gejala harian, emosi, dan kebiasaanmu selama 7 hari terakhir secara non-judgmental untuk memberikan rangkuman kesehatan, tips asupan gizi per fase, serta wawasan medis personal 24/7 di sakumu.</p>
           <span class="feature-tag">Dokter Promil Virtual 24 Jam</span>
         </div>
-        <div style="background:var(--white);border-radius:24px;padding:24px;">
-          <div style="font-family:var(--font-head);font-weight:700;font-size:13px;color:var(--slate-600);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Akurasi prediksi</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Prediksi haid</span><span style="font-weight:600;color:var(--slate-900)">96%</span></div>
-              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:96%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Masa subur</span><span style="font-weight:600;color:var(--slate-900)">94%</span></div>
-              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:94%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate-600);margin-bottom:5px"><span>Pola siklus</span><span style="font-weight:600;color:var(--slate-900)">91%</span></div>
-              <div style="height:8px;background:var(--pink-light);border-radius:4px;overflow:hidden"><div style="height:100%;width:91%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:4px"></div></div>
-            </div>
-          </div>
+        <div style="background:var(--slate-100);border-radius:24px;padding:16px;text-align:center;box-shadow:inset 0 2px 8px rgba(0,0,0,0.05);">
+          <div style="font-family:var(--font-head);font-weight:700;font-size:12px;color:var(--slate-600);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Tampilan AI Habit Coach</div>
+          <img src="assets/PROMIL COACH SIO.webp" alt="AI Habit Coach Medis Siklusio" style="width:100%; max-width:240px; border-radius:16px; border:4px solid var(--slate-800); box-shadow:0 8px 24px rgba(0,0,0,0.15);" />
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🩸</div>
+        <h3 class="feature-title outfit">Pelacak Siklus Haid Akurat</h3>
+        <p class="feature-text">Bukan sekadar pencatat tanggal merah. Algoritma adaptif kami membaca tren unik tubuhmu untuk memprediksi panjang siklus dan hari pertama haid berikutnya secara medis akurat.</p>
+        <div class="feature-mockup-frame">
+          <img src="assets/CYCLE TRACKING SIO.webp" alt="Lacak Siklus Haid" class="feature-mockup-img" />
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">💖</div>
+        <h3 class="feature-title outfit">Prediksi Jendela Subur & Ovulasi</h3>
+        <p class="feature-text">Ketahui hari kesuburan terbaik dan puncak ovulasi dengan kalkulasi medis yang akurat. Menghindarkanmu dari menebak-nebak dan membuang momentum emas ikhtiar.</p>
+        <div class="feature-mockup-frame">
+          <img src="assets/FERTILE WINDOW SIO.webp" alt="Prediksi Jendela Subur" class="feature-mockup-img" />
         </div>
       </div>
       <div class="feature-card">
@@ -776,6 +784,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="feature-icon-wrap">👥</div>
         <h3 class="feature-title outfit">Ruang Komunitas Anonim</h3>
         <p class="feature-text">Tempat bersandar paling hangat. Bagikan kisah promil, tanyakan tips herbal/medis, dan saling kirim pelukan doa secara 100% anonim tanpa khawatir di-judge oleh lingkungan sosial.</p>
+        <div class="feature-mockup-frame">
+          <img src="assets/EMOTIONAL SUPPORT SIO.webp" alt="Komunitas Siklusio" class="feature-mockup-img" />
+        </div>
       </div>
       <div class="feature-card">
         <div class="feature-icon-wrap">💰</div>
@@ -920,7 +931,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li><strong>Tabungan Kehamilan</strong></li>
           <li><strong>Ekspor Laporan PDF Medis untuk Dokter</strong></li>
         </ul>
-        <a href="checkout.html" class="pricing-btn pricing-btn-filled">Aktifkan Akses Premium</a>
+        <a href="checkout.html" class="btn-primary pricing-btn pricing-btn-filled">Aktifkan Akses Premium</a>
+      </div>
+    </div>
+
+    <!-- Exclusive Bonus Banner -->
+    <div style="margin-top: 56px; text-align: center;">
+      <div style="display: inline-block; background: var(--white); border: 2px dashed var(--pink); border-radius: 28px; padding: 36px; max-width: 720px; box-shadow: 0 12px 32px rgba(236,72,153,0.06); backdrop-filter: blur(8px);">
+        <span style="display: inline-block; background: linear-gradient(135deg, var(--pink), var(--violet)); color: var(--white); font-size: 11px; font-weight: 800; padding: 5px 14px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">🎁 Spesial Upgrade Premium</span>
+        <h3 class="outfit" style="font-size: 20px; font-weight: 800; color: var(--slate-900); margin-bottom: 8px;">Dapatkan Exclusive WhatsApp Sticker Pack Pejuang Garis Dua</h3>
+        <p style="font-size: 14px; color: var(--slate-600); margin-bottom: 20px; line-height: 1.6;">
+          Sebagai penyemangat ikhtiar harian Bunda, dapatkan bonus 1 set sticker WhatsApp menyentuh, hangat & lucu khusus dirancang untuk pasangan promil untuk mencairkan ketegangan & saling mendoakan.
+        </p>
+        <img src="assets/stiker pack.webp" alt="WhatsApp Sticker Pack Bonus" style="width: 100%; max-width: 480px; border-radius: 16px; border: 4px solid var(--pink-mid); box-shadow: 0 8px 24px rgba(236, 72, 153, 0.15); display: inline-block;" />
       </div>
     </div>
   </div>
@@ -1098,6 +1121,17 @@ document.addEventListener('DOMContentLoaded', () => {
       trackCtaClick('final_cta_section', el.textContent.trim());
     });
   });
+
+  // Dynamic Mockup Slideshow
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.phone-slide');
+  if (slides.length > 0) {
+    setInterval(() => {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 3500);
+  }
 });
 </script>
 </body>

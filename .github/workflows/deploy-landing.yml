@@ -27,5 +27,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy landing --project-name=siklusio --branch=main
+          command: pages deploy landing --project-name=siklusio-landing --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}

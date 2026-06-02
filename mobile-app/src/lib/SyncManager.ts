@@ -8,6 +8,13 @@ import {
   type ActivityHistoryMap,
   type ActivityHistoryRow,
 } from './activityHistorySync';
+import {
+  buildSavingsProfileUpdate,
+  isCloudSavingsNewer,
+  mapCloudSavingsProfile,
+  type SavingsSyncPayload,
+} from './savingsSync';
+import { getSupabaseClientStatus } from './supabaseAccess';
 
 export interface CycleSyncPayload {
   last_period_date: string;
@@ -18,7 +25,7 @@ export interface CycleSyncPayload {
 export interface SyncResult {
   action: 'pulled' | 'pushed' | 'skipped' | 'error';
   data?: {
-    last_period_date: string;
+    last_period_date: string | null;
     cycle_length: number;
     period_length: number;
     updated_at: string;
@@ -32,6 +39,12 @@ export interface ActivitySyncResult {
   error?: any;
 }
 
+export interface SavingsSyncResult {
+  action: 'pulled' | 'pushed' | 'skipped' | 'error';
+  data?: SavingsSyncPayload & { updated_at: string | null };
+  error?: any;
+}
+
 /**
  * Manajer rekonsiliasi data siklus menstruasi (HPHT, panjang siklus, panjang haid).
  * Membandingkan waktu perubahan terakhir (updated_at) dari Supabase dengan timestamp lokal
@@ -40,18 +53,19 @@ export interface ActivitySyncResult {
 export const SyncManager = {
   syncProfileData: async (localData: CycleSyncPayload): Promise<SyncResult> => {
     try {
-      // Pastikan Supabase klien sudah diinisialisasi dan pengguna masuk
-      if (!supabase) {
-        return { action: 'skipped', error: 'Supabase client not initialized' };
+      const supabaseStatus = getSupabaseClientStatus(supabase);
+      if (!supabaseStatus.ready) {
+        return { action: 'skipped', error: supabaseStatus.error };
       }
+      const client = supabaseStatus.client;
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await client.auth.getUser();
       if (authError || !user) {
         return { action: 'skipped', error: 'User not authenticated' };
       }
 
       // 1. Ambil data profil dari Supabase cloud
-      const { data: cloudProfile, error: fetchError } = await supabase
+      const { data: cloudProfile, error: fetchError } = await client
         .from('profiles')
         .select('last_period_date, cycle_length, period_length, updated_at')
         .eq('id', user.id)
@@ -96,7 +110,7 @@ export const SyncManager = {
       const newSyncTime = new Date().toISOString();
       const newSyncTimeMs = new Date(newSyncTime).getTime();
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await client
         .from('profiles')
         .update({
           last_period_date: localData.last_period_date,
@@ -124,17 +138,19 @@ export const SyncManager = {
 
   syncActivityHistory: async (localHistory: ActivityHistoryMap): Promise<ActivitySyncResult> => {
     try {
-      if (!supabase) {
-        return { action: 'skipped', error: 'Supabase client not initialized' };
+      const supabaseStatus = getSupabaseClientStatus(supabase);
+      if (!supabaseStatus.ready) {
+        return { action: 'skipped', error: supabaseStatus.error };
       }
+      const client = supabaseStatus.client;
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await client.auth.getUser();
       if (authError || !user) {
         return { action: 'skipped', error: 'User not authenticated' };
       }
 
       const startDate = format(subDays(new Date(), 400), 'yyyy-MM-dd');
-      const { data: cloudRows, error: fetchError } = await supabase
+      const { data: cloudRows, error: fetchError } = await client
         .from('activity_history')
         .select('date_key, is_period, symptoms, tasks, updated_at')
         .eq('user_id', user.id)
@@ -165,7 +181,7 @@ export const SyncManager = {
       }
 
       if (rowsToPush.length > 0) {
-        const { error: upsertError } = await supabase
+        const { error: upsertError } = await client
           .from('activity_history')
           .upsert(rowsToPush, { onConflict: 'user_id,date_key' });
 
@@ -188,6 +204,65 @@ export const SyncManager = {
       return { action: 'skipped', data: mergedHistory };
     } catch (err) {
       console.error("[SyncManager] Exception during syncActivityHistory:", err);
+      return { action: 'error', error: err };
+    }
+  },
+
+  syncSavingsData: async (localData: SavingsSyncPayload): Promise<SavingsSyncResult> => {
+    try {
+      const supabaseStatus = getSupabaseClientStatus(supabase);
+      if (!supabaseStatus.ready) {
+        return { action: 'skipped', error: supabaseStatus.error };
+      }
+      const client = supabaseStatus.client;
+
+      const { data: { user }, error: authError } = await client.auth.getUser();
+      if (authError || !user) {
+        return { action: 'skipped', error: 'User not authenticated' };
+      }
+
+      const { data: cloudProfile, error: fetchError } = await client
+        .from('profiles')
+        .select('target_saving, current_saving, updated_at')
+        .eq('id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        return { action: 'error', error: fetchError };
+      }
+
+      const lastSyncTimeStr = storage.getItem('hs_v3_savings_sync_time') || '0';
+      const localSyncTime = parseInt(lastSyncTimeStr, 10) || 0;
+
+      if (cloudProfile && isCloudSavingsNewer(cloudProfile.updated_at, localSyncTime)) {
+        const cloudSavings = mapCloudSavingsProfile(cloudProfile);
+        storage.setItem('hs_v3_targetSaving', JSON.stringify(cloudSavings.target_saving));
+        storage.setItem('hs_v3_currentSaving', JSON.stringify(cloudSavings.current_saving));
+
+        const cloudTime = cloudSavings.updated_at ? new Date(cloudSavings.updated_at).getTime() : Date.now();
+        storage.setItem('hs_v3_savings_sync_time', String(cloudTime));
+
+        return { action: 'pulled', data: cloudSavings };
+      }
+
+      const newSyncTime = new Date().toISOString();
+      const updatePayload = buildSavingsProfileUpdate(localData, newSyncTime);
+
+      const { error: updateError } = await client
+        .from('profiles')
+        .update(updatePayload)
+        .eq('id', user.id);
+
+      if (updateError) {
+        return { action: 'error', error: updateError };
+      }
+
+      storage.setItem('hs_v3_savings_sync_time', String(new Date(newSyncTime).getTime()));
+      console.info("[SyncManager] Local savings data pushed successfully to cloud.");
+
+      return { action: 'pushed', data: updatePayload };
+    } catch (err) {
+      console.error("[SyncManager] Exception during syncSavingsData:", err);
       return { action: 'error', error: err };
     }
   }

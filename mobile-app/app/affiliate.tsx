@@ -86,7 +86,7 @@ export default function AffiliatePage() {
 
   const copyLink = () => {
     if (!affiliate) return;
-    const link = `https://app.siklusio.web.id/checkout.html?ref=${affiliate.code}`;
+    const link = `https://siklusio.web.id/checkout.html?ref=${affiliate.code}`;
     // Using simple clipboard since expo-clipboard might not be installed
     if (Platform.OS === 'web') {
       navigator.clipboard.writeText(link).then(() => window.alert('Link tersalin!')).catch(() => {});
@@ -197,7 +197,7 @@ export default function AffiliatePage() {
                 </View>
                 <Text style={{ fontSize: 12, color: '#64748b', marginTop: 12, textAlign: 'center' }}>
                   Bagikan link otomatis:{"\n"}
-                  <Text style={{ fontWeight: 'bold', color: '#ec4899' }}>app.siklusio.web.id/checkout.html?ref={affiliate.code}</Text>
+                  <Text style={{ fontWeight: 'bold', color: '#ec4899' }}>siklusio.web.id/checkout.html?ref={affiliate.code}</Text>
                 </Text>
               </View>
 

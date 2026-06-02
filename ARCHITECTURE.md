@@ -54,13 +54,14 @@ remix_-siklusio/
 │   ├── pending_registrations.sql # Pre-auth registration cache from webhook
 │   ├── crm_profiles.sql  # Customer data synchronized for CRM
 │   └── setup_admin.md    # Guide to create admin account
-├── graphify-out/         # Code architecture visualization (auto-generated)
 ├── wrangler.jsonc        # Cloudflare Workers configuration
 ├── package.json          # Root: backend dependencies + build scripts
 ├── tsconfig.json         # Root TypeScript config
 ├── PRD.md                # Product Requirements Document (v1)
 └── .env.example          # Environment variable template
 ```
+
+Catatan: output Graphify bersifat generated dan diabaikan lewat `.gitignore`; buat ulang hanya saat audit/visualisasi arsitektur diperlukan.
 
 ## Tech Stack
 

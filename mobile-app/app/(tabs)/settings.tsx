@@ -22,6 +22,15 @@ import { AvatarPicker } from '../../components/common/AvatarPicker';
 import { useUserAvatar } from '../../src/hooks/useUserAvatar';
 import { storage } from '../../src/lib/storage';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
+import { getAuthenticatedSupabaseClientStatus } from '../../src/lib/supabaseAccess';
+import {
+  DAILY_REMINDER_HOUR,
+  DAILY_REMINDER_MINUTE,
+  disableDailyReminder,
+  enableDailyReminder,
+  readDailyReminderEnabled,
+} from '../../src/lib/dailyReminder';
+import { expoDailyReminderNotifications } from '../../src/lib/expoDailyReminderNotifications';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
@@ -100,8 +109,8 @@ export default function SettingsScreen() {
     effectiveLastPeriod
   } = useCycle();
 
-  // Local state for daily reminders
-  const [dailyReminder, setDailyReminder] = useState(true);
+  // Local notification state is persisted by the reminder helper.
+  const [dailyReminder, setDailyReminder] = useState(() => readDailyReminderEnabled(storage));
 
   // Warning state for overrides
   const [showOverrideWarning, setShowOverrideWarning] = useState(false);
@@ -292,14 +301,15 @@ export default function SettingsScreen() {
       return;
     }
 
-    if (user && supabase) {
+    const status = getAuthenticatedSupabaseClientStatus(supabase, user?.id);
+    if (status.ready) {
       try {
-        const { error } = await supabase.from('profiles').update({
+        const { error } = await status.client.from('profiles').update({
           nickname: userNickname,
           husband_name: husbandName,
           husband_nickname: husbandNickname,
           husband_number: husbandNumber
-        }).eq('id', user.id);
+        }).eq('id', status.userId);
 
         if (error) {
           console.error('Failed to sync profile data to Supabase:', error);
@@ -316,28 +326,57 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleReminderToggle = () => {
+  const handleReminderToggle = async () => {
     const newValue = !dailyReminder;
-    setDailyReminder(newValue);
+
     if (newValue) {
-      let predictionText = '';
-      if (currentPhase === 'Menstrual') {
-        predictionText = 'Fokus pada istirahat dan penuhi asupan zat besi Anda hari ini.';
-      } else if (currentPhase === 'Ovulasi') {
-        predictionText = 'Peluang hamil Anda sedang sangat tinggi! Jangan lewatkan masa subur hari ini.';
-      } else {
-        predictionText = `Haid berikutnya diperkirakan dalam ${daysToNextPeriod} hari. Tetap jaga pola makan dan olahraga rutin ya.`;
+      try {
+        const result = await enableDailyReminder({
+          adapter: expoDailyReminderNotifications,
+          storage,
+          userNickname,
+          currentPhase,
+          cycleDay,
+          daysToNextPeriod,
+        });
+
+        if (result.status === 'scheduled') {
+          setDailyReminder(true);
+          showToast('Pengingat harian dijadwalkan pukul 08.00.', 'success');
+          return;
+        }
+
+        setDailyReminder(false);
+        if (result.status === 'unsupported') {
+          showToast('Notifikasi harian belum tersedia di web. Aktifkan dari aplikasi mobile.', 'info');
+          return;
+        }
+
+        showToast('Izin notifikasi belum diberikan, jadi pengingat tidak dijadwalkan.', 'error');
+      } catch (err) {
+        console.error('Failed to schedule daily reminder:', err);
+        setDailyReminder(false);
+        showToast('Gagal menjadwalkan pengingat harian. Coba lagi nanti.', 'error');
       }
-      
-      Alert.alert(
-        'Pengingat Diaktifkan',
-        `Contoh notifikasi harian yang akan Anda terima pagi ini:\n\n"Selamat pagi ${userNickname || 'Bunda'}! Hari ini Anda berada di fase ${currentPhase} (Hari ke-${cycleDay}). ${predictionText}"`
-      );
-      showToast('Pengingat Harian & Promil diaktifkan! 🔔', 'success');
-    } else {
-      showToast('Pengingat Harian dinonaktifkan! 🔕', 'info');
+
+      return;
+    }
+
+    try {
+      await disableDailyReminder({
+        adapter: expoDailyReminderNotifications,
+        storage,
+      });
+      setDailyReminder(false);
+      showToast('Pengingat harian dinonaktifkan.', 'info');
+    } catch (err) {
+      console.error('Failed to disable daily reminder:', err);
+      setDailyReminder(readDailyReminderEnabled(storage));
+      showToast('Gagal menonaktifkan pengingat. Coba lagi nanti.', 'error');
     }
   };
+
+  const reminderTimeLabel = `${String(DAILY_REMINDER_HOUR).padStart(2, '0')}.${String(DAILY_REMINDER_MINUTE).padStart(2, '0')}`;
 
   return (
     <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
@@ -578,7 +617,9 @@ export default function SettingsScreen() {
                   <View className="flex-1">
                     <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">Pengingat Harian & Promil</Text>
                     <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
-                      Kirim notifikasi fase siklus, masa ovulasi, dan pengingat nutrisi.
+                      {dailyReminder
+                        ? `Notifikasi lokal terjadwal setiap pukul ${reminderTimeLabel}.`
+                        : 'Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile.'}
                     </Text>
                   </View>
                 </View>

@@ -1,9 +1,13 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Buffer } from "node:buffer";
+import { detectAvatarImage } from "./storage/avatarImage";
+import { logInfo, logWarn, logError } from "./logging/redaction";
+import { createRateLimitMiddleware } from "./rateLimit";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
+import { resolveOpenRouterModels } from "./ai/modelPolicy";
 import { chargeAiCredits, getAiCreditBalance, grantPremiumInitialAiCredits } from "./ai/credits";
 import { getAiCreditHistory } from "./ai/history";
 import { buildCycleGuideMessages, buildHabitCoachMessages } from "./ai/prompts";
@@ -49,8 +53,37 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Enable global CORS to allow client-side requests from Expo Web
-app.use("*", cors());
+const TRUSTED_ORIGINS = [
+  "https://app.siklusio.web.id",
+  "https://siklusio.web.id",
+  "http://localhost:8081",
+  "http://localhost:19006",
+  "http://localhost:3000",
+];
+
+// Enable dynamic CORS allowlist for trusted origins (Phase 2 hardening)
+app.use(
+  "*",
+  cors({
+    origin: (origin, c) => {
+      if (!origin) return origin; // Allow no-origin requests (native/mobile/server calls)
+      if (TRUSTED_ORIGINS.includes(origin)) {
+        return origin;
+      }
+      const allowedEnv = c.env?.ALLOWED_ORIGINS;
+      if (allowedEnv) {
+        const list = allowedEnv.split(",").map((o: string) => o.trim());
+        if (list.includes(origin)) {
+          return origin;
+        }
+      }
+      return undefined;
+    },
+  })
+);
+
+// Enable global rate limiting middleware (Phase 9 rate limiting)
+app.use("*", createRateLimitMiddleware());
 
 // Helper to initialize Supabase Admin client
 const getSupabaseAdmin = (c: any) => {
@@ -269,13 +302,14 @@ app.post("/api/generate-recipes", async (c) => {
     console.log("--> [BACKEND] Phase requested:", phase);
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
+    const modelSelection = resolveOpenRouterModels({
+      policy: "paid",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+      paidModel: c.env.OPENROUTER_PAID_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: [
         {
           role: "user",
@@ -364,13 +398,13 @@ app.post("/api/generate-cycle-report", async (c) => {
     }
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
+    const modelSelection = resolveOpenRouterModels({
+      policy: "free_included",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: [
         {
           role: "user",
@@ -423,13 +457,13 @@ app.post("/api/generate-habits-insight", async (c) => {
     }
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
+    const modelSelection = resolveOpenRouterModels({
+      policy: "free_included",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: [
         {
           role: "user",
@@ -469,24 +503,28 @@ app.post("/api/generate-habits-insight", async (c) => {
   }
 });
 
-// API Route for TWW Sanctuary AI Reassurance (OpenRouter AI)
 app.post("/api/generate-calming-reassurance", async (c) => {
-  console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
+  logInfo("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
+    const auth = await requireUser(c);
+    if (!auth) {
+      return c.json({ error: "Missing or invalid session" }, 401);
+    }
+
     const { nickname, userJournal } = await c.req.json();
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
-    console.log("--> [BACKEND] Calling OpenRouter API...");
+    logInfo("--> [BACKEND] Calling OpenRouter API...");
+    const modelSelection = resolveOpenRouterModels({
+      policy: "free_included",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: [
         {
           role: "user",
@@ -516,12 +554,11 @@ app.post("/api/generate-calming-reassurance", async (c) => {
       responseSchema: calmingReassuranceSchema,
     });
 
-    console.log("--> [BACKEND] Received OpenRouter response.");
+    logInfo("--> [BACKEND] Received OpenRouter response.");
     const result = validateCalmingReassurance(ai.data);
     return c.json(result);
   } catch (error: any) {
-    console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
-    console.error(error.stack || error);
+    logError("<-- [BACKEND] OpenRouter API Error / Exception:", error.stack || error);
     return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat pesan penenang" }, 500);
   }
 });
@@ -733,13 +770,14 @@ app.post("/api/habit-coach/generate", async (c) => {
       activity: summarizeActivityHistory(body.activityHistory || {}),
     };
 
+    const modelSelection = resolveOpenRouterModels({
+      policy: "paid",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+      paidModel: c.env.OPENROUTER_PAID_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: buildHabitCoachMessages({
         nickname: body.nickname || "",
         mode,
@@ -840,13 +878,14 @@ app.post("/api/cycle-guide/generate", async (c) => {
     const cycleSnapshot = buildCycleGuideSnapshot({ ...body, guideLevel });
     const habitSnapshot = body.habitSnapshot || {};
 
+    const modelSelection = resolveOpenRouterModels({
+      policy: "paid",
+      freeModel: c.env.OPENROUTER_FREE_MODEL,
+      paidModel: c.env.OPENROUTER_PAID_MODEL,
+    });
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
-      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
-      fallbackModels: [
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano",
-      ],
+      ...modelSelection,
       messages: buildCycleGuideMessages({
         nickname: body.nickname || "",
         guideLevel,
@@ -1004,6 +1043,11 @@ app.post("/api/upload-avatar", async (c) => {
     }
 
     const buffer = Buffer.from(base64, "base64");
+    const avatarImage = detectAvatarImage(buffer);
+    if (!avatarImage) {
+      return c.json({ error: "Format avatar tidak didukung. Gunakan WebP, PNG, atau JPEG." }, 400);
+    }
+
     const bucketName = c.env.R2_BUCKET_NAME || "siklusio-avatars";
     const publicUrl = (c.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
 
@@ -1011,8 +1055,7 @@ app.post("/api/upload-avatar", async (c) => {
       return c.json({ error: "R2_PUBLIC_URL is not configured" }, 500);
     }
 
-    // Generate unique key: avatars/{userId}/{timestamp}.webp
-    const key = `avatars/${auth.user.id}/${Date.now()}.webp`;
+    const key = `avatars/${auth.user.id}/${Date.now()}.${avatarImage.extension}`;
 
     // Setup R2 client using env variables from context c.env
     const accountId = c.env.R2_ACCOUNT_ID;
@@ -1037,12 +1080,12 @@ app.post("/api/upload-avatar", async (c) => {
         Bucket: bucketName,
         Key: key,
         Body: buffer,
-        ContentType: "image/webp",
+        ContentType: avatarImage.contentType,
       })
     );
 
     const url = `${publicUrl}/${key}`;
-    console.log("<-- [BACKEND] Avatar uploaded successfully:", url);
+    console.log("<-- [BACKEND] Avatar uploaded successfully", { contentType: avatarImage.contentType });
     return c.json({ url });
   } catch (error: any) {
     console.error("<-- [BACKEND] Avatar upload error:", error.stack || error);
@@ -1235,13 +1278,13 @@ app.post("/api/affiliate/register", async (c) => {
       p_whatsapp: whatsapp,
       p_code: safeCode,
       p_commission_type: "percentage",
-      p_commission_value: 20, // 20% default user commission
+      p_commission_value: 40, // 40% default user commission
       p_bank_name: bank_name || null,
       p_account_number: account_number || null,
       p_account_holder: account_holder || null,
-      p_auto_coupon: true,
+      p_auto_coupon: false, // disabled 10% discount auto coupon
       p_coupon_discount_type: "percentage",
-      p_coupon_discount_value: 10, // 10% default coupon for buyer
+      p_coupon_discount_value: 0, // no default coupon discount for buyer
     });
 
     if (error) {
@@ -1494,7 +1537,7 @@ app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
 
 // Hono Endpoint for pre-checkout registration + Mayar dynamic payment
 app.post("/api/checkout/register", async (c) => {
-  console.log("--> [BACKEND] Received request /api/checkout/register");
+  logInfo("--> [BACKEND] Received request /api/checkout/register");
   try {
     const { name, email, whatsapp, password, couponCode, affiliateCode } = await c.req.json();
     
@@ -1505,17 +1548,17 @@ app.post("/api/checkout/register", async (c) => {
     // Validate Mayar API key is configured
     const mayarKey = c.env.MAYAR_API_KEY;
     if (!mayarKey) {
-      console.error("MAYAR_API_KEY secret is not configured");
+      logError("MAYAR_API_KEY secret is not configured");
       return c.json({ error: "Konfigurasi pembayaran belum tersedia. Hubungi admin." }, 500);
     }
 
     const supabaseAdmin = getSupabaseAdmin(c);
 
     // Check if email already registered in Supabase
-    console.log("--> Checking existing auth users...");
+    logInfo("--> Checking existing auth users...");
     const { data: authUserList, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
     if (authErr) {
-      console.error("Error listing users:", authErr);
+      logError("Error listing users:", authErr);
     }
     const emailExists = authUserList?.users.some(
       (u: any) => u.email?.toLowerCase() === email.toLowerCase()
@@ -1530,7 +1573,7 @@ app.post("/api/checkout/register", async (c) => {
     
     if (couponCode) {
       const normalizedCode = couponCode.trim().toUpperCase();
-      console.log(`--> Validating coupon: ${normalizedCode}`);
+      logInfo(`--> Validating coupon: ${normalizedCode}`);
       const { data: coupon, error: couponErr } = await supabaseAdmin
         .from("coupons")
         .select("*")
@@ -1539,7 +1582,7 @@ app.post("/api/checkout/register", async (c) => {
         .maybeSingle();
 
       if (couponErr) {
-        console.error("Error fetching coupon:", couponErr);
+        logError("Error fetching coupon:", couponErr);
         return c.json({ error: "Terjadi kesalahan saat memvalidasi kupon. Silakan coba lagi." }, 500);
       }
       
@@ -1550,7 +1593,7 @@ app.post("/api/checkout/register", async (c) => {
           const discount = Math.floor(finalAmount * (Number(coupon.discount_value) / 100));
           finalAmount = Math.max(0, finalAmount - discount);
         }
-        console.log(`--> Coupon applied. New amount: ${finalAmount}`);
+        logInfo(`--> Coupon applied. New amount: ${finalAmount}`);
       } else {
         return c.json({ error: "Kode kupon tidak valid atau sudah tidak aktif." }, 400);
       }
@@ -1573,11 +1616,11 @@ app.post("/api/checkout/register", async (c) => {
         .eq("is_active", true)
         .maybeSingle();
       if (aff) validatedAffiliateCode = aff.code;
-      console.log(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
+      logInfo(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
     }
 
     if (finalAmount === 0) {
-      console.log("--> 100% Free Coupon applied! Bypassing Mayar...");
+      logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
       
       // Create user directly
       const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
@@ -1587,11 +1630,14 @@ app.post("/api/checkout/register", async (c) => {
         user_metadata: {
           name: name,
           whatsapp: whatsapp,
+        },
+        app_metadata: {
+          siklusio_access_status: "active",
         }
       });
 
       if (signupErr) {
-        console.error("Supabase auth user creation error:", signupErr);
+        logError("Supabase auth user creation error:", signupErr);
         return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
       }
 
@@ -1638,7 +1684,7 @@ app.post("/api/checkout/register", async (c) => {
             commission_amount: commissionAmount,
             mayar_transaction_id: null, // free bypass has no Mayar tx
           });
-          console.log(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
+          logInfo(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
         }
       }
 
@@ -1650,61 +1696,90 @@ app.post("/api/checkout/register", async (c) => {
         });
       }
       
-      console.log("<-- Free Checkout successful! User ID:", authData.user?.id);
+      logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
     }
 
-    // Normal paid flow: Save pending registration & call Mayar
-    console.log("--> Inserting pending registration...");
+    // Create the Supabase Auth user immediately in auth, but mark with app_metadata
+    logInfo("--> Creating Supabase Auth user immediately as pending...");
+    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
+      email: email.toLowerCase(),
+      password: password,
+      email_confirm: true,
+      user_metadata: {
+        name: name,
+        whatsapp: whatsapp,
+      },
+      app_metadata: {
+        siklusio_access_status: "pending_payment",
+      }
+    });
+
+    if (signupErr) {
+      logError("Supabase auth user creation error:", signupErr);
+      return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
+    }
+
+    const userId = authData.user.id;
+
+    // Normal paid flow: Save pending registration & call Mayar (without plaintext password)
+    logInfo("--> Inserting pending registration...");
     const { error: insertErr } = await supabaseAdmin
       .from("pending_registrations")
       .upsert({
         email: email.toLowerCase(),
+        user_id: userId,
         name,
         whatsapp,
-        password,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
       }, { onConflict: "email" });
 
     if (insertErr) {
-      console.error("DB Insert pending registration error:", insertErr);
+      logError("DB Insert pending registration error:", insertErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
       return c.json({ error: "Gagal menyimpan pendaftaran tertunda. Silakan coba kembali." }, 500);
     }
 
     // Create dynamic payment via Mayar API
-    console.log("--> Calling Mayar API to create payment link...");
-    const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${mayarKey}`,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "Siklusio Premium — Akses Selamanya",
-        amount: finalAmount,
-        description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
-        redirectUrl: "https://app.siklusio.web.id/auth?status=success",
-        email: email.toLowerCase(),
-        mobile: whatsapp,
-        customerName: name,
-      })
-    });
+    logInfo("--> Calling Mayar API to create payment link...");
+    let paymentUrl = "";
+    let mayarTxId = "";
+    try {
+      const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${mayarKey}`,
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Siklusio Premium — Akses Selamanya",
+          amount: finalAmount,
+          description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
+          redirectUrl: "https://app.siklusio.web.id/auth?status=success",
+          email: email.toLowerCase(),
+          mobile: whatsapp,
+          customerName: name,
+        })
+      });
 
-    const resJson: any = await response.json();
-    console.log("--> Mayar API response status:", response.status, "body:", JSON.stringify(resJson).slice(0, 500));
+      const resJson: any = await response.json();
+      if (!response.ok || resJson.statusCode !== 200) {
+        throw new Error(resJson.message || "Gagal membuat link pembayaran Mayar");
+      }
 
-    if (!response.ok || resJson.statusCode !== 200) {
-      console.error("Mayar API error response:", resJson);
-      return c.json({ error: "Gagal membuat tautan pembayaran. Silakan coba lagi." }, 500);
+      paymentUrl = resJson.data?.link;
+      mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
+    } catch (payErr: any) {
+      logError("Mayar API error:", payErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
+      return c.json({ error: "Gagal membuat link pembayaran. Hubungi admin." }, 500);
     }
 
-    const paymentUrl = resJson.data?.link;
-    const mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
-
     // Create checkout_session for paid flow [FIX-2]
-    await supabaseAdmin
+    const { error: sessionErr } = await supabaseAdmin
       .from("checkout_sessions")
       .insert({
         email: email.toLowerCase(),
@@ -1718,46 +1793,58 @@ app.post("/api/checkout/register", async (c) => {
         status: "pending",
       });
 
-    console.log("<-- Checkout request successful! Payment URL:", paymentUrl);
+    if (sessionErr) {
+      logError("DB Insert checkout_session error:", sessionErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
+      return c.json({ error: "Gagal mencatat sesi pembayaran. Silakan coba kembali." }, 500);
+    }
+
+    logInfo("<-- Checkout request successful! Payment URL:", paymentUrl);
     return c.json({ paymentUrl });
   } catch (error: any) {
-    console.error("<-- Checkout register error:", error.stack || error);
+    logError("<-- Checkout register error:", error.stack || error);
     return c.json({ error: "Terjadi kesalahan internal pada server pendaftaran." }, 500);
   }
 });
 
-// Hono Endpoint for Mayar payment confirmation webhook
 app.post("/api/payment/webhook", async (c) => {
-  console.log("--> [BACKEND] Received Mayar webhook notification");
+  logInfo("--> [BACKEND] Received Mayar webhook notification");
   try {
     // Verify webhook token from Mayar (X-Callback-Token header)
-    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
     const expectedToken = c.env.MAYAR_WEBHOOK_TOKEN || "";
-    if (expectedToken && callbackToken !== expectedToken) {
-      console.warn("--> Webhook rejected: invalid or missing X-Callback-Token");
+    if (!expectedToken) {
+      logError("--> Webhook rejected: Webhook secret is not configured");
+      return c.json({ error: "Webhook secret is not configured" }, 500);
+    }
+
+    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
+    if (callbackToken !== expectedToken) {
+      logWarn("--> Webhook rejected: invalid or missing X-Callback-Token");
       return c.json({ error: "Unauthorized webhook request" }, 401);
     }
+
     // Safely parse body — Mayar test pings may send empty or non-JSON body
     let body: any = {};
     try {
       const rawText = await c.req.text();
-      console.log("--> Webhook raw body:", rawText.slice(0, 500));
+      logInfo("--> Webhook raw body:", rawText.slice(0, 500));
       if (rawText && rawText.trim()) {
         body = JSON.parse(rawText);
       }
     } catch (parseErr) {
-      console.warn("--> Webhook body is not valid JSON, treating as test ping");
+      logWarn("--> Webhook body is not valid JSON, treating as test ping");
       return c.json({ status: "ok", message: "Webhook endpoint is active" }, 200);
     }
 
     // Handle Mayar test/ping webhook (empty body or no event data)
     const event = body.event || body.type || "";
-    console.log("--> Webhook event type:", event);
-    console.log("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
+    logInfo("--> Webhook event type:", event);
+    logInfo("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
 
     // For test pings or non-purchase events, acknowledge immediately
     if (!body.data && !body.email && !body.customer) {
-      console.log("--> Webhook acknowledged (test/ping or no customer data)");
+      logInfo("--> Webhook acknowledged (test/ping or no customer data)");
       return c.json({ status: "ok", message: "Webhook received successfully" }, 200);
     }
 
@@ -1772,7 +1859,7 @@ app.post("/api/payment/webhook", async (c) => {
       "";
 
     if (!email) {
-      console.warn("--> Webhook ignored: No email found in payload");
+      logWarn("--> Webhook ignored: No email found in payload");
       return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
     }
 
@@ -1796,7 +1883,7 @@ app.post("/api/payment/webhook", async (c) => {
       body.data?.statusCode === 200;
 
     if (!isPurchaseEvent && event) {
-      console.log(`--> Webhook skipped: event '${event}' is not a purchase event`);
+      logInfo(`--> Webhook skipped: event '${event}' is not a purchase event`);
       return c.json({ status: "ok", message: `Event '${event}' acknowledged, no action needed` }, 200);
     }
 
@@ -1812,43 +1899,30 @@ app.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (topupErr) {
-        console.error("Database query topup error:", topupErr);
+        logError("Database query topup error:", topupErr);
       }
 
       if (topup) {
         if (topup.status === "paid") {
-          console.log(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
+          logInfo(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
           return c.json({ status: "ok", message: "Topup already processed" }, 200);
         }
 
-        console.log(`--> Processing successful topup for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
+        logInfo(`--> Processing successful topup via atomic RPC for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
         
-        // Grant credits to user using RPC grant_ai_credits
-        const { data: balanceAfter, error: grantErr } = await supabaseAdmin.rpc("grant_ai_credits", {
-          p_user_id: topup.user_id,
-          p_amount: topup.credits_amount,
-          p_feature: "topup",
-          p_reason: `Mayar Top-up ${topup.credits_amount} Kredit`,
-          p_reference_id: topup.id,
-          p_metadata: { mayar_transaction_id: mayarTransactionId },
+        // Atomically process top-up (Phase 8 RPC)
+        const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc("process_paid_ai_credit_topup", {
+          p_mayar_transaction_id: mayarTransactionId,
         });
 
-        if (grantErr) {
-          console.error("Error granting topup credits:", grantErr);
-          return c.json({ error: "Failed to grant topup credits" }, 500);
+        if (rpcErr) {
+          logError("Error processing topup atomically:", rpcErr);
+          return c.json({ error: "Failed to process topup atomically" }, 500);
         }
 
-        // Update topup record status to paid
-        const { error: updateErr } = await supabaseAdmin
-          .from("ai_credit_topups")
-          .update({ status: "paid", paid_at: new Date().toISOString() })
-          .eq("id", topup.id);
+        const balanceAfter = rpcResult?.balance || 0;
 
-        if (updateErr) {
-          console.error("Error updating topup status:", updateErr);
-        }
-
-        console.log(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
+        logInfo(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
         return c.json({ status: "ok", message: "Topup successful", balance: balanceAfter }, 200);
       }
 
@@ -1860,13 +1934,13 @@ app.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (existingConversion) {
-        console.log(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
+        logInfo(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
         return c.json({ status: "ok", message: "Transaction already processed" }, 200);
       }
     }
 
     // Fetch the pending registration details
-    console.log("--> Querying pending registration for email:", email);
+    logInfo("--> Querying pending registration for email:", email);
     const { data: pending, error: pendingErr } = await supabaseAdmin
       .from("pending_registrations")
       .select("*")
@@ -1874,30 +1948,29 @@ app.post("/api/payment/webhook", async (c) => {
       .maybeSingle();
 
     if (pendingErr) {
-      console.error("Database query pending registration error:", pendingErr);
+      logError("Database query pending registration error:", pendingErr);
       return c.json({ error: "Database error querying pending registrations" }, 500);
     }
 
     if (!pending) {
-      console.log("--> Webhook skipped: No pending registration found for email:", email);
+      logInfo("--> Webhook skipped: No pending registration found for email:", email);
       return c.json({ status: "ok", message: "No pending registration found" }, 200);
     }
 
-    // Create authentic user in Supabase Auth (Auto-confirm email)
-    console.log("--> Creating Supabase Auth user for:", email);
-    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
-      email: pending.email,
-      password: pending.password,
-      email_confirm: true,
-      user_metadata: {
-        name: pending.name,
-        whatsapp: pending.whatsapp,
+    // Activate existing pending auth user instead of creating one from a password [FIX-1]
+    logInfo("--> Activating existing pending Supabase Auth user:", pending.user_id);
+    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.updateUserById(
+      pending.user_id,
+      {
+        app_metadata: {
+          siklusio_access_status: "active",
+        },
       }
-    });
+    );
 
     if (signupErr) {
-      console.error("Supabase auth user creation error:", signupErr);
-      return c.json({ error: "Auth user creation failed: " + signupErr.message }, 500);
+      logError("Supabase auth user activation error:", signupErr);
+      return c.json({ error: "Auth user activation failed: " + signupErr.message }, 500);
     }
 
     const { data: premiumSession } = await supabaseAdmin
@@ -1919,7 +1992,7 @@ app.post("/api/payment/webhook", async (c) => {
     // [FIX-2] Process affiliate conversion from checkout_session
     const affiliateCode = pending.affiliate_code;
     if (affiliateCode) {
-      console.log(`--> Processing affiliate conversion for code: ${affiliateCode}`);
+      logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
       
       // Find the matching checkout session [FIX-2]
       const { data: session } = await supabaseAdmin
@@ -1971,12 +2044,12 @@ app.post("/api/payment/webhook", async (c) => {
         if (convErr) {
           // If unique constraint violation on mayar_transaction_id, it's a retry — safe to ignore
           if (convErr.code === "23505") {
-            console.log(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
+            logInfo(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
           } else {
-            console.error("Error inserting affiliate conversion:", convErr);
+            logError("Error inserting affiliate conversion:", convErr);
           }
         } else {
-          console.log(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
+          logInfo(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
         }
       }
 
@@ -1990,17 +2063,17 @@ app.post("/api/payment/webhook", async (c) => {
     }
 
     // Delete the pending registration record (cleanup)
-    console.log("--> Deleting pending registration record for email:", email);
+    logInfo("--> Deleting pending registration record for email:", email);
     await supabaseAdmin
       .from("pending_registrations")
       .delete()
       .eq("id", pending.id);
 
-    console.log("<-- Webhook processed successfully! User created ID:", authData.user?.id);
+    logInfo("<-- Webhook processed successfully! User created ID:", authData.user?.id);
     return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });
   } catch (error: any) {
-    console.error("<-- Webhook error:", error.stack || error);
-    return c.json({ error: "Internal webhook processor error" }, 500);
+    logError("<-- Webhook handler exception:", error.stack || error);
+    return c.json({ error: "Internal server error processing webhook" }, 500);
   }
 });
 

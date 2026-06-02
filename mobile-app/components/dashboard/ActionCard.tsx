@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCycle } from '../../src/context/CycleContext';
-import { format } from 'date-fns';
+import { useTodayKey } from '../../src/hooks/useTodayKey';
 
 interface ActionCardProps {
   onOpenMessageModal: () => void;
@@ -13,7 +13,7 @@ interface ActionCardProps {
 export function ActionCard({ onOpenMessageModal, isFertile, isStrictOvulation }: ActionCardProps) {
   const { currentPhase, activityHistory, userNickname } = useCycle();
   const router = useRouter();
-  const todayKey = format(new Date(), 'yyyy-MM-dd');
+  const todayKey = useTodayKey();
 
   // Completion metric for today
   const completionPercent = useMemo(() => {

@@ -6,9 +6,9 @@
 CREATE TABLE IF NOT EXISTS public.pending_registrations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   name TEXT NOT NULL,
   whatsapp TEXT NOT NULL,
-  password TEXT NOT NULL,
   coupon_code TEXT,
   affiliate_code TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
@@ -22,3 +22,6 @@ CREATE POLICY "Allow service_role full access"
   ON public.pending_registrations TO service_role 
   USING (true) 
   WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_pending_registrations_user_id
+  ON public.pending_registrations(user_id);

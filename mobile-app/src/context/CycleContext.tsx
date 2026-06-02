@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode, useEffect, useRef } from 'react';
 import { subDays, format } from 'date-fns';
 import { parseLocalDate } from '../lib/dateUtils';
+import { isCloudOnboardingCompleted } from '../lib/profileOnboarding';
+import { getSupabaseClientStatus } from '../lib/supabaseAccess';
+import { canSyncCycleProfile } from '../lib/syncGuards';
 import { storage } from '../lib/storage';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
@@ -65,7 +68,7 @@ interface CycleContextType {
 
 const CycleContext = createContext<CycleContextType | undefined>(undefined);
 
-const generateMockHistory = (): Record<string, DailyRecord> => {
+const createEmptyActivityHistory = (): Record<string, DailyRecord> => {
   return {};
 };
 
@@ -107,7 +110,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   );
   const [cycleLength, setCycleLength] = usePersistentState<number>('hs_v3_cycleLength', 0);
   const [periodLength, setPeriodLength] = usePersistentState<number>('hs_v3_periodLength', 0);
-  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', generateMockHistory);
+  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', createEmptyActivityHistory);
   const [userNickname, setUserNickname] = usePersistentState<string>('hs_v3_userNickname', '');
   const [avatarUrl, setAvatarUrl] = usePersistentState<string | null>(
     'hs_v3_avatarUrl',
@@ -133,10 +136,23 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   const activityInitialSyncDoneUserRef = useRef<string | null>(null);
   const activitySyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isApplyingActivitySyncRef = useRef(false);
+  const savingsInitialSyncUserRef = useRef<string | null>(null);
+  const savingsInitialSyncDoneUserRef = useRef<string | null>(null);
+  const savingsSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isApplyingSavingsSyncRef = useRef(false);
 
   // Trigger sinkronisasi otomatis ke cloud (Supabase) ketika parameter utama siklus berubah
   useEffect(() => {
-    if (lastPeriodDate && cycleLength > 0 && periodLength > 0) {
+    if (
+      canSyncCycleProfile({
+        userId: user?.id,
+        isProfileLoading,
+        hasLastPeriodDate: Boolean(lastPeriodDate),
+        cycleLength,
+        periodLength,
+      }) &&
+      lastPeriodDate
+    ) {
       const payload = {
         last_period_date: format(lastPeriodDate, 'yyyy-MM-dd'),
         cycle_length: cycleLength,
@@ -161,12 +177,20 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         })
         .catch((e) => {
           console.error('[CycleContext] Gagal mengimpor SyncManager:', e);
-        });
+      });
     }
-  }, [lastPeriodDate, cycleLength, periodLength]);
+  }, [user?.id, isProfileLoading, lastPeriodDate, cycleLength, periodLength]);
 
   useEffect(() => {
     profileSyncUserRef.current = null;
+    savingsInitialSyncUserRef.current = null;
+    savingsInitialSyncDoneUserRef.current = null;
+    isApplyingSavingsSyncRef.current = false;
+    if (savingsSyncTimerRef.current) {
+      clearTimeout(savingsSyncTimerRef.current);
+      savingsSyncTimerRef.current = null;
+    }
+
     if (user?.id) {
       setIsProfileLoading(true);
     } else {
@@ -182,12 +206,14 @@ export function CycleProvider({ children }: { children: ReactNode }) {
 
     const loadCloudProfile = async () => {
       try {
-        if (!supabase) {
+        const supabaseStatus = getSupabaseClientStatus(supabase);
+        if (!supabaseStatus.ready) {
           setIsProfileLoading(false);
           return;
         }
+        const client = supabaseStatus.client;
 
-        const { data: cloudProfile, error } = await supabase
+        const { data: cloudProfile, error } = await client
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -202,7 +228,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         }
 
         if (cloudProfile) {
-          const hasCompletedOnboardingCloud = !!(cloudProfile.nickname || cloudProfile.last_period_date);
+          const hasCompletedOnboardingCloud = isCloudOnboardingCompleted(cloudProfile);
 
           if (hasCompletedOnboardingCloud) {
             if (cloudProfile.nickname) setUserNickname(cloudProfile.nickname);
@@ -220,8 +246,12 @@ export function CycleProvider({ children }: { children: ReactNode }) {
             }
             if (cloudProfile.avatar_url) setAvatarUrl(cloudProfile.avatar_url);
             if (cloudProfile.avatar_kind) setAvatarKind(cloudProfile.avatar_kind as 'preset' | 'custom' | null);
-            if (cloudProfile.target_saving) setTargetSaving(Number(cloudProfile.target_saving));
-            if (cloudProfile.current_saving) setCurrentSaving(Number(cloudProfile.current_saving));
+            if (cloudProfile.target_saving !== null && cloudProfile.target_saving !== undefined) {
+              setTargetSaving(Number(cloudProfile.target_saving));
+            }
+            if (cloudProfile.current_saving !== null && cloudProfile.current_saving !== undefined) {
+              setCurrentSaving(Number(cloudProfile.current_saving));
+            }
 
             setIsOnboardingCompleted(true);
             console.info('[CycleContext] Profil pengguna berhasil di-sync dari cloud, otomatis menyelesaikan onboarding.');
@@ -242,6 +272,86 @@ export function CycleProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || savingsInitialSyncUserRef.current === user.id) return;
+
+    savingsInitialSyncUserRef.current = user.id;
+    let cancelled = false;
+
+    import('../lib/SyncManager')
+      .then(({ SyncManager }) =>
+        SyncManager.syncSavingsData({
+          target_saving: targetSaving,
+          current_saving: currentSaving,
+        })
+      )
+      .then((res) => {
+        if (cancelled || !res.data || res.action !== 'pulled') return;
+
+        isApplyingSavingsSyncRef.current = true;
+        setTargetSaving(res.data.target_saving);
+        setCurrentSaving(res.data.current_saving);
+        setTimeout(() => {
+          isApplyingSavingsSyncRef.current = false;
+        }, 0);
+      })
+      .catch((err) => {
+        console.warn('[CycleContext] Gagal menyelaraskan tabungan:', err);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          savingsInitialSyncDoneUserRef.current = user.id;
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (
+      !user?.id ||
+      savingsInitialSyncDoneUserRef.current !== user.id ||
+      isApplyingSavingsSyncRef.current
+    ) {
+      return;
+    }
+
+    if (savingsSyncTimerRef.current) {
+      clearTimeout(savingsSyncTimerRef.current);
+    }
+
+    savingsSyncTimerRef.current = setTimeout(() => {
+      import('../lib/SyncManager')
+        .then(({ SyncManager }) =>
+          SyncManager.syncSavingsData({
+            target_saving: targetSaving,
+            current_saving: currentSaving,
+          })
+        )
+        .then((res) => {
+          if (!res.data || res.action !== 'pulled') return;
+
+          isApplyingSavingsSyncRef.current = true;
+          setTargetSaving(res.data.target_saving);
+          setCurrentSaving(res.data.current_saving);
+          setTimeout(() => {
+            isApplyingSavingsSyncRef.current = false;
+          }, 0);
+        })
+        .catch((err) => {
+          console.warn('[CycleContext] Gagal mengunggah tabungan:', err);
+        });
+    }, 1200);
+
+    return () => {
+      if (savingsSyncTimerRef.current) {
+        clearTimeout(savingsSyncTimerRef.current);
+      }
+    };
+  }, [user?.id, targetSaving, currentSaving]);
 
   useEffect(() => {
     activityInitialSyncUserRef.current = null;

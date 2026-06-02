@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useMemo, useTransition } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
-import { addDays, format, startOfDay } from 'date-fns';
+import { addDays, differenceInDays, format, startOfDay } from 'date-fns';
 import { useCycle } from '../../src/context/CycleContext';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { analytics } from '../../src/lib/analytics';
+import { useTodayKey } from '../../src/hooks/useTodayKey';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 import { ApiError, apiGetJson, apiPostJson } from '../../src/lib/api';
+import { parseLocalDate } from '../../src/lib/dateUtils';
 import {
   getPlanTasksForDate,
   mergeCoachTasksWithSavedState,
@@ -68,8 +70,7 @@ function HistoryViewSafe(props: any) {
 export default function HabitsScreen() {
   const {
     currentPhase,
-    cycleDay,
-    daysToNextPeriod,
+    nextPeriodDate,
     activityHistory,
     setActivityHistory,
     userNickname,
@@ -93,10 +94,16 @@ export default function HabitsScreen() {
   } | null>(null);
   
   const [viewedDateOffset, setViewedDateOffset] = useState(0); // 0 = today, positive values are future plan days
+  const todayDateKey = useTodayKey();
+  const todayDate = useMemo(() => parseLocalDate(todayDateKey), [todayDateKey]);
+  const todayCycleInfo = useMemo(() => getDayInfo(todayDate), [getDayInfo, todayDate]);
+  const effectiveCurrentPhase = todayCycleInfo.phase || currentPhase;
+  const effectiveCycleDay = todayCycleInfo.cycleDay;
+  const effectiveDaysToNextPeriod = differenceInDays(startOfDay(nextPeriodDate), startOfDay(todayDate));
   
   const viewedDate = useMemo(() => {
-    return addDays(startOfDay(new Date()), viewedDateOffset);
-  }, [viewedDateOffset]);
+    return addDays(startOfDay(todayDate), viewedDateOffset);
+  }, [todayDate, viewedDateOffset]);
 
   const dateString = useMemo(() => {
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -105,7 +112,6 @@ export default function HabitsScreen() {
   }, [viewedDate]);
 
   const dateKey = format(viewedDate, 'yyyy-MM-dd');
-  const todayDateKey = useMemo(() => format(new Date(), 'yyyy-MM-dd'), []);
 
   useEffect(() => {
     let mounted = true;
@@ -139,10 +145,10 @@ export default function HabitsScreen() {
       { id: 2, text: 'Asam Folat', emoji: '💊', done: false },
     ];
     
-    if (currentPhase === 'Menstrual') {
+    if (effectiveCurrentPhase === 'Menstrual') {
       baseTasks.push({ id: 3, text: 'Kompres Hangat', emoji: '🌡️', done: false });
       baseTasks.push({ id: 4, text: 'Istirahat Cukup', emoji: '🛌', done: false });
-    } else if (currentPhase === 'Ovulasi') {
+    } else if (effectiveCurrentPhase === 'Ovulasi') {
       baseTasks.push({ id: 3, text: 'Berhubungan Intim', emoji: '💖', done: false });
       baseTasks.push({ id: 4, text: 'Olahraga Ringan', emoji: '🧘‍♀️', done: false });
     } else {
@@ -151,7 +157,7 @@ export default function HabitsScreen() {
     }
     
     return baseTasks;
-  }, [currentPhase]);
+  }, [effectiveCurrentPhase]);
 
   const activeHabitCoachPlan = useMemo(
     () => (getPlanDayNumber(habitCoachPlan, todayDateKey) ? habitCoachPlan : null),
@@ -231,7 +237,7 @@ export default function HabitsScreen() {
         if (nextState) {
           analytics.logEvent('habit_completed', {
             habit_name: task.text,
-            phase: currentPhase
+            phase: effectiveCurrentPhase
           });
         }
       }
@@ -249,7 +255,7 @@ export default function HabitsScreen() {
       if (isAdding) {
         analytics.logEvent('symptom_logged', {
           symptom_id: id,
-          phase: currentPhase
+          phase: effectiveCurrentPhase
         });
       }
       if (symptoms.includes(id)) {
@@ -282,7 +288,7 @@ export default function HabitsScreen() {
 
     try {
       const mode = activeHabitCoachPlan ? 'renewal' : 'initial';
-      const planWindow = buildSevenDayPlanWindow(new Date());
+      const planWindow = buildSevenDayPlanWindow(todayDate);
       const cycleDays = buildHabitCoachCycleDays(planWindow.dateKeys, getDayInfo);
       const previousSummary = habitCoachPlan
         ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
@@ -297,7 +303,7 @@ export default function HabitsScreen() {
         weekEnd: planWindow.weekEnd,
         dateKeys: planWindow.dateKeys,
         activityHistory,
-        cycleSnapshot: { currentPhase, cycleDays },
+        cycleSnapshot: { currentPhase: effectiveCurrentPhase, cycleDays },
         cycleDays,
         ...(previousSummary ? { previousSummary } : {}),
         replaceActivePlan,
@@ -448,7 +454,7 @@ export default function HabitsScreen() {
 
             <View className="mb-6">
               <TodayRecipesCard
-                currentPhase={currentPhase}
+                currentPhase={effectiveCurrentPhase}
                 balance={aiCreditBalance}
                 onOpen={() => setRecipesOpen(true)}
               />
@@ -568,7 +574,7 @@ export default function HabitsScreen() {
             {!activeHabitCoachPlan && (
               <View className="mt-4">
                 <AiRecommendationSection
-                  currentPhase={currentPhase}
+                  currentPhase={effectiveCurrentPhase}
                   activityHistory={activityHistory}
                   nickname={userNickname}
                 />
@@ -588,9 +594,9 @@ export default function HabitsScreen() {
       <TodayRecipesModal
         visible={recipesOpen}
         generatedForDate={todayDateKey}
-        currentPhase={currentPhase}
-        cycleDay={cycleDay}
-        daysToNextPeriod={daysToNextPeriod}
+        currentPhase={effectiveCurrentPhase}
+        cycleDay={effectiveCycleDay}
+        daysToNextPeriod={effectiveDaysToNextPeriod}
         nickname={userNickname}
         onBalanceChange={setAiCreditBalance}
         onClose={() => setRecipesOpen(false)}

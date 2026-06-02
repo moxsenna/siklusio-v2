@@ -2,6 +2,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { storage } from '../lib/storage';
+import { analytics } from '../lib/analytics';
+import { buildAnalyticsUserProperties } from '../lib/analyticsIdentity';
+import { getSupabaseClientStatus } from '../lib/supabaseAccess';
 
 interface AuthContextType {
   session: Session | null;
@@ -23,12 +26,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) {
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
       setIsLoading(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const client = status.client;
+
+    client.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -36,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = client.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -45,8 +51,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    analytics.setUser(user?.id ?? null, buildAnalyticsUserProperties(user)).catch((error) => {
+      if (__DEV__) {
+        console.warn('[Auth] Failed to update analytics user identity:', error);
+      }
+    });
+  }, [user]);
+
   const signOut = async () => {
-    if (!supabase) {
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
       setSession(null);
       setUser(null);
       return;
@@ -54,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const allKeys = storage.getKeys();
     const keysToRemove = allKeys.filter(k => k.startsWith('hs_'));
     keysToRemove.forEach(k => storage.removeItem(k));
-    const { error } = await supabase.auth.signOut();
+    const { error } = await status.client.auth.signOut();
     if (error) throw error;
     setSession(null);
     setUser(null);

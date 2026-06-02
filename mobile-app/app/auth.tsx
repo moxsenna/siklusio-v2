@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
 import { storage } from '../src/lib/storage';
+import { getSupabaseClientStatus } from '../src/lib/supabaseAccess';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function AuthScreen() {
@@ -43,22 +44,24 @@ export default function AuthScreen() {
     setError(null);
     setMessage(null);
 
-    if (!supabase) {
-      setError("Supabase belum terkonfigurasi.");
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
+      setError(status.error);
       setLoading(false);
       return;
     }
 
     try {
+      const client = status.client;
       if (isLogin) {
-        const { error: loginErr } = await supabase.auth.signInWithPassword({
+        const { error: loginErr } = await client.auth.signInWithPassword({
           email,
           password,
         });
         if (loginErr) throw loginErr;
         router.replace('/');
       } else {
-        const { data: authData, error: signupErr } = await supabase.auth.signUp({
+        const { data: authData, error: signupErr } = await client.auth.signUp({
           email,
           password,
           options: {
@@ -71,7 +74,7 @@ export default function AuthScreen() {
         if (signupErr) throw signupErr;
 
         if (authData?.user) {
-          await supabase.from('profiles').update({
+          await client.from('profiles').update({
             name,
             whatsapp_number: whatsapp,
           }).eq('id', authData.user.id);

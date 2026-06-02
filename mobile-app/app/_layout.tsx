@@ -10,6 +10,7 @@ import { AuthProvider } from '../src/context/AuthContext';
 import { CycleProvider } from '../src/context/CycleContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { analytics } from '../src/lib/analytics';
+import { configureDailyReminderNotificationHandler } from '../src/lib/expoDailyReminderNotifications';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -17,7 +18,6 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
@@ -38,6 +38,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     storage.init().then(() => setStorageLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    configureDailyReminderNotificationHandler();
   }, []);
 
   useEffect(() => {
@@ -83,8 +87,8 @@ function RootLayoutNav() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="auth" options={{ headerShown: false }} />
             <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="payment-pending" options={{ headerShown: false }} />
             <Stack.Screen name="admin" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
         </SafeAreaProvider>
       </CycleProvider>

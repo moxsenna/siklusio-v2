@@ -53,3 +53,10 @@ scratch/
 
 # Local git worktrees
 .worktrees/
+
+# Local recovery/debug artifacts
+restore*.cjs
+test-api.js
+backend/index_restored.ts
+metadata.json
+siklusio_documentation.html

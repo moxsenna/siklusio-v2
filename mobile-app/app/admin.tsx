@@ -17,6 +17,7 @@ import { id as localeId } from 'date-fns/locale';
 import { supabase } from '../src/lib/supabase';
 import { REACTION_EMOJI } from '../src/lib/communityTypes';
 import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from '../src/lib/api';
+import { getSupabaseClientStatus } from '../src/lib/supabaseAccess';
 import AdminAffiliatePanel from '../components/admin/AdminAffiliatePanel';
 
 // Replicate old types
@@ -29,7 +30,7 @@ interface AdminUser {
   whatsapp_number?: string;
   birth_date?: string;
   children_count?: string;
-  last_period_date: string;
+  last_period_date?: string | null;
   husband_name: string;
   husband_nickname?: string;
   husband_number?: string;
@@ -186,17 +187,19 @@ export default function AdminDashboard() {
   // 1. Authenticate & Authorize Admin
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!supabase) {
+      const status = getSupabaseClientStatus(supabase);
+      if (!status.ready) {
         setIsAdmin(false);
         return;
       }
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const client = status.client;
+        const { data: { session } } = await client.auth.getSession();
         if (!session) {
           setIsAdmin(false);
           return;
         }
-        const { data: profile, error } = await supabase
+        const { data: profile, error } = await client
           .from('profiles')
           .select('is_admin')
           .eq('id', session.user.id)
@@ -229,7 +232,9 @@ export default function AdminDashboard() {
 
   // 2. Fetch Users List
   const fetchUsers = async () => {
-    if (!supabase) return;
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) return;
+
     setUsersLoading(true);
     setUsersError(null);
     try {
@@ -244,14 +249,15 @@ export default function AdminDashboard() {
 
   // 3. Fetch Moderation Data
   const fetchModeration = useCallback(async () => {
-    if (!supabase) {
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
       setModError('Supabase client tidak terkonfigurasi.');
       return;
     }
     setModLoading(true);
     setModError(null);
     try {
-      const { data: rows, error } = await supabase.rpc('admin_get_moderation_queue', {
+      const { data: rows, error } = await status.client.rpc('admin_get_moderation_queue', {
         p_filter: modFilter,
       });
       if (error) throw error;
@@ -400,15 +406,18 @@ export default function AdminDashboard() {
 
   // Moderate Action Handlers
   const handleModerateAction = async (item: QueueItem, action: 'keep' | 'remove') => {
-    const client = supabase;
-    if (!client) return;
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
+      setModError('Supabase client tidak terkonfigurasi.');
+      return;
+    }
 
     const actionText = action === 'remove' ? 'menyembunyikan' : 'mempertahankan';
     const performAction = async () => {
       setActingKey(item.key);
       setModError(null);
       try {
-        const { error: rpcErr } = await client.rpc('admin_moderate_target', {
+        const { error: rpcErr } = await status.client.rpc('admin_moderate_target', {
           p_target_type: item.target_type,
           p_target_id: item.target_id,
           p_action: action,
@@ -440,14 +449,17 @@ export default function AdminDashboard() {
 
   /** Reset avatar penulis (mis. avatar tidak pantas). */
   const handleResetAvatar = async (item: QueueItem) => {
-    const client = supabase;
-    if (!client) return;
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
+      setModError('Supabase client tidak terkonfigurasi.');
+      return;
+    }
 
     const performReset = async () => {
       setActingKey(`avatar:${item.key}`);
       setModError(null);
       try {
-        const { error: rpcErr } = await client.rpc('admin_reset_user_avatar', {
+        const { error: rpcErr } = await status.client.rpc('admin_reset_user_avatar', {
           p_user_id: item.authorId,
         });
         if (rpcErr) throw rpcErr;

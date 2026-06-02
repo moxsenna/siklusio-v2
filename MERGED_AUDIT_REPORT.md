@@ -68,6 +68,7 @@ Prioritas tertinggi setelah merge:
 - 2026-06-02: Phase 25 AI free policy dimulai dan diverifikasi. Legacy AI endpoint `generate-cycle-report`, `generate-habits-insight`, dan `generate-calming-reassurance` sekarang memakai `resolveOpenRouterModels({ policy: "free_included" })` sehingga hanya memakai model gratis dan tidak membawa fallback OpenRouter berbayar. Fitur AI cost-bearing tetap memakai `policy: "paid"`. `docs/FEATURE_MATRIX.md` diperbarui, test baru `backend/ai/modelPolicy.test.ts` ditambahkan, dan keputusan pricing/persistence untuk legacy AI dipisahkan sebagai product lane masa depan. Focused model policy test, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-02: Phase 26 analytics strategy cleanup dimulai dan diverifikasi. Strategi analytics sekarang eksplisit: GTM/dataLayer tetap aktif untuk web lewat `mobile-app/app/+html.tsx`, sedangkan native analytics menjadi safe no-op sampai ada fase Firebase native/dev-client terpisah. Dynamic require `@react-native-firebase/analytics` dihapus dari `analytics.ts`, public API `logEvent`, `logScreenView`, dan `setUser` tetap sama, dan test baru `mobile-app/src/lib/analytics.test.ts` memvalidasi payload GTM. Focused analytics test, scan Firebase require, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-02: Phase 27 Supabase source-of-truth cleanup dimulai dan diverifikasi. `docs/DATABASE.md` dan `supabase/README.md` sekarang menetapkan `supabase/migrations/` sebagai source of truth untuk schema production baru, root `supabase/*.sql` sebagai legacy/manual reference, dan workflow `db:migrations:list`, `db:push:dry-run`, `db:lint`, serta `db:types`. Generated types dibuat di `supabase/types/database.types.ts` dari linked remote; docs menandai caveat bahwa tiga migration lokal Phase 3-5 masih pending remote sehingga types tidak boleh langsung diwiring ke typed client sampai schema target sinkron. Test guardrail baru `scripts/database-docs.test.js`, database CLI checks, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
+- 2026-06-03: Phase 28 RLS/function grants dan production integration smoke selesai serta sudah apply ke Supabase production. Migration `20260602174912_phase28_rls_function_grants.sql` memperketat `SECURITY DEFINER` grants: AI credit mutation RPC dan `create_affiliate_with_coupon` service-role only, community/admin RPC authenticated-only, anon revoked, `is_admin(uid)` tidak lagi bisa probing UID lain, dan trigger helper tidak callable dari public RPC surface. Production smoke ulang memverifikasi pending-payment auth, onboarding RLS update, topup package spoof rejection, AI credit topup/idempotency, direct client grant blocked, community feed RPC tetap jalan, dan affiliate RPC service-role bekerja serta cleanup berhasil.
 
 ### Sudah tervalidasi oleh Codex
 
@@ -75,41 +76,33 @@ Prioritas tertinggi setelah merge:
 | --- | --- |
 | Root npm run lint | PASS setelah Phase 2 guardrail |
 | Mobile typecheck | PASS |
-| Unit tests manual | PASS, 130 tests |
-| Wrangler Worker dry-run | PASS, upload 1500.86 KiB / gzip 297.10 KiB |
-| Cloudflare Worker deployment | Ada deployment terbaru 2026-06-01T04:37:51Z |
-| Cloudflare Pages siklusio-landing | Production source e08f4b2 |
-| Cloudflare Pages siklusio-v2 | Production source e08f4b2 |
-| Supabase db push dry-run | PASS, would push `20260601094508_onboarding_completion_flag.sql`, `20260601100443_pending_registration_auth_user_id.sql`, dan `20260601101749_atomic_ai_credit_topup_processing.sql` tanpa apply |
+| Unit tests manual | PASS, 34 test files lewat `npm run check` setelah release |
+| Wrangler Worker dry-run | PASS, upload 1501.57 KiB / gzip 297.31 KiB |
+| Cloudflare Worker deployment | PASS, production Worker deploy versi `d45f782f-4c95-4f61-855f-36a37ed4d2b3` |
+| Cloudflare Pages siklusio-landing | Production source `341aaf5` aktif |
+| Cloudflare Pages siklusio-v2 | Production source `341aaf5` aktif |
+| Supabase db push dry-run | PASS, remote database up to date setelah Phase 28 apply |
 | Root npm audit --omit=dev | PASS |
 | Mobile npm audit --omit=dev | FAIL, 15 moderate vulnerabilities; fix otomatis butuh breaking upgrade ke `expo@56.0.8` |
 | expo-doctor | PASS, 18/18 checks setelah Phase 23 |
 | Live smoke test API/landing/app | PASS, HTTP 200 |
 
-### Belum deploy / belum commit
+### Status deploy / commit
 
-Perubahan berikut masih lokal/untracked atau modified, jadi belum masuk deployment production:
+- Phase 1-27 sudah masuk branch `codex/release-prep-audit-phase-1-27`, dipush ke GitHub, fast-forward ke `main`, Cloudflare Worker deployed, Cloudflare Pages landing/app aktif, dan Supabase migrations Phase 3-5 plus support table sudah apply.
+- Phase 28 Supabase migration sudah apply ke production dan production smoke lulus; perubahan file migration/docs/types/test masih perlu commit/push setelah verifikasi final fase lanjutan.
+- Folder/file yang user minta abaikan tetap di luar release scope: `graphify-out/`, `fitur.md`, `my-video/`, revised landing/bak paralel, dan state workspace utama yang tidak terkait.
 
-1. Semua perubahan remediation Phase 1-27 pada backend, mobile, Supabase migration/schema, scripts, workflow, dan docs plan.
-2. landing/index.html
-3. landing/checkout.html
-4. landing/landing2.html
-5. landing/SIKLUSIO_PRODUCT_SPEC.md
-6. AUDIT_REPORT.md
-7. CODEX_AUDIT_REPORT.md
-8. MERGED_AUDIT_REPORT.md
+### Estimasi phase tersisa setelah Phase 28
 
-### Estimasi phase tersisa setelah Phase 27
-
-Estimasi realistis: 3-5 phase lagi sebelum backlog audit utama rapi untuk handoff manusia dan keputusan commit/deploy. `graphify-out/` dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
+Estimasi realistis: 3 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
 
 Daftar fase yang masih direkomendasikan:
 
-1. Phase 28: sync architecture lanjutan, RLS/policy audit, dan integration test Supabase aktual.
-2. Phase 29: avatar hardening lanjutan, dimensi, metadata stripping/re-encode, dan moderation policy.
-3. Phase 30: local error boundaries/fallback UI untuk fitur AI utama.
-4. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
-5. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL setelah keputusan deploy schema, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
+1. Phase 29: avatar hardening lanjutan, dimensi, metadata stripping/re-encode, dan moderation policy.
+2. Phase 30: local error boundaries/fallback UI untuk fitur AI utama.
+3. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
+4. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
 
 ## Rekonsiliasi temuan Kiro vs Codex
 

@@ -27,3 +27,30 @@ test('database handoff docs, generated types, and scripts are present', () => {
   assert.match(databaseDoc, /20260601094508_onboarding_completion_flag\.sql/);
   assert.match(databaseDoc, /supabase\/types\/database\.types\.ts/);
 });
+
+test('phase 28 database security migration restricts sensitive function grants', () => {
+  const migration = readText('supabase/migrations/20260602174912_phase28_rls_function_grants.sql');
+
+  assert.match(migration, /CREATE OR REPLACE FUNCTION public\.is_admin\(uid UUID\)/);
+  assert.match(migration, /caller_uid IS DISTINCT FROM uid/);
+  assert.match(migration, /SET search_path = ''/);
+
+  for (const fn of ['ensure_ai_credit_balance', 'grant_ai_credits', 'charge_ai_credits', 'process_paid_ai_credit_topup', 'create_affiliate_with_coupon']) {
+    assert.match(migration, new RegExp(`REVOKE ALL ON FUNCTION public\\.${fn}\\(`));
+    assert.match(migration, new RegExp(`GRANT EXECUTE ON FUNCTION public\\.${fn}\\(`));
+  }
+
+  for (const fn of ['get_community_feed', 'get_post_comments', 'admin_get_moderation_queue', 'admin_moderate_target', 'admin_reset_user_avatar']) {
+    assert.match(migration, new RegExp(`REVOKE ALL ON FUNCTION public\\.${fn}\\([^\\n]+ FROM PUBLIC, anon;`));
+    assert.match(migration, new RegExp(`GRANT EXECUTE ON FUNCTION public\\.${fn}\\([^\\n]+ TO authenticated, service_role;`));
+  }
+
+  assert.match(
+    migration,
+    /REVOKE ALL ON FUNCTION public\.handle_new_user\(\) FROM PUBLIC, anon, authenticated;/
+  );
+  assert.match(
+    migration,
+    /REVOKE ALL ON FUNCTION public\.community_reports_after_insert\(\) FROM PUBLIC, anon, authenticated;/
+  );
+});

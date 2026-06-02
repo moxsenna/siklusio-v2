@@ -920,6 +920,23 @@ export type Database = {
         }
         Returns: number
       }
+      create_affiliate_with_coupon: {
+        Args: {
+          p_account_holder?: string
+          p_account_number?: string
+          p_auto_coupon?: boolean
+          p_bank_name?: string
+          p_code: string
+          p_commission_type: string
+          p_commission_value: number
+          p_coupon_discount_type?: string
+          p_coupon_discount_value?: number
+          p_email: string
+          p_name: string
+          p_whatsapp: string
+        }
+        Returns: Json
+      }
       ensure_ai_credit_balance: {
         Args: { p_user_id: string }
         Returns: {

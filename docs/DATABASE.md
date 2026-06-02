@@ -1,6 +1,6 @@
 # Siklusio Database Guide
 
-Tanggal audit terakhir: 2026-06-02.
+Tanggal audit terakhir: 2026-06-03.
 
 Dokumen ini adalah handoff database untuk developer manusia. Tujuannya sederhana: perubahan schema jangan lagi tersebar antara SQL manual, ingatan developer, dan migration history yang berbeda.
 
@@ -18,7 +18,7 @@ Aturan kerja:
 
 ## Current Migration State
 
-Hasil `npx supabase migration list --linked` pada 2026-06-02:
+Hasil `npm run db:migrations:list` pada 2026-06-03 setelah production release Phase 1-28:
 
 | Migration | Local | Remote | Catatan |
 | --- | --- | --- | --- |
@@ -28,9 +28,11 @@ Hasil `npx supabase migration list --linked` pada 2026-06-02:
 | `20260531010401_cycle_guides_unique.sql` | Ada | Ada | Unique/idempotency guide |
 | `20260531010402_recipe_generations.sql` | Ada | Ada | Saved recipe generation |
 | `20260531112800_ai_credit_topups.sql` | Ada | Ada | Topup table |
-| `20260601094508_onboarding_completion_flag.sql` | Ada | Belum | Phase 3 local remediation, pending remote |
-| `20260601100443_pending_registration_auth_user_id.sql` | Ada | Belum | Phase 4 local remediation, pending remote |
-| `20260601101749_atomic_ai_credit_topup_processing.sql` | Ada | Belum | Phase 5 local remediation, pending remote |
+| `20260601094508_onboarding_completion_flag.sql` | Ada | Ada | Phase 3 onboarding completion flag |
+| `20260601100443_pending_registration_auth_user_id.sql` | Ada | Ada | Phase 4 pending registration tanpa plaintext password |
+| `20260601101749_atomic_ai_credit_topup_processing.sql` | Ada | Ada | Phase 5 atomic topup RPC |
+| `20260602164929_checkout_affiliate_support_tables.sql` | Ada | Ada | Production support tables untuk checkout, affiliate, dan conversion |
+| `20260602174912_phase28_rls_function_grants.sql` | Ada | Ada | Phase 28 function grants, RPC affiliate, dan hardening `is_admin` |
 
 Implikasi:
 
@@ -113,7 +115,7 @@ Important security notes:
 - Public exposed tables should have RLS enabled.
 - `SECURITY DEFINER` functions need explicit review because they can bypass RLS.
 - Views exposed to clients should use `security_invoker = true` on Postgres 15+ or be protected by grants/RLS-compatible access patterns.
-- Phase 28 should audit RLS and function grants before production deploy.
+- Phase 28 sudah mengaudit dan memperketat function grants: AI credit mutation dan affiliate helper service-role only, community/admin RPC authenticated-only, anon revoked, dan `is_admin(uid)` tidak bisa dipakai untuk probing UID lain.
 
 ## Commands
 
@@ -134,8 +136,8 @@ Deployment rule:
 
 Recommended future database cleanup:
 
-1. Apply or intentionally defer the three pending Phase 3-5 migrations.
-2. Regenerate `supabase/types/database.types.ts` after the target schema changes.
-3. Create a deliberate baseline/squash plan for root `supabase/*.sql` legacy snippets.
-4. Audit RLS, grants, views, and `SECURITY DEFINER` functions.
-5. Adopt typed Supabase clients in mobile/backend only after generated types match the intended environment.
+1. Create a deliberate baseline/squash plan for root `supabase/*.sql` legacy snippets.
+2. Add deeper integration tests for RLS policies using real authenticated non-admin/admin users.
+3. Adopt typed Supabase clients in mobile/backend incrementally now that generated types match production.
+4. Review exposed views before adding any future Data API surface; use security-invoker views or explicit grants.
+5. Keep `npm run db:push:dry-run`, `npm run db:lint`, and `npm run db:types` as required release gates.

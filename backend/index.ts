@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Buffer } from "node:buffer";
-import { detectAvatarImage } from "./storage/avatarImage";
+import { detectAvatarImage, isAvatarImageWithinPolicy, sanitizeAvatarImage } from "./storage/avatarImage";
 import { logInfo, logWarn, logError } from "./logging/redaction";
 import { createRateLimitMiddleware } from "./rateLimit";
 import { createClient } from "@supabase/supabase-js";
@@ -1051,6 +1051,10 @@ app.post("/api/upload-avatar", async (c) => {
       return c.json({ error: "Format avatar tidak didukung. Gunakan WebP, PNG, atau JPEG." }, 400);
     }
 
+    if (!isAvatarImageWithinPolicy(avatarImage)) {
+      return c.json({ error: "Dimensi avatar maksimal 2048x2048 piksel." }, 400);
+    }
+
     const bucketName = c.env.R2_BUCKET_NAME || "siklusio-avatars";
     const publicUrl = (c.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
 
@@ -1058,6 +1062,7 @@ app.post("/api/upload-avatar", async (c) => {
       return c.json({ error: "R2_PUBLIC_URL is not configured" }, 500);
     }
 
+    const sanitizedBuffer = sanitizeAvatarImage(buffer, avatarImage);
     const key = `avatars/${auth.user.id}/${Date.now()}.${avatarImage.extension}`;
 
     // Setup R2 client using env variables from context c.env
@@ -1082,7 +1087,7 @@ app.post("/api/upload-avatar", async (c) => {
       new PutObjectCommand({
         Bucket: bucketName,
         Key: key,
-        Body: buffer,
+        Body: sanitizedBuffer,
         ContentType: avatarImage.contentType,
       })
     );
@@ -1183,7 +1188,7 @@ app.delete("/api/admin/coupons/:id", async (c) => {
 });
 
 // ============================================================
-// Affiliate Public Endpoint — validate referral code [FIX-3]
+// Affiliate Public Endpoint ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â validate referral code [FIX-3]
 // ============================================================
 app.get("/api/affiliate/validate", async (c) => {
   console.log("--> [BACKEND] GET /api/affiliate/validate");
@@ -1227,7 +1232,7 @@ app.get("/api/affiliate/validate", async (c) => {
 // Affiliate User Endpoints (Self-Serve)
 // ============================================================
 
-// GET /api/affiliate/me — Get affiliate profile for logged-in user
+// GET /api/affiliate/me ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Get affiliate profile for logged-in user
 app.get("/api/affiliate/me", async (c) => {
   console.log("--> [BACKEND] GET /api/affiliate/me");
   try {
@@ -1249,7 +1254,7 @@ app.get("/api/affiliate/me", async (c) => {
   }
 });
 
-// POST /api/affiliate/register — Self-register as affiliate
+// POST /api/affiliate/register ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Self-register as affiliate
 app.post("/api/affiliate/register", async (c) => {
   console.log("--> [BACKEND] POST /api/affiliate/register");
   try {
@@ -1301,7 +1306,7 @@ app.post("/api/affiliate/register", async (c) => {
   }
 });
 
-// GET /api/affiliate/me/conversions — List user's conversions
+// GET /api/affiliate/me/conversions ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â List user's conversions
 app.get("/api/affiliate/me/conversions", async (c) => {
   console.log("--> [BACKEND] GET /api/affiliate/me/conversions");
   try {
@@ -1334,7 +1339,7 @@ app.get("/api/affiliate/me/conversions", async (c) => {
   }
 });
 
-// PATCH /api/affiliate/me/bank — Update user's bank info
+// PATCH /api/affiliate/me/bank ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Update user's bank info
 app.patch("/api/affiliate/me/bank", async (c) => {
   console.log("--> [BACKEND] PATCH /api/affiliate/me/bank");
   try {
@@ -1364,7 +1369,7 @@ app.patch("/api/affiliate/me/bank", async (c) => {
 // Affiliate Admin Endpoints
 // ============================================================
 
-// GET /api/admin/affiliates — List all affiliates
+// GET /api/admin/affiliates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â List all affiliates
 app.get("/api/admin/affiliates", async (c) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates");
   try {
@@ -1382,7 +1387,7 @@ app.get("/api/admin/affiliates", async (c) => {
   }
 });
 
-// POST /api/admin/affiliates — Create affiliate (via RPC for transactional coupon) [FIX-6]
+// POST /api/admin/affiliates ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Create affiliate (via RPC for transactional coupon) [FIX-6]
 app.post("/api/admin/affiliates", async (c) => {
   console.log("--> [BACKEND] POST /api/admin/affiliates");
   try {
@@ -1441,7 +1446,7 @@ app.post("/api/admin/affiliates", async (c) => {
   }
 });
 
-// PATCH /api/admin/affiliates/:id — Update affiliate
+// PATCH /api/admin/affiliates/:id ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Update affiliate
 app.patch("/api/admin/affiliates/:id", async (c) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/:id");
   try {
@@ -1470,7 +1475,7 @@ app.patch("/api/admin/affiliates/:id", async (c) => {
   }
 });
 
-// DELETE /api/admin/affiliates/:id — Delete affiliate
+// DELETE /api/admin/affiliates/:id ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Delete affiliate
 app.delete("/api/admin/affiliates/:id", async (c) => {
   console.log("--> [BACKEND] DELETE /api/admin/affiliates/:id");
   try {
@@ -1489,7 +1494,7 @@ app.delete("/api/admin/affiliates/:id", async (c) => {
   }
 });
 
-// GET /api/admin/affiliates/conversions — List all conversions
+// GET /api/admin/affiliates/conversions ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â List all conversions
 app.get("/api/admin/affiliates/conversions", async (c) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates/conversions");
   try {
@@ -1507,7 +1512,7 @@ app.get("/api/admin/affiliates/conversions", async (c) => {
   }
 });
 
-// PATCH /api/admin/affiliates/conversions/:id/payout — Mark conversion as paid [FIX-4]
+// PATCH /api/admin/affiliates/conversions/:id/payout ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Mark conversion as paid [FIX-4]
 app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/conversions/:id/payout");
   try {
@@ -1757,7 +1762,7 @@ app.post("/api/checkout/register", async (c) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: "Siklusio Premium — Akses Selamanya",
+          name: "Siklusio Premium ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Akses Selamanya",
           amount: finalAmount,
           description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
           redirectUrl: "https://app.siklusio.web.id/auth?status=success",
@@ -1827,7 +1832,7 @@ app.post("/api/payment/webhook", async (c) => {
       return c.json({ error: "Unauthorized webhook request" }, 401);
     }
 
-    // Safely parse body — Mayar test pings may send empty or non-JSON body
+    // Safely parse body ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Mayar test pings may send empty or non-JSON body
     let body: any = {};
     try {
       const rawText = await c.req.text();
@@ -2045,7 +2050,7 @@ app.post("/api/payment/webhook", async (c) => {
           });
 
         if (convErr) {
-          // If unique constraint violation on mayar_transaction_id, it's a retry — safe to ignore
+          // If unique constraint violation on mayar_transaction_id, it's a retry ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â safe to ignore
           if (convErr.code === "23505") {
             logInfo(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
           } else {

@@ -69,6 +69,7 @@ Prioritas tertinggi setelah merge:
 - 2026-06-02: Phase 26 analytics strategy cleanup dimulai dan diverifikasi. Strategi analytics sekarang eksplisit: GTM/dataLayer tetap aktif untuk web lewat `mobile-app/app/+html.tsx`, sedangkan native analytics menjadi safe no-op sampai ada fase Firebase native/dev-client terpisah. Dynamic require `@react-native-firebase/analytics` dihapus dari `analytics.ts`, public API `logEvent`, `logScreenView`, dan `setUser` tetap sama, dan test baru `mobile-app/src/lib/analytics.test.ts` memvalidasi payload GTM. Focused analytics test, scan Firebase require, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-02: Phase 27 Supabase source-of-truth cleanup dimulai dan diverifikasi. `docs/DATABASE.md` dan `supabase/README.md` sekarang menetapkan `supabase/migrations/` sebagai source of truth untuk schema production baru, root `supabase/*.sql` sebagai legacy/manual reference, dan workflow `db:migrations:list`, `db:push:dry-run`, `db:lint`, serta `db:types`. Generated types dibuat di `supabase/types/database.types.ts` dari linked remote; docs menandai caveat bahwa tiga migration lokal Phase 3-5 masih pending remote sehingga types tidak boleh langsung diwiring ke typed client sampai schema target sinkron. Test guardrail baru `scripts/database-docs.test.js`, database CLI checks, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-03: Phase 28 RLS/function grants dan production integration smoke selesai serta sudah apply ke Supabase production. Migration `20260602174912_phase28_rls_function_grants.sql` memperketat `SECURITY DEFINER` grants: AI credit mutation RPC dan `create_affiliate_with_coupon` service-role only, community/admin RPC authenticated-only, anon revoked, `is_admin(uid)` tidak lagi bisa probing UID lain, dan trigger helper tidak callable dari public RPC surface. Production smoke ulang memverifikasi pending-payment auth, onboarding RLS update, topup package spoof rejection, AI credit topup/idempotency, direct client grant blocked, community feed RPC tetap jalan, dan affiliate RPC service-role bekerja serta cleanup berhasil.
+- 2026-06-03: Phase 29 avatar hardening dimulai dan diverifikasi lokal. Avatar upload sekarang membaca dimensi PNG/JPEG/WebP dari header ringan, menolak gambar tanpa dimensi valid atau lebih dari 2048x2048 piksel sebelum R2, dan menjalankan metadata stripping dependency-free sebelum upload: PNG ancillary chunks, JPEG APP metadata/COM segments, dan WebP EXIF/ICCP/XMP chunks. Dokumen `docs/AVATAR_POLICY.md` menuliskan runtime guardrail, alasan tidak re-encode penuh di Worker, dan workflow moderation reset avatar.
 
 ### Sudah tervalidasi oleh Codex
 
@@ -93,16 +94,15 @@ Prioritas tertinggi setelah merge:
 - Phase 28 Supabase migration sudah apply ke production dan production smoke lulus; perubahan file migration/docs/types/test masih perlu commit/push setelah verifikasi final fase lanjutan.
 - Folder/file yang user minta abaikan tetap di luar release scope: `graphify-out/`, `fitur.md`, `my-video/`, revised landing/bak paralel, dan state workspace utama yang tidak terkait.
 
-### Estimasi phase tersisa setelah Phase 28
+### Estimasi phase tersisa setelah Phase 29
 
-Estimasi realistis: 3 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
+Estimasi realistis: 2 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
 
 Daftar fase yang masih direkomendasikan:
 
-1. Phase 29: avatar hardening lanjutan, dimensi, metadata stripping/re-encode, dan moderation policy.
-2. Phase 30: local error boundaries/fallback UI untuk fitur AI utama.
-3. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
-4. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
+1. Phase 30: local error boundaries/fallback UI untuk fitur AI utama.
+2. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
+3. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
 
 ## Rekonsiliasi temuan Kiro vs Codex
 

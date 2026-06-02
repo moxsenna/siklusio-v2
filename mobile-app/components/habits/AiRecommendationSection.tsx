@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { format, subDays } from 'date-fns';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
 import { apiPostJson } from '../../src/lib/api';
+import { buildAiFallbackCopy, extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
 
 interface WeeklyDayData {
   date: string;
@@ -37,7 +39,7 @@ export function AiRecommendationSection({
 }: Props) {
   const [result, setResult] = useState<AiInsightResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AiFallbackInput | null>(null);
 
   const collectWeeklyData = (): WeeklyDayData[] => {
     const data: WeeklyDayData[] = [];
@@ -71,12 +73,12 @@ export function AiRecommendationSection({
       });
       setResult(json);
     } catch (e: any) {
-      const msg = e?.message || 'Gagal menghasilkan insight.';
-      setError(msg);
+      const fallback = extractAiFallbackInput(e, 'Gagal menghasilkan insight.', 'Insight AI Mingguan');
+      setError(fallback);
       if (Platform.OS === 'web') {
         // silent, shown in UI
       } else {
-        Alert.alert('Gagal', msg);
+        Alert.alert('Gagal', buildAiFallbackCopy(fallback).message);
       }
     } finally {
       setLoading(false);
@@ -174,46 +176,13 @@ export function AiRecommendationSection({
   // Error state
   if (error && !result) {
     return (
-      <View
-        style={{
-          backgroundColor: '#fef2f2',
-          borderRadius: 24,
-          padding: 20,
-          borderWidth: 1,
-          borderColor: '#fee2e2',
-          gap: 10,
-        }}
-      >
-        <Text style={{ fontSize: 13, color: '#b91c1c', fontWeight: 'bold' }}>
-          ⚠️ Gagal menghasilkan insight
-        </Text>
-        <Text style={{ fontSize: 12, color: '#dc2626', lineHeight: 18 }}>
-          {error}
-        </Text>
-        <TouchableOpacity
-          onPress={handleGenerate}
-          style={{
-            marginTop: 4,
-            backgroundColor: '#ef4444',
-            paddingVertical: 10,
-            paddingHorizontal: 16,
-            borderRadius: 14,
-            alignSelf: 'flex-start',
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: 'bold',
-              color: '#fff',
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            Coba Lagi
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <AiFallbackNotice
+        {...error}
+        onRetry={handleGenerate}
+        retryLabel="Coba insight lagi"
+        accentColor="#6366f1"
+        style={{ borderRadius: 24, padding: 20 }}
+      />
     );
   }
 

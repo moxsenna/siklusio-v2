@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
 import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import { extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
 import type { CycleGuidePreview } from '../../src/lib/cycleGuideSummary';
 
 interface Props {
@@ -15,7 +17,7 @@ interface Props {
 export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabitCoach }: Props) {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AiFallbackInput | null>(null);
 
   React.useEffect(() => {
     let mounted = true;
@@ -50,7 +52,7 @@ export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabi
       const json = await apiPostJson<any>('/api/cycle-guide/generate', payload);
       setResult(json.result);
     } catch (err: any) {
-      setError(err.message || 'Gagal membuat panduan personal.');
+      setError(extractAiFallbackInput(err, 'Gagal membuat panduan personal.', 'Panduan Siklus'));
     } finally {
       setLoading(false);
     }
@@ -118,11 +120,7 @@ export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabi
               </TouchableOpacity>
             )}
 
-            {error && (
-              <View style={{ backgroundColor: '#fef2f2', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fee2e2' }}>
-                <Text style={{ color: '#b91c1c', fontSize: 12, fontWeight: '700' }}>{error}</Text>
-              </View>
-            )}
+            {error && <AiFallbackNotice {...error} compact accentColor="#db2777" />}
 
             {result && (
               <View style={{ gap: 12 }}>

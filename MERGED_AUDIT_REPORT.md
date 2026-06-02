@@ -69,7 +69,8 @@ Prioritas tertinggi setelah merge:
 - 2026-06-02: Phase 26 analytics strategy cleanup dimulai dan diverifikasi. Strategi analytics sekarang eksplisit: GTM/dataLayer tetap aktif untuk web lewat `mobile-app/app/+html.tsx`, sedangkan native analytics menjadi safe no-op sampai ada fase Firebase native/dev-client terpisah. Dynamic require `@react-native-firebase/analytics` dihapus dari `analytics.ts`, public API `logEvent`, `logScreenView`, dan `setUser` tetap sama, dan test baru `mobile-app/src/lib/analytics.test.ts` memvalidasi payload GTM. Focused analytics test, scan Firebase require, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-02: Phase 27 Supabase source-of-truth cleanup dimulai dan diverifikasi. `docs/DATABASE.md` dan `supabase/README.md` sekarang menetapkan `supabase/migrations/` sebagai source of truth untuk schema production baru, root `supabase/*.sql` sebagai legacy/manual reference, dan workflow `db:migrations:list`, `db:push:dry-run`, `db:lint`, serta `db:types`. Generated types dibuat di `supabase/types/database.types.ts` dari linked remote; docs menandai caveat bahwa tiga migration lokal Phase 3-5 masih pending remote sehingga types tidak boleh langsung diwiring ke typed client sampai schema target sinkron. Test guardrail baru `scripts/database-docs.test.js`, database CLI checks, `npm run check`, Wrangler dry-run, Supabase dry-run, dan scoped whitespace check sudah PASS.
 - 2026-06-03: Phase 28 RLS/function grants dan production integration smoke selesai serta sudah apply ke Supabase production. Migration `20260602174912_phase28_rls_function_grants.sql` memperketat `SECURITY DEFINER` grants: AI credit mutation RPC dan `create_affiliate_with_coupon` service-role only, community/admin RPC authenticated-only, anon revoked, `is_admin(uid)` tidak lagi bisa probing UID lain, dan trigger helper tidak callable dari public RPC surface. Production smoke ulang memverifikasi pending-payment auth, onboarding RLS update, topup package spoof rejection, AI credit topup/idempotency, direct client grant blocked, community feed RPC tetap jalan, dan affiliate RPC service-role bekerja serta cleanup berhasil.
-- 2026-06-03: Phase 29 avatar hardening dimulai dan diverifikasi lokal. Avatar upload sekarang membaca dimensi PNG/JPEG/WebP dari header ringan, menolak gambar tanpa dimensi valid atau lebih dari 2048x2048 piksel sebelum R2, dan menjalankan metadata stripping dependency-free sebelum upload: PNG ancillary chunks, JPEG APP metadata/COM segments, dan WebP EXIF/ICCP/XMP chunks. Dokumen `docs/AVATAR_POLICY.md` menuliskan runtime guardrail, alasan tidak re-encode penuh di Worker, dan workflow moderation reset avatar.
+- 2026-06-03: Phase 29 avatar hardening selesai, sudah deploy Worker production, dan production smoke lulus. Avatar upload sekarang membaca dimensi PNG/JPEG/WebP dari header ringan, menolak gambar tanpa dimensi valid atau lebih dari 2048x2048 piksel sebelum R2, dan menjalankan metadata stripping dependency-free sebelum upload: PNG ancillary chunks, JPEG APP metadata/COM segments, dan WebP EXIF/ICCP/XMP chunks. Dokumen `docs/AVATAR_POLICY.md` menuliskan runtime guardrail, alasan tidak re-encode penuh di Worker, dan workflow moderation reset avatar.
+- 2026-06-03: Phase 30 AI fallback UI selesai dan diverifikasi lokal. Fitur AI utama sekarang memakai helper copy fallback dan komponen `AiFallbackNotice` agar error kredit, network, rate limit, dan server failure tampil konsisten serta tidak membocorkan wording teknis mentah. Surface yang di-wire: resep hari ini, habit coach, insight mingguan, panduan siklus, analisis siklus AI, dan TWW Sanctuary. Test baru `mobile-app/src/lib/aiFallback.test.ts`; focused test, mobile typecheck, dan root `npm run check` PASS dengan 35 test files.
 
 ### Sudah tervalidasi oleh Codex
 
@@ -77,9 +78,9 @@ Prioritas tertinggi setelah merge:
 | --- | --- |
 | Root npm run lint | PASS setelah Phase 2 guardrail |
 | Mobile typecheck | PASS |
-| Unit tests manual | PASS, 34 test files lewat `npm run check` setelah release |
+| Unit tests manual | PASS, 35 test files lewat `npm run check` setelah Phase 30 |
 | Wrangler Worker dry-run | PASS, upload 1501.57 KiB / gzip 297.31 KiB |
-| Cloudflare Worker deployment | PASS, production Worker deploy versi `d45f782f-4c95-4f61-855f-36a37ed4d2b3` |
+| Cloudflare Worker deployment | PASS, production Worker deploy versi `b579af19-a453-4183-adbe-de80217ac8a7` setelah Phase 29 |
 | Cloudflare Pages siklusio-landing | Production source `341aaf5` aktif |
 | Cloudflare Pages siklusio-v2 | Production source `341aaf5` aktif |
 | Supabase db push dry-run | PASS, remote database up to date setelah Phase 28 apply |
@@ -91,18 +92,19 @@ Prioritas tertinggi setelah merge:
 ### Status deploy / commit
 
 - Phase 1-27 sudah masuk branch `codex/release-prep-audit-phase-1-27`, dipush ke GitHub, fast-forward ke `main`, Cloudflare Worker deployed, Cloudflare Pages landing/app aktif, dan Supabase migrations Phase 3-5 plus support table sudah apply.
-- Phase 28 Supabase migration sudah apply ke production dan production smoke lulus; perubahan file migration/docs/types/test masih perlu commit/push setelah verifikasi final fase lanjutan.
+- Phase 28 sudah commit/push, fast-forward ke `main`, Supabase production migration sudah apply, dan production smoke lulus.
+- Phase 29 sudah commit/push, fast-forward ke `main`, Worker production deploy versi `b579af19-a453-4183-adbe-de80217ac8a7`, dan avatar production smoke menolak oversized PNG dengan HTTP 400.
+- Phase 30 selesai lokal di worktree release dan siap masuk checkpoint commit; Pages deploy/production smoke final akan digabung dengan fase handoff terakhir agar tidak memecah deployment terlalu sering.
 - Folder/file yang user minta abaikan tetap di luar release scope: `graphify-out/`, `fitur.md`, `my-video/`, revised landing/bak paralel, dan state workspace utama yang tidak terkait.
 
-### Estimasi phase tersisa setelah Phase 29
+### Estimasi phase tersisa setelah Phase 30
 
-Estimasi realistis: 2 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
+Estimasi realistis: 1 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
 
 Daftar fase yang masih direkomendasikan:
 
-1. Phase 30: local error boundaries/fallback UI untuk fitur AI utama.
-2. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
-3. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
+1. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
+2. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
 
 ## Rekonsiliasi temuan Kiro vs Codex
 
@@ -801,6 +803,14 @@ Area:
 Solusi:
 
 - Tambahkan local error boundary atau fallback UI agar error fitur AI tidak merusak seluruh app.
+
+Status remediation:
+
+- Selesai lokal Phase 30 pada 2026-06-03.
+- Helper `mobile-app/src/lib/aiFallback.ts` menormalisasi error kredit kurang, network/fetch/timeout, rate limit, dan fallback server menjadi copy aman untuk user.
+- Komponen `mobile-app/components/common/AiFallbackNotice.tsx` menjadi notice reusable untuk modal/sheet AI.
+- Surface yang sudah memakai notice: `TodayRecipesModal`, `HabitCoachSheet`, `AiRecommendationSection`, `CycleGuideModal`, `AiReportModal`, dan `TwwSanctuaryModal`.
+- Test baru `mobile-app/src/lib/aiFallback.test.ts`. Focused test, mobile typecheck, dan root `npm run check` PASS dengan 35 test files.
 
 ## File/area yang jangan dianggap broken berdasarkan merge
 

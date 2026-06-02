@@ -5,6 +5,8 @@ import { apiPostJson } from '../../src/lib/api';
 import { getTwwLetterSections, getTwwTitle, type TwwLetterSection, type TwwSanctuaryResult, TWW_MUSIC_MAP, type TwwMusicMood } from '../../src/lib/twwSanctuaryResult';
 import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
+import { extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
 
 interface TwwSanctuaryModalProps {
   onClose: () => void;
@@ -124,7 +126,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
   const [journal, setJournal] = useState('');
   const [reassurance, setReassurance] = useState<TwwSanctuaryResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AiFallbackInput | null>(null);
   const [visibleSectionCount, setVisibleSectionCount] = useState(0);
   const [selectedMood, setSelectedMood] = useState<TwwMusicMood>('deep_meditation');
   const isInitialMount = useRef(true);
@@ -315,7 +317,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
       const data = await apiPostJson<TwwSanctuaryResult>('/api/generate-calming-reassurance', payload);
       setReassurance(data);
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan menghubungi server lokal');
+      setError(extractAiFallbackInput(err, 'Terjadi kesalahan menghubungi server lokal', 'TWW Sanctuary'));
     } finally {
       setLoading(false);
     }
@@ -537,9 +539,12 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
               />
               
               {error && (
-                <View className="text-xs bg-red-50 p-3 rounded-xl mb-4 border border-red-200">
-                  <Text className="text-red-700 text-center text-xs">{error}</Text>
-                </View>
+                <AiFallbackNotice
+                  {...error}
+                  compact
+                  accentColor="#9333ea"
+                  style={{ marginBottom: 16 }}
+                />
               )}
 
               <TouchableOpacity 

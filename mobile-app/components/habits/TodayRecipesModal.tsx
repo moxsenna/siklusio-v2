@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ApiError, apiGetJson, apiPostJson } from '../../src/lib/api';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
+import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import { extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
 import {
   mapApiTodayRecipeGeneration,
   mapApiTodayRecipes,
@@ -34,7 +36,7 @@ export function TodayRecipesModal({
   const [result, setResult] = useState<TodayRecipesResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AiFallbackInput | null>(null);
   const [loadedFromSaved, setLoadedFromSaved] = useState(false);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function TodayRecipesModal({
       })
       .catch((err: any) => {
         if (mounted) {
-          setError(err?.message || 'Gagal mengambil resep hari ini.');
+          setError(extractAiFallbackInput(err, 'Gagal mengambil resep hari ini.', 'Resep Hari Ini'));
         }
       })
       .finally(() => {
@@ -105,13 +107,7 @@ export function TodayRecipesModal({
         onBalanceChange?.(json.balance);
       }
     } catch (err: any) {
-      if (err instanceof ApiError && err.status === 402) {
-        const required = Number((err.payload as any)?.required || 15);
-        const balance = Number((err.payload as any)?.balance || 0);
-        setError(`Saldo kredit belum cukup. Butuh ${required} kredit, saldo kamu ${balance}.`);
-        return;
-      }
-      setError(err?.message || 'Gagal membuat resep hari ini.');
+      setError(extractAiFallbackInput(err, 'Gagal membuat resep hari ini.', 'Resep Hari Ini'));
     } finally {
       setLoading(false);
     }
@@ -181,11 +177,7 @@ export function TodayRecipesModal({
               </TouchableOpacity>
             )}
 
-            {error && (
-              <View style={{ backgroundColor: '#fef2f2', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fee2e2' }}>
-                <Text style={{ color: '#b91c1c', fontSize: 12, fontWeight: '700' }}>{error}</Text>
-              </View>
-            )}
+            {error && <AiFallbackNotice {...error} compact accentColor="#65a30d" />}
 
             {result && (
               <View style={{ gap: 12 }}>

@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
 import type { CoachQuestionAnswer, HabitCoachMode } from '../../src/lib/habitCoachTypes';
 
 interface ReplacementWarning {
@@ -369,11 +370,13 @@ export function HabitCoachSheet({
             {isReviewStep ? renderReview() : renderStep()}
 
             {error && (
-              <View style={{ backgroundColor: '#fef2f2', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fee2e2' }}>
-                <Text selectable style={{ color: '#b91c1c', fontSize: 12, fontWeight: '700' }}>
-                  {error}
-                </Text>
-              </View>
+              <AiFallbackNotice
+                featureName="Habit Coach"
+                message={error}
+                compact
+                selectableMessage
+                accentColor="#be185d"
+              />
             )}
 
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>

@@ -3,7 +3,9 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'rea
 import { useCycle } from '../../src/context/CycleContext';
 import { format } from 'date-fns';
 import { parseLocalDate } from '../../src/lib/dateUtils';
+import { AiFallbackNotice } from '../common/AiFallbackNotice';
 import { apiPostJson } from '../../src/lib/api';
+import { extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
 
 interface AiReportModalProps {
   onClose: () => void;
@@ -14,7 +16,7 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
   
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AiFallbackInput | null>(null);
 
   const generateReport = async () => {
     setLoading(true);
@@ -43,7 +45,7 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
       const data = await apiPostJson<any>('/api/generate-cycle-report', payload);
       setReport(data);
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan menghubungi server lokal');
+      setError(extractAiFallbackInput(err, 'Terjadi kesalahan menghubungi server lokal', 'Analisis Siklus AI'));
     } finally {
       setLoading(false);
     }
@@ -84,9 +86,12 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
               </Text>
               
               {error && (
-                <View className="text-xs bg-red-50 p-3 rounded-xl mt-2 w-full border border-red-200">
-                  <Text className="text-red-700 text-center">{error}</Text>
-                </View>
+                <AiFallbackNotice
+                  {...error}
+                  compact
+                  accentColor="#ec4899"
+                  style={{ width: '100%', marginTop: 8 }}
+                />
               )}
 
               <TouchableOpacity 

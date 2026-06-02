@@ -3,8 +3,9 @@ import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useCycle } from '../../src/context/CycleContext';
-import { format } from 'date-fns';
 import { analytics } from '../../src/lib/analytics';
+import { useTodayKey } from '../../src/hooks/useTodayKey';
+import { parseLocalDate } from '../../src/lib/dateUtils';
 
 import { CycleCard } from '../../components/dashboard/CycleCard';
 import { AffirmationCard } from '../../components/dashboard/AffirmationCard';
@@ -19,18 +20,19 @@ import { HeaderCreditChip } from '../../components/common/HeaderCreditChip';
 export default function DashboardScreen() {
   const router = useRouter();
   const { activityHistory, getDayInfo, userNickname } = useCycle();
-  const todayKey = format(new Date(), 'yyyy-MM-dd');
+  const todayKey = useTodayKey();
+  const todayDate = useMemo(() => parseLocalDate(todayKey), [todayKey]);
 
   const dateString = useMemo(() => {
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const d = new Date();
+    const d = todayDate;
     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
-  }, []);
+  }, [todayDate]);
 
   const { displayPhase, phase: currentPhase } = useMemo(() => {
-    return getDayInfo(new Date());
-  }, [getDayInfo]);
+    return getDayInfo(todayDate);
+  }, [getDayInfo, todayDate]);
 
   const isFertile = displayPhase === 'Masa Subur';
   const isStrictOvulation = displayPhase === 'Ovulasi';

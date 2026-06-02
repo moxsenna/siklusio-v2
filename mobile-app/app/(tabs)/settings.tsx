@@ -22,6 +22,7 @@ import { AvatarPicker } from '../../components/common/AvatarPicker';
 import { useUserAvatar } from '../../src/hooks/useUserAvatar';
 import { storage } from '../../src/lib/storage';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
+import { getAuthenticatedSupabaseClientStatus } from '../../src/lib/supabaseAccess';
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
@@ -292,14 +293,15 @@ export default function SettingsScreen() {
       return;
     }
 
-    if (user && supabase) {
+    const status = getAuthenticatedSupabaseClientStatus(supabase, user?.id);
+    if (status.ready) {
       try {
-        const { error } = await supabase.from('profiles').update({
+        const { error } = await status.client.from('profiles').update({
           nickname: userNickname,
           husband_name: husbandName,
           husband_nickname: husbandNickname,
           husband_number: husbandNumber
-        }).eq('id', user.id);
+        }).eq('id', status.userId);
 
         if (error) {
           console.error('Failed to sync profile data to Supabase:', error);

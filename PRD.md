@@ -1,429 +1,226 @@
 # PRD: Siklusio
 
-Status: Draft v1  
-Last updated: 2026-05-28  
-Product area: Menstrual cycle tracking, promil support, AI insight, community  
+Status: Version 2.0 (Remediated)  
+Last updated: 2026-06-02  
+Product area: Menstrual cycle tracking, promil support, AI insight, community, security hardening  
 Primary market: Indonesia  
+
+---
 
 ## 0. Working Assumptions
 
-- PRD ini mendokumentasikan Siklusio versi produk yang sedang dibangun, bukan spek aplikasi baru dari nol.
-- Scope utama adalah MVP promil: cycle tracking, masa subur, habit logging, AI insight, pesan suami, TWW support, komunitas anonim, dan admin moderation.
-- Target awal adalah perempuan Indonesia yang sedang promil dan membutuhkan pendampingan yang privat, hangat, dan praktis.
-- Model monetisasi awal mengikuti landing page saat ini: akses premium satu kali bayar tanpa iklan pihak ketiga.
-- Semua klaim kesehatan harus diposisikan sebagai edukasi dan pendampingan umum, bukan diagnosis atau janji hasil.
+- PRD ini mendokumentasikan Siklusio versi produk yang sedang berjalan dan telah mengalami penguatan arsitektur menyeluruh (Remediation Phase 1 s/d 21).
+- Scope utama mencakup asisten promil MVP lengkap: cycle tracking (nullable HPHT), masa subur, habit logging, AI insight terenkripsi, jembatan rasa suami, Pojok Tenang TWW (dengan dynamic soundscapes & Surat Tenang AI), komunitas anonim (CORS & Column-Level SELECT Hardening), Mayar checkout, dan admin portal.
+- Model monetisasi berbasis sekali bayar (**Lifetime Premium**) dengan integrasi terenkripsi Mayar, bebas iklan pihak ketiga untuk menjamin kerahasiaan data paling intim Bunda.
+- Data medis diposisikan sebagai pendampingan umum dan edukasi personal promil, disertai disclaimer klinis yang tegas di setiap layer output AI.
+
+---
 
 ## 1. Product Summary
 
-Siklusio adalah aplikasi pendamping siklus menstruasi dan program hamil untuk perempuan Indonesia. Produk ini membantu pengguna memahami fase tubuhnya, memprediksi masa subur, menjalankan kebiasaan promil harian, mengajak suami ikut berikhtiar tanpa canggung, dan mendapatkan dukungan emosional melalui AI serta komunitas anonim.
+Siklusio adalah aplikasi pendamping siklus menstruasi dan program hamil (promil) universal (Expo/Web) untuk pasangan pejuang garis dua di Indonesia. Produk ini dirancang untuk memanusiakan data medis klinis melalui asisten AI yang hangat, penyediaan sarana relaksasi luteal, pelibatan aktif suami secara humoris/romantis, sert forum komunitas pendukung yang dijamin 100% anonim dan privat.
 
 Positioning utama:
 
 > Promil lebih terarah, suami lebih paham, hati lebih tenang.
 
-Siklusio tidak diposisikan sebagai alat diagnosis medis atau pengganti dokter. Siklusio adalah pendamping personal berbasis data siklus, kebiasaan, dan dukungan emosional yang membantu pengguna mengambil langkah kecil yang lebih jelas setiap hari.
+---
 
 ## 2. Problem Statement
 
-Banyak perempuan yang sedang promil menghadapi masalah yang bukan hanya teknis, tetapi juga emosional dan sosial:
+Pasangan pejuang garis dua (TTC) mengarungi perjalanan fisik dan psikologis penuh tekanan harian:
+*   Ketidakakuratan bacaan masa subur jika siklus melenceng dari standar 28 hari.
+*   Log kebiasaan pendukung promil harian (asam folat, hidrasi, olahraga ringan) sering terlupakan secara manual.
+*   Cemas berlebih (*symptom spotting*) selama 14 hari menanti haid berikutnya pasca-ovulasi (fase luteal / TWW).
+*   Gaya komunikasi "berikhtiar" yang terasa kaku, dingin, atau transaksional dengan suami.
+*   Rasa tidak aman saat menceritakan keresahan promil di platform sosial publik karena takut dihakimi lingkungan.
+*   Kekhawatiran komersialisasi rahasia intim tubuh oleh agensi iklan atau kebocoran data pribadi (CORS/Log leaks).
 
-- Bingung menghitung masa subur, terutama jika siklus tidak terasa "normal" 28 hari.
-- Takut melewatkan momentum ovulasi karena hanya mengandalkan ingatan atau kalender umum.
-- Sulit konsisten menjalankan kebiasaan promil harian seperti asam folat, hidrasi, istirahat, nutrisi, dan aktivitas ringan.
-- Canggung mengajak suami berhubungan di masa subur karena terasa seperti tugas, bukan momen bersama.
-- Cemas saat fase TWW dan takut melihat testpack negatif lagi.
-- Tertekan oleh pertanyaan "kapan punya anak?" dari keluarga atau lingkungan.
-- Butuh ruang aman untuk cerita tanpa takut dihakimi.
-- Khawatir data sensitif tentang tubuh, siklus, dan promil dimanfaatkan untuk iklan atau terekspos.
+---
 
 ## 3. Product Thesis
 
-Jika Siklusio mampu menggabungkan prediksi siklus yang jelas, aksi harian yang sederhana, komunikasi pasangan yang lebih lembut, dan ruang emosional yang aman, maka pengguna akan merasa lebih tenang, lebih konsisten, dan lebih percaya untuk kembali menggunakan aplikasi setiap hari sepanjang perjalanan promil.
+Apabila Siklusio mengintegrasikan deteksi ovulasi dinamis, penugasan kebiasaan sehat harian, pemutar audio relaksasi TWW, peredam cemas melalui Surat Tenang AI privat, formulasi pengingat suami otomatis, dan forum berbagi yang dilindungi proteksi database terenkripsi (Column-Level SELECT Hardening RLS), maka Bunda akan merasa tenang, berdaya, dan terlindungi untuk menjalani setiap fase promil dengan penuh harapan.
 
-Keunggulan utama Siklusio bukan hanya "tracking", tetapi pendampingan per fase:
-
-- Apa yang sedang terjadi di tubuh pengguna.
-- Apa yang sebaiknya dilakukan hari ini.
-- Bagaimana mengajak suami ikut paham.
-- Di mana pengguna bisa menumpahkan rasa cemas tanpa dihakimi.
+---
 
 ## 4. Goals
 
 ### Business Goals
-
-- Membuat Siklusio menjadi aplikasi promil lokal yang dipercaya oleh perempuan Indonesia.
-- Meningkatkan aktivasi pengguna baru sampai selesai onboarding.
-- Meningkatkan retensi harian melalui checklist, kalender, insight, dan komunitas.
-- Membangun diferensiasi kuat dibanding aplikasi period tracker generik.
-- Mendukung model monetisasi premium satu kali bayar tanpa iklan pihak ketiga.
+- Membuat Siklusio menjadi mercusuar aplikasi promil privat yang paling terpercaya bagi komunitas wanita di Indonesia.
+- Meningkatkan kelancaran registrasi pembeli premium lewat integrasi instant checkout Mayar dan webhook yang aman.
+- Mendukung keberlangsungan finansial server gotong-royong dengan skema kemitraan afiliasi promoter mandiri.
 
 ### User Goals
-
-- Mengetahui fase siklus, masa subur, dan prediksi haid berikutnya secara mudah.
-- Mendapat arahan harian yang relevan dengan fase siklus.
-- Mencatat kebiasaan dan gejala tanpa ribet.
-- Mendapat insight personal dari pola 7 hari terakhir.
-- Mengajak suami lebih peka dan terlibat dalam promil.
-- Merasa didengar saat fase TWW, haid datang lagi, atau testpack negatif.
-- Bisa berbagi cerita secara anonim dan aman.
+- Memahami status tubuh dan hitungan mundur fase siklus aktif secara real-time pada dashboard dalam 5 detik.
+- Mengakses panduan harian AI medikal-empatis tanpa cemas saldo AI dipotong ganda pada hari yang sama.
+- Menghilangkan kecemasan TWW lewat interaktivitas bimbingan napas dan Surat Tenang AI yang dipersonalisasi.
+- Mengirim pesan pengingat masa subur atau kebutuhan rehat kepada suami via WhatsApp dalam 2 ketukan.
+- Berbagi thread & doa di komunitas tanpa khawatir identitas asli bocor ke tetangga sosial.
 
 ### Product Goals
+- Membatasi entri onboarding yang aman: nama panggilan intim, tanggal lahir valid, dan nullable HPHT tanpa forced defaults.
+- Mengaktifkan user baru secara aman setelah sukses checkout via webhook tanpa menyimpan plaintext password.
+- Menjamin pemotongan kredit AI transaksional yang adil (hanya berkurang ketika LLM sukses merespon penuh data valid).
+- Mengamankan interaksi komunitas lewat rate-limiting DB-level (P0001 triggers) dan auto-hide spam (>= 10 unique reports).
+- Singkronisasi data lokal-to-cloud persisten yang andal (*SyncManager* Last-Write-Wins) untuk parameter siklus harian, gejala, dan tabungan kehamilan (*savings tracking*).
 
-- Satu alur utama dari onboarding ke dashboard harus terasa personal dalam sesi pertama.
-- Pengguna harus bisa memahami status siklus hari ini dalam waktu kurang dari 5 detik di dashboard.
-- Pengguna harus bisa menyelesaikan log harian dalam waktu kurang dari 60 detik.
-- Pengguna harus bisa membuka template pesan suami saat masa subur dalam maksimal 2 tap dari dashboard.
-- Komunitas harus aman secara teknis dan sosial melalui anonimitas, rate limit, report, dan moderasi.
+---
 
 ## 5. Non-Goals
 
 Siklusio tidak akan:
+- Memberikan saran tindakan bedah kesuburan, resep dosis hormon spesifik, atau resep obat keras tanpa keahlian Sp.OG.
+- Menampilkan iklan banner komersial pihak ketiga bermuatan analitik pelacakan tubuh pengguna.
+- Menyimpan sandi auth di database internal di luar auth-engine Supabase.
+- Menyebarkan data nomor WhatsApp suami kepada pihak luar atau asisten AI.
 
-- Memberikan diagnosis medis, klaim kesuburan absolut, atau jaminan hamil.
-- Menggantikan konsultasi dokter kandungan, dokter fertilitas, bidan, atau tenaga medis.
-- Menampilkan iklan pihak ketiga berbasis data siklus atau data promil.
-- Membuat komunitas bebas tanpa moderasi.
-- Menjadi aplikasi kehamilan lengkap, parenting, atau marketplace produk ibu dalam scope MVP.
-- Menyediakan rekomendasi obat, dosis hormon, atau tindakan klinis invasif.
+---
 
 ## 6. Target Users
 
-### Persona 1: Pejuang Garis Dua Baru
+-   **Persona 1: Bunda Promil Pemula.** Membutuhkan navigasi masa subur yang ramah, bersih dari istilah medis yang terlalu rumit, serta asisten check-in harian yang suportif.
+-   **Persona 2: Bunda Pejuang Garis Dua Veteran.** Mengalami ketegangan luteal bulanan tingkat tinggi. Membutuhkan bimbingan pernapasan, *music therapy*, serta ruang validasi emosional di TWW Sanctuary.
+-   **Persona 3: Pasangan Harmonis.** Istri yang ingin melibatkan suami secara peka melalui WhatsApp humoris/manis sesuai fase kesuburan agar ikhtiar kehamilan terasa menyenangkan.
+-   **Persona 4: Admin Moderator.** Memiliki panel antrian moderasi dinamis terpadu untuk menegakkan etika forum, mereset avatar profil tidak pantas, mengontrol pencairan afiliasi, serta CRUD kupon checkout.
 
-Perempuan menikah usia 24-34 tahun yang mulai promil dan masih bingung membaca masa subur. Ia butuh aplikasi yang lembut, mudah, dan tidak membuatnya merasa gagal.
-
-Needs:
-
-- Prediksi masa subur yang mudah dipahami.
-- Checklist promil harian.
-- Edukasi sederhana tentang fase siklus.
-- Reminder agar tidak lupa momentum.
-
-### Persona 2: Pengguna dengan Beban Emosional Promil
-
-Perempuan yang sudah beberapa bulan atau tahun mencoba hamil dan sering kecewa saat haid datang lagi. Ia butuh validasi emosional, bukan hanya kalender.
-
-Needs:
-
-- Dukungan saat TWW.
-- Afirmasi dan journaling.
-- Komunitas anonim.
-- Insight yang tidak menghakimi.
-
-### Persona 3: Istri yang Ingin Suami Lebih Terlibat
-
-Pengguna yang tahu promil butuh kerja sama, tetapi canggung menyampaikan masa subur atau kebutuhan emosional ke pasangan.
-
-Needs:
-
-- Template WhatsApp ke suami.
-- Bahasa yang romantis dan tidak terasa memaksa.
-- Fitur yang menjadikan promil sebagai kerja tim.
-
-### Persona 4: Admin dan Moderator
-
-Tim internal yang menjaga komunitas tetap aman, hangat, dan bebas penyalahgunaan.
-
-Needs:
-
-- Moderation queue.
-- Report grouping.
-- Action untuk keep, hide, reset avatar.
-- Rate limiting dan privacy hardening.
+---
 
 ## 7. Core User Journeys
 
-### Journey A: New User Activation
+### Journey A: New User Activation & Purchase
+1.  Bunda membuka landing page promosi dan memasukkan data kontak.
+2.  Bunda membayar status **Lifetime Premium** seharga Rp 37.000 (Mayar Gateway).
+3.  Sistem backend memproses pembayaran secara idempotent, membuat auth user Supabase dengan status `pending_payment`, mendaftarkannya, dan mengirim asisten SMS/email aktivasi.
+4.  Bunda melakukan login awal dan diarahkan ke alur onboarding 8 langkah (nama panggilan, TTL, jumlah anak, nullable HPHT, kontak panggilan suami).
+5.  Onboarding menyimpan status database `profiles.onboarding_completed = true`. Dashboard personal menyambut Bunda dengan sapaan hangat.
 
-1. Pengguna membuka landing page atau aplikasi.
-2. Pengguna register/login.
-3. Pengguna menyelesaikan onboarding: nama panggilan, tanggal lahir, jumlah anak, HPHT, panjang siklus, lama haid, data suami.
-4. Aplikasi menampilkan dashboard personal dengan fase hari ini.
-5. Pengguna melihat aksi utama hari ini: checklist, masa subur, pesan suami, atau TWW sanctuary.
+### Journey B: Daily Promil Routine & Sync
+1.  Bunda membuka habits harian. Aplikasi memetakan checklist kebiasaan (asam folat, tidur cukup harian) menggunakan data date key terbaru `useTodayKey` untuk menghindari data stale setelah tengah malam.
+2.  Bunda mencentang progres tabungan persiapan kehamilan dan log gejala.
+3.  Pembaharuan data lokal Bunda secara instan di-debounce dan disinkronkan ke Supabase oleh `SyncManager.syncSavingsData` dan `syncProfileData` menggunakan perbandingan timestamp modifikasi terbaru (*Last-Write-Wins*).
 
-Success criteria:
+### Journey C: Fertile Window & Husband Connection
+1.  Dashboard menandakan Bunda telah memasuki jendela subur / puncak ovulasi dengan warna Pink feminin berdenyut lembut.
+2.  Tombol dinamik mengarahkan Bunda ke panel *Jembatan Rasa*.
+3.  Bunda memilih nada pesan WhatsApp yang diinginkan (Romantis, Playful, Lembut, atau Direct).
+4.  Aplikasi menyulam nama panggilan suami, menekan tombol kirim, dan meluncurkan draf WhatsApp di HP Bunda hanya dalam **2 ketukan**.
 
-- Onboarding selesai tanpa kebingungan.
-- Dashboard terasa personal.
-- Pengguna memahami "hari ini aku harus apa".
+### Journey D: TWW Sanctuary (Dua Minggu Menanti)
+1.  Bunda memasuki fase luteal (menanti tanggal testpack). Dashboard merekomendasikan *Pojok Tenang TWW*.
+2.  Bunda melatih napas terpadu diafragma 4-7-8 dengan panduan lingkaran bernapas yang memekar-menguncup.
+3.  Bunda memilih soundtrack relaksasi (🍃 Alam, 🧘‍♀️ Meditasi, ☕ Lofi, ✨ Tidur) yang didistribusikan via lazy-loading asset getter.
+4.  Bunda menuliskan rasa cemas ke jurnal harian dan menekan `"Minta Surat Tenang AI"`.
+5.  Asisten AI memotong saldo kredit, menganalisis jurnal emosi secara privat, lalu mengembalikan respons **"Surat Tenang"** terstruktur (`title`, `opening`, `validation`, `grounding`, `affirmation`, `breathingTip`, `closing`) dengan sapaan "kamu".
+6.  Teks surat AI muncul sekuensial bergantian menggunakan animasi pudar-naik lembut, diiringi auto-scrolling otomatis di layar mobile.
 
-### Journey B: Daily Promil Routine
+### Journey E: Anon Community Discussion
+1.  Bunda membuka forum komunitas untuk membaca status pejuang garis dua lainnya.
+2.  Bunda membuat postingan curhat atau menulis komentar dengan menyalakan toggle **"Kirim Anonim"**.
+3.  Database Supabase memblokir query `SELECT` langsung pada kolom `user_id` di database (Column-Level SELECT Hardening) untuk menjamin privasi Bunda 100% aman. Identitas asli Bunda diredam total di interface feed, namun tercatat internal di backend demi moderasi.
+4.  Jika ada postingan kasar atau penyebaran obat ilegal, pengguna menekan tombol "Laporkan". Postingan dilaporkan >= 10 kali otomatis ditarik dari feed publik untuk ditinjau diruang Admin.
 
-1. Pengguna membuka tab Habits.
-2. Pengguna melihat checklist berdasarkan fase siklus.
-3. Pengguna mencentang task yang selesai.
-4. Pengguna mencatat gejala.
-5. Pengguna melihat progres hari ini.
-6. Setelah data cukup, pengguna meminta insight AI mingguan.
-
-Success criteria:
-
-- Log harian selesai kurang dari 60 detik.
-- Checklist terasa relevan dengan fase.
-- Insight AI terasa personal dan suportif.
-
-### Journey C: Fertile Window Action
-
-1. Pengguna membuka dashboard atau kalender.
-2. Aplikasi menandai masa subur atau ovulasi.
-3. Dashboard memunculkan action untuk kirim pesan ke suami.
-4. Pengguna memilih template.
-5. WhatsApp terbuka dengan pesan yang sudah dipersonalisasi.
-
-Success criteria:
-
-- Pengguna tidak perlu merangkai pesan sendiri.
-- Bahasa pesan terasa hangat, tidak kaku, dan tidak memaksa.
-- Fitur terasa membantu pasangan menjadi tim promil.
-
-### Journey D: TWW Emotional Support
-
-1. Pengguna memasuki fase luteal/TWW.
-2. Dashboard menampilkan Pojok Tenang TWW.
-3. Pengguna membuka TWW Sanctuary.
-4. Pengguna dapat melakukan breathing exercise, mendengar audio relaksasi, menulis jurnal, dan meminta reassurance AI.
-
-Success criteria:
-
-- Pengguna merasa lebih tenang setelah memakai fitur.
-- AI tidak memberi klaim medis atau janji hasil.
-- Pesan AI bersifat validatif, aman, dan mendorong konsultasi medis bila perlu.
-
-### Journey E: Anonymous Community Support
-
-1. Pengguna membuka tab Komunitas.
-2. Pengguna membaca cerita pengguna lain.
-3. Pengguna membuat post atau komentar dengan opsi anonim.
-4. Pengguna memberi reaksi dukungan.
-5. Pengguna dapat melaporkan konten bermasalah.
-6. Admin dapat meninjau dan menindak laporan.
-
-Success criteria:
-
-- Identitas anonim terlindungi.
-- Komunitas terasa hangat dan tidak toxic.
-- Konten bermasalah dapat dilaporkan dan dimoderasi.
+---
 
 ## 8. Functional Requirements
 
-### P0 Requirements
+### P0 Requirements (Must-Have Security & Core Core Engines)
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-001 | Auth dan profile pengguna | Pengguna dapat register/login, data profile tersimpan, dan sesi digunakan untuk akses fitur personal. |
-| FR-002 | Onboarding personal | Pengguna mengisi nama panggilan, tanggal lahir, jumlah anak, HPHT, panjang siklus, lama haid, nama/panggilan/nomor suami. Data tersimpan lokal dan tersinkron ke Supabase saat sesi tersedia. |
-| FR-003 | Cycle engine | Sistem menghitung hari siklus, fase menstruasi/folikular/ovulasi/luteal, masa subur, dan prediksi haid berikutnya berdasarkan HPHT, panjang siklus, panjang haid, dan log haid manual. |
-| FR-004 | Dashboard personal | Dashboard menampilkan sapaan, tanggal, kartu siklus, fase hari ini, afirmasi, savings tracker, dan action card yang berubah sesuai fase serta progres harian. |
-| FR-005 | Dynamic action card | Jika checklist rendah, CTA mengarah ke Habits. Jika masa subur/ovulasi, CTA membuka template suami. Jika menstruasi, CTA mengarah ke nutrisi/kebiasaan. Jika luteal, CTA membuka TWW Sanctuary. |
-| FR-006 | Daily habits | Pengguna dapat melihat checklist harian sesuai fase, mencentang task, melihat persentase progres, dan membuka riwayat. |
-| FR-007 | Symptom tracking | Pengguna dapat menandai gejala harian seperti kram, sakit kepala, kelelahan, dan mood swing. |
-| FR-008 | Calendar tracking | Pengguna dapat melihat kalender siklus, memilih tanggal, melihat fase, menandai atau menghapus log haid manual, dan membuka AI cycle report. |
-| FR-009 | AI habits insight | AI menganalisis data aktivitas dan gejala 7 hari terakhir untuk menghasilkan ringkasan, analisis gejala, tips, dan motivasi. |
-| FR-010 | AI cycle report | AI memberi wawasan siklus yang dipersonalisasi berdasarkan posisi siklus dan data pengguna. |
-| FR-011 | TWW Sanctuary | Pengguna fase luteal dapat membuka breathing exercise, audio relaksasi, jurnal emosi, dan calming reassurance dari AI. |
-| FR-012 | Husband message templates | Sistem menyediakan template pesan WhatsApp berdasarkan fase siklus dan data panggilan suami, lalu membuka WhatsApp dengan teks terisi. |
-| FR-013 | Community feed | Pengguna dapat melihat post komunitas dengan pagination, membuat post, memberi reaksi, membuka komentar, dan refresh feed. |
-| FR-014 | Anonymous posting | Post dan komentar memiliki opsi anonim. Identitas asli tidak tampil di feed ketika anonim aktif, tetapi user_id tetap tersimpan untuk moderasi. |
-| FR-015 | Community safety | Sistem mendukung report reason preset/custom, rate limit post/komentar, auto-hide threshold, dan moderation queue. |
-| FR-016 | Admin moderation | Admin dapat melihat user, export CSV, melihat laporan, memilih pertahankan/sembunyikan konten, dan reset avatar tidak pantas. |
-| FR-017 | Privacy and RLS | Semua data personal dilindungi RLS, service role hanya di backend, dan direct SELECT ke kolom sensitif komunitas dibatasi untuk user biasa. |
-| FR-018 | Error handling lokal | Error API, rate limit, dan validasi input ditampilkan dengan pesan Indonesia yang jelas dan tidak menyalahkan pengguna. |
+| ID | Requirement | Detail / Acceptance Criteria | Status |
+| :--- | :--- | :--- | :---: |
+| **FR-001** | **Onboarding completion flag** | Menggunakan satu-satunya properti state `profiles.onboarding_completed` (boolean) untuk menandai onboarding selesai di cloud. Menghapus default value palsu pada kolom `last_period_date` HPHT dan menjadikannya nullable agar analisis medis aman terpelihara. | **REMEDIATED** |
+| **FR-002** | **Secure Webhook & Auth Register** | Pendaftaran premium via webhook Mayar memproses pembuatan akun auth Supabase pertama kali dengan metadata `access_status = "pending_payment"` dan menyimpan ID user ke `pending_registrations` **tanpa pernah menyimpan sandi password plaintext**. User dikirimkan aktivasi OTP/magic link pasca pembayaran lunas. | **REMEDIATED** |
+| **FR-003** | **Server-side Topup Verification** | Endpoint `/api/checkout/topup` memvalidasi paket pembelian kredit AI secara eksklusif dari daftar whitelist katalog di sisi server. Menolak total parameter input harga/kredit manipulatif yang dikirimkan client. | **REMEDIATED** |
+| **FR-004** | **JWT Auth-Gated AI endpoints** | Akses ke endpoint AI asisten harian dan `/api/generate-calming-reassurance` wajib dilindungi oleh autentikasi JWT token (`requireUser` middleware). Mencegah kebocoran pemanggilan prompt dan limitasi biaya AI. | **REMEDIATED** |
+| **FR-005** | **Idempotent AI Daily Guides** | Mempertahankan caching dan idempotensi endpoint data kesehatan harian `GET /api/cycle-guide/today` yang dijaga constraint basis data `UNIQUE(user_id, generated_for_date, status)` agar kredit pengguna tidak terpotong dobel pada pemanggilan berulang di hari yang sama. | **REMEDIATED** |
+| **FR-006** | **Atomic Ledger Transactions** | Pemrosesan grant kredit AI hasil topup pembayaran sukses diproses secara atomic pada Postgres trigger RPC `process_paid_ai_credit_topup` (satu siklus: klaim pending, grant credit, update status) untuk memotong celah race condition. | **REMEDIATED** |
+| **FR-007** | **CORS Hardening allowlist** | Mencopot wildcard header CORS API backend. Origin browser dibatasi secara eksklusif ke domain resmi Siklusio, sandbox localhost development dev, dan daftar custom `ALLOWED_ORIGINS` di Worker. | **REMEDIATED** |
+| **FR-008** | **Fail-closed Webhook Integrity** | Jika variable rahasia `MAYAR_WEBHOOK_TOKEN` kosong atau tidak terkonfigurasi, server API backend menolaknya secara mutlak (*fail-closed*) dengan melempar kode error 500 demi mencegah bypass autentikasi internal. | **REMEDIATED** |
 
-### P1 Requirements
+---
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-101 | Savings tracker | Pengguna dapat melihat target/tabungan persiapan kehamilan dan status kontribusi. |
-| FR-102 | Avatar system | Pengguna dapat memilih avatar preset atau upload custom avatar melalui backend/R2. Avatar tidak tampil saat anonim aktif. |
-| FR-103 | Notification settings | Pengguna dapat mengatur notifikasi fase siklus, ovulasi, dan nutrisi. |
-| FR-104 | History analytics | Pengguna dapat melihat histori 7/14/30 hari untuk kebiasaan dan gejala, dengan fallback aman jika chart gagal. |
-| FR-105 | Checkout and premium access | Landing/checkout menjelaskan value premium, pembayaran satu kali, dan akses setelah registrasi. |
-| FR-106 | Content safety for AI | Prompt dan response AI harus menghindari diagnosis, janji hamil, dosis obat, atau instruksi klinis berisiko. |
+### P1 Requirements (High Priority UX & Features)
 
-### P2 Requirements
+| ID | Requirement | Detail / Acceptance Criteria | Status |
+| :--- | :--- | :--- | :---: |
+| **FR-101** | **SyncManager Offline-Online (LWW)** | Rekonsiliasi sinkronisasi data lokal-to-cloud untuk riwayat aktivitas, gejala, dan tabungan kehamilan. SyncManager membandingkan timestamp updated_at lokal vs server dan mengaplikasikan strategi Last-Write-Wins tanpa menampilkan pop-up konflik data yang mengganggu Bunda. | **REMEDIATED** |
+| **FR-102** | **Target Savings Cloud Sync** | Dashboard Tabungan Kehamilan mendukung debounce sinkronisasi data target/progres tabungan ke Supabase. Menjamin nilai `0` tetap dapat ditarik/sinkron tanpa terhalang bias checks. | **REMEDIATED** |
+| **FR-103** | **Secure Avatar upload & magic bytes** | Endpoint upload/custom avatar ke Cloudflare R2 memvalidasi data base64 dengan mendeteksi magic bytes (PNG, JPEG, WebP) di sisi server sebelum dikirimkan ke CDN. Menghentikan penyimpanan file berbahaya / non-image. | **REMEDIATED** |
+| **FR-104** | **Clean Logging & Redact PII** | Helper backend log `redaction.ts` secara otomatis menyembunyikan log mentah payment gateway, nomor WhatsApp, email user, dan access tokens. Menjamin integritas compliance data kesehatan universal. | **REMEDIATED** |
+| **FR-105** | **Dynamic Date Refresh (useTodayKey)** | Memastikan parameter data checklist habits, visualisasi siklus di dashboard, dan panduan harian diperbarui secara otomatis menggunakan unified hook `useTodayKey` saat pergantian hari (midnight) atau ketika aplikasi mendapatkan fokus kembali (*app gained focus*). | **REMEDIATED** |
+| **FR-106** | **Community database protection (RLS)** | Kebijakan proteksi RLS yang sangat ketat di database Supabase untuk Komunitas. Query langsung ke kolom sensitif `user_id` diblokir total untuk user biasa. Suara komunitas disajikan aman hanya via RPC function secure `get_community_feed`. | **REMEDIATED** |
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-201 | Partner mode | Suami dapat menerima ringkasan fase dan reminder lembut tanpa melihat data sensitif penuh. |
-| FR-202 | OPK/BBT tracking | Pengguna dapat mencatat hasil ovulation test atau suhu basal untuk meningkatkan akurasi fertile window. |
-| FR-203 | Expert content library | Artikel edukasi promil terkurasi dari dokter/ahli dengan disclaimer medis. |
-| FR-204 | Doctor consultation handoff | Pengguna mendapat panduan kapan perlu konsultasi dokter, tanpa menggantikan diagnosis. |
+---
+
+### P2 Requirements (Medium Priority Future Features)
+
+| ID | Requirement | Detail / Acceptance Criteria | Status |
+| :--- | :--- | :--- | :---: |
+| **FR-201** | **Native Push Notifications** | Membangun push alert native berbasis expo-notifications untuk memicu pengingat minum vitamin, mencatat kram haid, atau notifikasi cinta promil harian. | **Planned (Post-MVP)** |
+| **FR-202** | **Daily Reminders Settings** | Halaman pengaturan preferences harian untuk mengaktifkan notifikasi fase masa subur dan siklus bulanan. | **Planned (Post-MVP)** |
+| **FR-203** | **BBT & OPK tracker support** | Perekaman parameter suhu basal tubuh (BBT) dan tes ovulasi strip (OPK) di kalender untuk mendongkrak ketepatan masa subur. | **Planned (Post-MVP)** |
+
+---
 
 ## 9. UX and Content Requirements
 
-Tone Siklusio harus:
+Kehangatan copywriting dan validasi emosional adalah ruh utama produk ini. AI Generative di backend wajib diatur dengan prompt ketat agar:
+1.  **Menggunakan Panggilan Ramah:** Sapaan *"Bunda"* digunakan di area visual dashboard, sedangkan sapaan *"kamu"* (intim/personal) dikhususkan di area pembuat balasan Pojok Tenang Surat Tenang AI.
+2.  **Menjunjung Empati Luteal:** Respons batin untuk penderita kecemasan menanti testpack harus bersifat memeluk jiwa, memvalidasi bahwa "perasaan cemasmu itu nyata dan wajar", meredakan kepanikan fisik, tanpa pernah menjamin hasil kehamilan instan yang overclaim.
+3.  **Disclaimer Medis:** Tiap output chat AI dan cycle report wajib menyertakan banner disclaimer tepercaya di bagian bawah:
+    > *Informasi ini bersifat pendampingan promil harian umum, bukan pengganti diagnosis medis Sp.OG. Jika Bunda mengalami nyeri hebat, riwayat siklus tidak wajar, konsultasikan langsung ke klinik dokter kandungan tepercaya.*
 
-- Hangat, personal, dan validatif.
-- Menggunakan bahasa Indonesia yang natural.
-- Menghindari rasa menggurui atau menyalahkan.
-- Mengakui bahwa promil bisa melelahkan secara emosional.
-- Mengajak suami sebagai partner, bukan target komplain.
-- Menghindari klaim "pasti hamil", "100% akurat", atau "dokter virtual".
+---
 
-Preferred copy pattern:
+## 10. Data Architecture & Privacy Hardening
 
-- Jelaskan fase tubuh pengguna.
-- Validasi perasaan pengguna.
-- Beri 1 sampai 3 aksi kecil yang bisa dilakukan hari ini.
-- Beri CTA yang spesifik: catat gejala, selesaikan checklist, kirim pesan suami, atau tenangkan diri.
+Arsitektur data dirancang dengan pertahanan privasi tertinggi (*First-Class Health Data Privacy*):
+*   `profiles` (onboarding completed, nullable HPHT, tabungan, data sapaan suami).
+*   `activity_history` (gejala fisik kram/kelelahan, checklist nutrisi harian).
+*   `ai_credit_ledger` (transaksi debit-kredit AI dengan validasi Ledger Server-Side).
+*   `community_posts` & `community_comments` (opsi flag anonymous dinamis, protected `user_id` query di Postgres).
+*   `community_reports` (rate limit cooldown di level DB: 30s posting, 10s komentar, maksimal 5 post/jam, 20 komentar/jam untuk menangkis bot-spamming).
 
-Medical disclaimer pattern:
+---
 
-> Informasi ini bersifat edukatif dan pendampingan umum, bukan diagnosis medis. Jika kamu mengalami nyeri berat, perdarahan tidak wajar, siklus sangat tidak teratur, atau sudah lama promil tanpa hasil, konsultasikan dengan tenaga medis.
+## 11. Security, Safety, and Compliance (Remediated Spec)
 
-## 10. Data Requirements
+Siklusio V2 telah menerapkan standar kepatuhan pengamanan data tingkat industri:
+1.  **CORS Origin Allowlist:** Mencegah request lintas asal di luar whitelist terdaftar.
+2.  **Server Logs Redaction:** Penyaringan informasi data pribadi sensitif (PII) di server Cloudflare Workers.
+3.  **Fail-Closed Webhooks:** Menolak pemrosesan transaksi tagihan ketika signature token Mayar tidak diisi/kosong.
+4.  **Auto-Resolve Moderated Database Loop:** Trigger Postgres otomatis menghentikan laporan berulang (*looping*) dari pengguna iseng pada postingan yang sudah tervalidasi aman oleh admin.
+5.  **Clean CI Pipeline:** Root `npm run check` secara ketat menjalankan typecheck mobile, typecheck backend, dan keseluruhan internal test suite sebelum deploy ke Pages `siklusio-landing` secara otomatis.
 
-### Core Data
-
-- User profile: nickname, birth date, children count, onboarding status.
-- Cycle settings: last period date, cycle length, period length.
-- Husband info: name, nickname, WhatsApp number.
-- Activity history: date, tasks, completion state, symptoms, isPeriod marker.
-- Savings data: target and progress.
-
-### Community Data
-
-- Posts: content, author, anonymous state, counters, moderation state.
-- Comments: post reference, content, author, anonymous state.
-- Reactions: fixed reaction types and user ownership.
-- Reports: target type, target id, reason, reporter, status.
-- Avatar: preset or custom URL, reset state when moderated.
-
-### AI Input Data
-
-- Current phase.
-- Last 7 days of tasks and symptoms.
-- Optional journal text for TWW calming reassurance.
-- User nickname only when needed for personalization.
-
-AI should not receive unnecessary sensitive data. Husband phone number should not be sent to AI.
-
-## 11. Privacy, Safety, and Compliance Requirements
-
-- Use Supabase RLS for all user-owned data.
-- Keep service role key only in backend.
-- Store anonymous community user_id for moderation but never expose it in feed responses.
-- Enforce post/comment rate limits at database level and surface clear client messages.
-- Auto-hide content after report threshold, while still allowing admin review.
-- Admin endpoints must verify Bearer token and admin role server-side.
-- Avoid ad-tech integrations that rely on cycle, fertility, or promil data.
-- AI features must include guardrails against medical diagnosis, pregnancy guarantees, and unsafe advice.
+---
 
 ## 12. Success Metrics
 
-### Activation
+### Activation & Conversion
+- **95%+** Tingkat penyelesaian onboarding dari login awal.
+- **85%+** Pengisian HPHT aman (tidak ada fallback tanggal default palsu harian).
+- **20%+** Konversi transaksi pembelian Lifetime Premium lewat landing page / checkout.
 
-- Registration to onboarding completion rate.
-- Onboarding step drop-off rate.
-- First dashboard viewed rate.
-- First checklist completed rate.
-
-### Engagement
-
-- Daily active users.
-- Habit checklist completion rate.
-- Symptom logging frequency.
-- Calendar opens per user per cycle.
-- AI insight requests per active user.
-- TWW Sanctuary opens during luteal phase.
-
-### Partner Involvement
-
-- Husband message modal opens.
-- WhatsApp send intent clicks.
-- Repeat usage of message templates across cycles.
+### Engagement & Sync
+- **70%+** DAU/MAU mingguan untuk check-in kebiasaan sehari-hari.
+- **99%+** Keberhasilan penyatuan sinkronisasi data lokal-to-cloud oleh SyncManager tanpa memicu eror konflik di user-end.
+- **80%+** Penggunaan fitur berbagi Pesan WhatsApp Suami saat jendela subur berdenyut.
 
 ### Community Health
+- **< 1%** Jumlah kontaminasi spam atau thread negatif berkat DB post cooldown limit.
+- **100%** Kerahasiaan user_id pada status Anonim terlindungi dari audit eksternal browser.
 
-- Posts per active community user.
-- Comments per post.
-- Supportive reaction rate.
-- Report rate.
-- Moderation resolution time.
-- Percentage of auto-hidden content reviewed by admin.
+---
 
-### Retention and Monetization
+## 13. Risks and Mitigations
 
-- D1, D7, D30 retention.
-- Paid conversion rate from landing/checkout.
-- Refund/support complaint rate.
-- Churn reasons from qualitative feedback.
+| Risiko | Dampak | Penanggulangan Klinis / Arsitektur | Status |
+| :--- | :--- | :--- | :---: |
+| Kebocoran password pendaftaran premium | Sangat Tinggi | Meniadakan penyimpanan kolom password di `pending_registrations`. User auth dibuat dinamis di internal Supabase Auth menggunakan token aman metadata `pending_payment`. | **RESOLVED** |
+| Manipulasi harga topup AI oleh user nakal | Tinggi | Menghapus penentuan nominal/kredit dari sisi client. Seluruh verifikasi paket diselesaikan di server-side katalog worker. | **RESOLVED** |
+| Tagihan tag API OpenRouter membengkak karena boting | Tinggi | Mengunci endpoint `/api/generate-calming-reassurance` dengan kewajiban JWT bearer token + rate limiter in-memory. | **RESOLVED** |
+| PII sensitif (WA, email) terekspos di server logs | Sedang | Menerapkan modul redaksi string di generator `redaction.ts`. | **RESOLVED** |
 
-## 13. Release Scope
+---
 
-### MVP Release
-
-MVP is considered complete when users can:
-
-- Register/login.
-- Complete onboarding.
-- See personalized dashboard.
-- Track cycle and fertile window.
-- Log daily habits and symptoms.
-- View calendar and mark period manually.
-- Request AI insight/report.
-- Use husband WhatsApp templates.
-- Use TWW Sanctuary.
-- Post/comment/react/report in anonymous community.
-- Be protected by admin moderation and privacy controls.
-
-### Post-MVP
-
-- Push notifications.
-- Partner mode.
-- OPK/BBT tracking.
-- Expert education content.
-- More advanced health analytics.
-- Doctor consultation handoff.
-
-## 14. Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Users interpret AI as medical diagnosis | High | Add AI prompt guardrails, disclaimer, and unsafe-advice filters. |
-| Fertility prediction feels inaccurate for irregular cycles | High | Be transparent that prediction is estimate, allow manual period logs, consider OPK/BBT post-MVP. |
-| Community anonymity abused | High | Keep user_id for moderation, enforce rate limits, reports, admin actions, and auto-hide threshold. |
-| Sensitive data privacy concerns | High | Avoid third-party ads, minimize AI input data, enforce RLS and column-level restrictions. |
-| Tone feels too emotional or too medical | Medium | Maintain warm but grounded copy; avoid exaggerated claims. |
-| Husband message feature feels awkward | Medium | Provide multiple tone options later: romantic, gentle, direct, playful. |
-| Premium one-time model underfunds AI costs | Medium | Track AI usage cost per user and consider fair usage limits. |
-
-## 15. Open Questions
-
-- Apakah Siklusio akan tetap fokus hanya pada promil, atau nanti melebar ke pregnancy tracking setelah pengguna hamil?
-- Apakah premium access benar-benar lifetime satu kali bayar, atau perlu batasan biaya AI agar sustainable?
-- Apakah komunitas perlu topik/tag khusus seperti TWW, PCOS, haid datang lagi, ovulasi, nutrisi, dan doa?
-- Apakah perlu mode bahasa yang lebih netral selain sapaan "Bunda" untuk pengguna yang belum nyaman dengan istilah itu?
-- Apakah template pesan suami perlu pilihan tone sejak MVP?
-- Apakah AI report perlu disimpan sebagai histori, atau cukup muncul per request?
-- Apakah data suami wajib di onboarding, atau sebaiknya bisa dilewati agar aktivasi lebih ringan?
-
-## 16. Launch Messaging
-
-Primary USP:
-
-> Aplikasi promil privat yang membantu kamu memahami siklus, menemukan masa subur, mengajak suami lebih paham, dan merasa tidak sendirian.
-
-Short tagline:
-
-> Promil lebih terarah, suami lebih paham, hati lebih tenang.
-
-Instagram bio:
-
-> Teman promil privat untuk pejuang garis dua. Lacak masa subur, catat kebiasaan, kirim pesan ke suami, dan cerita anonim tanpa dihakimi.
-
-Landing hero direction:
-
-> Untuk perempuan yang capek menebak masa subur sendirian. Siklusio membantumu membaca fase tubuh, memilih langkah hari ini, mengajak suami ikut paham, dan tetap tenang di perjalanan promil.
-
-## 17. Acceptance Criteria for This PRD
-
-This PRD is ready to guide implementation and growth work if:
-
-- Product positioning is clear and differentiated.
-- MVP scope is explicit.
-- P0/P1/P2 requirements are separated.
-- Safety and medical boundaries are documented.
-- Privacy and community moderation requirements are included.
-- Success metrics are measurable.
-- Open questions are listed for product decisions.
+*Disahkan dan didokumentasikan untuk menjamin kelancaran, keamanan, dan kehangatan ikhtiar promil seluruh Bunda di Indonesia. 🌸 Siklusio Team.*

@@ -15,12 +15,18 @@
     "moduleDetection": "force",
     "allowJs": true,
     "jsx": "react-jsx",
-    "paths": {
-      "@/*": [
-        "./frontend/src/*"
-      ]
-    },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "backend/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "mobile-app",
+    "landing",
+    "dist",
+    "graphify-out",
+    "scratch"
+  ]
 }

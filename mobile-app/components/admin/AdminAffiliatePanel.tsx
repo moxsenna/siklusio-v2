@@ -38,13 +38,13 @@ export default function AdminAffiliatePanel() {
     whatsapp: '',
     code: '',
     commission_type: 'percentage',
-    commission_value: 10,
+    commission_value: 40,
     bank_name: '',
     account_number: '',
     account_holder: '',
-    autoCreateCoupon: true,
+    autoCreateCoupon: false,
     coupon_discount_type: 'percentage',
-    coupon_discount_value: 10,
+    coupon_discount_value: 0,
   });
 
   useEffect(() => {
@@ -66,13 +66,13 @@ export default function AdminAffiliatePanel() {
         whatsapp: '',
         code: '',
         commission_type: 'percentage',
-        commission_value: 10,
+        commission_value: 40,
         bank_name: '',
         account_number: '',
         account_holder: '',
-        autoCreateCoupon: true,
+        autoCreateCoupon: false,
         coupon_discount_type: 'percentage',
-        coupon_discount_value: 10,
+        coupon_discount_value: 0,
       });
       Alert.alert('Sukses', 'Afiliasi berhasil dibuat.');
     } catch (err: any) {

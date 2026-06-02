@@ -6,6 +6,7 @@ import { useCycle } from '../../src/context/CycleContext';
 import { useAuth } from '../../src/context/AuthContext';
 import { resolveAvatarSource } from '../../src/lib/avatars';
 import { supabase } from '../../src/lib/supabase';
+import { getAuthenticatedSupabaseClientStatus } from '../../src/lib/supabaseAccess';
 
 export function HeaderProfileButton() {
   const router = useRouter();
@@ -19,15 +20,16 @@ export function HeaderProfileButton() {
   // Check admin status dynamically only when the profile menu sheet is opened
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (!supabase || !session?.user?.id) {
+      const status = getAuthenticatedSupabaseClientStatus(supabase, session?.user?.id);
+      if (!status.ready) {
         setIsAdmin(false);
         return;
       }
       try {
-        const { data, error } = await supabase
+        const { data, error } = await status.client
           .from('profiles')
           .select('is_admin')
-          .eq('id', session.user.id)
+          .eq('id', status.userId)
           .single();
         if (data && !error) {
           setIsAdmin(!!data.is_admin);

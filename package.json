@@ -8,7 +8,11 @@
     "dev": "wrangler dev backend/index.ts --port 3000",
     "deploy": "wrangler deploy backend/index.ts",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "npm run typecheck:backend",
+    "typecheck:backend": "tsc --noEmit",
+    "typecheck:mobile": "npm --prefix mobile-app run typecheck",
+    "test": "node scripts/run-tests.mjs",
+    "check": "npm run typecheck:backend && npm run typecheck:mobile && npm test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1054.0",

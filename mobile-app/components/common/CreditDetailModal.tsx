@@ -50,9 +50,7 @@ export function CreditDetailModal({ visible, onClose }: { visible: boolean, onCl
     setLoadingTopup(pkg.id);
     try {
       const data = await apiPostJson<{ paymentUrl?: string; error?: string }>('/api/checkout/topup', {
-        packageId: pkg.id,
-        price: pkg.price,
-        credits: pkg.credits
+        packageId: pkg.id
       });
       if (data.paymentUrl) {
         Linking.openURL(data.paymentUrl);

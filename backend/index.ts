@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Buffer } from "node:buffer";
+import { detectAvatarImage } from "./storage/avatarImage";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
@@ -1004,6 +1005,11 @@ app.post("/api/upload-avatar", async (c) => {
     }
 
     const buffer = Buffer.from(base64, "base64");
+    const avatarImage = detectAvatarImage(buffer);
+    if (!avatarImage) {
+      return c.json({ error: "Format avatar tidak didukung. Gunakan WebP, PNG, atau JPEG." }, 400);
+    }
+
     const bucketName = c.env.R2_BUCKET_NAME || "siklusio-avatars";
     const publicUrl = (c.env.R2_PUBLIC_URL || "").replace(/\/+$/, "");
 
@@ -1011,8 +1017,7 @@ app.post("/api/upload-avatar", async (c) => {
       return c.json({ error: "R2_PUBLIC_URL is not configured" }, 500);
     }
 
-    // Generate unique key: avatars/{userId}/{timestamp}.webp
-    const key = `avatars/${auth.user.id}/${Date.now()}.webp`;
+    const key = `avatars/${auth.user.id}/${Date.now()}.${avatarImage.extension}`;
 
     // Setup R2 client using env variables from context c.env
     const accountId = c.env.R2_ACCOUNT_ID;
@@ -1037,12 +1042,12 @@ app.post("/api/upload-avatar", async (c) => {
         Bucket: bucketName,
         Key: key,
         Body: buffer,
-        ContentType: "image/webp",
+        ContentType: avatarImage.contentType,
       })
     );
 
     const url = `${publicUrl}/${key}`;
-    console.log("<-- [BACKEND] Avatar uploaded successfully:", url);
+    console.log("<-- [BACKEND] Avatar uploaded successfully", { contentType: avatarImage.contentType });
     return c.json({ url });
   } catch (error: any) {
     console.error("<-- [BACKEND] Avatar upload error:", error.stack || error);
@@ -1235,13 +1240,13 @@ app.post("/api/affiliate/register", async (c) => {
       p_whatsapp: whatsapp,
       p_code: safeCode,
       p_commission_type: "percentage",
-      p_commission_value: 20, // 20% default user commission
+      p_commission_value: 40, // 40% default user commission
       p_bank_name: bank_name || null,
       p_account_number: account_number || null,
       p_account_holder: account_holder || null,
-      p_auto_coupon: true,
+      p_auto_coupon: false, // disabled 10% discount auto coupon
       p_coupon_discount_type: "percentage",
-      p_coupon_discount_value: 10, // 10% default coupon for buyer
+      p_coupon_discount_value: 0, // no default coupon discount for buyer
     });
 
     if (error) {

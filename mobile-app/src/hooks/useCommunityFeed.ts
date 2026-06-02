@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import {
+  getAuthenticatedSupabaseClientStatus,
+  getSupabaseClientStatus,
+} from '../lib/supabaseAccess';
+import {
   CommunityFeedItem,
   CommunityComment,
   ReactionType,
@@ -136,8 +140,11 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const fetchReactionsFor = useCallback(
     async (postIds: string[]) => {
-      if (!supabase || postIds.length === 0 || !currentUserId) return {};
-      const { data, error: rxErr } = await supabase
+      if (postIds.length === 0) return {};
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId);
+      if (!status.ready) return {};
+
+      const { data, error: rxErr } = await status.client
         .from('community_reactions')
         .select('post_id, reaction_type, user_id')
         .in('post_id', postIds);
@@ -151,7 +158,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         const state = map[r.post_id];
         if (!state) return;
         state.counts[r.reaction_type] = (state.counts[r.reaction_type] || 0) + 1;
-        if (r.user_id === currentUserId) state.mine.add(r.reaction_type);
+        if (r.user_id === status.userId) state.mine.add(r.reaction_type);
       });
       return map;
     },
@@ -160,8 +167,10 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const fetchPage = useCallback(
     async (before: string | null) => {
-      if (!supabase) throw new Error('Supabase belum terkonfigurasi.');
-      const { data, error: feedErr } = await supabase.rpc('get_community_feed', {
+      const status = getSupabaseClientStatus(supabase);
+      if (!status.ready) throw new Error(status.error);
+
+      const { data, error: feedErr } = await status.client.rpc('get_community_feed', {
         page_size: PAGE_SIZE,
         before,
       });
@@ -174,8 +183,9 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
   );
 
   const refresh = useCallback(async () => {
-    if (!supabase) {
-      setError('Supabase belum terkonfigurasi.');
+    const status = getSupabaseClientStatus(supabase);
+    if (!status.ready) {
+      setError(status.error);
       return;
     }
     setRefreshing(true);
@@ -222,7 +232,11 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const createPost = useCallback(
     async (content: string, isAnonymous: boolean, phaseTag: PhaseTag | null) => {
-      if (!supabase || !currentUserId) throw new Error('Anda belum login.');
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
+        supabaseError: 'Anda belum login.',
+      });
+      if (!status.ready) throw new Error(status.error);
+
       const trimmed = content.trim();
       if (!trimmed) throw new Error('Tulisan tidak boleh kosong.');
       if (trimmed.length > POST_MAX_LENGTH)
@@ -238,8 +252,8 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         }
       }
 
-      const { error: insErr } = await supabase.from('community_posts').insert({
-        user_id: currentUserId,
+      const { error: insErr } = await status.client.from('community_posts').insert({
+        user_id: status.userId,
         content: trimmed,
         is_anonymous: isAnonymous,
         phase_tag: phaseTag,
@@ -253,7 +267,11 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const toggleReaction = useCallback(
     async (postId: string, reactionType: ReactionType) => {
-      if (!supabase || !currentUserId) throw new Error('Anda belum login.');
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
+        supabaseError: 'Anda belum login.',
+      });
+      if (!status.ready) throw new Error(status.error);
+
       const current = reactions[postId] ?? emptyReactionState();
       const has = current.mine.has(reactionType);
 
@@ -274,17 +292,17 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
       try {
         if (has) {
-          const { error: delErr } = await supabase
+          const { error: delErr } = await status.client
             .from('community_reactions')
             .delete()
             .eq('post_id', postId)
-            .eq('user_id', currentUserId)
+            .eq('user_id', status.userId)
             .eq('reaction_type', reactionType);
           if (delErr) throw delErr;
         } else {
-          const { error: insErr } = await supabase.from('community_reactions').insert({
+          const { error: insErr } = await status.client.from('community_reactions').insert({
             post_id: postId,
-            user_id: currentUserId,
+            user_id: status.userId,
             reaction_type: reactionType,
           });
           if (insErr) throw insErr;
@@ -316,11 +334,15 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       targetId: string,
       reason: string
     ) => {
-      if (!supabase || !currentUserId) throw new Error('Anda belum login.');
-      const { error: rErr } = await supabase.from('community_reports').insert({
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
+        supabaseError: 'Anda belum login.',
+      });
+      if (!status.ready) throw new Error(status.error);
+
+      const { error: rErr } = await status.client.from('community_reports').insert({
         target_type: targetType,
         target_id: targetId,
-        reporter_id: currentUserId,
+        reporter_id: status.userId,
         reason: reason?.trim() || null,
         status: 'pending',
       });
@@ -337,8 +359,10 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const fetchComments = useCallback(
     async (postId: string): Promise<CommentWithAuthor[]> => {
-      if (!supabase) return [];
-      const { data: rows, error: cErr } = await supabase.rpc('get_post_comments', {
+      const status = getSupabaseClientStatus(supabase);
+      if (!status.ready) return [];
+
+      const { data: rows, error: cErr } = await status.client.rpc('get_post_comments', {
         p_post_id: postId,
       });
       if (cErr) throw cErr;
@@ -365,7 +389,11 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const createComment = useCallback(
     async (postId: string, content: string, isAnonymous: boolean) => {
-      if (!supabase || !currentUserId) throw new Error('Anda belum login.');
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
+        supabaseError: 'Anda belum login.',
+      });
+      if (!status.ready) throw new Error(status.error);
+
       const trimmed = content.trim();
       if (!trimmed) throw new Error('Komentar tidak boleh kosong.');
       if (trimmed.length > COMMENT_MAX_LENGTH)
@@ -380,9 +408,9 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         }
       }
 
-      const { error: insErr } = await supabase.from('community_comments').insert({
+      const { error: insErr } = await status.client.from('community_comments').insert({
         post_id: postId,
-        user_id: currentUserId,
+        user_id: status.userId,
         content: trimmed,
         is_anonymous: isAnonymous,
       });
@@ -401,12 +429,16 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
   const deleteOwnPost = useCallback(
     async (postId: string) => {
-      if (!supabase || !currentUserId) throw new Error('Anda belum login.');
-      const { error: delErr } = await supabase
+      const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
+        supabaseError: 'Anda belum login.',
+      });
+      if (!status.ready) throw new Error(status.error);
+
+      const { error: delErr } = await status.client
         .from('community_posts')
         .delete()
         .eq('id', postId)
-        .eq('user_id', currentUserId);
+        .eq('user_id', status.userId);
       if (delErr) throw delErr;
       setPosts((prev) => prev.filter((p) => p.id !== postId));
       setReactions((prev) => {

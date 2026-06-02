@@ -3,9 +3,10 @@ import { View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { useCycle } from '../src/context/CycleContext';
+import { isPaymentPendingUser } from '../src/lib/paymentAccess';
 
 export default function IndexPage() {
-  const { session, isLoading: authLoading } = useAuth();
+  const { session, user, isLoading: authLoading } = useAuth();
   const { isOnboardingCompleted, isProfileLoading } = useCycle();
   const router = useRouter();
   const lastNavigatedRef = useRef<string | null>(null);
@@ -17,6 +18,8 @@ export default function IndexPage() {
     let targetPath = '';
     if (!session) {
       targetPath = '/auth';
+    } else if (isPaymentPendingUser(user)) {
+      targetPath = '/payment-pending';
     } else if (!isOnboardingCompleted) {
       targetPath = '/onboarding';
     } else {
@@ -26,7 +29,7 @@ export default function IndexPage() {
     if (lastNavigatedRef.current === targetPath) return;
     lastNavigatedRef.current = targetPath;
     router.replace(targetPath as any);
-  }, [session, authLoading, isOnboardingCompleted, isProfileLoading, router]);
+  }, [session, user, authLoading, isOnboardingCompleted, isProfileLoading, router]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fdf2f8' }}>

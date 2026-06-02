@@ -7,6 +7,7 @@ import { CycleGuideCard } from '../../components/calendar/CycleGuideCard';
 import { CycleGuideModal } from '../../components/calendar/CycleGuideModal';
 import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
 import { useCycle } from '../../src/context/CycleContext';
+import { useTodayKey } from '../../src/hooks/useTodayKey';
 import { stampDailyRecord } from '../../src/lib/activityHistorySync';
 import { buildCycleGuidePreview } from '../../src/lib/cycleGuideSummary';
 
@@ -29,6 +30,7 @@ export default function CalendarScreen() {
     lastPredictionDeltaDays,
     userNickname,
   } = useCycle();
+  const todayKey = useTodayKey();
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showCycleGuide, setShowCycleGuide] = useState(false);
@@ -46,7 +48,7 @@ export default function CalendarScreen() {
   });
 
   const cycleGuidePayload = {
-    generatedForDate: format(new Date(), 'yyyy-MM-dd'),
+    generatedForDate: todayKey,
     guideLevel: cycleGuidePreview.level,
     currentPhase,
     cycleDay,

@@ -17,6 +17,7 @@ import { DatePickerField } from '../components/common/DatePickerField';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { storage } from '../src/lib/storage';
 import { stampDailyRecord } from '../src/lib/activityHistorySync';
+import { getAuthenticatedSupabaseClientStatus } from '../src/lib/supabaseAccess';
 
 interface DropdownOption {
   label: string;
@@ -220,12 +221,13 @@ export default function OnboardingScreen() {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
-      if (session?.user && supabase) {
+      const status = getAuthenticatedSupabaseClientStatus(supabase, session?.user?.id);
+      if (status.ready) {
         try {
           const finalBirthDate = new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay));
           const finalLastPeriodDate = new Date(Number(periodYear), Number(periodMonth) - 1, Number(periodDay));
           
-          await supabase.from('profiles').update({
+          await status.client.from('profiles').update({
             nickname: userNickname,
             birth_date: !isNaN(finalBirthDate.getTime()) ? format(finalBirthDate, 'yyyy-MM-dd') : null,
             children_count: childrenCount,
@@ -234,8 +236,9 @@ export default function OnboardingScreen() {
             period_length: Number(periodInput),
             husband_name: husbandName,
             husband_nickname: husbandNickname,
-            husband_number: husbandNumber
-          }).eq('id', session.user.id);
+            husband_number: husbandNumber,
+            onboarding_completed: true
+          }).eq('id', status.userId);
         } catch (e) {
           console.error("Failed to sync onboarding data", e);
         }

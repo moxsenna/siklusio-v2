@@ -10,6 +10,7 @@ import { callOpenRouterJson } from "./ai/openRouter";
 import { resolveOpenRouterModels } from "./ai/modelPolicy";
 import { chargeAiCredits, getAiCreditBalance, grantPremiumInitialAiCredits } from "./ai/credits";
 import { getAiCreditHistory } from "./ai/history";
+import { resolveTopupPackage } from "./payments/topupPackages";
 import { buildCycleGuideMessages, buildHabitCoachMessages } from "./ai/prompts";
 import {
   cycleGuideSchema,
@@ -596,10 +597,11 @@ app.post("/api/checkout/topup", async (c) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
-    const { packageId, price, credits } = await c.req.json();
+    const { packageId } = await c.req.json();
     
-    if (!packageId || !price || !credits) {
-      return c.json({ error: "Data paket topup tidak lengkap." }, 400);
+    const selectedPackage = resolveTopupPackage(packageId);
+    if (!selectedPackage) {
+      return c.json({ error: "Paket topup tidak valid." }, 400);
     }
 
     const mayarKey = c.env.MAYAR_API_KEY;
@@ -608,7 +610,8 @@ app.post("/api/checkout/topup", async (c) => {
     }
 
     // Call Mayar API
-    const finalAmount = price;
+    const finalAmount = selectedPackage.price;
+    const credits = selectedPackage.credits;
     const { supabaseAdmin, user } = auth;
     
     // Get user details

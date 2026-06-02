@@ -1,4 +1,4 @@
-# MERGED_AUDIT_REPORT.md
+﻿# MERGED_AUDIT_REPORT.md
 
 Laporan gabungan audit Siklusio dari Kiro AI dan Codex
 
@@ -71,6 +71,7 @@ Prioritas tertinggi setelah merge:
 - 2026-06-03: Phase 28 RLS/function grants dan production integration smoke selesai serta sudah apply ke Supabase production. Migration `20260602174912_phase28_rls_function_grants.sql` memperketat `SECURITY DEFINER` grants: AI credit mutation RPC dan `create_affiliate_with_coupon` service-role only, community/admin RPC authenticated-only, anon revoked, `is_admin(uid)` tidak lagi bisa probing UID lain, dan trigger helper tidak callable dari public RPC surface. Production smoke ulang memverifikasi pending-payment auth, onboarding RLS update, topup package spoof rejection, AI credit topup/idempotency, direct client grant blocked, community feed RPC tetap jalan, dan affiliate RPC service-role bekerja serta cleanup berhasil.
 - 2026-06-03: Phase 29 avatar hardening selesai, sudah deploy Worker production, dan production smoke lulus. Avatar upload sekarang membaca dimensi PNG/JPEG/WebP dari header ringan, menolak gambar tanpa dimensi valid atau lebih dari 2048x2048 piksel sebelum R2, dan menjalankan metadata stripping dependency-free sebelum upload: PNG ancillary chunks, JPEG APP metadata/COM segments, dan WebP EXIF/ICCP/XMP chunks. Dokumen `docs/AVATAR_POLICY.md` menuliskan runtime guardrail, alasan tidak re-encode penuh di Worker, dan workflow moderation reset avatar.
 - 2026-06-03: Phase 30 AI fallback UI selesai dan diverifikasi lokal. Fitur AI utama sekarang memakai helper copy fallback dan komponen `AiFallbackNotice` agar error kredit, network, rate limit, dan server failure tampil konsisten serta tidak membocorkan wording teknis mentah. Surface yang di-wire: resep hari ini, habit coach, insight mingguan, panduan siklus, analisis siklus AI, dan TWW Sanctuary. Test baru `mobile-app/src/lib/aiFallback.test.ts`; focused test, mobile typecheck, dan root `npm run check` PASS dengan 35 test files.
+- 2026-06-03: Phase 31 human handoff docs selesai dan diverifikasi lokal. Dokumentasi baru `docs/ARCHITECTURE.md`, `docs/RUNBOOK.md`, dan `docs/CODEBASE_HANDOFF.md` menjelaskan struktur saat ini, target modularisasi backend, urutan deploy aman, smoke test produksi, aturan naming/bahasa, serta folder yang tidak boleh disentuh tanpa instruksi eksplisit. Guardrail test baru `scripts/handoff-docs.test.js` memastikan dokumen handoff dan status laporan tetap ada; root `npm run check` PASS dengan 36 test files.
 
 ### Sudah tervalidasi oleh Codex
 
@@ -78,7 +79,7 @@ Prioritas tertinggi setelah merge:
 | --- | --- |
 | Root npm run lint | PASS setelah Phase 2 guardrail |
 | Mobile typecheck | PASS |
-| Unit tests manual | PASS, 35 test files lewat `npm run check` setelah Phase 30 |
+| Unit tests manual | PASS, 36 test files lewat `npm run check` setelah Phase 31 |
 | Wrangler Worker dry-run | PASS, upload 1501.57 KiB / gzip 297.31 KiB |
 | Cloudflare Worker deployment | PASS, production Worker deploy versi `b579af19-a453-4183-adbe-de80217ac8a7` setelah Phase 29 |
 | Cloudflare Pages siklusio-landing | Production source `341aaf5` aktif |
@@ -94,17 +95,20 @@ Prioritas tertinggi setelah merge:
 - Phase 1-27 sudah masuk branch `codex/release-prep-audit-phase-1-27`, dipush ke GitHub, fast-forward ke `main`, Cloudflare Worker deployed, Cloudflare Pages landing/app aktif, dan Supabase migrations Phase 3-5 plus support table sudah apply.
 - Phase 28 sudah commit/push, fast-forward ke `main`, Supabase production migration sudah apply, dan production smoke lulus.
 - Phase 29 sudah commit/push, fast-forward ke `main`, Worker production deploy versi `b579af19-a453-4183-adbe-de80217ac8a7`, dan avatar production smoke menolak oversized PNG dengan HTTP 400.
-- Phase 30 selesai lokal di worktree release dan siap masuk checkpoint commit; Pages deploy/production smoke final akan digabung dengan fase handoff terakhir agar tidak memecah deployment terlalu sering.
+- Phase 30 sudah commit/push ke branch release; Pages deploy/production smoke final digabung dengan fase handoff terakhir agar tidak memecah deployment terlalu sering.
+- Phase 31 selesai lokal sebagai dokumentasi handoff manusia dan guardrail test; focused handoff test dan root `npm run check` PASS dengan 36 test files, siap masuk checkpoint commit sebelum final merge/deploy.
 - Folder/file yang user minta abaikan tetap di luar release scope: `graphify-out/`, `fitur.md`, `my-video/`, revised landing/bak paralel, dan state workspace utama yang tidak terkait.
 
-### Estimasi phase tersisa setelah Phase 30
+### Estimasi phase tersisa setelah Phase 31
 
-Estimasi realistis: 1 phase utama lagi sebelum backlog audit utama rapi untuk handoff manusia. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
+Estimasi realistis: 0 phase utama tersisa untuk backlog audit utama. `graphify-out/` tetap dikeluarkan dari jalur cleanup karena user menandainya sebagai folder penting.
 
-Daftar fase yang masih direkomendasikan:
+Daftar fase lanjutan yang sifatnya optional/product lane, bukan sisa audit utama:
 
-1. Phase 31: backend decomposition dan runbook/docs struktur jangka panjang.
-2. Optional cleanup/upgrade lane: Supabase baseline/squash root SQL legacy, typed Supabase client adoption bertahap, plus audit npm mobile via Expo SDK 56 upgrade plan, bukan `npm audit fix --force` spontan.
+1. Supabase baseline/squash root SQL legacy.
+2. Typed Supabase client adoption bertahap.
+3. Expo SDK 56 upgrade plan untuk audit npm mobile, bukan `npm audit fix --force` spontan.
+4. Backend decomposition fisik mengikuti `docs/ARCHITECTURE.md`, dilakukan satu route group per PR setelah release stabil.
 
 ## Rekonsiliasi temuan Kiro vs Codex
 
@@ -164,7 +168,7 @@ Daftar fase yang masih direkomendasikan:
 | --- | --- | --- |
 | ai_credit_topups tidak ada di schema/migration | Tidak akurat untuk state sekarang. File supabase/migrations/20260531112800_ai_credit_topups.sql ada dan Supabase dry-run up to date. | Ganti menjadi: root SQL/migrations membingungkan, plus topup punya bug security client-controlled package |
 | Topup Kredit AI broken karena DB table/webhook/UI tidak ada | Tidak akurat untuk state sekarang. UI, endpoint, migration, dan webhook branch ada. | Ganti menjadi: fitur ada tetapi perlu hardening price validation dan idempotency |
-| GEMINI_API_KEY ada di backend Env dan .env.example | Tidak akurat untuk backend/index.ts dan .env.example saat ini. Namun ARCHITECTURE.md masih menandai deprecated dan Cloudflare secret GEMINI_API_KEY masih ada. | Ganti menjadi cleanup secret/dokumen legacy |
+| GEMINI_API_KEY ada di backend Env dan .env.example | Tidak akurat untuk backend/index.ts dan .env.example saat ini. Jika Cloudflare masih menyimpan secret GEMINI_API_KEY, itu external secret cleanup terpisah dan bukan blocker codebase. | Ganti menjadi cleanup secret/dokumen legacy |
 | mobile-app/dist committed | Tidak terlihat tracked oleh git; status menunjukkan ignored. | Tidak masuk sebagai masalah tracked, tetap boleh cleanup lokal |
 | mobile-app/.expo/audit-export committed | Tidak terlihat tracked oleh git; .expo ignored. | Tidak masuk sebagai masalah tracked |
 | scratch/ committed | Tidak terlihat tracked oleh git; scratch ignored. | Tetap boleh cleanup lokal, bukan repo tracked issue |
@@ -863,12 +867,15 @@ Target docs:
 ```text
 docs/
   ARCHITECTURE.md
-  DEPLOYMENT.md
+  RUNBOOK.md
+  CODEBASE_HANDOFF.md
   DATABASE.md
   FEATURE_MATRIX.md
-  RUNBOOK.md
+  AVATAR_POLICY.md
   DECISIONS/
 ```
+
+Status Phase 31: `ARCHITECTURE.md`, `RUNBOOK.md`, dan `CODEBASE_HANDOFF.md` sudah dibuat sebagai handoff manusia. `DECISIONS/` tetap optional untuk ADR formal masa depan.
 
 Target scripts:
 

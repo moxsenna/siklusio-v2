@@ -1092,6 +1092,16 @@ function trackCtaClick(location, text) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // ─── ViewContent Event Push ───
+  window.dataLayer.push({
+    event: 'siklusio_view_content',
+    content_name: 'Siklusio Landing Page',
+    content_category: 'fertility_app',
+    value: 37000,
+    currency: 'IDR'
+  });
+  console.log('--> GTM Event: ViewContent');
+
   // Navbar links
   document.querySelectorAll('nav a').forEach(el => {
     el.addEventListener('click', () => {

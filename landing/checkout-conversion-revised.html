@@ -331,8 +331,64 @@
   <script>
     window.dataLayer = window.dataLayer || [];
 
+    // Helper to get cookie value by name
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return '';
+    }
+
+    // Helper to generate a unique event ID
+    function generateEventId(prefix = 'evt') {
+      return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Capture fbclid from URL query parameter
+    (function persistFbclid() {
+      const params = new URLSearchParams(window.location.search);
+      const fbclid = params.get('fbclid');
+      if (fbclid) {
+        sessionStorage.setItem('siklusio_fbclid', fbclid);
+        console.log('--> fbclid captured on checkout:', fbclid);
+      }
+    })();
+
+    // Extract Meta cookies and build fallback fbc if fbclid is present
+    const fbp = getCookie('_fbp') || '';
+    let fbc = getCookie('_fbc') || '';
+    if (!fbc) {
+      const fbclid = new URLSearchParams(window.location.search).get('fbclid') || sessionStorage.getItem('siklusio_fbclid');
+      if (fbclid) {
+        fbc = `fb.1.${Date.now()}.${fbclid}`;
+      }
+    }
+
+    // Extract Meta CAPI test parameters from URL or sessionStorage fallback
+    const params = new URLSearchParams(window.location.search);
+    const testEventCode = params.get('test_event_code') || sessionStorage.getItem('siklusio_test_event_code') || '';
+    const testSecret = params.get('test_secret') || sessionStorage.getItem('siklusio_test_secret') || '';
+
+    // Generate unique lead_event_id & initiate_checkout_event_id for Conversions API deduplication
+    const leadEventId = generateEventId('lead');
+    const initiateCheckoutEventId = generateEventId('initiate_checkout');
+
+    // Trigger GTM Meta Pixel InitiateCheckout
+    window.dataLayer.push({
+      event: 'siklusio_initiate_checkout',
+      initiate_checkout_event_id: initiateCheckoutEventId,
+      content_name: 'Siklusio Premium Lifetime Access',
+      value: 37000,
+      currency: 'IDR'
+    });
+    console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
+
+    // Trigger standard GA4 begin_checkout event
     window.dataLayer.push({
       event: 'begin_checkout',
+      lead_event_id: leadEventId,
+      fbp: fbp,
+      fbc: fbc,
       ecommerce: {
         currency: 'IDR',
         value: 37000,
@@ -343,7 +399,7 @@
         }]
       }
     });
-    console.log('--> GTM Event: begin_checkout');
+    console.log('--> GTM Event: begin_checkout with event_id:', leadEventId);
 
     const form = document.getElementById('checkoutForm');
     const btnSubmit = document.getElementById('btnSubmit');
@@ -487,6 +543,9 @@
             password,
             couponCode,
             affiliateCode,
+            lead_event_id: leadEventId,
+            fbp,
+            fbc,
             test_event_code: testEventCode,
             test_secret: testSecret
           })
@@ -503,6 +562,16 @@
         successAlert.innerText = 'Akun berhasil disiapkan. Mengalihkan Bunda ke halaman pembayaran aman...';
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
+
+        // Push successful Lead event to GTM for Meta Pixel browser tracking
+        window.dataLayer.push({
+          event: 'siklusio_lead',
+          lead_event_id: leadEventId,
+          content_name: 'Siklusio Premium Lifetime Access',
+          value: result.finalAmount || 37000,
+          currency: 'IDR'
+        });
+        console.log('--> GTM Event: siklusio_lead with event_id:', leadEventId);
 
         window.dataLayer.push({
           event: 'purchase_initiated',

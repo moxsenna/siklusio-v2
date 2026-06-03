@@ -613,6 +613,16 @@
 <script>
   window.dataLayer = window.dataLayer || [];
 
+  // ─── ViewContent Event Push ───
+  window.dataLayer.push({
+    event: 'siklusio_view_content',
+    content_name: 'Siklusio Landing Page',
+    content_category: 'fertility_app',
+    value: 37000,
+    currency: 'IDR'
+  });
+  console.log('--> GTM Event: ViewContent');
+
   // Persist fbclid to sessionStorage for attribution persistence
   (function persistFbclid() {
     const params = new URLSearchParams(window.location.search);

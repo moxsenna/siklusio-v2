@@ -765,6 +765,17 @@
 
     // Generate unique lead_event_id for Conversions API deduplication
     const leadEventId = generateEventId('lead');
+    const initiateCheckoutEventId = generateEventId('initiate_checkout');
+
+    // Trigger GTM Meta Pixel InitiateCheckout
+    window.dataLayer.push({
+      event: 'siklusio_initiate_checkout',
+      initiate_checkout_event_id: initiateCheckoutEventId,
+      content_name: 'Siklusio Premium Lifetime Access',
+      value: 37000,
+      currency: 'IDR'
+    });
+    console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
 
     // Trigger standard GA4 begin_checkout event with deduplication lead_event_id
     window.dataLayer.push({
@@ -1011,6 +1022,16 @@
         successAlert.innerText = 'Pendaftaran berhasil disimpan! Mengalihkan ke gerbang pembayaran aman Mayar...';
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
+
+        // Push successful Lead event to GTM for Meta Pixel browser tracking
+        window.dataLayer.push({
+          event: 'siklusio_lead',
+          lead_event_id: leadEventId,
+          content_name: 'Siklusio Premium Lifetime Access',
+          value: result.finalAmount || 37000,
+          currency: 'IDR'
+        });
+        console.log('--> GTM Event: siklusio_lead with event_id:', leadEventId);
 
         // Push successful purchase_initiated event to GTM (standard GA4 style)
         window.dataLayer.push({

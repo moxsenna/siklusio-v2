@@ -1404,6 +1404,17 @@
 </div>
 
 <script>
+  // ─── ViewContent Event Push ───
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'siklusio_view_content',
+    content_name: 'Siklusio Landing Page',
+    content_category: 'fertility_app',
+    value: 37000,
+    currency: 'IDR'
+  });
+  console.log('--> GTM Event: ViewContent');
+
   // ─── Theme Toggle ───
   const btn = document.getElementById('themeBtn');
   const html = document.documentElement;

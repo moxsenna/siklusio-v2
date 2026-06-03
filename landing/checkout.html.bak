@@ -511,48 +511,9 @@
   <script>
     window.dataLayer = window.dataLayer || [];
 
-    // Helper to get cookie value by name
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-      return '';
-    }
-
-    // Helper to generate a unique event ID
-    function generateEventId(prefix = 'evt') {
-      return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Capture fbclid from URL query parameter
-    (function persistFbclid() {
-      const params = new URLSearchParams(window.location.search);
-      const fbclid = params.get('fbclid');
-      if (fbclid) {
-        sessionStorage.setItem('siklusio_fbclid', fbclid);
-        console.log('--> fbclid captured on checkout:', fbclid);
-      }
-    })();
-
-    // Extract Meta cookies and build fallback fbc if fbclid is present
-    const fbp = getCookie('_fbp') || '';
-    let fbc = getCookie('_fbc') || '';
-    if (!fbc) {
-      const fbclid = new URLSearchParams(window.location.search).get('fbclid') || sessionStorage.getItem('siklusio_fbclid');
-      if (fbclid) {
-        fbc = `fb.1.${Date.now()}.${fbclid}`;
-      }
-    }
-
-    // Generate unique lead_event_id for Conversions API deduplication
-    const leadEventId = generateEventId('lead');
-
-    // Trigger standard GA4 begin_checkout event with deduplication lead_event_id
+    // Trigger standard GA4 begin_checkout event
     window.dataLayer.push({
       event: 'begin_checkout',
-      lead_event_id: leadEventId,
-      fbp: fbp,
-      fbc: fbc,
       ecommerce: {
         currency: 'IDR',
         value: 37000,
@@ -563,7 +524,7 @@
         }]
       }
     });
-    console.log('--> GTM Event: begin_checkout with event_id:', leadEventId);
+    console.log('--> GTM Event: begin_checkout');
 
     const form = document.getElementById('checkoutForm');
     const btnSubmit = document.getElementById('btnSubmit');
@@ -684,45 +645,6 @@
         });
         return;
       }
-
-      // Email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        const errMsg = 'Nomor WhatsApp atau email tidak sesuai.';
-        showError(errMsg);
-
-        window.dataLayer.push({
-          event: 'checkout_error',
-          error_type: 'client_validation',
-          error_message: errMsg
-        });
-        return;
-      }
-
-      // Phone formatting & validation
-      let cleanPhone = whatsapp.replace(/\D/g, "");
-      if (cleanPhone.startsWith("0")) {
-        cleanPhone = "62" + cleanPhone.slice(1);
-      } else if (cleanPhone.startsWith("8")) {
-        cleanPhone = "62" + cleanPhone;
-      }
-
-      const phoneRegex = /^628\d{8,12}$/;
-      if (!phoneRegex.test(cleanPhone)) {
-        const errMsg = 'Nomor WhatsApp atau email tidak sesuai.';
-        showError(errMsg);
-
-        window.dataLayer.push({
-          event: 'checkout_error',
-          error_type: 'client_validation',
-          error_message: errMsg
-        });
-        return;
-      }
-
-      // Auto-update raw input text on screen to show clean formatting
-      document.getElementById('inputWhatsapp').value = cleanPhone;
-
       if (password.length < 6) {
         const errMsg = 'Password minimal harus terdiri dari 6 karakter.';
         showError(errMsg);
@@ -751,13 +673,10 @@
           body: JSON.stringify({
             name,
             email,
-            whatsapp: cleanPhone,
+            whatsapp,
             password,
             couponCode,
-            affiliateCode,
-            lead_event_id: leadEventId,
-            fbp,
-            fbc
+            affiliateCode
           })
         });
 

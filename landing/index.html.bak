@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PX5J3XBM');</script>
+  <!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Siklusio — Teman setia perjalanan promilmu. Lacak siklus haid, prediksi masa subur, dan persiapkan kehamilan dengan dukungan AI & komunitas.">
+  <meta name="theme-color" content="#ec4899">
+  <title>Siklusio — Teman Setia Perjalanan Promilmu 🌸</title>
+  <link rel="icon" type="image/webp" href="./logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+  /* Light theme colors */
+  --pink-50: #fdf2f8;
+  --pink-100: #fce7f3;
+  --pink-200: #fbcfe8;
+  --pink-300: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+  --pink-700: #be185d;
+  --pink-900: #831843;
+
+  --violet-50: #faf5ff;
+  --violet-100: #f3e8ff;
+  --violet-200: #e9d5ff;
+  --violet-500: #a855f7;
+  --violet-600: #9333ea;
+  --violet-700: #7e22ce;
+
+  --teal-50: #f0fdfa;
+  --teal-100: #ccfbf1;
+  --teal-500: #14b8a6;
+  --teal-700: #0f766e;
+
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-400: #94a3b8;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 10px 30px -15px rgba(236, 72, 153, 0.05);
+
+  --ai-purple-glow: rgba(168, 85, 247, 0.12);
+  --ai-purple-border: rgba(168, 85, 247, 0.25);
+}
+
+/* Dark theme overrides */
+.dark {
+  --pink-50: #2a0e1a;
+  --pink-100: #3c1626;
+  --pink-200: #4e1c32;
+  --pink-300: #6f2748;
+  --pink-500: #9b2c6c;
+  --pink-600: #c0328a;
+  --pink-700: #e03aa9;
+  --pink-900: #ff44c8;
+
+  --violet-50: #1e0b2a;
+  --violet-100: #2a133c;
+  --violet-200: #35194e;
+  --violet-500: #5e2a8a;
+  --violet-600: #7a3dbf;
+  --violet-700: #9a55f0;
+
+  --teal-50: #0a1e1a;
+  --teal-100: #0d2925;
+  --teal-500: #0f766e;
+  --teal-700: #14b8a6;
+
+  --slate-50: #0f172a;
+  --slate-100: #1e293b;
+  --slate-200: #334155;
+  --slate-400: #475569;
+  --slate-600: #94a3b8;
+  --slate-700: #e2e8f0;
+  --slate-800: #f1f5f9;
+  --slate-900: #f8fafc;
+
+  --glass-bg: rgba(0, 0, 0, 0.45);
+  --glass-border: rgba(0, 0, 0, 0.4);
+  --glass-shadow: 0 10px 30px -15px rgba(255, 44, 191, 0.05);
+}
+
+
+      --pink-50: #fdf2f8;
+      --pink-100: #fce7f3;
+      --pink-200: #fbcfe8;
+      --pink-300: #f472b6;
+      --pink-500: #ec4899;
+      --pink-600: #db2777;
+      --pink-700: #be185d;
+      --pink-900: #831843;
+      
+      --violet-50: #faf5ff;
+      --violet-100: #f3e8ff;
+      --violet-200: #e9d5ff;
+      --violet-500: #a855f7;
+      --violet-600: #9333ea;
+      --violet-700: #7e22ce;
+
+      --teal-50: #f0fdfa;
+      --teal-100: #ccfbf1;
+      --teal-500: #14b8a6;
+      --teal-700: #0f766e;
+      
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+
+      --glass-bg: rgba(255, 255, 255, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 10px 30px -15px rgba(236, 72, 153, 0.05);
+      
+      --ai-purple-glow: rgba(168, 85, 247, 0.12);
+      --ai-purple-border: rgba(168, 85, 247, 0.25);
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--slate-800);
+      background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 40%, #f0fdfa 75%, #edfaff 100%);
+      background-attachment: fixed;
+      line-height: 1.8;
+      overflow-x: hidden;
+      font-size: 16px;
+    }
+    
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    /* Elegant Typography */
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      color: var(--slate-900);
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink-500) 0%, var(--pink-600) 100%);
+      color: #fff;
+      box-shadow: 0 8px 30px -6px rgba(236, 72, 153, 0.4);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--pink-600) 0%, var(--pink-700) 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 35px -6px rgba(236, 72, 153, 0.5);
+    }
+    
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--pink-600);
+      border: 2px solid var(--pink-200);
+      backdrop-filter: blur(8px);
+    }
+    
+    .btn-outline:hover {
+      background: var(--pink-50);
+      border-color: var(--pink-400);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-700) 100%);
+      color: #fff;
+      box-shadow: 0 8px 30px -6px rgba(20, 184, 166, 0.4);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, var(--teal-700) 0%, var(--teal-700) 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 35px -6px rgba(20, 184, 166, 0.5);
+    }
+    
+    /* Navigation */
+    nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(253, 242, 248, 0.75);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(252, 231, 243, 0.5);
+  padding: 16px 0;
+  transition: all 0.3s;
+}
+
+/* Theme toggle button */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  cursor: pointer;
+  background: var(--pink-100);
+  border: none;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 600;
+  color: var(--pink-600);
+}
+
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(253, 242, 248, 0.75);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(252, 231, 243, 0.5);
+      padding: 16px 0;
+      transition: all 0.3s;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      object-fit: cover;
+    }
+    .nav-logo-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.5px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--slate-600);
+      transition: color 0.3s;
+    }
+    .nav-links a:hover {
+      color: var(--pink-500);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+    }
+    .nav-login {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(236, 72, 153, 0.18);
+      box-shadow: 0 6px 18px -12px rgba(15, 23, 42, 0.35);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pink-600);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+    .nav-login:hover {
+      color: var(--pink-500);
+      border-color: rgba(236, 72, 153, 0.38);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px -14px rgba(236, 72, 153, 0.45);
+    }
+    @media(max-width: 768px) {
+      nav {
+        padding: 12px 0;
+      }
+      .nav-links { display: none; }
+      .nav-actions {
+        flex-direction: row;
+        align-items: center;
+      }
+      .nav-login {
+        min-height: 32px;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .nav-logo-text {
+        font-size: 16px;
+      }
+      .nav-logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+      .nav-logo {
+        gap: 6px;
+      }
+      .container {
+        padding: 0 12px;
+      }
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: clamp(100px, 12vh, 160px) 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -300px;
+      right: -300px;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%);
+      z-index: -1;
+    }
+    .hero-inner {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .hero-text {
+      flex: 1.2;
+      min-width: 300px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.5vw, 54px);
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.2;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--pink-500), var(--violet-600));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--pink-500);
+    }
+    .hero p {
+      font-size: clamp(15px, 2vw, 17px);
+      color: var(--slate-600);
+      margin-bottom: 28px;
+      max-width: 580px;
+      line-height: 1.7;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(252, 231, 243, 0.7);
+      color: var(--pink-700);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 11.5px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      border: 1px solid var(--pink-200);
+    }
+
+    /* Banner Kaca */
+    .pwa-banner {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px dashed var(--ai-purple-border);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 580px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .pwa-banner-text {
+      font-size: 13.5px;
+      color: var(--slate-700);
+      line-height: 1.6;
+      font-weight: 600;
+    }
+    
+    /* Phone Mockup */
+    .hero-mockup {
+      flex: 0.8;
+      min-width: 260px;
+      position: relative;
+    }
+    .phone-frame {
+      width: 270px;
+      height: 550px;
+      background: #0f172a;
+      border-radius: 38px;
+      border: 9px solid var(--slate-900);
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.05);
+      overflow: hidden;
+      position: relative;
+      margin: 0 auto;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 22px;
+      background: var(--slate-900);
+      border-radius: 0 0 14px 14px;
+      z-index: 5;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+      border-radius: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone-slideshow {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      border-radius: 30px;
+    }
+    .phone-slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+    .feature-mockup-frame {
+      margin-top: 20px;
+      border-radius: 20px;
+      background: #0f172a;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      border: 6px solid #1e293b;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    .feature-mockup-frame:hover {
+      transform: scale(1.02);
+    }
+    .feature-mockup-img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+    .mock-header {
+      text-align: left;
+      margin-bottom: 2px;
+    }
+    .mock-header h3 {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--slate-900);
+    }
+    .mock-header p {
+      font-size: 8.5px;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+    .mock-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid rgba(252, 231, 243, 0.9);
+      box-shadow: 0 6px 18px -4px rgba(236, 72, 153, 0.05);
+    }
+    .mock-phase {
+      background: var(--pink-100);
+      color: var(--pink-600);
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 9px;
+      font-weight: 800;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .mock-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 5px solid var(--teal-100);
+      margin: 6px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #fff;
+    }
+    .mock-circle-num {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--slate-900);
+    }
+    .mock-circle-label {
+      font-size: 7.5px;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .mock-tabs {
+      display: flex;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--pink-100);
+      margin-top: auto;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .mock-tab {
+      flex: 1;
+      text-align: center;
+      padding: 6px 2px;
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--slate-400);
+    }
+    .mock-tab.active {
+      color: var(--pink-500);
+      background: var(--pink-50);
+      border-radius: 8px;
+    }
+    @media(max-width: 768px) {
+      .hero {
+        padding-top: 110px;
+      }
+      .hero-inner {
+        flex-direction: column;
+        gap: 36px;
+      }
+      .hero-mockup {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        order: -1; /* Mockup HP diletakkan paling atas pada layar HP */
+      }
+      .phone-frame {
+        width: 240px;
+        height: 490px;
+      }
+      .btn {
+        width: 100%; /* Tombol memenuhi lebar layar di HP agar ramah sentuh */
+      }
+      .hero-buttons {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+    
+    /* Emotional Pain Points Section */
+    .pain-section {
+      padding: 100px 0;
+      background: rgba(255, 255, 255, 0.45);
+      border-top: 1px solid var(--pink-100);
+      border-bottom: 1px solid var(--pink-100);
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-label {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--pink-500);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 17px;
+      color: var(--slate-600);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
+    }
+    .pain-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 32px;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--glass-shadow);
+    }
+    .pain-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 20px 45px -10px rgba(236, 72, 153, 0.12);
+      border-color: var(--pink-200);
+    }
+    .pain-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .pain-card h3 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 12px;
+    }
+    .pain-card p {
+      font-size: 14.5px;
+      color: var(--slate-600);
+      line-height: 1.7;
+    }
+    
+    /* Features Grid Section */
+    .features {
+      padding: 100px 0;
+      background: transparent;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin-top: 64px;
+    }
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 36px;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--glass-shadow);
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 24px 50px -15px rgba(236, 72, 153, 0.15),
+                  0 0 25px 2px rgba(168, 85, 247, 0.08); /* Aksen Ungu AI Glow */
+      border-color: var(--pink-300);
+    }
+    .feature-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 24px;
+      box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.02);
+    }
+    .feature-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 12px;
+    }
+    .feature-card p {
+      font-size: 15px;
+      color: var(--slate-600);
+      line-height: 1.7;
+    }
+    .feature-benefit {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--pink-100);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--pink-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Interactive Process Section */
+    .how {
+      padding: 100px 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(253, 242, 248, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+    }
+    .how-steps {
+      display: flex;
+      gap: 32px;
+      margin-top: 64px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .how-step {
+      flex: 1;
+      min-width: 280px;
+      max-width: 340px;
+      text-align: center;
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 28px;
+      border: 1px solid rgba(252, 231, 243, 0.6);
+      box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.04);
+      position: relative;
+    }
+    .how-step-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink-500) 0%, var(--pink-600) 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 6px 20px -4px rgba(236, 72, 153, 0.4);
+    }
+    .how-step h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--slate-900);
+    }
+    .how-step p {
+      font-size: 14.5px;
+      color: var(--slate-600);
+      line-height: 1.7;
+    }
+    
+    /* Community Section */
+    .community-sec {
+      padding: 100px 0;
+    }
+    .community-box {
+      background: linear-gradient(135deg, rgba(253, 242, 248, 0.9) 0%, rgba(240, 253, 250, 0.8) 100%);
+      border-radius: 36px;
+      padding: 64px 48px;
+      text-align: center;
+      border: 1px solid rgba(252, 231, 243, 0.8);
+      box-shadow: 0 20px 50px -20px rgba(236, 72, 153, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .community-box h2 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 800;
+      color: var(--slate-900);
+      margin-bottom: 20px;
+    }
+    .community-box p {
+      font-size: 16.5px;
+      color: var(--slate-600);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      line-height: 1.8;
+    }
+    .community-badges {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .comm-badge {
+      background: #fff;
+      padding: 12px 24px;
+      border-radius: 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--slate-800);
+      border: 1px solid var(--pink-200);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    }
+    
+    /* Testimonials */
+    .testimonials {
+      padding: 100px 0;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .testimonial-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .testimonial-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 20px 40px -15px rgba(147, 51, 234, 0.08);
+      border-color: rgba(236, 72, 153, 0.2);
+    }
+    .testimonial-card p {
+      font-size: 15px;
+      color: var(--slate-600);
+      font-style: italic;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .testimonial-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--pink-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .testimonial-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+    .testimonial-role {
+      font-size: 12px;
+      color: var(--pink-600);
+      font-weight: 600;
+    }
+    
+    /* Reframe Pricing & CTA Section */
+    .pricing-cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+    .pricing-box {
+      background: linear-gradient(135deg, var(--pink-500) 0%, var(--violet-700) 100%);
+      border-radius: 36px;
+      padding: 80px 32px;
+      color: #fff;
+      box-shadow: 0 20px 50px -10px rgba(236, 72, 153, 0.35);
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-box::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: -150px;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 1;
+    }
+    .pricing-box h2 {
+      font-size: clamp(28px, 4.5vw, 42px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .pricing-box p {
+      font-size: 17px;
+      opacity: 0.9;
+      max-width: 580px;
+      margin: 0 auto 36px;
+      line-height: 1.8;
+    }
+    .pricing-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+    }
+    .pricing-box .btn {
+      background: #fff;
+      color: var(--pink-600);
+      font-size: 16px;
+      padding: 18px 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      z-index: 5;
+      position: relative;
+    }
+    .pricing-box .btn:hover {
+      background: var(--pink-50);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    }
+    .pricing-footnote {
+      margin-top: 24px;
+      font-size: 13px;
+      opacity: 0.75;
+      font-style: italic;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 60px 0;
+      background: var(--slate-900);
+      color: var(--slate-400);
+      text-align: center;
+      font-size: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    footer a {
+      color: var(--pink-400);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover {
+      color: var(--pink-300);
+      text-decoration: underline;
+    }
+    .footer-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      text-decoration: none;
+    }
+    .footer-logo-text {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5J3XBM"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- NAVIGATION -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <img src="./logo.webp" alt="Siklusio Logo" class="nav-logo-icon">
+        <span class="nav-logo-text">Siklusio</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#empati">Untuk Bunda</a></li>
+        <li><a href="#fitur">Fitur & Manfaat</a></li>
+        <li><a href="#cara-kerja">Langkah Promil</a></li>
+        <li><a href="#komunitas">Ruang Aman</a></li>
+        <li><a href="#testimoni">Cerita Sukses</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="https://app.siklusio.web.id" class="nav-login">📱 Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <div class="hero-badge">✨ 100% Bebas Iklan & Mengutamakan Privasi Medis Anda</div>
+          <h1>Untuk Setiap Air Mata yang Terhapus Sunyi, & Setiap Harapan yang <span>Belum Padam</span></h1>
+          <p>Siklusio hadir sebagai sahabat setia yang memeluk erat perjuangan promilmu. Lacak jendela subur secara medis akurat, peroleh panduan asisten AI personal, dan bersandarlah di komunitas hangat sesama pejuang garis dua. Kami di sini untuk menemani setiap langkah ikhtiarmu.</p>
+          
+          <!-- Glassmorphic Banner -->
+          <div class="pwa-banner">
+            <span style="font-size: 20px;">💡</span>
+            <div class="pwa-banner-text">
+              <strong>Aplikasi Web Instan:</strong> Langsung pakai tanpa download Play Store! Ketuk menu browser Anda lalu pilih <strong>'Tambahkan ke Layar Utama'</strong> (Add to Home Screen) untuk akses instan.
+            </div>
+          </div>
+
+          <div class="hero-buttons">
+            <a href="https://app.siklusio.web.id" class="btn btn-primary">💝 Masuk & Mulai Ikhtiar</a>
+            <a href="checkout.html" class="btn btn-outline">Aktifkan Premium 🌟</a>
+          </div>
+        </div>
+        <!-- Phone Mockup -->
+        <div class="hero-mockup">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-slideshow">
+                <img src="assets/CYCLE TRACKING SIO.webp" alt="Siklusio Cycle Tracking" class="phone-slide active" />
+                <img src="assets/FERTILE WINDOW SIO.webp" alt="Siklusio Fertile Window" class="phone-slide" />
+                <img src="assets/PROMIL COACH SIO.webp" alt="Siklusio AI Promil Coach" class="phone-slide" />
+                <img src="assets/EMOTIONAL SUPPORT SIO.webp" alt="Siklusio Emotional Support" class="phone-slide" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMOTIONAL CONNECTION SECTION -->
+  <section class="pain-section" id="empati">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Kami Memahami Perjalananmu</div>
+        <h2 class="section-title">Karena Promil Bukan Sekadar<br>Tentang Tanggal & Angka</h2>
+        <p class="section-desc">Setiap pejuang garis dua memikul beban emosional yang sering kali tidak terlihat oleh orang lain. Kami merancang Siklusio untuk memeluk perasaan itu.</p>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <span class="pain-icon">😢</span>
+          <h3>Kekecewaan Bulanan</h3>
+          <p>Rasa sesak dan air mata tersembunyi di kamar mandi saat mendapati bercak merah kembali datang. Kami di sini untuk mengingatkan bahwa tubuhmu luar biasa, dan perjalanan ini belum berakhir.</p>
+        </div>
+        <div class="pain-card">
+          <span class="pain-icon">🗣️</span>
+          <h3>Pertanyaan yang Menyakiti</h3>
+          <p>"Kapan punya anak?" yang dilontarkan kerabat tanpa tahu usaha, doa, dan obat herbal yang telah dicoba. Siklusio menjadi ruang aman di mana kamu tidak perlu berpura-pura kuat.</p>
+        </div>
+        <div class="pain-card">
+          <span class="pain-icon">🧭</span>
+          <h3>Kecemasan Menghitung Waktu</h3>
+          <p>Takut melewatkan masa subur karena siklus yang tidak teratur, atau bingung mengartikan sinyal tubuh. Kami menggabungkan sains medis untuk memberikan kepastian waktu ikhtiar.</p>
+        </div>
+        <div class="pain-card">
+          <span class="pain-icon">🤝</span>
+          <h3>Suami yang Sulit Mengerti</h3>
+          <p>Kadang terasa canggung mengajak suami di waktu yang tepat, atau dia kurang peka terhadap fase emosionalmu. Kami menjembatani komunikasi ini agar terasa lebih indah dan hangat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES & BENEFITS SECTION -->
+  <section class="features" id="fitur">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Fitur & Manfaat Premium</div>
+        <h2 class="section-title">Seluruh Pendukung Promilmu<br>dalam Satu Genggaman</h2>
+        <p class="section-desc">Dirancang mendalam dengan cinta dan presisi medis untuk mendampingi fisik serta mentalmu sepanjang waktu.</p>
+      </div>
+      <div class="features-grid">
+        <!-- 1 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background:#fce7f3; color:var(--pink-600)">🩸</div>
+          <h3>Pelacak Siklus Haid Akurat</h3>
+          <p>Bukan sekadar pencatat tanggal merah. Algoritma kami membaca tren unik tubuhmu untuk memprediksi panjang siklus dan hari pertama haid berikutnya secara adaptif.</p>
+          <div class="feature-benefit">💝 Manfaat: Bersiap fisik dan emosional menghadapi siklus baru.</div>
+          <div class="feature-mockup-frame">
+            <img src="assets/CYCLE TRACKING SIO.webp" alt="Pelakian Siklus Haid Siklusio" class="feature-mockup-img" />
+          </div>
+        </div>
+        <!-- 2 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background:#ccfbf1; color:var(--teal-700)">💖</div>
+          <h3>Prediksi Jendela Subur & Ovulasi</h3>
+          <p>Ketahui hari kesuburan terbaik dan puncak ovulasi dengan kalkulasi medis. Menghindarkanmu dari menebak-nebak dan membuang momentum emas.</p>
+          <div class="feature-benefit">💝 Manfaat: Ikhtiar di waktu yang paling berpeluang sukses.</div>
+          <div class="feature-mockup-frame">
+            <img src="assets/FERTILE WINDOW SIO.webp" alt="Prediksi Jendela Subur Siklusio" class="feature-mockup-img" />
+          </div>
+        </div>
+        <!-- 3 -->
+        <div class="feature-card" style="border-color: var(--ai-purple-border); box-shadow: 0 10px 30px -15px rgba(168, 85, 247, 0.15);">
+          <div class="feature-icon-wrapper" style="background:#f3e8ff; color:var(--violet-600)">🤖</div>
+          <h3>AI Habit Coach & Panduan Cerdas</h3>
+          <p>Konsultasikan nutrisi promil, pola tidur, dan emosi Bunda secara instan. Dilengkapi dengan chip dropdown opsi instan ("Isi Sendiri...") agar lebih praktis, didukung oleh multi-model fallback chain medis yang super akurat.</p>
+          <div class="feature-benefit" style="color:var(--violet-700);">💝 Manfaat: Langkah hidup sehat terpandu medis 24 jam penuh.</div>
+          <div class="feature-mockup-frame">
+            <img src="assets/PROMIL COACH SIO.webp" alt="AI Habit Coach Siklusio" class="feature-mockup-img" />
+          </div>
+        </div>
+        <!-- 4 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background:#fef3c7; color:#b45309">💬</div>
+          <h3>Jembatan Rasa (Pesan Otomatis Suami)</h3>
+          <p>Hilangkan rasa canggung atau lelah merayu. Siklusio menyiapkan template pesan WhatsApp manis otomatis berdasarkan fase suburmu agar suami paham kapan harus bersiap.</p>
+          <div class="feature-benefit">💝 Manfaat: Suami peka dan ikut berikhtiar tanpa merasa dipaksa.</div>
+        </div>
+        <!-- 5 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background:#e0f2fe; color:#0369a1">💰</div>
+          <h3>Tabungan Kehamilan</h3>
+          <p>Mempersiapkan kehadiran si buah hati secara finansial sejak hari pertama promil. Visualisasikan target persalinan, catat kontribusi tabungan, dan sambut hari persalinan dengan tenang.</p>
+          <div class="feature-benefit">💝 Manfaat: Tenang secara finansial menjelang kelahiran.</div>
+        </div>
+        <!-- 6 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper" style="background:#fbcfe8; color:var(--pink-700)">👥</div>
+          <h3>Ruang Aman Komunitas Pejuang Garis Dua</h3>
+          <p>Tempat bersandar paling hangat. Bagikan kisah, tanyakan tips herbal/medis, atau bacakan doa secara 100% anonim tanpa takut di-judge oleh lingkungan sosial.</p>
+          <div class="feature-benefit">💝 Manfaat: Merasa dipeluk dan dikuatkan karena kamu tidak sendirian.</div>
+          <div class="feature-mockup-frame">
+            <img src="assets/EMOTIONAL SUPPORT SIO.webp" alt="Ruang Komunitas Siklusio" class="feature-mockup-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS STEPS -->
+  <section class="how" id="cara-kerja">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Langkah Menjemput Buah Hati</div>
+        <h2 class="section-title">Hanya 3 Langkah Sederhana</h2>
+        <p class="section-desc">Kami merancang alur yang sangat mudah agar pikiran Bunda tetap tenang dan bebas dari beban administrasi yang rumit.</p>
+      </div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <h3>Daftar & Aktivasi Premium</h3>
+          <p>Isi data diri Anda di halaman checkout dan lakukan patungan operasional sekali seumur hidup untuk mengaktifkan fitur premium permanen.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <h3>Catat Aktivitas Harian</h3>
+          <p>Cukup luangkan waktu 30 detik setiap hari untuk mencentang gejala tubuh, emosi, atau kebiasaan sehatmu dalam kalender cerdas Siklusio.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <h3>Ikuti Panduan AI & Komunitas</h3>
+          <p>AI akan memberikan rekomendasi gizi mingguan, sementara komunitas pejuang garis dua siap menyalurkan kehangatan dan dukungan spiritual.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY SECTION -->
+  <section class="community-sec" id="komunitas">
+    <div class="container">
+      <div class="community-box">
+        <div class="section-label" style="color:var(--teal-700)">Ruang Hangat Bunda</div>
+        <h2>Duduklah Bersama Kami, Kamu Tidak Berjuang Sendiri 💜</h2>
+        <p>Ribuan bunda di seluruh Indonesia berkumpul di sini. Mereka adalah wanita-wanita luar biasa yang siap mendengarkan keluh kesahmu, membagikan resep promil alternatif, menumpahkan air mata bersama, hingga bersujud mendoakan garis dua-mu di sepertiga malam.</p>
+        <div class="community-badges">
+          <div class="comm-badge">🔒 100% Identitas Anonim Aman</div>
+          <div class="comm-badge">🛡️ Moderasi Ketat Bebas Bully</div>
+          <div class="comm-badge">🌸 Saling Kirim Pelukan Doa</div>
+          <div class="comm-badge">🌿 Berbagi Tips Herbal & Medis</div>
+        </div>
+        <a href="checkout.html" class="btn btn-secondary">Gabung Komunitas Kami</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimoni">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Cerita Haru & Bahagia</div>
+        <h2 class="section-title">Kisah Nyata Pejuang Garis Dua</h2>
+        <p class="section-desc">Air mata yang berubah menjadi tawa bahagia saat melihat garis merah ganda di testpack.</p>
+      </div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <p>"Hampir 2 tahun menikah dan selalu ditanya mertua. Tiap bulan nangis di pojokan kamar mandi kalau haid datang. Setelah pakai Siklusio, aku jadi paham masa ovulasiku yang mundur dari kalender biasa. Alhamdulillah sekarang jalan 3 bulan kehamilan... Aplikasi ini bener-bener kayak sahabat."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩</div>
+            <div>
+              <div class="testimonial-name">Bunda Dina, 29 tahun</div>
+              <div class="testimonial-role">Menanti 2 tahun · Hamil 12 Minggu</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p>"Fitur kirim pesan ke suami itu penyelamat banget! Dulu kalau ngajak suami berikhtiar pas masa subur rasanya awkward banget, kayak tugas dinas. Sekarang tinggal klik template dari Siklusio, pesan romantis langsung kekirim ke WA suami. Suami jadi paham tanpa rasa terpaksa."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩</div>
+            <div>
+              <div class="testimonial-name">Bunda Maya, 26 tahun</div>
+              <div class="testimonial-role">Menanti 11 bulan · Sukses Promil</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p>"Komunitas anonim di Siklusio luar biasa hangat. Di saat kerabat menuntut dan menghakimi, di sini aku justru dipeluk, dikirimin doa, dibagiin tips makan kecambah, hingga dikuatkan mentalnya oleh sesama pejuang yang nggak saling kenal. Tidak ada lagi rasa kesepian."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩</div>
+            <div>
+              <div class="testimonial-name">Bunda Rina, 33 tahun</div>
+              <div class="testimonial-role">Menanti 3.5 tahun · Pejuang Garis Dua</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING & FINAL CTA (EMOTIONAL REFRAMING) -->
+  <section class="pricing-cta">
+    <div class="container">
+      <div class="pricing-box">
+        <h2>Satu Langkah Kecil, Ikhtiar Nyata Menjemput Keajaiban 🌸</h2>
+        <p>Siklusio didedikasikan sepenuhnya demi perjalanan promil Bunda tanpa iklan yang melanggar privasi. Biaya patungan gotong-royong sekali seumur hidup digunakan untuk menjaga kelancaran server & asisten AI terbaik khusus untuk Bunda.</p>
+        
+        <!-- Lencana Harga Premium dengan Bonus 500 Kredit AI -->
+        <div class="pricing-badge" style="position:relative; overflow:visible; display:inline-block; margin-bottom:36px;">
+          💝 Investasi Kasih Sayang Seumur Hidup: Rp 37.000 (Satu kali bayar, akses selamanya)
+          <span style="position:absolute; top:-15px; right:-15px; background:linear-gradient(135deg, var(--teal-500), var(--teal-700)); color:#fff; font-size:10px; padding:4px 10px; border-radius:8px; font-weight:800; border:2px solid #fff; box-shadow:0 4px 12px rgba(0,0,0,0.18); white-space:nowrap;">
+            ✨ BONUS 500 KREDIT AI
+          </span>
+        </div>
+        
+        <p style="font-size:13.5px; opacity:0.85; max-width:600px; margin:-12px auto 28px; line-height:1.6;">
+          🎁 <b>Bonus Istimewa:</b> Pembelian Lifetime Premium hari ini langsung mengaktifkan status premium Anda secara otomatis di dalam aplikasi, lengkap dengan **500 Kredit AI** instan untuk Habit Coach & prediksi ovulasi cerdas!
+        </p>
+        
+        <a href="checkout.html" class="btn">Aktifkan Akses Premium Seumur Hidup</a>
+        
+        <!-- Bonus Sticker Pack Graphic -->
+        <div style="margin-top: 36px; padding: 24px; background: rgba(255, 255, 255, 0.08); border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 24px; display: inline-block; max-width: 580px; text-align: center; backdrop-filter: blur(10px);">
+          <span style="background: var(--teal-500); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px;">✨ GIFT BUNDA: WA STICKER PACK EXCLUSIVE</span>
+          <p style="font-size: 15px; font-weight: 700; margin: 12px 0; color: #fff; line-height: 1.4;">🎁 Bonus Tambahan: WhatsApp Sticker Pack Khusus Pejuang Garis Dua!</p>
+          <p style="font-size: 12.5px; opacity: 0.85; margin-bottom: 16px; line-height: 1.6;">Mencairkan suasana kaku, saling menyemangati bersama mertua, suami, maupun sahabat sesama pejuang garis dua dengan sticker obrolan yang hangat, tulus, & lucu.</p>
+          <img src="assets/stiker pack.webp" alt="Exclusive WhatsApp Stickers" style="width: 100%; max-width: 480px; border-radius: 14px; border: 4px solid rgba(255,255,255,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
+        </div>
+
+        <p class="pricing-footnote">
+          *Setara dengan satu porsi bakso hangat atau satu cangkir es kopi kekinian yang habis sekali minum, namun manfaat aplikasi ini mendampingimu selamanya sampai si kecil lahir.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <a href="#" class="footer-logo">
+        <img src="./logo.webp" alt="Siklusio Logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 6px;">
+        <span class="footer-logo-text">Siklusio</span>
+      </a>
+      <p style="margin-bottom:12px; font-weight:500; color:#fff">Teman Setia Perjalanan Promilmu</p>
+      <p style="max-width:600px; margin:0 auto 24px; font-size:13px; opacity:0.7">
+        Kami percaya setiap wanita berhak atas pendampingan promil yang aman, privat, dan penuh kasih. Dibuat dengan segenap doa & cinta di Indonesia.
+      </p>
+      <p style="font-size:12.5px; opacity:0.6">
+        © 2026 Siklusio. Semua hak cipta dilindungi.
+        <br>
+        <a href="privacy.html">Kebijakan Privasi</a> · <a href="#">Syarat Layanan</a> · <a href="mailto:support@siklusio.web.id">Kontak Bantuan</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- GTM Click CTA Event Tracker -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function trackCtaClick(location, text) {
+      window.dataLayer.push({
+        event: 'click_cta',
+        cta_location: location,
+        cta_text: text
+      });
+      console.log('--> GTM Event: click_cta', { cta_location: location, cta_text: text });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Nav Login Click
+      const navLogin = document.querySelector('.nav-login');
+      if (navLogin) {
+        navLogin.addEventListener('click', () => {
+          trackCtaClick('navbar', navLogin.innerText);
+        });
+      }
+
+      // Hero Buttons
+      const heroPrimary = document.querySelector('.hero-buttons .btn-primary');
+      if (heroPrimary) {
+        heroPrimary.addEventListener('click', () => {
+          trackCtaClick('hero_section', heroPrimary.innerText);
+        });
+      }
+
+      const heroOutline = document.querySelector('.hero-buttons .btn-outline');
+      if (heroOutline) {
+        heroOutline.addEventListener('click', () => {
+          trackCtaClick('hero_section', heroOutline.innerText);
+        });
+      }
+
+      // Community Section CTA
+      const commCta = document.querySelector('.community-box .btn-secondary');
+      if (commCta) {
+        commCta.addEventListener('click', () => {
+          trackCtaClick('community_section', commCta.innerText);
+        });
+      }
+
+      // Pricing / Final CTA
+      const pricingBox = document.querySelector('.pricing-box .btn');
+      if (pricingBox) {
+        pricingBox.addEventListener('click', () => {
+          trackCtaClick('pricing_section', pricingBox.innerText);
+        });
+      }
+    });
+  </script>
+<script>
+  // Detect system dark mode on load
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) document.documentElement.classList.add('dark');
+
+  // Theme toggle handler
+  function toggleTheme() {
+    document.documentElement.classList.toggle('dark');
+  }
+  // Attach to button (added in nav)
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.createElement('button');
+    btn.className = 'theme-toggle';
+    btn.textContent = 'Toggle Theme';
+    btn.onclick = toggleTheme;
+    const actions = document.querySelector('.nav-actions');
+    if (actions) actions.appendChild(btn);
+
+    // Dynamic Mockup Slideshow
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.phone-slide');
+    if (slides.length > 0) {
+      setInterval(() => {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+      }, 3500);
+    }
+  });
+</script>
+</body>
+</html>

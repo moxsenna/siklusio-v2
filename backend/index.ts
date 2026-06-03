@@ -1,7 +1,9 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { createRateLimitMiddleware } from "./rateLimit";
 import { Buffer } from "node:buffer";
 import { detectAvatarImage } from "./storage/avatarImage";
+import { logInfo, logWarn, logError } from "./logging/redaction";
 import { createClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { callOpenRouterJson } from "./ai/openRouter";
@@ -46,12 +48,30 @@ interface Env {
   R2_PUBLIC_URL: string;
   MAYAR_API_KEY: string;
   MAYAR_WEBHOOK_TOKEN?: string;
+  FONNTE_API_TOKEN?: string;
+  META_PIXEL_ID?: string;
+  META_CAPI_ACCESS_TOKEN?: string;
+  META_GRAPH_API_VERSION?: string;
+  META_TEST_EVENT_CODE?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Enable global CORS to allow client-side requests from Expo Web
-app.use("*", cors());
+// Enable global CORS to allow client-side requests from Expo Web and web app
+app.use(
+  "*",
+  cors({
+    origin: (origin) => {
+      if (origin === "https://app.siklusio.web.id" || origin.startsWith("http://localhost:")) {
+        return origin;
+      }
+      return null;
+    },
+  })
+);
+
+// Register global rate limiter middleware
+app.use("*", createRateLimitMiddleware());
 
 // Helper to initialize Supabase Admin client
 const getSupabaseAdmin = (c: any) => {
@@ -474,6 +494,11 @@ app.post("/api/generate-habits-insight", async (c) => {
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
+    const auth = await requireUser(c);
+    if (!auth) {
+      return c.json({ error: "Missing or invalid session" }, 401);
+    }
+
     const { nickname, userJournal } = await c.req.json();
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
@@ -1486,7 +1511,6 @@ app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
         payout_note: payout_note || null,
       })
       .eq("id", id);
-    if (error) throw error;
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
@@ -1494,33 +1518,181 @@ app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
 });
 
 // ============================================================
-// Checkout & Payment
+// Meta Conversions API Helpers
 // ============================================================
+
+export function formatAndValidateWhatsapp(phone: string): { valid: boolean; formatted: string } {
+  if (!phone) return { valid: false, formatted: "" };
+  let clean = phone.replace(/\D/g, "");
+  if (clean.startsWith("0")) {
+    clean = "62" + clean.slice(1);
+  } else if (clean.startsWith("8")) {
+    clean = "62" + clean;
+  }
+  const isValid = /^628\d{8,12}$/.test(clean);
+  return { valid: isValid, formatted: clean };
+}
+
+export async function hashData(val: string): Promise<string> {
+  if (!val) return "";
+  const encoder = new TextEncoder();
+  const data = encoder.encode(val.trim().toLowerCase());
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+export function sendMetaCapiEvent(
+  c: any, 
+  eventName: string, 
+  eventId: string, 
+  userData: any, 
+  customData: any
+) {
+  const env = c.env;
+  if (!env.META_PIXEL_ID || !env.META_CAPI_ACCESS_TOKEN) {
+    console.warn(`--> sendMetaCapiEvent skipped: META_PIXEL_ID or META_CAPI_ACCESS_TOKEN missing for event ${eventName}`);
+    return;
+  }
+
+  const apiVersion = env.META_GRAPH_API_VERSION || "v18.0";
+  const url = `https://graph.facebook.com/${apiVersion}/${env.META_PIXEL_ID}/events?access_token=${env.META_CAPI_ACCESS_TOKEN}`;
+
+  const processedUserData = { ...userData };
+  if (processedUserData.em && !Array.isArray(processedUserData.em)) {
+    processedUserData.em = [processedUserData.em];
+  }
+  if (processedUserData.ph && !Array.isArray(processedUserData.ph)) {
+    processedUserData.ph = [processedUserData.ph];
+  }
+
+  const payload: any = {
+    data: [
+      {
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        action_source: "website",
+        event_source_url: "https://siklusio.web.id",
+        user_data: processedUserData,
+        custom_data: customData,
+      }
+    ]
+  };
+
+  if (env.META_TEST_EVENT_CODE) {
+    payload.test_event_code = env.META_TEST_EVENT_CODE;
+  }
+
+  // Fire and forget using executionCtx
+  c.executionCtx.waitUntil(
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(`--> Meta CAPI Error [${eventName}]: ${res.status} - Redacted Payload`);
+        } else {
+          console.log(`--> Meta CAPI Success [${eventName}]: ${eventId}`);
+        }
+      })
+      .catch((err) => {
+        console.error(`--> Meta CAPI Fetch Error [${eventName}]:`, err.message);
+      })
+  );
+}
+
+export function sendFonnteWhatsappMessage(c: any, to: string, message: string) {
+  const token = c.env.FONNTE_API_TOKEN;
+  if (!token) {
+    console.warn("--> sendFonnteWhatsappMessage skipped: FONNTE_API_TOKEN is not configured");
+    return;
+  }
+
+  const target = to.replace(/\D/g, "");
+
+  c.executionCtx.waitUntil(
+    fetch("https://api.fonnte.com/send", {
+      method: "POST",
+      headers: {
+        "Authorization": token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        target: target,
+        message: message
+      })
+    })
+      .then(async (res) => {
+        const resText = await res.text();
+        if (!res.ok) {
+          console.error(`--> Fonnte WA Error: ${res.status} - ${resText}`);
+        } else {
+          console.log(`--> Fonnte WA Success sent to ${target}: ${resText}`);
+        }
+      })
+      .catch((err) => {
+        console.error("--> Fonnte WA Fetch Error:", err.message);
+      })
+  );
+}
 
 // Hono Endpoint for pre-checkout registration + Mayar dynamic payment
 app.post("/api/checkout/register", async (c) => {
-  console.log("--> [BACKEND] Received request /api/checkout/register");
+  logInfo("--> [BACKEND] Received request /api/checkout/register");
   try {
-    const { name, email, whatsapp, password, couponCode, affiliateCode } = await c.req.json();
+    const { name, email, whatsapp, password, couponCode, affiliateCode, lead_event_id, fbp, fbc } = await c.req.json();
     
     if (!name || !email || !whatsapp || !password) {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return c.json({ error: "Nomor WhatsApp atau email tidak sesuai." }, 400);
+    }
+
+    // Format & Validate Phone
+    const { valid: isPhoneValid, formatted: formattedPhone } = formatAndValidateWhatsapp(whatsapp);
+    if (!isPhoneValid) {
+      return c.json({ error: "Nomor WhatsApp atau email tidak sesuai." }, 400);
+    }
+
+    // Format and Hash User Data for Meta CAPI
+    const hashedEmail = await hashData(email);
+    const hashedPhone = await hashData(formattedPhone);
+    const clientIp = c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || undefined;
+    const clientUa = c.req.header("User-Agent") || undefined;
+
+    const metaUserData = {
+      em: hashedEmail,
+      ph: hashedPhone,
+      fbp: fbp || undefined,
+      fbc: fbc || undefined,
+      client_ip_address: clientIp,
+      client_user_agent: clientUa,
+    };
+
     // Validate Mayar API key is configured
     const mayarKey = c.env.MAYAR_API_KEY;
     if (!mayarKey) {
-      console.error("MAYAR_API_KEY secret is not configured");
+      logError("MAYAR_API_KEY secret is not configured");
       return c.json({ error: "Konfigurasi pembayaran belum tersedia. Hubungi admin." }, 500);
     }
 
     const supabaseAdmin = getSupabaseAdmin(c);
 
     // Check if email already registered in Supabase
-    console.log("--> Checking existing auth users...");
+    logInfo("--> Checking existing auth users...");
     const { data: authUserList, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
     if (authErr) {
-      console.error("Error listing users:", authErr);
+      logError("Error listing users:", authErr);
     }
     const emailExists = authUserList?.users.some(
       (u: any) => u.email?.toLowerCase() === email.toLowerCase()
@@ -1535,7 +1707,7 @@ app.post("/api/checkout/register", async (c) => {
     
     if (couponCode) {
       const normalizedCode = couponCode.trim().toUpperCase();
-      console.log(`--> Validating coupon: ${normalizedCode}`);
+      logInfo(`--> Validating coupon: ${normalizedCode}`);
       const { data: coupon, error: couponErr } = await supabaseAdmin
         .from("coupons")
         .select("*")
@@ -1544,7 +1716,7 @@ app.post("/api/checkout/register", async (c) => {
         .maybeSingle();
 
       if (couponErr) {
-        console.error("Error fetching coupon:", couponErr);
+        logError("Error fetching coupon:", couponErr);
         return c.json({ error: "Terjadi kesalahan saat memvalidasi kupon. Silakan coba lagi." }, 500);
       }
       
@@ -1555,7 +1727,7 @@ app.post("/api/checkout/register", async (c) => {
           const discount = Math.floor(finalAmount * (Number(coupon.discount_value) / 100));
           finalAmount = Math.max(0, finalAmount - discount);
         }
-        console.log(`--> Coupon applied. New amount: ${finalAmount}`);
+        logInfo(`--> Coupon applied. New amount: ${finalAmount}`);
       } else {
         return c.json({ error: "Kode kupon tidak valid atau sudah tidak aktif." }, 400);
       }
@@ -1566,7 +1738,6 @@ app.post("/api/checkout/register", async (c) => {
       finalAmount = 10000;
     }
 
-    // If Free / 100% discount, bypass Mayar and create user directly
     // Resolve affiliate code if provided
     const normalizedAffiliateCode = affiliateCode ? affiliateCode.trim().toUpperCase() : null;
     let validatedAffiliateCode: string | null = null;
@@ -1578,11 +1749,22 @@ app.post("/api/checkout/register", async (c) => {
         .eq("is_active", true)
         .maybeSingle();
       if (aff) validatedAffiliateCode = aff.code;
-      console.log(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
+      logInfo(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
     }
 
+    // We will save meta attribution data in the DB so webhook can retrieve it
+    const metaAttribution = {
+      lead_event_id,
+      fbp,
+      fbc,
+      client_ip_address: clientIp,
+      client_user_agent: clientUa,
+      hashed_email: hashedEmail,
+      hashed_phone: hashedPhone
+    };
+
     if (finalAmount === 0) {
-      console.log("--> 100% Free Coupon applied! Bypassing Mayar...");
+      logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
       
       // Create user directly
       const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
@@ -1591,12 +1773,15 @@ app.post("/api/checkout/register", async (c) => {
         email_confirm: true,
         user_metadata: {
           name: name,
-          whatsapp: whatsapp,
+          whatsapp: formattedPhone,
+        },
+        app_metadata: {
+          siklusio_access_status: "active",
         }
       });
 
       if (signupErr) {
-        console.error("Supabase auth user creation error:", signupErr);
+        logError("Supabase auth user creation error:", signupErr);
         return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
       }
 
@@ -1606,15 +1791,23 @@ app.post("/api/checkout/register", async (c) => {
         .insert({
           email: email.toLowerCase(),
           name,
-          whatsapp,
+          whatsapp: formattedPhone,
           coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
           affiliate_code: validatedAffiliateCode,
           final_amount: 0,
           status: "free_bypass",
           paid_at: new Date().toISOString(),
+          meta_attribution: metaAttribution
         })
         .select()
         .single();
+
+      // Send Meta CAPI Purchase event for free bypass (since it's a purchase essentially)
+      const purchaseEventId = crypto.randomUUID();
+      sendMetaCapiEvent(c, "Purchase", purchaseEventId, metaUserData, {
+        value: 0,
+        currency: "IDR"
+      });
 
       // Record affiliate conversion for free orders [FIX-5]
       if (validatedAffiliateCode && session) {
@@ -1638,12 +1831,12 @@ app.post("/api/checkout/register", async (c) => {
             checkout_session_id: session.id,
             buyer_name: name,
             buyer_email: email.toLowerCase(),
-            buyer_whatsapp: whatsapp,
+            buyer_whatsapp: formattedPhone,
             amount_paid: 0,
             commission_amount: commissionAmount,
             mayar_transaction_id: null, // free bypass has no Mayar tx
           });
-          console.log(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
+          logInfo(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
         }
       }
 
@@ -1654,115 +1847,180 @@ app.post("/api/checkout/register", async (c) => {
           referenceId: session?.id || null,
         });
       }
+
+      // Send Fonnte WhatsApp confirmation for free bypass
+      const freeSuccessMsg = `Selamat Bunda ${name}! 🎉🌸\n\nPendaftaran *Siklusio Premium* menggunakan kupon gratis telah berhasil.\n\nAkun Anda kini telah aktif sepenuhnya! Silakan masuk ke aplikasi menggunakan email Bunda:\n📧 ${email.toLowerCase()}\n\n🎁 *Bonus Digital Bunda*:\nBunda juga bisa langsung mengunduh 4 E-Book Bonus Promil & WhatsApp Sticker Pack di link berikut:\n🔗 https://app.siklusio.web.id/auth?status=success_free\n\nSemoga Siklusio bisa menjadi teman setia yang mendampingi perjalanan promil Bunda sampai menjemput keajaiban garis dua. Aamiin! 👶💜`;
+      sendFonnteWhatsappMessage(c, formattedPhone, freeSuccessMsg);
       
-      console.log("<-- Free Checkout successful! User ID:", authData.user?.id);
+      logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
     }
 
-    // Normal paid flow: Save pending registration & call Mayar
-    console.log("--> Inserting pending registration...");
+    // Create the Supabase Auth user immediately in auth, but mark with app_metadata
+    logInfo("--> Creating Supabase Auth user immediately as pending...");
+    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
+      email: email.toLowerCase(),
+      password: password,
+      email_confirm: true,
+      user_metadata: {
+        name: name,
+        whatsapp: formattedPhone,
+      },
+      app_metadata: {
+        siklusio_access_status: "pending_payment",
+      }
+    });
+
+    if (signupErr) {
+      logError("Supabase auth user creation error:", signupErr);
+      return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
+    }
+
+    const userId = authData.user.id;
+
+    // Normal paid flow: Save pending registration & call Mayar (without plaintext password)
+    logInfo("--> Inserting pending registration...");
     const { error: insertErr } = await supabaseAdmin
       .from("pending_registrations")
       .upsert({
         email: email.toLowerCase(),
+        user_id: userId,
         name,
-        whatsapp,
-        password,
+        whatsapp: formattedPhone,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
       }, { onConflict: "email" });
 
     if (insertErr) {
-      console.error("DB Insert pending registration error:", insertErr);
+      logError("DB Insert pending registration error:", insertErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
       return c.json({ error: "Gagal menyimpan pendaftaran tertunda. Silakan coba kembali." }, 500);
     }
 
-    // Create dynamic payment via Mayar API
-    console.log("--> Calling Mayar API to create payment link...");
-    const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${mayarKey}`,
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "Siklusio Premium — Akses Selamanya",
-        amount: finalAmount,
-        description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
-        redirectUrl: "https://app.siklusio.web.id/auth?status=success",
-        email: email.toLowerCase(),
-        mobile: whatsapp,
-        customerName: name,
-      })
+    // Send Lead and AddPaymentInfo before redirecting to Mayar
+    const addPaymentInfoEventId = crypto.randomUUID();
+    if (lead_event_id) {
+      sendMetaCapiEvent(c, "Lead", lead_event_id, metaUserData, {
+        content_name: "Siklusio Premium Lifetime",
+        value: finalAmount,
+        currency: "IDR"
+      });
+    }
+    sendMetaCapiEvent(c, "AddPaymentInfo", addPaymentInfoEventId, metaUserData, {
+      value: finalAmount,
+      currency: "IDR"
     });
 
-    const resJson: any = await response.json();
-    console.log("--> Mayar API response status:", response.status, "body:", JSON.stringify(resJson).slice(0, 500));
+    // Create dynamic payment via Mayar API
+    logInfo("--> Calling Mayar API to create payment link...");
+    let paymentUrl = "";
+    let mayarTxId = "";
+    try {
+      const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${mayarKey}`,
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Siklusio Premium — Akses Selamanya",
+          amount: finalAmount,
+          description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
+          redirectUrl: "https://app.siklusio.web.id/auth?status=success",
+          email: email.toLowerCase(),
+          mobile: formattedPhone,
+          customerName: name,
+        })
+      });
 
-    if (!response.ok || resJson.statusCode !== 200) {
-      console.error("Mayar API error response:", resJson);
-      return c.json({ error: "Gagal membuat tautan pembayaran. Silakan coba lagi." }, 500);
+      const resJson: any = await response.json();
+      if (!response.ok || resJson.statusCode !== 200) {
+        throw new Error(resJson.message || "Gagal membuat link pembayaran Mayar");
+      }
+
+      paymentUrl = resJson.data?.link;
+      mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
+    } catch (payErr: any) {
+      logError("Mayar API error:", payErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
+      return c.json({ error: "Gagal membuat link pembayaran. Hubungi admin." }, 500);
     }
 
-    const paymentUrl = resJson.data?.link;
-    const mayarTxId = resJson.data?.id || resJson.data?.transactionId || null;
-
     // Create checkout_session for paid flow [FIX-2]
-    await supabaseAdmin
+    const { error: sessionErr } = await supabaseAdmin
       .from("checkout_sessions")
       .insert({
         email: email.toLowerCase(),
         name,
-        whatsapp,
+        whatsapp: formattedPhone,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
         final_amount: finalAmount,
         mayar_link: paymentUrl,
         mayar_transaction_id: mayarTxId,
         status: "pending",
+        meta_attribution: metaAttribution
       });
 
-    console.log("<-- Checkout request successful! Payment URL:", paymentUrl);
+    if (sessionErr) {
+      logError("DB Insert checkout_session error:", sessionErr);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
+      return c.json({ error: "Gagal mencatat sesi pembayaran. Silakan coba kembali." }, 500);
+    }
+
+    // Send Fonnte WhatsApp welcome & payment info message
+    const welcomeMsg = `Halo Bunda ${name}! 🌸\n\nTerima kasih telah mendaftar di *Siklusio Premium*.\n\nSatu langkah lagi untuk mengaktifkan akses premium selamanya, pendamping AI 24/7, Pojok Tenang TWW, dan bonus e-book promil.\n\nSilakan selesaikan pembayaran aman Anda melalui link Mayar berikut:\n🔗 ${paymentUrl}\n\nSetelah pembayaran sukses, akun Anda akan otomatis aktif dan Bunda bisa langsung masuk ke aplikasi. Jika ada pertanyaan, balas pesan ini ya. Semoga promilnya lancar dan berkah! 👶✨`;
+    sendFonnteWhatsappMessage(c, formattedPhone, welcomeMsg);
+
+    logInfo("<-- Checkout request successful! Payment URL:", paymentUrl);
     return c.json({ paymentUrl });
   } catch (error: any) {
-    console.error("<-- Checkout register error:", error.stack || error);
+    logError("<-- Checkout register error:", error.stack || error);
     return c.json({ error: "Terjadi kesalahan internal pada server pendaftaran." }, 500);
   }
 });
 
 // Hono Endpoint for Mayar payment confirmation webhook
 app.post("/api/payment/webhook", async (c) => {
-  console.log("--> [BACKEND] Received Mayar webhook notification");
+  logInfo("--> [BACKEND] Received Mayar webhook notification");
   try {
     // Verify webhook token from Mayar (X-Callback-Token header)
-    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
     const expectedToken = c.env.MAYAR_WEBHOOK_TOKEN || "";
-    if (expectedToken && callbackToken !== expectedToken) {
-      console.warn("--> Webhook rejected: invalid or missing X-Callback-Token");
+    if (!expectedToken) {
+      logError("--> Webhook rejected: Webhook secret is not configured");
+      return c.json({ error: "Webhook secret is not configured" }, 500);
+    }
+
+    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
+    if (callbackToken !== expectedToken) {
+      logWarn("--> Webhook rejected: invalid or missing X-Callback-Token");
       return c.json({ error: "Unauthorized webhook request" }, 401);
     }
+
     // Safely parse body — Mayar test pings may send empty or non-JSON body
     let body: any = {};
     try {
       const rawText = await c.req.text();
-      console.log("--> Webhook raw body:", rawText.slice(0, 500));
+      logInfo("--> Webhook raw body:", rawText.slice(0, 500));
       if (rawText && rawText.trim()) {
         body = JSON.parse(rawText);
       }
     } catch (parseErr) {
-      console.warn("--> Webhook body is not valid JSON, treating as test ping");
+      logWarn("--> Webhook body is not valid JSON, treating as test ping");
       return c.json({ status: "ok", message: "Webhook endpoint is active" }, 200);
     }
 
     // Handle Mayar test/ping webhook (empty body or no event data)
     const event = body.event || body.type || "";
-    console.log("--> Webhook event type:", event);
-    console.log("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
+    logInfo("--> Webhook event type:", event);
+    logInfo("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
 
     // For test pings or non-purchase events, acknowledge immediately
     if (!body.data && !body.email && !body.customer) {
-      console.log("--> Webhook acknowledged (test/ping or no customer data)");
+      logInfo("--> Webhook acknowledged (test/ping or no customer data)");
       return c.json({ status: "ok", message: "Webhook received successfully" }, 200);
     }
 
@@ -1777,7 +2035,7 @@ app.post("/api/payment/webhook", async (c) => {
       "";
 
     if (!email) {
-      console.warn("--> Webhook ignored: No email found in payload");
+      logWarn("--> Webhook ignored: No email found in payload");
       return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
     }
 
@@ -1801,7 +2059,7 @@ app.post("/api/payment/webhook", async (c) => {
       body.data?.statusCode === 200;
 
     if (!isPurchaseEvent && event) {
-      console.log(`--> Webhook skipped: event '${event}' is not a purchase event`);
+      logInfo(`--> Webhook skipped: event '${event}' is not a purchase event`);
       return c.json({ status: "ok", message: `Event '${event}' acknowledged, no action needed` }, 200);
     }
 
@@ -1817,43 +2075,30 @@ app.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (topupErr) {
-        console.error("Database query topup error:", topupErr);
+        logError("Database query topup error:", topupErr);
       }
 
       if (topup) {
         if (topup.status === "paid") {
-          console.log(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
+          logInfo(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
           return c.json({ status: "ok", message: "Topup already processed" }, 200);
         }
 
-        console.log(`--> Processing successful topup for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
+        logInfo(`--> Processing successful topup via atomic RPC for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
         
-        // Grant credits to user using RPC grant_ai_credits
-        const { data: balanceAfter, error: grantErr } = await supabaseAdmin.rpc("grant_ai_credits", {
-          p_user_id: topup.user_id,
-          p_amount: topup.credits_amount,
-          p_feature: "topup",
-          p_reason: `Mayar Top-up ${topup.credits_amount} Kredit`,
-          p_reference_id: topup.id,
-          p_metadata: { mayar_transaction_id: mayarTransactionId },
+        // Atomically process top-up (Phase 8 RPC)
+        const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc("process_paid_ai_credit_topup", {
+          p_mayar_transaction_id: mayarTransactionId,
         });
 
-        if (grantErr) {
-          console.error("Error granting topup credits:", grantErr);
-          return c.json({ error: "Failed to grant topup credits" }, 500);
+        if (rpcErr) {
+          logError("Error processing topup atomically:", rpcErr);
+          return c.json({ error: "Failed to process topup atomically" }, 500);
         }
 
-        // Update topup record status to paid
-        const { error: updateErr } = await supabaseAdmin
-          .from("ai_credit_topups")
-          .update({ status: "paid", paid_at: new Date().toISOString() })
-          .eq("id", topup.id);
+        const balanceAfter = rpcResult?.balance || 0;
 
-        if (updateErr) {
-          console.error("Error updating topup status:", updateErr);
-        }
-
-        console.log(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
+        logInfo(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
         return c.json({ status: "ok", message: "Topup successful", balance: balanceAfter }, 200);
       }
 
@@ -1865,13 +2110,13 @@ app.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (existingConversion) {
-        console.log(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
+        logInfo(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
         return c.json({ status: "ok", message: "Transaction already processed" }, 200);
       }
     }
 
     // Fetch the pending registration details
-    console.log("--> Querying pending registration for email:", email);
+    logInfo("--> Querying pending registration for email:", email);
     const { data: pending, error: pendingErr } = await supabaseAdmin
       .from("pending_registrations")
       .select("*")
@@ -1879,35 +2124,34 @@ app.post("/api/payment/webhook", async (c) => {
       .maybeSingle();
 
     if (pendingErr) {
-      console.error("Database query pending registration error:", pendingErr);
+      logError("Database query pending registration error:", pendingErr);
       return c.json({ error: "Database error querying pending registrations" }, 500);
     }
 
     if (!pending) {
-      console.log("--> Webhook skipped: No pending registration found for email:", email);
+      logInfo("--> Webhook skipped: No pending registration found for email:", email);
       return c.json({ status: "ok", message: "No pending registration found" }, 200);
     }
 
-    // Create authentic user in Supabase Auth (Auto-confirm email)
-    console.log("--> Creating Supabase Auth user for:", email);
-    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
-      email: pending.email,
-      password: pending.password,
-      email_confirm: true,
-      user_metadata: {
-        name: pending.name,
-        whatsapp: pending.whatsapp,
+    // Activate existing pending auth user instead of creating one from a password [FIX-1]
+    logInfo("--> Activating existing pending Supabase Auth user:", pending.user_id);
+    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.updateUserById(
+      pending.user_id,
+      {
+        app_metadata: {
+          siklusio_access_status: "active",
+        },
       }
-    });
+    );
 
     if (signupErr) {
-      console.error("Supabase auth user creation error:", signupErr);
-      return c.json({ error: "Auth user creation failed: " + signupErr.message }, 500);
+      logError("Supabase auth user activation error:", signupErr);
+      return c.json({ error: "Auth user activation failed: " + signupErr.message }, 500);
     }
 
-    const { data: premiumSession } = await supabaseAdmin
+    const { data: session } = await supabaseAdmin
       .from("checkout_sessions")
-      .select("id")
+      .select("*")
       .eq("email", email.toLowerCase())
       .order("created_at", { ascending: false })
       .limit(1)
@@ -1917,26 +2161,44 @@ app.post("/api/payment/webhook", async (c) => {
       await grantPremiumInitialAiCredits({
         supabaseAdmin,
         userId: authData.user.id,
-        referenceId: premiumSession?.id || null,
+        referenceId: session?.id || null,
       });
+    }
+
+    if (session) {
+      // Send Meta CAPI Purchase Event
+      const amountPaid = session.final_amount || body.data?.amount || 37000;
+      if (session.meta_attribution) {
+        const metaAtt = session.meta_attribution;
+        const purchaseEventId = mayarTransactionId ? `purchase_${mayarTransactionId}` : crypto.randomUUID();
+        
+        const metaUserData = {
+          em: metaAtt.hashed_email,
+          ph: metaAtt.hashed_phone,
+          fbp: metaAtt.fbp,
+          fbc: metaAtt.fbc,
+          client_ip_address: metaAtt.client_ip_address,
+          client_user_agent: metaAtt.client_user_agent
+        };
+        
+        sendMetaCapiEvent(c, "Purchase", purchaseEventId, metaUserData, {
+          value: amountPaid,
+          currency: "IDR"
+        });
+      }
+
+      // Update checkout_session status to paid
+      await supabaseAdmin
+        .from("checkout_sessions")
+        .update({ status: "paid", paid_at: new Date().toISOString() })
+        .eq("id", session.id);
     }
 
     // [FIX-2] Process affiliate conversion from checkout_session
     const affiliateCode = pending.affiliate_code;
     if (affiliateCode) {
-      console.log(`--> Processing affiliate conversion for code: ${affiliateCode}`);
+      logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
       
-      // Find the matching checkout session [FIX-2]
-      const { data: session } = await supabaseAdmin
-        .from("checkout_sessions")
-        .select("*")
-        .eq("email", email.toLowerCase())
-        .eq("affiliate_code", affiliateCode)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
       // Look up affiliate details
       const { data: affiliate } = await supabaseAdmin
         .from("affiliates")
@@ -1946,7 +2208,7 @@ app.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (affiliate) {
-        const amountPaid = session?.final_amount || body.data?.amount || 0;
+        const amountPaid = session?.final_amount || body.data?.amount || 37000;
         
         // Calculate commission
         let commissionAmount = 0;
@@ -1976,35 +2238,32 @@ app.post("/api/payment/webhook", async (c) => {
         if (convErr) {
           // If unique constraint violation on mayar_transaction_id, it's a retry — safe to ignore
           if (convErr.code === "23505") {
-            console.log(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
+            logInfo(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
           } else {
-            console.error("Error inserting affiliate conversion:", convErr);
+            logError("Error inserting affiliate conversion:", convErr);
           }
         } else {
-          console.log(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
+          logInfo(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
         }
-      }
-
-      // Update checkout_session status to paid
-      if (session) {
-        await supabaseAdmin
-          .from("checkout_sessions")
-          .update({ status: "paid", paid_at: new Date().toISOString() })
-          .eq("id", session.id);
       }
     }
 
+    // Send Fonnte WhatsApp payment success message
+    const amountPaid = session?.final_amount || body.data?.amount || 37000;
+    const successMsg = `Selamat Bunda ${pending.name}! 🎉🌸\n\nPembayaran pendaftaran *Siklusio Premium* sebesar Rp ${Number(amountPaid).toLocaleString("id-ID")} telah berhasil kami terima.\n\nAkun Anda kini telah aktif sepenuhnya! Silakan masuk ke aplikasi menggunakan email Bunda:\n📧 ${pending.email}\n\n🎁 *Bonus Digital Bunda*:\nBunda juga bisa langsung mengunduh 4 E-Book Bonus Promil & WhatsApp Sticker Pack di link berikut:\n🔗 https://app.siklusio.web.id/auth?status=success\n\nSemoga Siklusio bisa menjadi teman setia yang mendampingi perjalanan promil Bunda sampai menjemput keajaiban garis dua. Aamiin! 👶💜`;
+    sendFonnteWhatsappMessage(c, pending.whatsapp, successMsg);
+
     // Delete the pending registration record (cleanup)
-    console.log("--> Deleting pending registration record for email:", email);
+    logInfo("--> Deleting pending registration record for email:", email);
     await supabaseAdmin
       .from("pending_registrations")
       .delete()
       .eq("id", pending.id);
 
-    console.log("<-- Webhook processed successfully! User created ID:", authData.user?.id);
+    logInfo("<-- Webhook processed successfully! User created ID:", authData.user?.id);
     return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });
   } catch (error: any) {
-    console.error("<-- Webhook error:", error.stack || error);
+    logError("<-- Webhook error:", error.stack || error);
     return c.json({ error: "Internal webhook processor error" }, 500);
   }
 });

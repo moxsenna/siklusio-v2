@@ -11,6 +11,7 @@ const ignoredDirs = new Set([
   ".expo",
   "dist",
   "graphify-out",
+  "scratch",
 ]);
 
 const tests = [];

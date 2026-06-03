@@ -146,35 +146,10 @@
     .benefit-list { list-style:none; display:flex; flex-direction:column; gap:12px; margin:20px 0; }
     .benefit-list li { display:flex; gap:11px; align-items:flex-start; color:#334155; font-size:14px; line-height:1.5; }
     .check { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(236,72,153,.10); color:var(--pink-dark); font-weight:900; font-size:13px; }
-    .bonus-box { padding: 24px; border-radius: 24px; background:#fff; border:1px dashed rgba(147,51,234,.30); margin-top:18px; }
+    .bonus-box { padding:16px; border-radius:20px; background:#fff; border:1px dashed rgba(147,51,234,.30); margin-top:18px; }
     .bonus-label { display:inline-block; background:rgba(147,51,234,.10); color:#7e22ce; border-radius:999px; padding:4px 9px; font-size:10.5px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
     .bonus-title { font-size:14px; font-weight:900; line-height:1.45; margin-bottom:10px; }
     .bonus-box img { width:100%; border-radius:14px; box-shadow:0 8px 24px rgba(236,72,153,.12); border:2px solid #fff; }
-
-    /* CHECKOUT BONUS SLIDER */
-    .checkout-bonus-slider {
-      position: relative;
-      width: 100%;
-      height: 180px;
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 12px;
-      border: 2px solid #fff;
-      box-shadow: 0 8px 24px rgba(236,72,153,.12);
-      background: linear-gradient(135deg, rgba(236,72,153,.05) 0%, rgba(147,51,234,.05) 100%);
-    }
-    .checkout-bonus-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      opacity: 0;
-      transition: opacity .8s ease;
-    }
-    .checkout-bonus-slide.active {
-      opacity: 1;
-    }
 
     .faq-mini { margin-top:22px; display:grid; gap:10px; }
     .faq-mini details { background:rgba(255,255,255,.82); border:1px solid rgba(236,72,153,.12); border-radius:16px; padding:13px 14px; }
@@ -191,11 +166,10 @@
       .value-row { grid-template-columns:1fr; }
     }
     @media (max-width: 560px) {
-      .container { padding:0 12px; }
+      .container { padding:0 16px; }
       .back-link { font-size:12px; padding:8px 10px; }
       .logo-text { font-size:19px; }
-      .hero-card, .form-card, .summary-box { border-radius:20px; padding:16px; }
-      .bonus-box { padding: 12px; border-radius: 16px; }
+      .hero-card, .form-card, .summary-box { border-radius:24px; padding:22px; }
       .hero-title { font-size:29px; }
       .trust-badges { grid-template-columns:1fr; }
       .price-value { font-size:40px; }
@@ -328,42 +302,6 @@
             <img src="assets/stiker pack.webp" alt="Bonus WhatsApp Sticker Pack Pejuang Garis Dua">
           </div>
 
-          <div class="bonus-box">
-            <span class="bonus-label" style="background: rgba(20, 184, 166, 0.1); color: #14b8a6;">4 Bonus Digital Eksklusif</span>
-            <p class="bonus-title" style="margin-bottom: 12px; font-weight: 800;">🎁 Dapatkan 4 panduan praktis yang bisa langsung dibaca dari HP:</p>
-
-            <!-- Auto-playing Image Slider -->
-            <div class="checkout-bonus-slider">
-              <img src="assets/kalender.webp" alt="Kalender Promil 30 Hari" class="checkout-bonus-slide active">
-              <img src="assets/tww.webp" alt="TWW Survival Kit" class="checkout-bonus-slide">
-              <img src="assets/promil hemat planner.webp" alt="Promil Hemat Planner" class="checkout-bonus-slide">
-              <img src="assets/kamus.webp" alt="Kamus Sinyal Tubuh Bunda" class="checkout-bonus-slide">
-            </div>
-
-            <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; padding: 0;">
-              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
-                <strong style="color: var(--pink-dark);">• Kalender Promil 30 Hari</strong><br>
-                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Bantu Bunda memulai promil lebih rapi, ringan, dan terarah.</span>
-              </li>
-              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
-                <strong style="color: var(--pink-dark);">• TWW Survival Kit</strong><br>
-                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Panduan menenangkan hati saat dua minggu menanti setelah masa subur.</span>
-              </li>
-              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
-                <strong style="color: var(--pink-dark);">• Promil Hemat Planner</strong><br>
-                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Worksheet tabungan dan biaya promil agar Bunda dan suami lebih siap.</span>
-              </li>
-              <li style="font-size: 13px; line-height: 1.5; color: var(--text);">
-                <strong style="color: var(--pink-dark);">• Kamus Sinyal Tubuh Bunda</strong><br>
-                <span style="color: var(--muted); font-size: 11.5px; line-height: 1.4; display: block; margin-top: 2px;">Panduan memahami gejala siklus tanpa langsung panik.</span>
-              </li>
-            </ul>
-
-            <p style="font-size: 11px; color: var(--muted); margin-top: 14px; line-height: 1.45; font-style: italic; border-top: 1px dashed rgba(236,72,153,.15); padding-top: 10px;">
-              * Bonus ini dibuat untuk menemani perjalanan promil Bunda dari sisi tubuh, hati, pasangan, dan persiapan biaya.
-            </p>
-          </div>
-
           <div class="faq-mini">
             <details>
               <summary>Apakah ini langganan bulanan?</summary>
@@ -393,64 +331,8 @@
   <script>
     window.dataLayer = window.dataLayer || [];
 
-    // Helper to get cookie value by name
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-      return '';
-    }
-
-    // Helper to generate a unique event ID
-    function generateEventId(prefix = 'evt') {
-      return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Capture fbclid from URL query parameter
-    (function persistFbclid() {
-      const params = new URLSearchParams(window.location.search);
-      const fbclid = params.get('fbclid');
-      if (fbclid) {
-        sessionStorage.setItem('siklusio_fbclid', fbclid);
-        console.log('--> fbclid captured on checkout:', fbclid);
-      }
-    })();
-
-    // Extract Meta cookies and build fallback fbc if fbclid is present
-    const fbp = getCookie('_fbp') || '';
-    let fbc = getCookie('_fbc') || '';
-    if (!fbc) {
-      const fbclid = new URLSearchParams(window.location.search).get('fbclid') || sessionStorage.getItem('siklusio_fbclid');
-      if (fbclid) {
-        fbc = `fb.1.${Date.now()}.${fbclid}`;
-      }
-    }
-
-    // Extract Meta CAPI test parameters from URL or sessionStorage fallback
-    const params = new URLSearchParams(window.location.search);
-    const testEventCode = params.get('test_event_code') || sessionStorage.getItem('siklusio_test_event_code') || '';
-    const testSecret = params.get('test_secret') || sessionStorage.getItem('siklusio_test_secret') || '';
-
-    // Generate unique lead_event_id & initiate_checkout_event_id for Conversions API deduplication
-    const leadEventId = generateEventId('lead');
-    const initiateCheckoutEventId = generateEventId('initiate_checkout');
-
-    // Trigger GTM Meta Pixel InitiateCheckout
-    window.dataLayer.push({
-      event: 'siklusio_initiate_checkout',
-      initiate_checkout_event_id: initiateCheckoutEventId,
-      content_name: 'Siklusio Premium Lifetime Access',
-      value: 37000,
-      currency: 'IDR'
-    });
-    console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
-
-    // Trigger standard GA4 begin_checkout event
     window.dataLayer.push({
       event: 'begin_checkout',
-      lead_event_id: leadEventId,
-      fbp: fbp,
-      fbc: fbc,
       ecommerce: {
         currency: 'IDR',
         value: 37000,
@@ -461,7 +343,7 @@
         }]
       }
     });
-    console.log('--> GTM Event: begin_checkout with event_id:', leadEventId);
+    console.log('--> GTM Event: begin_checkout');
 
     const form = document.getElementById('checkoutForm');
     const btnSubmit = document.getElementById('btnSubmit');
@@ -481,12 +363,7 @@
     });
 
     function getApiBase() {
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1' ||
-        window.location.protocol === 'file:' ||
-        !window.location.hostname
-      ) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:3000';
       }
       return 'https://api.siklusio.web.id';
@@ -600,12 +477,7 @@
             whatsapp,
             password,
             couponCode,
-            affiliateCode,
-            lead_event_id: leadEventId,
-            fbp,
-            fbc,
-            test_event_code: testEventCode,
-            test_secret: testSecret
+            affiliateCode
           })
         });
 
@@ -620,16 +492,6 @@
         successAlert.innerText = 'Akun berhasil disiapkan. Mengalihkan Bunda ke halaman pembayaran aman...';
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
-
-        // Push successful Lead event to GTM for Meta Pixel browser tracking
-        window.dataLayer.push({
-          event: 'siklusio_lead',
-          lead_event_id: leadEventId,
-          content_name: 'Siklusio Premium Lifetime Access',
-          value: result.finalAmount || 37000,
-          currency: 'IDR'
-        });
-        console.log('--> GTM Event: siklusio_lead with event_id:', leadEventId);
 
         window.dataLayer.push({
           event: 'purchase_initiated',
@@ -675,17 +537,6 @@
       errorAlert.innerText = msg;
       errorAlert.style.display = 'block';
       document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // ─── Checkout Bonus Slider ───
-    const bonusSlides = document.querySelectorAll('.checkout-bonus-slide');
-    let bonusCur = 0;
-    if (bonusSlides.length > 0) {
-      setInterval(() => {
-        bonusSlides[bonusCur].classList.remove('active');
-        bonusCur = (bonusCur + 1) % bonusSlides.length;
-        bonusSlides[bonusCur].classList.add('active');
-      }, 3000);
     }
   </script>
 </body>

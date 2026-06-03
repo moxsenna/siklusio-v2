@@ -32,6 +32,7 @@ import {
   saveHabitCoachPlanWithCharge,
 } from "./ai/habitCoachPlanLifecycle";
 import { isDateKey, isValidHabitCoachWindow, shouldReplaceActivePlan } from "./ai/habitCoachWindow";
+import { createRateLimitMiddleware } from "./rateLimit";
 
 // Define the environment bindings type for Cloudflare Workers
 interface Env {
@@ -47,12 +48,55 @@ interface Env {
   R2_PUBLIC_URL: string;
   MAYAR_API_KEY: string;
   MAYAR_WEBHOOK_TOKEN?: string;
+  ALLOWED_ORIGINS?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Enable global CORS to allow client-side requests from Expo Web
-app.use("*", cors());
+// Enable hardened CORS configuration
+app.use(
+  "*",
+  cors({
+    origin: (origin, c) => {
+      // 1. If there's no origin (e.g. native app, server-to-server, curl), allow it.
+      if (!origin) return "*";
+
+      // 2. Default trusted origins
+      const trusted = [
+        "https://app.siklusio.web.id",
+        "https://siklusio.web.id",
+      ];
+
+      if (trusted.includes(origin)) {
+        return origin;
+      }
+
+      // 3. Allow local development origins (localhost, 127.0.0.1, or null for local files)
+      const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      if (isLocalhost || origin === "null") {
+        return origin;
+      }
+
+      // 4. Custom ALLOWED_ORIGINS from environment bindings
+      const allowedOriginsStr = c.env?.ALLOWED_ORIGINS;
+      if (allowedOriginsStr) {
+        const customOrigins = allowedOriginsStr
+          .split(",")
+          .map((o: string) => o.trim())
+          .filter(Boolean);
+        if (customOrigins.includes(origin)) {
+          return origin;
+        }
+      }
+
+      // 5. Otherwise, reject by returning null
+      return null;
+    },
+  })
+);
+
+// Mount rate limit middleware
+app.use("*", createRateLimitMiddleware());
 
 // Helper to initialize Supabase Admin client
 const getSupabaseAdmin = (c: any) => {
@@ -475,6 +519,11 @@ app.post("/api/generate-habits-insight", async (c) => {
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
+    const auth = await requireUser(c);
+    if (!auth) {
+      return c.json({ error: "Missing or invalid session" }, 401);
+    }
+
     const { nickname, userJournal } = await c.req.json();
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {

@@ -362,6 +362,151 @@
       background: rgba(255,255,255,0.4);
       border-top: 1px solid rgba(252, 231, 243, 0.5);
     }
+
+    /* 4 Digital Bonuses Auto-Slider */
+    .bonuses-slider-container {
+      margin-top: 28px;
+      padding: 24px;
+      background: #fff;
+      border: 2px solid var(--pink-200);
+      border-radius: 28px;
+      box-shadow: 0 10px 30px -10px rgba(236, 72, 153, 0.1);
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+    .bonuses-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .bonuses-badge {
+      display: inline-block;
+      background: var(--pink-100);
+      color: var(--pink-700);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .bonuses-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--slate-900);
+    }
+    .slider-wrapper {
+      position: relative;
+      height: 420px;
+    }
+    @media (min-width: 480px) {
+      .slider-wrapper {
+        height: 370px;
+      }
+    }
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .slide-image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--pink-100);
+      background: var(--pink-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slide-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .slide-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--teal-500);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 8px rgba(20, 184, 166, 0.25);
+    }
+    .slide-info {
+      margin-top: 14px;
+      text-align: center;
+    }
+    .slide-info h5 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin-bottom: 4px;
+    }
+    .slide-highlight {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--pink-600);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .slide-desc {
+      font-size: 12px;
+      color: var(--slate-600);
+      line-height: 1.45;
+    }
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--slate-200);
+      transition: background 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+    .dot.active {
+      background: var(--pink-500);
+      transform: scale(1.2);
+    }
+    .bonuses-footer-notice {
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: var(--teal-50);
+      border-radius: 12px;
+      border: 1px solid var(--teal-100);
+      color: var(--teal-700);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -496,31 +641,73 @@
             <img src="assets/stiker pack.webp" alt="WhatsApp Sticker Pack Bonus" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 18px rgba(236, 72, 153, 0.12); border: 2px solid #fff;" />
           </div>
 
-          <!-- 4 Digital Bonuses Section (Short Copy) -->
-          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--pink-200); text-align: left;">
-            <span style="display: inline-block; background: var(--teal-100); color: var(--teal-700); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">📚 4 BONUS DIGITAL EKSKLUSIF</span>
-            <p style="font-size: 13.5px; font-weight: 700; color: var(--slate-900); margin-bottom: 12px; line-height: 1.45;">Bunda juga akan mendapatkan 4 panduan praktis yang bisa langsung dibaca dari HP:</p>
-            <ul style="list-style: none; padding-left: 0;">
-              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
-                <strong>📘 Kalender Promil 30 Hari</strong><br>
-                Bantu Bunda memulai promil lebih rapi, ringan, dan terarah.
-              </li>
-              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
-                <strong>📗 TWW Survival Kit</strong><br>
-                Panduan menenangkan hati saat dua minggu menanti setelah masa subur.
-              </li>
-              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
-                <strong>📙 Promil Hemat Planner</strong><br>
-                Worksheet tabungan dan biaya promil agar Bunda dan suami lebih siap.
-              </li>
-              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
-                <strong>📕 Kamus Sinyal Tubuh Bunda</strong><br>
-                Panduan memahami gejala siklus tanpa langsung panik.
-              </li>
-            </ul>
-            <p style="font-size: 11.5px; color: var(--slate-600); margin-top: 12px; font-style: italic; line-height: 1.4;">
-              *Bonus ini dibuat untuk menemani perjalanan promil Bunda dari sisi tubuh, hati, pasangan, dan persiapan biaya.
-            </p>
+          <!-- 4 Digital Bonuses Section (Auto-Slider) -->
+          <div class="bonuses-slider-container">
+            <div class="bonuses-header">
+              <span class="bonuses-badge">📚 4 BONUS DIGITAL TAMBAHAN</span>
+              <h4 class="bonuses-title">Dapatkan 4 Panduan Praktis Ini (Gratis):</h4>
+            </div>
+            
+            <div class="slider-wrapper">
+              <div class="slide active">
+                <div class="slide-image-wrapper">
+                  <img src="assets/kalender.webp" alt="Kalender Promil 30 Hari">
+                  <span class="slide-badge">BONUS 1</span>
+                </div>
+                <div class="slide-info">
+                  <h5>Kalender Promil 30 Hari</h5>
+                  <p class="slide-highlight">Biar Bunda nggak bingung harus mulai dari mana.</p>
+                  <p class="slide-desc">Panduan langkah-demi-langkah harian agar ikhtiar promil teratur, ringan, dan terarah dari HP.</p>
+                </div>
+              </div>
+              
+              <div class="slide">
+                <div class="slide-image-wrapper">
+                  <img src="assets/tww.webp" alt="TWW Survival Kit">
+                  <span class="slide-badge">BONUS 2</span>
+                </div>
+                <div class="slide-info">
+                  <h5>TWW Survival Kit</h5>
+                  <p class="slide-highlight">Menjaga kedamaian hati menanti dua garis biru.</p>
+                  <p class="slide-desc">Tips relaksasi mandiri & memahami kode tubuh Bunda agar tidak stress selama 2 minggu pasca-ovulasi.</p>
+                </div>
+              </div>
+              
+              <div class="slide">
+                <div class="slide-image-wrapper">
+                  <img src="assets/promil hemat planner.webp" alt="Promil Hemat Planner">
+                  <span class="slide-badge">BONUS 3</span>
+                </div>
+                <div class="slide-info">
+                  <h5>Promil Hemat Planner</h5>
+                  <p class="slide-highlight">Persiapan finansial promil yang lebih matang.</p>
+                  <p class="slide-desc">Rencana tabungan & kalkulator estimasi biaya promil agar Bunda & suami lebih siap menyambut buah hati.</p>
+                </div>
+              </div>
+              
+              <div class="slide">
+                <div class="slide-image-wrapper">
+                  <img src="assets/kamus.webp" alt="Kamus Sinyal Tubuh Bunda">
+                  <span class="slide-badge">BONUS 4</span>
+                </div>
+                <div class="slide-info">
+                  <h5>Kamus Sinyal Tubuh Bunda</h5>
+                  <p class="slide-highlight">Pahami kode alami kesuburan tubuh Bunda.</p>
+                  <p class="slide-desc">Panduan praktis membaca sinyal suhu basal, lendir serviks, & tanda-tanda masa subur tanpa panik.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="slider-dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+
+            <div class="bonuses-footer-notice">
+              🎁 Semua bonus di atas akan dikirimkan otomatis ke Email & WhatsApp Bunda setelah aktivasi selesai!
+            </div>
           </div>
         </div>
       </div>
@@ -624,7 +811,12 @@
     // Affiliate Referral Tracking [FIX-3]
     // ============================================================
     function getApiBase() {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.protocol === 'file:' ||
+        !window.location.hostname
+      ) {
         return 'http://localhost:3000';
       }
       return 'https://api.siklusio.web.id';
@@ -864,6 +1056,48 @@
       // Smooth scroll to top of card so user sees the error
       document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // Automatic 4 Digital Bonuses Slider
+    (function initBonusesSlider() {
+      const slides = document.querySelectorAll('.bonuses-slider-container .slide');
+      const dots = document.querySelectorAll('.bonuses-slider-container .dot');
+      let currentSlide = 0;
+      const slideInterval = 1000; // 1 second automatic sliding
+
+      if (!slides.length) return;
+
+      function goToSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+      }
+
+      function nextSlide() {
+        goToSlide(currentSlide + 1);
+      }
+
+      let timer = setInterval(nextSlide, slideInterval);
+
+      // Pause auto-play on hover so user can easily read if interested
+      const container = document.querySelector('.bonuses-slider-container');
+      if (container) {
+        container.addEventListener('mouseenter', () => {
+          clearInterval(timer);
+        });
+        container.addEventListener('mouseleave', () => {
+          timer = setInterval(nextSlide, slideInterval);
+        });
+      }
+
+      // Dot click navigation support
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          goToSlide(index);
+        });
+      });
+    })();
   </script>
 
 </body>

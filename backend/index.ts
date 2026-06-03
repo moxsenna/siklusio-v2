@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { createRateLimitMiddleware } from "./rateLimit";
 import { Buffer } from "node:buffer";
 import { detectAvatarImage } from "./storage/avatarImage";
 import { logInfo, logWarn, logError } from "./logging/redaction";
@@ -48,30 +47,12 @@ interface Env {
   R2_PUBLIC_URL: string;
   MAYAR_API_KEY: string;
   MAYAR_WEBHOOK_TOKEN?: string;
-  FONNTE_API_TOKEN?: string;
-  META_PIXEL_ID?: string;
-  META_CAPI_ACCESS_TOKEN?: string;
-  META_GRAPH_API_VERSION?: string;
-  META_TEST_EVENT_CODE?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Enable global CORS to allow client-side requests from Expo Web and web app
-app.use(
-  "*",
-  cors({
-    origin: (origin) => {
-      if (origin === "https://app.siklusio.web.id" || origin.startsWith("http://localhost:")) {
-        return origin;
-      }
-      return null;
-    },
-  })
-);
-
-// Register global rate limiter middleware
-app.use("*", createRateLimitMiddleware());
+// Enable global CORS to allow client-side requests from Expo Web
+app.use("*", cors());
 
 // Helper to initialize Supabase Admin client
 const getSupabaseAdmin = (c: any) => {
@@ -494,11 +475,6 @@ app.post("/api/generate-habits-insight", async (c) => {
 app.post("/api/generate-calming-reassurance", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
-    const auth = await requireUser(c);
-    if (!auth) {
-      return c.json({ error: "Missing or invalid session" }, 401);
-    }
-
     const { nickname, userJournal } = await c.req.json();
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
@@ -1521,16 +1497,13 @@ app.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
 // Meta Conversions API Helpers
 // ============================================================
 
-export function formatAndValidateWhatsapp(phone: string): { valid: boolean; formatted: string } {
-  if (!phone) return { valid: false, formatted: "" };
+export function formatE164Phone(phone: string): string {
+  if (!phone) return "";
   let clean = phone.replace(/\D/g, "");
   if (clean.startsWith("0")) {
     clean = "62" + clean.slice(1);
-  } else if (clean.startsWith("8")) {
-    clean = "62" + clean;
   }
-  const isValid = /^628\d{8,12}$/.test(clean);
-  return { valid: isValid, formatted: clean };
+  return clean;
 }
 
 export async function hashData(val: string): Promise<string> {
@@ -1607,41 +1580,6 @@ export function sendMetaCapiEvent(
   );
 }
 
-export function sendFonnteWhatsappMessage(c: any, to: string, message: string) {
-  const token = c.env.FONNTE_API_TOKEN;
-  if (!token) {
-    console.warn("--> sendFonnteWhatsappMessage skipped: FONNTE_API_TOKEN is not configured");
-    return;
-  }
-
-  const target = to.replace(/\D/g, "");
-
-  c.executionCtx.waitUntil(
-    fetch("https://api.fonnte.com/send", {
-      method: "POST",
-      headers: {
-        "Authorization": token,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        target: target,
-        message: message
-      })
-    })
-      .then(async (res) => {
-        const resText = await res.text();
-        if (!res.ok) {
-          console.error(`--> Fonnte WA Error: ${res.status} - ${resText}`);
-        } else {
-          console.log(`--> Fonnte WA Success sent to ${target}: ${resText}`);
-        }
-      })
-      .catch((err) => {
-        console.error("--> Fonnte WA Fetch Error:", err.message);
-      })
-  );
-}
-
 // Hono Endpoint for pre-checkout registration + Mayar dynamic payment
 app.post("/api/checkout/register", async (c) => {
   logInfo("--> [BACKEND] Received request /api/checkout/register");
@@ -1652,19 +1590,8 @@ app.post("/api/checkout/register", async (c) => {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return c.json({ error: "Nomor WhatsApp atau email tidak sesuai." }, 400);
-    }
-
-    // Format & Validate Phone
-    const { valid: isPhoneValid, formatted: formattedPhone } = formatAndValidateWhatsapp(whatsapp);
-    if (!isPhoneValid) {
-      return c.json({ error: "Nomor WhatsApp atau email tidak sesuai." }, 400);
-    }
-
     // Format and Hash User Data for Meta CAPI
+    const formattedPhone = formatE164Phone(whatsapp);
     const hashedEmail = await hashData(email);
     const hashedPhone = await hashData(formattedPhone);
     const clientIp = c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || undefined;
@@ -1773,7 +1700,7 @@ app.post("/api/checkout/register", async (c) => {
         email_confirm: true,
         user_metadata: {
           name: name,
-          whatsapp: formattedPhone,
+          whatsapp: whatsapp,
         },
         app_metadata: {
           siklusio_access_status: "active",
@@ -1791,7 +1718,7 @@ app.post("/api/checkout/register", async (c) => {
         .insert({
           email: email.toLowerCase(),
           name,
-          whatsapp: formattedPhone,
+          whatsapp,
           coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
           affiliate_code: validatedAffiliateCode,
           final_amount: 0,
@@ -1831,7 +1758,7 @@ app.post("/api/checkout/register", async (c) => {
             checkout_session_id: session.id,
             buyer_name: name,
             buyer_email: email.toLowerCase(),
-            buyer_whatsapp: formattedPhone,
+            buyer_whatsapp: whatsapp,
             amount_paid: 0,
             commission_amount: commissionAmount,
             mayar_transaction_id: null, // free bypass has no Mayar tx
@@ -1847,10 +1774,6 @@ app.post("/api/checkout/register", async (c) => {
           referenceId: session?.id || null,
         });
       }
-
-      // Send Fonnte WhatsApp confirmation for free bypass
-      const freeSuccessMsg = `Selamat Bunda ${name}! 🎉🌸\n\nPendaftaran *Siklusio Premium* menggunakan kupon gratis telah berhasil.\n\nAkun Anda kini telah aktif sepenuhnya! Silakan masuk ke aplikasi menggunakan email Bunda:\n📧 ${email.toLowerCase()}\n\n🎁 *Bonus Digital Bunda*:\nBunda juga bisa langsung mengunduh 4 E-Book Bonus Promil & WhatsApp Sticker Pack di link berikut:\n🔗 https://app.siklusio.web.id/auth?status=success_free\n\nSemoga Siklusio bisa menjadi teman setia yang mendampingi perjalanan promil Bunda sampai menjemput keajaiban garis dua. Aamiin! 👶💜`;
-      sendFonnteWhatsappMessage(c, formattedPhone, freeSuccessMsg);
       
       logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
@@ -1864,7 +1787,7 @@ app.post("/api/checkout/register", async (c) => {
       email_confirm: true,
       user_metadata: {
         name: name,
-        whatsapp: formattedPhone,
+        whatsapp: whatsapp,
       },
       app_metadata: {
         siklusio_access_status: "pending_payment",
@@ -1886,7 +1809,7 @@ app.post("/api/checkout/register", async (c) => {
         email: email.toLowerCase(),
         user_id: userId,
         name,
-        whatsapp: formattedPhone,
+        whatsapp,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
       }, { onConflict: "email" });
@@ -1929,7 +1852,7 @@ app.post("/api/checkout/register", async (c) => {
           description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
           redirectUrl: "https://app.siklusio.web.id/auth?status=success",
           email: email.toLowerCase(),
-          mobile: formattedPhone,
+          mobile: whatsapp,
           customerName: name,
         })
       });
@@ -1954,7 +1877,7 @@ app.post("/api/checkout/register", async (c) => {
       .insert({
         email: email.toLowerCase(),
         name,
-        whatsapp: formattedPhone,
+        whatsapp,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
         final_amount: finalAmount,
@@ -1970,10 +1893,6 @@ app.post("/api/checkout/register", async (c) => {
       await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
       return c.json({ error: "Gagal mencatat sesi pembayaran. Silakan coba kembali." }, 500);
     }
-
-    // Send Fonnte WhatsApp welcome & payment info message
-    const welcomeMsg = `Halo Bunda ${name}! 🌸\n\nTerima kasih telah mendaftar di *Siklusio Premium*.\n\nSatu langkah lagi untuk mengaktifkan akses premium selamanya, pendamping AI 24/7, Pojok Tenang TWW, dan bonus e-book promil.\n\nSilakan selesaikan pembayaran aman Anda melalui link Mayar berikut:\n🔗 ${paymentUrl}\n\nSetelah pembayaran sukses, akun Anda akan otomatis aktif dan Bunda bisa langsung masuk ke aplikasi. Jika ada pertanyaan, balas pesan ini ya. Semoga promilnya lancar dan berkah! 👶✨`;
-    sendFonnteWhatsappMessage(c, formattedPhone, welcomeMsg);
 
     logInfo("<-- Checkout request successful! Payment URL:", paymentUrl);
     return c.json({ paymentUrl });
@@ -2247,11 +2166,6 @@ app.post("/api/payment/webhook", async (c) => {
         }
       }
     }
-
-    // Send Fonnte WhatsApp payment success message
-    const amountPaid = session?.final_amount || body.data?.amount || 37000;
-    const successMsg = `Selamat Bunda ${pending.name}! 🎉🌸\n\nPembayaran pendaftaran *Siklusio Premium* sebesar Rp ${Number(amountPaid).toLocaleString("id-ID")} telah berhasil kami terima.\n\nAkun Anda kini telah aktif sepenuhnya! Silakan masuk ke aplikasi menggunakan email Bunda:\n📧 ${pending.email}\n\n🎁 *Bonus Digital Bunda*:\nBunda juga bisa langsung mengunduh 4 E-Book Bonus Promil & WhatsApp Sticker Pack di link berikut:\n🔗 https://app.siklusio.web.id/auth?status=success\n\nSemoga Siklusio bisa menjadi teman setia yang mendampingi perjalanan promil Bunda sampai menjemput keajaiban garis dua. Aamiin! 👶💜`;
-    sendFonnteWhatsappMessage(c, pending.whatsapp, successMsg);
 
     // Delete the pending registration record (cleanup)
     logInfo("--> Deleting pending registration record for email:", email);

@@ -684,45 +684,6 @@
         });
         return;
       }
-
-      // Email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        const errMsg = 'Nomor WhatsApp atau email tidak sesuai.';
-        showError(errMsg);
-
-        window.dataLayer.push({
-          event: 'checkout_error',
-          error_type: 'client_validation',
-          error_message: errMsg
-        });
-        return;
-      }
-
-      // Phone formatting & validation
-      let cleanPhone = whatsapp.replace(/\D/g, "");
-      if (cleanPhone.startsWith("0")) {
-        cleanPhone = "62" + cleanPhone.slice(1);
-      } else if (cleanPhone.startsWith("8")) {
-        cleanPhone = "62" + cleanPhone;
-      }
-
-      const phoneRegex = /^628\d{8,12}$/;
-      if (!phoneRegex.test(cleanPhone)) {
-        const errMsg = 'Nomor WhatsApp atau email tidak sesuai.';
-        showError(errMsg);
-
-        window.dataLayer.push({
-          event: 'checkout_error',
-          error_type: 'client_validation',
-          error_message: errMsg
-        });
-        return;
-      }
-
-      // Auto-update raw input text on screen to show clean formatting
-      document.getElementById('inputWhatsapp').value = cleanPhone;
-
       if (password.length < 6) {
         const errMsg = 'Password minimal harus terdiri dari 6 karakter.';
         showError(errMsg);
@@ -751,7 +712,7 @@
           body: JSON.stringify({
             name,
             email,
-            whatsapp: cleanPhone,
+            whatsapp,
             password,
             couponCode,
             affiliateCode,

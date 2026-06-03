@@ -758,6 +758,11 @@
       }
     }
 
+    // Extract Meta CAPI test parameters from URL or sessionStorage fallback
+    const params = new URLSearchParams(window.location.search);
+    const testEventCode = params.get('test_event_code') || sessionStorage.getItem('siklusio_test_event_code') || '';
+    const testSecret = params.get('test_secret') || sessionStorage.getItem('siklusio_test_secret') || '';
+
     // Generate unique lead_event_id for Conversions API deduplication
     const leadEventId = generateEventId('lead');
 
@@ -987,7 +992,9 @@
             affiliateCode,
             lead_event_id: leadEventId,
             fbp,
-            fbc
+            fbc,
+            test_event_code: testEventCode,
+            test_secret: testSecret
           })
         });
 

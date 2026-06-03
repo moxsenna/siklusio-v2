@@ -435,6 +435,10 @@
       errorAlert.style.display = 'none';
       successAlert.style.display = 'none';
 
+      const params = new URLSearchParams(window.location.search);
+      const testEventCode = params.get('test_event_code') || sessionStorage.getItem('siklusio_test_event_code') || '';
+      const testSecret = params.get('test_secret') || sessionStorage.getItem('siklusio_test_secret') || '';
+
       const name = document.getElementById('inputName').value.trim();
       const whatsapp = document.getElementById('inputWhatsapp').value.trim();
       const email = document.getElementById('inputEmail').value.trim();
@@ -482,7 +486,9 @@
             whatsapp,
             password,
             couponCode,
-            affiliateCode
+            affiliateCode,
+            test_event_code: testEventCode,
+            test_secret: testSecret
           })
         });
 

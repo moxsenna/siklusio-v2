@@ -356,3 +356,146 @@ test("paid checkout does not return payment URL when checkout session insert fai
   assert.deepEqual(deletedAuthUserIds, ["22222222-2222-4222-8222-222222222222"]);
   assert.equal(deletedPendingRegistration, true);
 });
+
+test("checkout register accepts test_event_code on production only with correct secret", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const checkoutSessionsInserted: any[] = [];
+  const logs: string[] = [];
+
+  console.log = (...args: unknown[]) => logs.push(renderLogArgs(args));
+  console.warn = () => {}; // suppress skips
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+    console.log = originalLog;
+    console.warn = originalWarn;
+  });
+
+  const setupMockFetch = (expectedTestCodeInSession: string | undefined) => {
+    checkoutSessionsInserted.length = 0;
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input));
+
+      if (url.hostname === "project.supabase.co" && url.pathname === "/auth/v1/admin/users") {
+        return new Response(JSON.stringify({ users: [] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
+
+      if (
+        url.hostname === "project.supabase.co" &&
+        url.pathname === "/auth/v1/admin/users" &&
+        init?.method === "POST"
+      ) {
+        return new Response(
+          JSON.stringify({ user: { id: "test-user-id", email: "test@example.com", app_metadata: {}, user_metadata: {} } }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+        return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/checkout_sessions") {
+        const body = JSON.parse(String(init?.body || "{}"));
+        checkoutSessionsInserted.push(body);
+        return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.hostname === "api.mayar.id" && url.pathname === "/hl/v1/payment/create") {
+        return new Response(
+          JSON.stringify({ statusCode: 200, data: { link: "https://mayar.test/pay", id: "tx-1" } }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+
+      if (url.hostname === "graph.facebook.com") {
+        return new Response("{}", { status: 200 });
+      }
+
+      throw new Error(`Unexpected fetch ${url.toString()}`);
+    };
+  };
+
+  const testEnv = {
+    ...env,
+    META_PIXEL_ID: "pixel-123",
+    META_CAPI_ACCESS_TOKEN: "token-123",
+    META_TEST_MODE_SECRET: "super-secret",
+  };
+
+  // Case 1: Dynamic code + correct secret -> should accept
+  setupMockFetch("TEST12345");
+  let res = await app.request(
+    "/api/checkout/register",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Test",
+        email: "test@example.com",
+        whatsapp: "08123456789",
+        password: "password123",
+        test_event_code: "TEST12345",
+        test_secret: "super-secret",
+      }),
+    },
+    testEnv
+  );
+  assert.equal(res.status, 200);
+  assert.equal(checkoutSessionsInserted.length, 1);
+  assert.equal(checkoutSessionsInserted[0].meta_attribution?.test_event_code, "TEST12345");
+
+  // Case 2: Dynamic code + incorrect secret -> should ignore
+  setupMockFetch(undefined);
+  res = await app.request(
+    "/api/checkout/register",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Test",
+        email: "test2@example.com",
+        whatsapp: "08123456789",
+        password: "password123",
+        test_event_code: "TEST12345",
+        test_secret: "wrong-secret",
+      }),
+    },
+    testEnv
+  );
+  assert.equal(res.status, 200);
+  assert.equal(checkoutSessionsInserted.length, 1);
+  assert.equal(checkoutSessionsInserted[0].meta_attribution?.test_event_code, undefined);
+
+  // Case 3: Localhost request with no secret env set -> should accept
+  const localEnv = {
+    ...env,
+    META_PIXEL_ID: "pixel-123",
+    META_CAPI_ACCESS_TOKEN: "token-123",
+    // META_TEST_MODE_SECRET is NOT set
+  };
+  setupMockFetch("TEST12345");
+  res = await app.request(
+    "http://localhost:3000/api/checkout/register",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Test",
+        email: "test3@example.com",
+        whatsapp: "08123456789",
+        password: "password123",
+        test_event_code: "TEST12345",
+      }),
+    },
+    localEnv
+  );
+  assert.equal(res.status, 200);
+  assert.equal(checkoutSessionsInserted.length, 1);
+  assert.equal(checkoutSessionsInserted[0].meta_attribution?.test_event_code, "TEST12345");
+});

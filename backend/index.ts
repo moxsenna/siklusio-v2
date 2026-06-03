@@ -49,6 +49,11 @@ interface Env {
   MAYAR_API_KEY: string;
   MAYAR_WEBHOOK_TOKEN?: string;
   ALLOWED_ORIGINS?: string;
+  META_PIXEL_ID?: string;
+  META_CAPI_ACCESS_TOKEN?: string;
+  META_TEST_EVENT_CODE?: string;
+  META_TEST_MODE_SECRET?: string;
+  META_GRAPH_API_VERSION?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -1569,7 +1574,8 @@ export function sendMetaCapiEvent(
   eventName: string, 
   eventId: string, 
   userData: any, 
-  customData: any
+  customData: any,
+  testEventCode?: string
 ) {
   const env = c.env;
   if (!env.META_PIXEL_ID || !env.META_CAPI_ACCESS_TOKEN) {
@@ -1602,12 +1608,26 @@ export function sendMetaCapiEvent(
     ]
   };
 
-  if (env.META_TEST_EVENT_CODE) {
-    payload.test_event_code = env.META_TEST_EVENT_CODE;
+  let finalTestCode: string | undefined = undefined;
+  let testCodeSource = "none";
+
+  if (testEventCode) {
+    finalTestCode = testEventCode;
+    testCodeSource = "dynamic";
+  } else if (env.META_TEST_EVENT_CODE) {
+    finalTestCode = env.META_TEST_EVENT_CODE;
+    testCodeSource = "env";
   }
 
-  // Fire and forget using executionCtx
-  c.executionCtx.waitUntil(
+  if (finalTestCode) {
+    payload.test_event_code = finalTestCode;
+  }
+
+  // Safe verification logging to prevent logging raw PII or full keys/secrets
+  console.log(`--> CAPI Event Sent: ${eventName} | Event ID: ${eventId} | test_event_code_present: ${!!finalTestCode} | test_event_code_source: ${testCodeSource}`);
+
+  // Fire and forget using executionCtx if present (Cloudflare Workers) or direct call (testing/local)
+  const performFetch = () => 
     fetch(url, {
       method: "POST",
       headers: {
@@ -1625,18 +1645,59 @@ export function sendMetaCapiEvent(
       })
       .catch((err) => {
         console.error(`--> Meta CAPI Fetch Error [${eventName}]:`, err.message);
-      })
-  );
+      });
+
+  let hasExecutionCtx = false;
+  try {
+    if (c.executionCtx && typeof c.executionCtx.waitUntil === "function") {
+      hasExecutionCtx = true;
+    }
+  } catch (e) {
+    // Hono throws if executionCtx is accessed and not defined
+  }
+
+  if (hasExecutionCtx) {
+    c.executionCtx.waitUntil(performFetch());
+  } else {
+    performFetch();
+  }
 }
 
 // Hono Endpoint for pre-checkout registration + Mayar dynamic payment
 app.post("/api/checkout/register", async (c) => {
   logInfo("--> [BACKEND] Received request /api/checkout/register");
   try {
-    const { name, email, whatsapp, password, couponCode, affiliateCode, lead_event_id, fbp, fbc } = await c.req.json();
+    const { 
+      name, 
+      email, 
+      whatsapp, 
+      password, 
+      couponCode, 
+      affiliateCode, 
+      lead_event_id, 
+      fbp, 
+      fbc,
+      test_event_code,
+      test_secret
+    } = await c.req.json();
     
     if (!name || !email || !whatsapp || !password) {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
+    }
+
+    // Validate dynamic test_event_code with production guardrails
+    let validatedTestEventCode: string | undefined = undefined;
+    if (c.env.META_TEST_EVENT_CODE) {
+      validatedTestEventCode = c.env.META_TEST_EVENT_CODE;
+    } else if (test_event_code) {
+      const secret = c.env.META_TEST_MODE_SECRET;
+      const isLocal = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1") || c.req.url.includes("::1");
+      
+      if (secret && test_secret === secret) {
+        validatedTestEventCode = test_event_code;
+      } else if (!secret && isLocal) {
+        validatedTestEventCode = test_event_code;
+      }
     }
 
     // Format and Hash User Data for Meta CAPI
@@ -1729,15 +1790,18 @@ app.post("/api/checkout/register", async (c) => {
     }
 
     // We will save meta attribution data in the DB so webhook can retrieve it
-    const metaAttribution = {
+    const metaAttribution: any = {
       lead_event_id,
       fbp,
       fbc,
       client_ip_address: clientIp,
       client_user_agent: clientUa,
       hashed_email: hashedEmail,
-      hashed_phone: hashedPhone
+      hashed_phone: hashedPhone,
     };
+    if (validatedTestEventCode) {
+      metaAttribution.test_event_code = validatedTestEventCode;
+    }
 
     if (finalAmount === 0) {
       logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
@@ -1783,7 +1847,7 @@ app.post("/api/checkout/register", async (c) => {
       sendMetaCapiEvent(c, "Purchase", purchaseEventId, metaUserData, {
         value: 0,
         currency: "IDR"
-      });
+      }, validatedTestEventCode);
 
       // Record affiliate conversion for free orders [FIX-5]
       if (validatedAffiliateCode && session) {
@@ -1876,12 +1940,12 @@ app.post("/api/checkout/register", async (c) => {
         content_name: "Siklusio Premium Lifetime",
         value: finalAmount,
         currency: "IDR"
-      });
+      }, validatedTestEventCode);
     }
     sendMetaCapiEvent(c, "AddPaymentInfo", addPaymentInfoEventId, metaUserData, {
       value: finalAmount,
       currency: "IDR"
-    });
+    }, validatedTestEventCode);
 
     // Create dynamic payment via Mayar API
     logInfo("--> Calling Mayar API to create payment link...");
@@ -2152,7 +2216,7 @@ app.post("/api/payment/webhook", async (c) => {
         sendMetaCapiEvent(c, "Purchase", purchaseEventId, metaUserData, {
           value: amountPaid,
           currency: "IDR"
-        });
+        }, metaAtt.test_event_code);
       }
 
       // Update checkout_session status to paid

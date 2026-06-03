@@ -656,6 +656,34 @@
   window.addEventListener('scroll', () => {
     floatCta.classList.toggle('visible', window.scrollY > 550);
   });
+
+  // ─── Meta CAPI Test Parameters Forwarding ───
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const testCode = params.get('test_event_code');
+    const testSecret = params.get('test_secret');
+    if (testCode) {
+      sessionStorage.setItem('siklusio_test_event_code', testCode);
+    }
+    if (testSecret) {
+      sessionStorage.setItem('siklusio_test_secret', testSecret);
+    }
+
+    const finalCode = testCode || sessionStorage.getItem('siklusio_test_event_code');
+    const finalSecret = testSecret || sessionStorage.getItem('siklusio_test_secret');
+    if (finalCode) {
+      document.querySelectorAll('a[href*="checkout.html"]').forEach(link => {
+        try {
+          const url = new URL(link.href, window.location.href);
+          url.searchParams.set('test_event_code', finalCode);
+          if (finalSecret) {
+            url.searchParams.set('test_secret', finalSecret);
+          }
+          link.href = url.pathname + url.search + url.hash;
+        } catch(e) {}
+      });
+    }
+  })();
 </script>
 </body>
 </html>

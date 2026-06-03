@@ -498,4 +498,31 @@ test("checkout register accepts test_event_code on production only with correct 
   assert.equal(res.status, 200);
   assert.equal(checkoutSessionsInserted.length, 1);
   assert.equal(checkoutSessionsInserted[0].meta_attribution?.test_event_code, "TEST12345");
+
+  // Case 4: Production request (non-localhost) with no secret env set -> should accept
+  const prodNoSecretEnv = {
+    ...env,
+    META_PIXEL_ID: "pixel-123",
+    META_CAPI_ACCESS_TOKEN: "token-123",
+    // META_TEST_MODE_SECRET is NOT set
+  };
+  setupMockFetch("TEST12345");
+  res = await app.request(
+    "/api/checkout/register",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Test",
+        email: "test4@example.com",
+        whatsapp: "08123456789",
+        password: "password123",
+        test_event_code: "TEST12345",
+      }),
+    },
+    prodNoSecretEnv
+  );
+  assert.equal(res.status, 200);
+  assert.equal(checkoutSessionsInserted.length, 1);
+  assert.equal(checkoutSessionsInserted[0].meta_attribution?.test_event_code, "TEST12345");
 });

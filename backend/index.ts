@@ -1687,17 +1687,21 @@ app.post("/api/checkout/register", async (c) => {
 
     // Validate dynamic test_event_code with production guardrails
     let validatedTestEventCode: string | undefined = undefined;
-    if (c.env.META_TEST_EVENT_CODE) {
-      validatedTestEventCode = c.env.META_TEST_EVENT_CODE;
-    } else if (test_event_code) {
+    if (test_event_code) {
       const secret = c.env.META_TEST_MODE_SECRET;
-      const isLocal = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1") || c.req.url.includes("::1");
-      
-      if (secret && test_secret === secret) {
-        validatedTestEventCode = test_event_code;
-      } else if (!secret && isLocal) {
+      if (secret) {
+        if (test_secret === secret) {
+          validatedTestEventCode = test_event_code;
+        }
+      } else {
+        // No secret configured, allow dynamic code on both production and local/dev
         validatedTestEventCode = test_event_code;
       }
+    }
+
+    // Fallback to static environment config if no valid dynamic code is resolved
+    if (!validatedTestEventCode && c.env.META_TEST_EVENT_CODE) {
+      validatedTestEventCode = c.env.META_TEST_EVENT_CODE;
     }
 
     // Format and Hash User Data for Meta CAPI

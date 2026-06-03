@@ -495,6 +495,33 @@
             <p style="font-size: 13.5px; font-weight: 700; color: var(--slate-900); margin-bottom: 12px; line-height: 1.45;">🎁 Bonus Langsung: Exclusive WhatsApp Sticker Pack Pejuang Garis Dua!</p>
             <img src="assets/stiker pack.webp" alt="WhatsApp Sticker Pack Bonus" style="width: 100%; border-radius: 14px; box-shadow: 0 4px 18px rgba(236, 72, 153, 0.12); border: 2px solid #fff;" />
           </div>
+
+          <!-- 4 Digital Bonuses Section (Short Copy) -->
+          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--pink-200); text-align: left;">
+            <span style="display: inline-block; background: var(--teal-100); color: var(--teal-700); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">📚 4 BONUS DIGITAL EKSKLUSIF</span>
+            <p style="font-size: 13.5px; font-weight: 700; color: var(--slate-900); margin-bottom: 12px; line-height: 1.45;">Bunda juga akan mendapatkan 4 panduan praktis yang bisa langsung dibaca dari HP:</p>
+            <ul style="list-style: none; padding-left: 0;">
+              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
+                <strong>📘 Kalender Promil 30 Hari</strong><br>
+                Bantu Bunda memulai promil lebih rapi, ringan, dan terarah.
+              </li>
+              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
+                <strong>📗 TWW Survival Kit</strong><br>
+                Panduan menenangkan hati saat dua minggu menanti setelah masa subur.
+              </li>
+              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
+                <strong>📙 Promil Hemat Planner</strong><br>
+                Worksheet tabungan dan biaya promil agar Bunda dan suami lebih siap.
+              </li>
+              <li style="margin-bottom: 12px; font-size: 13px; color: var(--slate-700); line-height: 1.45;">
+                <strong>📕 Kamus Sinyal Tubuh Bunda</strong><br>
+                Panduan memahami gejala siklus tanpa langsung panik.
+              </li>
+            </ul>
+            <p style="font-size: 11.5px; color: var(--slate-600); margin-top: 12px; font-style: italic; line-height: 1.4;">
+              *Bonus ini dibuat untuk menemani perjalanan promil Bunda dari sisi tubuh, hati, pasangan, dan persiapan biaya.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -581,6 +608,16 @@
       const pos = this.selectionStart;
       this.value = this.value.toUpperCase();
       this.setSelectionRange(pos, pos);
+    });
+
+    // Auto-format WhatsApp number input dynamically on blur
+    const inputWhatsapp = document.getElementById('inputWhatsapp');
+    inputWhatsapp.addEventListener('blur', function() {
+      let val = this.value.trim().replace(/\D/g, ""); // keep only digits
+      if (val.startsWith("0")) {
+        val = "62" + val.slice(1);
+      }
+      this.value = val;
     });
 
     // ============================================================
@@ -684,6 +721,46 @@
         });
         return;
       }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        const errMsg = 'Format alamat email tidak valid (contoh: nama@email.com).';
+        showError(errMsg);
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
+        return;
+      }
+
+      // WhatsApp format auto-cleanup and validation
+      let cleanWhatsapp = whatsapp.replace(/\D/g, "");
+      if (cleanWhatsapp.startsWith("0")) {
+        cleanWhatsapp = "62" + cleanWhatsapp.slice(1);
+      }
+      if (!cleanWhatsapp.startsWith("628")) {
+        const errMsg = 'Nomor WhatsApp harus berupa nomor handphone Indonesia (dimulai dengan 08 atau 628).';
+        showError(errMsg);
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
+        return;
+      }
+      if (cleanWhatsapp.length < 11 || cleanWhatsapp.length > 15) {
+        const errMsg = 'Nomor WhatsApp tidak valid. Panjang nomor handphone harus antara 10-13 digit (setelah 62).';
+        showError(errMsg);
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
+        return;
+      }
+
       if (password.length < 6) {
         const errMsg = 'Password minimal harus terdiri dari 6 karakter.';
         showError(errMsg);
@@ -711,8 +788,8 @@
           },
           body: JSON.stringify({
             name,
-            email,
-            whatsapp,
+            email: email.toLowerCase(),
+            whatsapp: cleanWhatsapp,
             password,
             couponCode,
             affiliateCode,

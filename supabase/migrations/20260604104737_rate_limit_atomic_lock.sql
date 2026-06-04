@@ -1,0 +1,89 @@
+-- Migration: Update check_rate_limit RPC to use transaction-level advisory locks to prevent race conditions on INSERT/UPDATE.
+-- This ensures strict atomicity during parallel requests even when the rate limit record does not exist yet.
+
+CREATE OR REPLACE FUNCTION public.check_rate_limit(
+  p_key TEXT,
+  p_max INT,
+  p_window_seconds INT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_count INT;
+  v_reset_at TIMESTAMPTZ;
+  v_allowed BOOLEAN;
+  v_remaining INT;
+  v_retry_after INT;
+  v_now TIMESTAMPTZ := NOW();
+BEGIN
+  -- Acquire a transaction-level advisory lock based on the hash of the key
+  PERFORM pg_advisory_xact_lock(hashtext(p_key));
+
+  -- Cleanup expired rate limits periodically (1% chance to keep table clean)
+  IF random() < 0.01 THEN
+    DELETE FROM public.rate_limits
+    WHERE reset_at < v_now;
+  END IF;
+
+  -- Select count and reset_at for the specified key
+  SELECT count, reset_at
+  INTO v_count, v_reset_at
+  FROM public.rate_limits
+  WHERE key = p_key;
+
+  -- If no rate limit record exists or the window has expired, create or reset it
+  IF NOT FOUND OR v_now >= v_reset_at THEN
+    v_reset_at := v_now + (p_window_seconds || ' seconds')::INTERVAL;
+
+    INSERT INTO public.rate_limits (
+      key,
+      count,
+      reset_at
+    )
+    VALUES (
+      p_key,
+      1,
+      v_reset_at
+    )
+    ON CONFLICT (key)
+    DO UPDATE SET
+      count = 1,
+      reset_at = v_reset_at,
+      updated_at = NOW();
+
+    RETURN jsonb_build_object(
+      'allowed', TRUE,
+      'remaining', p_max - 1,
+      'reset_at', EXTRACT(EPOCH FROM v_reset_at)
+    );
+  END IF;
+
+  -- If request count has exceeded the limit, return disallowed result
+  IF v_count >= p_max THEN
+    v_retry_after := CEIL(EXTRACT(EPOCH FROM (v_reset_at - v_now)));
+
+    RETURN jsonb_build_object(
+      'allowed', FALSE,
+      'remaining', 0,
+      'reset_at', EXTRACT(EPOCH FROM v_reset_at),
+      'retry_after_seconds', GREATEST(1, v_retry_after)
+    );
+  END IF;
+
+  -- Increment the rate limit count
+  UPDATE public.rate_limits
+  SET
+    count = count + 1,
+    updated_at = NOW()
+  WHERE key = p_key;
+
+  -- Return successfully allowed result
+  RETURN jsonb_build_object(
+    'allowed', TRUE,
+    'remaining', p_max - (v_count + 1),
+    'reset_at', EXTRACT(EPOCH FROM v_reset_at)
+  );
+END;
+$$;

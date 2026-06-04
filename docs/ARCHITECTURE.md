@@ -5,9 +5,11 @@ Developer onboarding snapshot after Phase 31 backend decomposition and mobile fe
 
 This guide explains the current shape of Siklusio and its modular structure.
 
+---
+
 ## System Map
 
-| Area | Current location | Responsibility |
+| Area | Current Location | Responsibility |
 | --- | --- | --- |
 | Mobile/web app | `mobile-app/` | Expo Router app, native/web screens, user-facing AI flows, Supabase client access, analytics/dataLayer, local sync helpers |
 | Mobile Route Layer | `mobile-app/app/` | Expo Router route files serving as wrappers / entrypoints for screens |
@@ -15,15 +17,18 @@ This guide explains the current shape of Siklusio and its modular structure.
 | Mobile Shared | `mobile-app/src/shared/` | Shared UI components (avatar picker, date field, credit chip) and global libs |
 | Mobile Theme | `mobile-app/src/theme/` | Style configurations, color tokens, and theme hooks (e.g. `useColorScheme`) |
 | API Worker | `backend/` | Root of Hono backend containing config and thin compatibility entrypoint |
-| Backend Source | `backend/src/` | Hono app with entrypoint `backend/src/index.ts`, bootstrapped in `backend/src/app.ts`, modular controllers under `backend/src/controllers/`, routes under `backend/src/routes/`, middlewares under `backend/src/middlewares/`, and services under `backend/src/services/` |
+| Backend Source | `backend/src/` | Hono app with entrypoint `backend/src/index.ts`, bootstrapped in `backend/src/app.ts`, modular controllers, routes, middlewares, and services |
 | Backend Helpers | `backend/src/ai/`, `backend/src/payments/`, `backend/src/storage/`, `backend/src/logging/`, `backend/src/schemas/` | Domain helpers for AI prompts/schemas/credits, topup packages, avatar image validation, log redaction, request validation |
 | Database | `supabase/migrations/` | Production schema source of truth for new database changes |
 | Database docs/types | `docs/DATABASE.md`, `supabase/types/database.types.ts` | Human database handoff and generated remote schema snapshot |
 | Landing | `landing/` | Static landing/checkout pages deployed through Cloudflare Pages/Git integration |
 
+---
+
 ## Backend Folder Structure
 
-The backend has been fully decomposed into a modular structure following the safe extraction plan. The entrypoint `backend/index.ts` now only exports the Hono application created in `backend/src/app.ts`.
+The backend has been fully decomposed into a modular structure following the safe extraction plan.
+All primary source files now live under `backend/src/`.
 
 ```text
 backend/
@@ -71,24 +76,42 @@ backend/
     logging/           # logger output and PII scrubbing redaction
 ```
 
+---
+
 ## Modular Backend Map
 
 The Hono application handles modular routes and services. Under this decomposed structure:
-* `backend/index.ts` redirects to `backend/src/index.ts`.
-* Controllers handle HTTP request parsing, AI prompts delegation, and database orchestration.
-* Routes define route mounting and middleware chaining.
+- `backend/index.ts` redirects to `backend/src/index.ts`.
+- Controllers handle HTTP request parsing, AI prompts delegation, and database orchestration.
+- Routes define route mounting and middleware chaining.
+
+---
+
+## Backend Entrypoint
+
+- `wrangler.jsonc` points to `backend/src/index.ts`.
+- `backend/index.ts` is kept as a compatibility re-export.
+- Route behavior should remain byte-compatible unless an intentional product/API migration is approved.
+
+---
 
 ## Database Boundary
 
-New schema changes belong in `supabase/migrations/`. Root `supabase/*.sql` files are legacy/reference snippets, not the deploy path for new production changes. Read `docs/DATABASE.md` before any database work.
+New schema changes belong in `supabase/migrations/`. Root `supabase/*.sql` files are legacy/reference snippets,
+not the deploy path for new production changes. Read `docs/DATABASE.md` before any database work.
+
+---
 
 ## Frontend Boundary
 
 Mobile/web code should call the backend through API utilities and through direct Supabase client access.
-* Route pages under `mobile-app/app/` are thin wrappers/entrypoints.
-* The true screens, sub-views, and custom components live under `mobile-app/src/features/` and `mobile-app/src/shared/`.
-* Direct Supabase client calls are strictly typed using the generated Types (`Database` schema imported from `supabase/types/database.types.ts`).
+- Route pages under `mobile-app/app/` are thin wrappers/entrypoints.
+- The true screens, sub-views, and custom components live under `mobile-app/src/features/` and `mobile-app/src/shared/`.
+- Direct Supabase client calls are strictly typed using the generated Types (`Database` schema imported from `supabase/types/database.types.ts`).
+
+---
 
 ## Human Refactor Rule
 
-A backend decomposition PR should be boring: same routes, same tests, smaller files. If a route move also changes payment, credit, auth, or database behavior, split it into two PRs.
+A backend decomposition PR should be boring: same routes, same tests, smaller files.
+If a route move also changes payment, credit, auth, or database behavior, split it into two PRs.

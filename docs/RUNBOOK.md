@@ -3,175 +3,188 @@
 Last updated: 2026-06-04.
 Developer operations handbook after repository reorganization.
 
-This runbook is the safe operating order for local verification, database migrations, Cloudflare Worker deploys, Cloudflare Pages releases, and production smoke tests.
+This runbook defines the safe operating sequence for local verification, database migrations,
+type generation, Cloudflare Worker dry-runs and deployments, and smoke testing.
+
+---
 
 ## Golden Rule
 
-Deploy database first when code depends on new schema. Deploy Worker second when API behavior changes. Deploy or merge GitHub for Cloudflare Pages only after DB and Worker are safe.
+Deploy the database schema changes first when code depends on a new schema.
+Deploy the Worker second when API behavior changes.
+Deploy or merge to GitHub for Cloudflare Pages ONLY after both the DB and Worker are verified and safe.
+
+---
 
 ## Daily Local Verification
 
-From repository root:
+Run the following checks from the repository root to verify project health:
 
-```powershell
+```bash
+# General branch check and run verification tasks (backend/mobile typechecks and tests)
 git status --short --branch
 npm run check
 ```
 
-For mobile dependency health and local web build:
+For mobile dependency health and local web builds specifically:
 
-```powershell
-# Jalankan typecheck mobile secara langsung
+```bash
+# Run typechecks for the mobile application
 npm run typecheck:mobile
 
-# Jalankan build web dari folder mobile-app
+# Navigate to the mobile-app folder to diagnose dependencies and build web bundles
 cd mobile-app
 npx expo-doctor@latest
 npm run build:web
 cd ..
 ```
 
-For Worker bundle safety without deploying:
+---
 
-```powershell
-# Wrangler dry-run sekarang mengarah ke backend/src/index.ts
-npx wrangler deploy backend/src/index.ts --dry-run
-```
+## Supabase Migration Workflow
 
-For database safety without applying migrations:
+Before applying migrations, verify their status and execute a dry-run:
 
-```powershell
+```bash
+# List migration status (applied vs pending)
 npm run db:migrations:list
+
+# Perform dry-run push to test migrations against the remote DB
 npm run db:push:dry-run
+
+# Run linter on database schema
 npm run db:lint
 ```
 
-## Release Branch Prep
+If the checks succeed and list exactly the expected migrations, apply them:
 
-1. Work from a clean release worktree or branch.
-2. Stage only intended release files.
-3. Keep these out of release staging unless explicitly requested: `graphify-out/`, `fitur.md`, `my-video/`, revised landing files, and unrelated workspace-main state.
-4. Run `git diff --check` before committing.
-5. Commit small checkpoints.
-6. Push the branch before merging to `main`.
-
-## Supabase Migration Order
-
-Before applying:
-
-```powershell
-npm run db:migrations:list
-npm run db:push:dry-run
-npm run db:lint
-```
-
-Apply only after the dry-run contains exactly the expected migrations:
-
-```powershell
+```bash
+# Apply pending migrations to the database
 npx supabase db push
+
+# Generate updated TypeScript types based on the new schema
 npm run db:types
+
+# Re-run checks to verify everything is in sync and clean
 npm run db:push:dry-run
 npm run db:lint
 ```
 
-Commit the migration, generated types, and docs together.
+Always commit the migration files, generated TypeScript types, and documentation updates together.
 
-If `db:lint` fails due to transient Supabase circuit breaker/auth service errors, wait and retry once. If it fails with schema errors, stop and fix the migration.
+---
 
-## Cloudflare Worker Deploy
+## Supabase Type Generation
 
-Use this when backend/API behavior changes:
+Generate database type definitions directly from the remote Supabase project:
 
-```powershell
+- **Type Output Destination**: `supabase/types/database.types.ts`
+- **Commands**: `npm run generate:types` or `npm run db:types`
+
+*Note: This script (`scripts/generate-supabase-types.mjs`) is Windows-safe. It expects the `SUPABASE_PROJECT_REF` environment variable to be set. If the variable is missing, the script will print an error message and exit with code 1.*
+
+---
+
+## Backend Worker Dry Run
+
+Validate the integrity of the Cloudflare Worker bundle before publishing:
+
+- **Canonical Worker Source**: `backend/src/index.ts`
+- **Wrangler Entrypoint**: Configured in `wrangler.jsonc` pointing to `backend/src/index.ts`
+
+Run the dry-run check command:
+
+```bash
+# Run checks and then do a Wrangler deploy dry-run
 npm run check
-npx wrangler deploy backend/src/index.ts --dry-run
+npm run deploy -- --dry-run
+```
+
+Ensure no type errors, bundler exceptions, or missing dependencies are reported.
+
+---
+
+## Backend Worker Deploy
+
+Deploy the Worker to Cloudflare when API behavior changes:
+
+```bash
+# Ensure checks pass and perform the deployment
+npm run check
 npm run deploy
 ```
 
-After deploy, record the Worker version id in `MERGED_AUDIT_REPORT.md` if this is part of the audit cycle.
+*(Note: `npm run deploy` maps to `wrangler deploy backend/src/index.ts` in `package.json`).*
 
-Minimum Worker smoke:
+After deploying, verify the minimum endpoint health:
 
 ```text
 GET  https://api.siklusio.web.id/
 GET  https://api.siklusio.web.id/api/payment/webhook
-POST https://api.siklusio.web.id/api/checkout/topup with invalid package should fail safely
-POST https://api.siklusio.web.id/api/upload-avatar with oversized image should return 400
+POST https://api.siklusio.web.id/api/checkout/topup (expected to fail safely with 400/401 on bad package/no auth)
+POST https://api.siklusio.web.id/api/upload-avatar (expected to fail with 401 on unauthenticated)
 ```
 
-Authenticated production smoke should also verify:
+---
 
-1. Pending-payment auth user is blocked by app metadata until payment success.
-2. Onboarding profile update works through RLS.
-3. AI credit topup cannot spoof package price/credits.
-4. Paid topup webhook/RPC is idempotent.
-5. Direct authenticated client cannot call service-role-only AI credit grant RPC.
-6. Community feed RPC still works for authenticated users.
-7. Affiliate service-role helper works and cleanup succeeds.
+## Mobile Smoke Test
 
-## Cloudflare Pages / GitHub Deploy
+Verify the user-facing mobile client flows:
 
-Cloudflare Pages is Git-backed for the app/landing production deployments. Push or fast-forward `main` only after Supabase and Worker checks are safe.
+1. **Autentikasi & Profile**: Verify a newly registered user goes through the onboarding flow and profile updates are stored successfully via RLS.
+2. **Cycle & Habits**: Verify phase calendar loading and habit tracking checks update the database state correctly.
+3. **Community Feed**: Verify authenticated users can fetch the community feed via the `get_community_feed` RPC and add comments or reactions.
+4. **Theme Handling**: Toggle the system dark/light mode and confirm theme hooks (like `useColorScheme`) load the styling correctly.
 
-Expected order:
+---
 
-1. Merge or fast-forward release branch into `main`.
-2. Push `main` to GitHub.
-3. Watch GitHub Actions and Cloudflare Pages deployments.
-4. If direct Wrangler deploy secrets are unavailable in GitHub Actions, the workflow should skip that direct deploy step instead of failing the release.
-5. Confirm Cloudflare Pages production source commit for `siklusio-landing` and `siklusio-v2`.
+## Checkout / Webhook Smoke Test
 
-Pages smoke:
+Verify checkout flow behavior using test identities (never print real secrets or PII):
 
-```text
-GET https://siklusio.web.id/
-GET https://siklusio.web.id/checkout
-GET https://app.siklusio.web.id/
-GET https://app.siklusio.web.id/payment-pending
-```
+1. **Checkout Creation**: Verify premium registration checkout returns a valid payment URL from Mayar only after `pending_registrations` and `checkout_sessions` are created.
+2. **Blocked Access**: Verify a pending registration user has user metadata `app_metadata.siklusio_access_status` set to `"pending_payment"`.
+3. **Registration Cleanup**: Verify failed/cancelled checkout sessions clean up and delete the pending Auth user and session metadata.
+4. **Webhook Security**: Verify the Mayar webhook rejects requests missing or carrying an invalid webhook token (fails closed).
+5. **Successful Activation**: Verify the paid webhook updates the user's status to active, removes the pending registration record, and grants initial AI credits once.
 
-## Checkout Smoke
+---
 
-Use test identities only. Never print secrets or raw PII into logs/reports.
+## AI Credit Smoke Test
 
-Smoke coverage:
+Verify AI credit operations and safety:
 
-1. Premium checkout returns a payment URL only after `pending_registrations` and `checkout_sessions` are stored.
-2. Pending Auth user has `app_metadata.siklusio_access_status = "pending_payment"`.
-3. Failed checkout cleanup deletes the pending Auth user and pending registration.
-4. Payment webhook with missing/invalid callback token fails closed.
-5. Paid webhook activates the existing pending Auth user, grants premium initial AI credits once, and removes pending registration.
+1. **Credit Balance**: Verify `GET /api/ai/credits` fetches the current balance for authenticated users.
+2. **Topup Validation**: Verify invalid package IDs are rejected with a 400 Bad Request before initiating checkout.
+3. **Atomic Processing**: Verify the Mayar webhook calls the database function `process_paid_ai_credit_topup` exactly once per transaction.
+4. **Idempotency**: Replay a paid webhook payload and confirm it returns success without double-granting credits.
+5. **RLS Hardening**: Confirm a direct authenticated user client cannot invoke service-role-only database mutations (like manually granting credits).
 
-## AI Credit Smoke
-
-Smoke coverage:
-
-1. `GET /api/ai/credits` returns a balance for an authenticated user.
-2. Invalid topup package id returns 400 before Mayar creation.
-3. Paid topup webhook calls `process_paid_ai_credit_topup` once.
-4. Replayed paid topup webhook returns already-processed behavior without double grant.
-5. Direct authenticated Supabase client cannot execute service-role-only mutation RPCs.
+---
 
 ## Rollback Notes
 
-1. For Worker regressions, redeploy the last known-good Worker version or commit using the historical deployments in Cloudflare dashboard or rolling back wrangler target.
-2. For Pages regressions, roll back the Cloudflare Pages production deployment to the previous successful source commit.
-3. For database migrations, do not improvise rollback SQL in production. Create and review a forward-fix migration unless the rollback was already designed and tested.
-4. For payment/webhook regressions, prefer disabling the affected checkout entry point over letting webhook processing become inconsistent.
-5. Keep incident notes in `MERGED_AUDIT_REPORT.md` or a dated runbook addendum.
+If a deployment causes production regressions, follow these steps:
+
+1. **Worker Rollback**: Redeply the last known-good Worker version using the historical deployments tab in the Cloudflare dashboard or re-running deploy from the previous stable git commit.
+2. **Pages Rollback**: Roll back the Cloudflare Pages deployment to the previous successful commit in the Cloudflare dashboard.
+3. **Database Rollback**: Do not run manual rollback DDL scripts. Prepare, review, and apply a forward-fix migration to resolve schema regressions.
+4. **Payment Webhook Rollback**: If webhook processing becomes unstable, temporarily disable checkout routes to avoid corrupted order states.
+
+---
 
 ## Release Evidence Checklist
 
-A release is not ready to call safe until the final report includes evidence for:
+A release is considered ready and safe only after providing evidence for:
 
-1. `npm run check`
-2. `npm run db:push:dry-run`
-3. `npm run db:lint`
-4. `npm run typecheck:mobile`
-5. `npx expo-doctor@latest` (from mobile-app/)
-6. `npm run build:web` from `mobile-app/`
-7. `npx wrangler deploy backend/src/index.ts --dry-run`
-8. Supabase apply status, if migrations were pending
-9. Worker deploy version, if backend changed
-10. Cloudflare Pages production source commit, if app/landing changed
-11. Production smoke test summary
+1. `npm run check` (Success)
+2. `npm run db:push:dry-run` (Clean / No unapplied migrations)
+3. `npm run db:lint` (Success / No schema issues)
+4. `npm run typecheck:mobile` (Success / No type errors)
+5. `npx expo-doctor@latest` (Passed inside `mobile-app/`)
+6. `npm run build:web` (Successful build inside `mobile-app/`)
+7. `npm run deploy -- --dry-run` (Success)
+8. Supabase migration apply logs (if database migrations were pending)
+9. Worker deployed version details (if backend source changed)
+10. Production commit hashes for landing and mobile code
+11. Manual smoke test confirmation checklist

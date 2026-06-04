@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
 import { useCycle } from "@/src/context/CycleContext";
 import { format } from "date-fns";
 import { parseLocalDate } from "@/src/lib/dateUtils";
@@ -123,11 +124,8 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
           )}
 
           {loading && (
-            <View className="items-center justify-center py-[48px] gap-4">
-              <ActivityIndicator size="large" color="#ec4899" />
-              <Text className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-on-background">
-                Menghitung Wawasan...
-              </Text>
+            <View className="items-center justify-center py-[24px]">
+              <SiklusioLottieLoader text="Menghitung Wawasan..." size={160} />
             </View>
           )}
 

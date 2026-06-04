@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  ActivityIndicator,
   Animated,
   Platform,
   Easing,
@@ -25,6 +24,7 @@ import { Audio } from "expo-av";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import { extractAiFallbackInput, type AiFallbackInput } from "@/src/lib/aiFallback";
+import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
 
 interface TwwSanctuaryModalProps {
   onClose: () => void;
@@ -580,11 +580,11 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
             )}
 
             {loading && (
-              <View className="items-center justify-center py-[48px] gap-4">
-                <ActivityIndicator size="large" color="#9333ea" />
-                <Text className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-purple-900">
-                  Mendengarkan curahan hatimu...
-                </Text>
+              <View className="items-center justify-center py-[24px]">
+                <SiklusioLottieLoader
+                  text="Mendengarkan curahan hatimu..."
+                  size={160}
+                />
               </View>
             )}
 

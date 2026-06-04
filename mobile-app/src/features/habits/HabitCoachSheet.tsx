@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import type { CoachQuestionAnswer, HabitCoachMode } from "@/src/lib/habitCoachTypes";
@@ -395,7 +395,15 @@ export function HabitCoachSheet({
               </View>
             )}
 
-            {isReviewStep ? renderReview() : renderStep()}
+            {loading ? (
+              <View style={{ paddingVertical: 32, alignItems: "center" }}>
+                <SiklusioLottieLoader text="Menyusun plan 7 hari terbaikmu..." size={160} />
+              </View>
+            ) : isReviewStep ? (
+              renderReview()
+            ) : (
+              renderStep()
+            )}
 
             {error && (
               <AiFallbackNotice
@@ -444,13 +452,9 @@ export function HabitCoachSheet({
                     gap: 8,
                   }}
                 >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <FontAwesome name="magic" size={13} color="#fff" />
-                  )}
+                  {!loading && <FontAwesome name="magic" size={13} color="#fff" />}
                   <Text style={{ color: "#fff", fontWeight: "800" }}>
-                    Gunakan {creditCost} kredit
+                    {loading ? "Menyusun plan..." : `Gunakan ${creditCost} kredit`}
                   </Text>
                 </TouchableOpacity>
               ) : (

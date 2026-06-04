@@ -2,17 +2,23 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import LottieView from "lottie-react-native";
 
-export function SiklusioLottieLoader() {
+export function SiklusioLottieLoader({
+  text = "Menyiapkan ruang tenang Bunda...",
+  size = 240,
+}: {
+  text?: string;
+  size?: number;
+}) {
   return (
     <View style={styles.container}>
       <LottieView
         source={require("../../../assets/animations/siklusio-loader.json")}
         autoPlay
         loop
-        style={styles.animation}
+        style={{ width: size, height: size }}
         resizeMode="contain"
       />
-      <Text style={styles.text}>Menyiapkan ruang tenang Bunda...</Text>
+      {text ? <Text style={styles.text}>{text}</Text> : null}
     </View>
   );
 }
@@ -21,10 +27,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  animation: {
-    width: 240,
-    height: 240,
   },
   text: {
     marginTop: 8,

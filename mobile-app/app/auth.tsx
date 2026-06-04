@@ -16,6 +16,7 @@ import { useAuth } from "../src/context/AuthContext";
 import { storage } from "../src/lib/storage";
 import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { LoginLogoAnimation } from "../src/components/auth/LoginLogoAnimation";
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -143,9 +144,7 @@ export default function AuthScreen() {
         >
           {/* Logo & Header */}
           <View className="items-center mb-8">
-            <View className="w-16 h-16 bg-secondary rounded-2xl items-center justify-center mb-4 shadow-sm">
-              <Text className="text-3xl">💖</Text>
-            </View>
+            <LoginLogoAnimation />
             <Text className="text-2xl font-bold text-center text-on-background">
               {isLogin ? "Selamat Datang" : "Buat Akun Baru"}
             </Text>

@@ -1,3 +1,4 @@
+// AI Safety Envelope and medical disclaimer validations.
 export const MEDICAL_DISCLAIMER =
   "Informasi ini bersifat pendampingan promil harian umum, bukan pengganti diagnosis medis Sp.OG dan pemeriksaan klinis langsung oleh tenaga kesehatan.";
 

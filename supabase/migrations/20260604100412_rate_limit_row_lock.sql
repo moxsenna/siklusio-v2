@@ -1,4 +1,5 @@
--- Update check_rate_limit RPC to use row locking (FOR UPDATE) to prevent race conditions during parallel requests
+-- Migration: Update check_rate_limit RPC to use row locking (FOR UPDATE) to prevent race conditions.
+-- This ensures atomicity during parallel requests.
 CREATE OR REPLACE FUNCTION public.check_rate_limit(
   p_key TEXT,
   p_max INT,

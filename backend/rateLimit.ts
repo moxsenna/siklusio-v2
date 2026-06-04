@@ -1,3 +1,4 @@
+// Rate limiting middleware using Supabase RPC or memory fallback.
 import { getSupabaseAdmin } from "./services/supabaseAdmin";
 
 type Clock = () => number;

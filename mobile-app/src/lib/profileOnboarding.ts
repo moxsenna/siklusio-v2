@@ -5,7 +5,9 @@ export interface CloudProfileOnboardingState {
   onboarding_completed?: boolean | null;
 }
 
-export function isCloudOnboardingCompleted(profile: CloudProfileOnboardingState | null | undefined): boolean {
+export function isCloudOnboardingCompleted(
+  profile: CloudProfileOnboardingState | null | undefined,
+): boolean {
   if (!profile) return false;
   return profile.onboarding_completed === true;
 }

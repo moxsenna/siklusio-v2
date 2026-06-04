@@ -21,18 +21,47 @@ function pngWithDimensions(width: number, height: number): Buffer {
 
 function jpegWithDimensions(width: number, height: number): Buffer {
   return Buffer.from([
-    0xff, 0xd8,
-    0xff, 0xe0, 0x00, 0x10,
-    0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
-    0xff, 0xc0, 0x00, 0x11,
+    0xff,
+    0xd8,
+    0xff,
+    0xe0,
+    0x00,
+    0x10,
+    0x4a,
+    0x46,
+    0x49,
+    0x46,
+    0x00,
+    0x01,
+    0x01,
+    0x00,
+    0x00,
+    0x01,
+    0x00,
+    0x01,
+    0x00,
+    0x00,
+    0xff,
+    0xc0,
+    0x00,
+    0x11,
     0x08,
-    (height >> 8) & 0xff, height & 0xff,
-    (width >> 8) & 0xff, width & 0xff,
+    (height >> 8) & 0xff,
+    height & 0xff,
+    (width >> 8) & 0xff,
+    width & 0xff,
     0x03,
-    0x01, 0x11, 0x00,
-    0x02, 0x11, 0x00,
-    0x03, 0x11, 0x00,
-    0xff, 0xd9,
+    0x01,
+    0x11,
+    0x00,
+    0x02,
+    0x11,
+    0x00,
+    0x03,
+    0x11,
+    0x00,
+    0xff,
+    0xd9,
   ]);
 }
 
@@ -42,8 +71,18 @@ test("detectAvatarImage recognizes WebP, PNG, and JPEG signatures", () => {
   const jpeg = jpegWithDimensions(640, 480);
 
   assert.deepEqual(detectAvatarImage(webp), { extension: "webp", contentType: "image/webp" });
-  assert.deepEqual(detectAvatarImage(png), { extension: "png", contentType: "image/png", width: 320, height: 240 });
-  assert.deepEqual(detectAvatarImage(jpeg), { extension: "jpg", contentType: "image/jpeg", width: 640, height: 480 });
+  assert.deepEqual(detectAvatarImage(png), {
+    extension: "png",
+    contentType: "image/png",
+    width: 320,
+    height: 240,
+  });
+  assert.deepEqual(detectAvatarImage(jpeg), {
+    extension: "jpg",
+    contentType: "image/jpeg",
+    width: 640,
+    height: 480,
+  });
 });
 
 test("detectAvatarImage rejects non-image bytes", () => {

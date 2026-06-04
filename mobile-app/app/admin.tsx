@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,16 @@ import {
   Alert,
   Platform,
   Dimensions,
-} from 'react-native';
-import { router } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { format, differenceInYears } from 'date-fns';
-import { id as localeId } from 'date-fns/locale';
-import { supabase } from '../src/lib/supabase';
-import { REACTION_EMOJI } from '../src/lib/communityTypes';
-import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from '../src/lib/api';
-import { getSupabaseClientStatus } from '../src/lib/supabaseAccess';
-import AdminAffiliatePanel from '../components/admin/AdminAffiliatePanel';
+} from "react-native";
+import { router } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { format, differenceInYears } from "date-fns";
+import { id as localeId } from "date-fns/locale";
+import { supabase } from "../src/lib/supabase";
+import { REACTION_EMOJI } from "../src/lib/communityTypes";
+import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from "../src/lib/api";
+import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
+import AdminAffiliatePanel from "../components/admin/AdminAffiliatePanel";
 
 // Replicate old types
 interface AdminUser {
@@ -47,11 +47,11 @@ interface AdminUser {
 
 interface ReportRow {
   id: string;
-  target_type: 'post' | 'comment';
+  target_type: "post" | "comment";
   target_id: string;
   reporter_id: string;
   reason: string | null;
-  status: 'pending' | 'resolved_hide' | 'resolved_keep';
+  status: "pending" | "resolved_hide" | "resolved_keep";
   created_at: string;
   resolved_at: string | null;
   reporter_name?: string | null;
@@ -61,7 +61,7 @@ interface ReportRow {
 
 interface QueueItem {
   key: string;
-  target_type: 'post' | 'comment';
+  target_type: "post" | "comment";
   target_id: string;
   content: string;
   authorId: string;
@@ -69,11 +69,11 @@ interface QueueItem {
   authorRealLabel: string;
   /** Avatar URL/preset penulis. Null kalau anonim atau belum set. */
   authorAvatarUrl: string | null;
-  authorAvatarKind: 'preset' | 'custom' | null;
+  authorAvatarKind: "preset" | "custom" | null;
   is_anonymous: boolean;
   is_hidden: boolean;
   reportCount: number;
-  reviewStatus: 'kept' | 'removed' | null;
+  reviewStatus: "kept" | "removed" | null;
   reviewedAt: string | null;
   createdAt: string;
   reports: ReportRow[];
@@ -82,7 +82,7 @@ interface QueueItem {
 
 interface AdminModerationQueueRow {
   report_id: string;
-  target_type: 'post' | 'comment' | string;
+  target_type: "post" | "comment" | string;
   target_id: string;
   reporter_id: string;
   reason: string | null;
@@ -109,65 +109,71 @@ interface AdminModerationQueueRow {
 
 function formatRelative(dateStr: string) {
   try {
-    return format(new Date(dateStr), 'd MMM yyyy HH:mm', { locale: localeId });
+    return format(new Date(dateStr), "d MMM yyyy HH:mm", { locale: localeId });
   } catch {
     return dateStr;
   }
 }
 
 function formatCsvDateTime(dateStr?: string | null) {
-  if (!dateStr) return '';
+  if (!dateStr) return "";
   try {
-    return format(new Date(dateStr), 'yyyy-MM-dd HH:mm');
+    return format(new Date(dateStr), "yyyy-MM-dd HH:mm");
   } catch {
     return dateStr;
   }
 }
 
 function escapeCsvCell(value: unknown) {
-  const text = value == null ? '' : String(value);
+  const text = value == null ? "" : String(value);
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-function toTargetType(value: string): 'post' | 'comment' {
-  return value === 'comment' ? 'comment' : 'post';
+function toTargetType(value: string): "post" | "comment" {
+  return value === "comment" ? "comment" : "post";
 }
 
-function toReportStatus(value: string | null): ReportRow['status'] {
-  if (value === 'resolved_hide' || value === 'resolved_keep') return value;
-  return 'pending';
+function toReportStatus(value: string | null): ReportRow["status"] {
+  if (value === "resolved_hide" || value === "resolved_keep") return value;
+  return "pending";
 }
 
-function toReviewStatus(value: string | null): QueueItem['reviewStatus'] {
-  if (value === 'kept' || value === 'removed') return value;
+function toReviewStatus(value: string | null): QueueItem["reviewStatus"] {
+  if (value === "kept" || value === "removed") return value;
   return null;
 }
 
-function toAvatarKind(value: string | null): QueueItem['authorAvatarKind'] {
-  if (value === 'preset' || value === 'custom') return value;
+function toAvatarKind(value: string | null): QueueItem["authorAvatarKind"] {
+  if (value === "preset" || value === "custom") return value;
   return null;
 }
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<'users' | 'moderation' | 'coupons' | 'affiliates'>('users');
-  
+  const [activeTab, setActiveTab] = useState<"users" | "moderation" | "coupons" | "affiliates">(
+    "users",
+  );
+
   // Coupons Panel states
   const [coupons, setCoupons] = useState<any[]>([]);
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [couponsError, setCouponsError] = useState<string | null>(null);
-  const [newCoupon, setNewCoupon] = useState({ code: '', discount_type: 'nominal', discount_value: '' });
+  const [newCoupon, setNewCoupon] = useState({
+    code: "",
+    discount_type: "nominal",
+    discount_value: "",
+  });
   const [isSubmittingCoupon, setIsSubmittingCoupon] = useState(false);
-  
+
   // Users Panel states
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   // Moderation Panel states
-  const [modFilter, setModFilter] = useState<'pending' | 'reviewed' | 'all'>('pending');
+  const [modFilter, setModFilter] = useState<"pending" | "reviewed" | "all">("pending");
   const [modLoading, setModLoading] = useState(false);
   const [modError, setModError] = useState<string | null>(null);
   const [moderationRows, setModerationRows] = useState<AdminModerationQueueRow[]>([]);
@@ -176,10 +182,10 @@ export default function AdminDashboard() {
 
   // Dynamic full-width for web
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      document.body.classList.add('admin-page-fullwidth');
+    if (Platform.OS === "web") {
+      document.body.classList.add("admin-page-fullwidth");
       return () => {
-        document.body.classList.remove('admin-page-fullwidth');
+        document.body.classList.remove("admin-page-fullwidth");
       };
     }
   }, []);
@@ -194,15 +200,17 @@ export default function AdminDashboard() {
       }
       try {
         const client = status.client;
-        const { data: { session } } = await client.auth.getSession();
+        const {
+          data: { session },
+        } = await client.auth.getSession();
         if (!session) {
           setIsAdmin(false);
           return;
         }
         const { data: profile, error } = await client
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
           .maybeSingle();
 
         if (error || !profile?.is_admin) {
@@ -220,11 +228,11 @@ export default function AdminDashboard() {
   // Redirect if unauthorized
   useEffect(() => {
     if (isAdmin === false) {
-      if (Platform.OS === 'web') {
-        router.replace('/');
+      if (Platform.OS === "web") {
+        router.replace("/");
       } else {
-        Alert.alert('Akses Ditolak', 'Hanya administrator yang dapat mengakses halaman ini.', [
-          { text: 'OK', onPress: () => router.replace('/') },
+        Alert.alert("Akses Ditolak", "Hanya administrator yang dapat mengakses halaman ini.", [
+          { text: "OK", onPress: () => router.replace("/") },
         ]);
       }
     }
@@ -238,10 +246,10 @@ export default function AdminDashboard() {
     setUsersLoading(true);
     setUsersError(null);
     try {
-      const data = await apiGetJson<{ users: AdminUser[] }>('/api/admin/users');
+      const data = await apiGetJson<{ users: AdminUser[] }>("/api/admin/users");
       setUsers(data.users || []);
     } catch (err: any) {
-      setUsersError(err.message || 'Gagal memuat daftar pengguna.');
+      setUsersError(err.message || "Gagal memuat daftar pengguna.");
     } finally {
       setUsersLoading(false);
     }
@@ -251,19 +259,19 @@ export default function AdminDashboard() {
   const fetchModeration = useCallback(async () => {
     const status = getSupabaseClientStatus(supabase);
     if (!status.ready) {
-      setModError('Supabase client tidak terkonfigurasi.');
+      setModError("Supabase client tidak terkonfigurasi.");
       return;
     }
     setModLoading(true);
     setModError(null);
     try {
-      const { data: rows, error } = await status.client.rpc('admin_get_moderation_queue', {
+      const { data: rows, error } = await status.client.rpc("admin_get_moderation_queue", {
         p_filter: modFilter,
       });
       if (error) throw error;
       setModerationRows((rows || []) as AdminModerationQueueRow[]);
     } catch (err: any) {
-      setModError(err.message || 'Gagal memuat data moderasi.');
+      setModError(err.message || "Gagal memuat data moderasi.");
     } finally {
       setModLoading(false);
     }
@@ -274,10 +282,10 @@ export default function AdminDashboard() {
     setCouponsLoading(true);
     setCouponsError(null);
     try {
-      const data = await apiGetJson<{ coupons: any[] }>('/api/admin/coupons');
+      const data = await apiGetJson<{ coupons: any[] }>("/api/admin/coupons");
       setCoupons(data.coupons || []);
     } catch (err: any) {
-      setCouponsError(err.message || 'Gagal memuat daftar kupon.');
+      setCouponsError(err.message || "Gagal memuat daftar kupon.");
     } finally {
       setCouponsLoading(false);
     }
@@ -287,15 +295,15 @@ export default function AdminDashboard() {
     if (!newCoupon.code || !newCoupon.discount_value) return;
     setIsSubmittingCoupon(true);
     try {
-      await apiPostJson('/api/admin/coupons', {
+      await apiPostJson("/api/admin/coupons", {
         code: newCoupon.code,
         discount_type: newCoupon.discount_type,
-        discount_value: Number(newCoupon.discount_value)
+        discount_value: Number(newCoupon.discount_value),
       });
-      setNewCoupon({ code: '', discount_type: 'nominal', discount_value: '' });
+      setNewCoupon({ code: "", discount_type: "nominal", discount_value: "" });
       fetchCoupons();
     } catch (err: any) {
-      Alert.alert('Gagal', err.message);
+      Alert.alert("Gagal", err.message);
     } finally {
       setIsSubmittingCoupon(false);
     }
@@ -306,33 +314,36 @@ export default function AdminDashboard() {
       await apiPatchJson(`/api/admin/coupons/${id}`, { is_active: !currentStatus });
       fetchCoupons();
     } catch (err: any) {
-      Alert.alert('Gagal', err.message);
+      Alert.alert("Gagal", err.message);
     }
   };
 
   const handleDeleteCoupon = async (id: string) => {
-    Alert.alert('Hapus Kupon', 'Yakin ingin menghapus kode kupon ini secara permanen?', [
-      { text: 'Batal', style: 'cancel' },
-      { text: 'Hapus', style: 'destructive', onPress: async () => {
+    Alert.alert("Hapus Kupon", "Yakin ingin menghapus kode kupon ini secara permanen?", [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Hapus",
+        style: "destructive",
+        onPress: async () => {
           try {
             await apiDeleteJson(`/api/admin/coupons/${id}`);
             fetchCoupons();
           } catch (err: any) {
-            Alert.alert('Gagal', err.message);
+            Alert.alert("Gagal", err.message);
           }
-        } 
-      }
+        },
+      },
     ]);
   };
 
   // Trigger loads on tab or filter switch
   useEffect(() => {
     if (isAdmin === true) {
-      if (activeTab === 'users') {
+      if (activeTab === "users") {
         fetchUsers();
-      } else if (activeTab === 'moderation') {
+      } else if (activeTab === "moderation") {
         fetchModeration();
-      } else if (activeTab === 'coupons') {
+      } else if (activeTab === "coupons") {
         fetchCoupons();
       }
     }
@@ -353,21 +364,17 @@ export default function AdminDashboard() {
       const first = rs[0];
       if (!first) return;
 
-      const [target_type, target_id] = key.split(':') as ['post' | 'comment', string];
-      const authorId = first.author_id || 'unknown';
-      const realLabel =
-        first.author_real_label?.trim() ||
-        authorId.split('-')[0] ||
-        'Pengguna';
+      const [target_type, target_id] = key.split(":") as ["post" | "comment", string];
+      const authorId = first.author_id || "unknown";
+      const realLabel = first.author_real_label?.trim() || authorId.split("-")[0] || "Pengguna";
       const displayLabel =
-        first.author_label?.trim() ||
-        (first.is_anonymous ? 'Anonim' : realLabel);
+        first.author_label?.trim() || (first.is_anonymous ? "Anonim" : realLabel);
 
       items.push({
         key,
         target_type,
         target_id,
-        content: first.content || '',
+        content: first.content || "",
         authorId,
         authorLabel: displayLabel,
         authorRealLabel: realLabel,
@@ -405,19 +412,19 @@ export default function AdminDashboard() {
   }, [moderationRows]);
 
   // Moderate Action Handlers
-  const handleModerateAction = async (item: QueueItem, action: 'keep' | 'remove') => {
+  const handleModerateAction = async (item: QueueItem, action: "keep" | "remove") => {
     const status = getSupabaseClientStatus(supabase);
     if (!status.ready) {
-      setModError('Supabase client tidak terkonfigurasi.');
+      setModError("Supabase client tidak terkonfigurasi.");
       return;
     }
 
-    const actionText = action === 'remove' ? 'menyembunyikan' : 'mempertahankan';
+    const actionText = action === "remove" ? "menyembunyikan" : "mempertahankan";
     const performAction = async () => {
       setActingKey(item.key);
       setModError(null);
       try {
-        const { error: rpcErr } = await status.client.rpc('admin_moderate_target', {
+        const { error: rpcErr } = await status.client.rpc("admin_moderate_target", {
           p_target_type: item.target_type,
           p_target_id: item.target_id,
           p_action: action,
@@ -425,24 +432,24 @@ export default function AdminDashboard() {
         if (rpcErr) throw rpcErr;
         await fetchModeration();
       } catch (err: any) {
-        setModError(err.message || 'Gagal mengeksekusi moderasi.');
+        setModError(err.message || "Gagal mengeksekusi moderasi.");
       } finally {
         setActingKey(null);
       }
     };
 
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       if (window.confirm(`Konfirmasi untuk ${actionText} postingan/komentar ini?`)) {
         performAction();
       }
     } else {
       Alert.alert(
-        'Konfirmasi Moderasi',
+        "Konfirmasi Moderasi",
         `Apakah Anda yakin ingin ${actionText} postingan/komentar ini?`,
         [
-          { text: 'Batal', style: 'cancel' },
-          { text: 'Ya, Lakukan', style: 'destructive', onPress: performAction }
-        ]
+          { text: "Batal", style: "cancel" },
+          { text: "Ya, Lakukan", style: "destructive", onPress: performAction },
+        ],
       );
     }
   };
@@ -451,7 +458,7 @@ export default function AdminDashboard() {
   const handleResetAvatar = async (item: QueueItem) => {
     const status = getSupabaseClientStatus(supabase);
     if (!status.ready) {
-      setModError('Supabase client tidak terkonfigurasi.');
+      setModError("Supabase client tidak terkonfigurasi.");
       return;
     }
 
@@ -459,16 +466,16 @@ export default function AdminDashboard() {
       setActingKey(`avatar:${item.key}`);
       setModError(null);
       try {
-        const { error: rpcErr } = await status.client.rpc('admin_reset_user_avatar', {
+        const { error: rpcErr } = await status.client.rpc("admin_reset_user_avatar", {
           p_user_id: item.authorId,
         });
         if (rpcErr) throw rpcErr;
         await fetchModeration();
-        const okMsg = 'Avatar pengguna telah direset.';
-        if (Platform.OS === 'web') window.alert(okMsg);
-        else Alert.alert('Berhasil', okMsg);
+        const okMsg = "Avatar pengguna telah direset.";
+        if (Platform.OS === "web") window.alert(okMsg);
+        else Alert.alert("Berhasil", okMsg);
       } catch (err: any) {
-        setModError(err.message || 'Gagal mereset avatar pengguna.');
+        setModError(err.message || "Gagal mereset avatar pengguna.");
       } finally {
         setActingKey(null);
       }
@@ -479,17 +486,13 @@ export default function AdminDashboard() {
       `Avatar akan dihapus dan pengguna harus memilih ulang. Gunakan ini ` +
       `kalau avatar yang diunggah melanggar aturan komunitas.`;
 
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       if (window.confirm(msg)) performReset();
     } else {
-      Alert.alert(
-        'Reset Avatar Pengguna',
-        msg,
-        [
-          { text: 'Batal', style: 'cancel' },
-          { text: 'Ya, Reset', style: 'destructive', onPress: performReset },
-        ]
-      );
+      Alert.alert("Reset Avatar Pengguna", msg, [
+        { text: "Batal", style: "cancel" },
+        { text: "Ya, Reset", style: "destructive", onPress: performReset },
+      ]);
     }
   };
 
@@ -497,46 +500,62 @@ export default function AdminDashboard() {
   const downloadCSV = () => {
     if (users.length === 0) return;
     const headers = [
-      'Email', 'Nama', 'Panggilan', 'No. WhatsApp', 'Terdaftar', 'Login Terakhir',
-      'ID Pengguna', 'Tanggal Lahir', 'Usia', 'Jumlah Anak', 'HPHT', 'Panjang Siklus',
-      'Lama Haid', 'Nama Suami', 'Panggilan Suami', 'No. WA Suami', 'Target Tabungan',
-      'Tabungan Saat Ini', 'Admin', 'Avatar Kind', 'Avatar URL', 'Updated At'
+      "Email",
+      "Nama",
+      "Panggilan",
+      "No. WhatsApp",
+      "Terdaftar",
+      "Login Terakhir",
+      "ID Pengguna",
+      "Tanggal Lahir",
+      "Usia",
+      "Jumlah Anak",
+      "HPHT",
+      "Panjang Siklus",
+      "Lama Haid",
+      "Nama Suami",
+      "Panggilan Suami",
+      "No. WA Suami",
+      "Target Tabungan",
+      "Tabungan Saat Ini",
+      "Admin",
+      "Avatar Kind",
+      "Avatar URL",
+      "Updated At",
     ];
     const rows = users.map((user) => [
-      user.email || '',
-      user.name || '',
-      user.nickname || '',
-      user.whatsapp_number || '',
+      user.email || "",
+      user.name || "",
+      user.nickname || "",
+      user.whatsapp_number || "",
       formatCsvDateTime(user.created_at),
       formatCsvDateTime(user.last_sign_in_at),
       user.id,
-      user.birth_date || '',
-      user.birth_date ? differenceInYears(new Date(), new Date(user.birth_date)) : '',
-      user.children_count || '',
-      user.last_period_date || '',
+      user.birth_date || "",
+      user.birth_date ? differenceInYears(new Date(), new Date(user.birth_date)) : "",
+      user.children_count || "",
+      user.last_period_date || "",
       user.cycle_length || 0,
       user.period_length || 0,
-      user.husband_name || '',
-      user.husband_nickname || '',
-      user.husband_number || '',
+      user.husband_name || "",
+      user.husband_nickname || "",
+      user.husband_number || "",
       user.target_saving || 0,
       user.current_saving || 0,
-      user.is_admin ? 'Ya' : 'Tidak',
-      user.avatar_kind || '',
-      user.avatar_url || '',
+      user.is_admin ? "Ya" : "Tidak",
+      user.avatar_kind || "",
+      user.avatar_url || "",
       formatCsvDateTime(user.updated_at),
     ]);
-    
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map(escapeCsvCell).join(','))
-      .join('\n');
-    
-    if (Platform.OS === 'web') {
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    const csvContent = [headers, ...rows].map((row) => row.map(escapeCsvCell).join(",")).join("\n");
+
+    if (Platform.OS === "web") {
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `siklusio_users_${format(new Date(), 'yyyyMMdd')}.csv`);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `siklusio_users_${format(new Date(), "yyyyMMdd")}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -552,15 +571,26 @@ export default function AdminDashboard() {
         (u.email && u.email.toLowerCase().includes(query)) ||
         (u.name && u.name.toLowerCase().includes(query)) ||
         (u.nickname && u.nickname.toLowerCase().includes(query)) ||
-        (u.husband_name && u.husband_name.toLowerCase().includes(query))
+        (u.husband_name && u.husband_name.toLowerCase().includes(query)),
     );
   }, [users, searchTerm]);
 
   if (isAdmin === null) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+      <View
+        style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" }}
+      >
         <ActivityIndicator size="large" color="#ec4899" />
-        <Text style={{ marginTop: 16, fontSize: 13, color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+        <Text
+          style={{
+            marginTop: 16,
+            fontSize: 13,
+            color: "#64748b",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            letterSpacing: 1.5,
+          }}
+        >
           Memverifikasi Akses Admin...
         </Text>
       </View>
@@ -572,95 +602,176 @@ export default function AdminDashboard() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fcf8fa' }}>
+    <View style={{ flex: 1, backgroundColor: "#fcf8fa" }}>
       {/* Sticky Premium Header */}
-      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1e6eb', paddingTop: 48, paddingHorizontal: 24, paddingBottom: 16 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View
+        style={{
+          backgroundColor: "#fff",
+          borderBottomWidth: 1,
+          borderBottomColor: "#f1e6eb",
+          paddingTop: 48,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+        }}
+      >
+        <View
+          style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
+        >
           <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: '#fce7f3', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  backgroundColor: "#fce7f3",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <FontAwesome name="shield" size={20} color="#ec4899" />
               </View>
-              <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1e1b20', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }}>
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: "bold",
+                  color: "#1e1b20",
+                  fontFamily: Platform.OS === "ios" ? "Georgia" : "serif",
+                }}
+              >
                 Admin Portal
               </Text>
             </View>
-            <Text style={{ fontSize: 10, fontWeight: 'bold', letterSpacing: 1.5, color: '#94a3b8', textTransform: 'uppercase', marginTop: 6 }}>
-              {activeTab === 'users' ? 'User Management Dashboard' : 'Antrian Moderasi Komunitas'}
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "bold",
+                letterSpacing: 1.5,
+                color: "#94a3b8",
+                textTransform: "uppercase",
+                marginTop: 6,
+              }}
+            >
+              {activeTab === "users" ? "User Management Dashboard" : "Antrian Moderasi Komunitas"}
             </Text>
           </View>
-          
-          <TouchableOpacity 
-            onPress={() => router.replace('/')}
-            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f1f5f9', flexDirection: 'row', alignItems: 'center', gap: 6 }}
+
+          <TouchableOpacity
+            onPress={() => router.replace("/")}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 20,
+              backgroundColor: "#f1f5f9",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+            }}
           >
             <FontAwesome name="arrow-left" size={12} color="#64748b" />
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#64748b' }}>Kembali</Text>
+            <Text style={{ fontSize: 12, fontWeight: "bold", color: "#64748b" }}>Kembali</Text>
           </TouchableOpacity>
         </View>
 
         {/* Tab Controls */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 20 }}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}
+        >
           <TouchableOpacity
-            onPress={() => setActiveTab('users')}
+            onPress={() => setActiveTab("users")}
             style={{
               paddingVertical: 10,
               paddingHorizontal: 20,
               borderRadius: 20,
-              backgroundColor: activeTab === 'users' ? '#ec4899' : 'transparent',
-              borderWidth: activeTab === 'users' ? 0 : 1,
-              borderColor: '#f1e6eb',
+              backgroundColor: activeTab === "users" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "users" ? 0 : 1,
+              borderColor: "#f1e6eb",
             }}
           >
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: activeTab === 'users' ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "users" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               👥 Pengguna ({users.length})
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab('moderation')}
+            onPress={() => setActiveTab("moderation")}
             style={{
               paddingVertical: 10,
               paddingHorizontal: 20,
               borderRadius: 20,
-              backgroundColor: activeTab === 'moderation' ? '#ec4899' : 'transparent',
-              borderWidth: activeTab === 'moderation' ? 0 : 1,
-              borderColor: '#f1e6eb',
+              backgroundColor: activeTab === "moderation" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "moderation" ? 0 : 1,
+              borderColor: "#f1e6eb",
             }}
           >
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: activeTab === 'moderation' ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
-              🚩 Moderasi ({moderationQueue.filter(q => !q.reviewedAt).length} pending)
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "moderation" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              🚩 Moderasi ({moderationQueue.filter((q) => !q.reviewedAt).length} pending)
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab('coupons')}
+            onPress={() => setActiveTab("coupons")}
             style={{
               paddingVertical: 10,
               paddingHorizontal: 20,
               borderRadius: 20,
-              backgroundColor: activeTab === 'coupons' ? '#ec4899' : 'transparent',
-              borderWidth: activeTab === 'coupons' ? 0 : 1,
-              borderColor: '#f1e6eb',
+              backgroundColor: activeTab === "coupons" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "coupons" ? 0 : 1,
+              borderColor: "#f1e6eb",
             }}
           >
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: activeTab === 'coupons' ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "coupons" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               🎫 Kupon
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setActiveTab('affiliates')}
+            onPress={() => setActiveTab("affiliates")}
             style={{
               paddingVertical: 10,
               paddingHorizontal: 20,
               borderRadius: 20,
-              backgroundColor: activeTab === 'affiliates' ? '#ec4899' : 'transparent',
-              borderWidth: activeTab === 'affiliates' ? 0 : 1,
-              borderColor: '#f1e6eb',
+              backgroundColor: activeTab === "affiliates" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "affiliates" ? 0 : 1,
+              borderColor: "#f1e6eb",
             }}
           >
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: activeTab === 'affiliates' ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "affiliates" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               🤝 Afiliasi
             </Text>
           </TouchableOpacity>
@@ -669,155 +780,300 @@ export default function AdminDashboard() {
 
       {/* Main Content Area */}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-        
         {/* Tab Users */}
-        {activeTab === 'users' && (
+        {activeTab === "users" && (
           <View style={{ gap: 16 }}>
             {/* Toolbar */}
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-              <View style={{ flex: 1, minWidth: 200, height: 44, borderRadius: 22, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1e6eb', paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ flexDirection: "row", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 200,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: "#fff",
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  paddingHorizontal: 16,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
                 <FontAwesome name="search" size={16} color="#94a3b8" />
                 <TextInput
                   placeholder="Cari email, nama, atau panggilan..."
                   value={searchTerm}
                   onChangeText={setSearchTerm}
-                  style={{ flex: 1, fontSize: 13, color: '#1e1b20' }}
+                  style={{ flex: 1, fontSize: 13, color: "#1e1b20" }}
                 />
               </View>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={fetchUsers}
-                style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1e6eb', alignItems: 'center', justifyContent: 'center' }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: "#fff",
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <FontAwesome name="refresh" size={16} color="#ec4899" />
               </TouchableOpacity>
 
-              {Platform.OS === 'web' && (
-                <TouchableOpacity 
+              {Platform.OS === "web" && (
+                <TouchableOpacity
                   onPress={downloadCSV}
                   disabled={users.length === 0}
-                  style={{ height: 44, paddingHorizontal: 16, borderRadius: 22, backgroundColor: '#ec4899', flexDirection: 'row', alignItems: 'center', gap: 8, opacity: users.length === 0 ? 0.5 : 1 }}
+                  style={{
+                    height: 44,
+                    paddingHorizontal: 16,
+                    borderRadius: 22,
+                    backgroundColor: "#ec4899",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                    opacity: users.length === 0 ? 0.5 : 1,
+                  }}
                 >
                   <FontAwesome name="download" size={14} color="#fff" />
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#fff', textTransform: 'uppercase', letterSpacing: 1 }}>Unduh CSV</Text>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: "bold",
+                      color: "#fff",
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Unduh CSV
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
 
             {usersError && (
-              <View style={{ backgroundColor: '#fef2f2', borderColor: '#fee2e2', borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: 'row', gap: 12 }}>
+              <View
+                style={{
+                  backgroundColor: "#fef2f2",
+                  borderColor: "#fee2e2",
+                  borderWidth: 1,
+                  borderRadius: 16,
+                  padding: 16,
+                  flexDirection: "row",
+                  gap: 12,
+                }}
+              >
                 <Text style={{ fontSize: 18 }}>⚠️</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#991b1b' }}>Gagal Mengambil Data</Text>
-                  <Text style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>{usersError}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: "#991b1b" }}>
+                    Gagal Mengambil Data
+                  </Text>
+                  <Text style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{usersError}</Text>
                 </View>
               </View>
             )}
 
             {usersLoading ? (
-              <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+              <View style={{ paddingVertical: 48, alignItems: "center" }}>
                 <ActivityIndicator size="large" color="#ec4899" />
               </View>
             ) : filteredUsers.length === 0 ? (
-              <View style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f1e6eb', padding: 32, alignItems: 'center' }}>
-                <Text style={{ fontSize: 14, color: '#94a3b8', fontWeight: 'bold' }}>Tidak ada pengguna ditemukan</Text>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  padding: 32,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 14, color: "#94a3b8", fontWeight: "bold" }}>
+                  Tidak ada pengguna ditemukan
+                </Text>
               </View>
             ) : (
               <View style={{ gap: 12 }}>
                 {filteredUsers.map((user) => {
                   const isExpanded = expandedUserId === user.id;
-                  const registerDate = user.created_at ? format(new Date(user.created_at), 'dd MMM yyyy HH:mm') : '-';
-                  const userAge = user.birth_date ? `${differenceInYears(new Date(), new Date(user.birth_date))} tahun` : '-';
-                  
+                  const registerDate = user.created_at
+                    ? format(new Date(user.created_at), "dd MMM yyyy HH:mm")
+                    : "-";
+                  const userAge = user.birth_date
+                    ? `${differenceInYears(new Date(), new Date(user.birth_date))} tahun`
+                    : "-";
+
                   return (
-                    <View 
+                    <View
                       key={user.id}
-                      style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#f1e6eb', padding: 16, gap: 12 }}
+                      style={{
+                        backgroundColor: "#fff",
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        borderColor: "#f1e6eb",
+                        padding: 16,
+                        gap: 12,
+                      }}
                     >
                       {/* Card Header Summary */}
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         onPress={() => setExpandedUserId(isExpanded ? null : user.id)}
-                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
                       >
                         <View style={{ gap: 4, flex: 1 }}>
-                          <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#1e1b20' }}>
-                            {user.name || user.nickname || 'Tidak Bernama'}
+                          <Text style={{ fontSize: 15, fontWeight: "bold", color: "#1e1b20" }}>
+                            {user.name || user.nickname || "Tidak Bernama"}
                           </Text>
-                          <Text style={{ fontSize: 12, color: '#64748b' }}>
-                            {user.email || 'Tanpa Email'}
+                          <Text style={{ fontSize: 12, color: "#64748b" }}>
+                            {user.email || "Tanpa Email"}
                           </Text>
                         </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#ec4899', backgroundColor: '#fce7f3', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
-                            {user.nickname || 'User'}
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontWeight: "bold",
+                              color: "#ec4899",
+                              backgroundColor: "#fce7f3",
+                              paddingHorizontal: 10,
+                              paddingVertical: 4,
+                              borderRadius: 12,
+                            }}
+                          >
+                            {user.nickname || "User"}
                           </Text>
-                          <FontAwesome name={isExpanded ? 'chevron-up' : 'chevron-down'} size={14} color="#94a3b8" />
+                          <FontAwesome
+                            name={isExpanded ? "chevron-up" : "chevron-down"}
+                            size={14}
+                            color="#94a3b8"
+                          />
                         </View>
                       </TouchableOpacity>
 
                       {/* Expandable Details */}
                       {isExpanded && (
-                        <View style={{ borderTopWidth: 1, borderTopColor: '#f8fafc', paddingTop: 12, gap: 8 }}>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>ID Pengguna</Text>
-                            <Text style={{ fontSize: 12, fontFamily: 'monospace', color: '#1e1b20' }}>{user.id.split('-')[0]}...</Text>
+                        <View
+                          style={{
+                            borderTopWidth: 1,
+                            borderTopColor: "#f8fafc",
+                            paddingTop: 12,
+                            gap: 8,
+                          }}
+                        >
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>ID Pengguna</Text>
+                            <Text
+                              style={{ fontSize: 12, fontFamily: "monospace", color: "#1e1b20" }}
+                            >
+                              {user.id.split("-")[0]}...
+                            </Text>
                           </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>No. WhatsApp</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20', fontWeight: '500' }}>{user.whatsapp_number || '-'}</Text>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>No. WhatsApp</Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20", fontWeight: "500" }}>
+                              {user.whatsapp_number || "-"}
+                            </Text>
                           </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Usia / Tgl Lahir</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20' }}>{userAge} {user.birth_date ? `(${format(new Date(user.birth_date), 'dd/MM/yyyy')})` : ''}</Text>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>Usia / Tgl Lahir</Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20" }}>
+                              {userAge}{" "}
+                              {user.birth_date
+                                ? `(${format(new Date(user.birth_date), "dd/MM/yyyy")})`
+                                : ""}
+                            </Text>
                           </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Jumlah Anak</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20' }}>{user.children_count || '0'}</Text>
-                          </View>
-                          
-                          <View style={{ height: 1, backgroundColor: '#f8fafc', marginVertical: 2 }} />
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Nama Suami</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20', fontWeight: 'bold' }}>{user.husband_name || '-'}</Text>
-                          </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>No. WA Suami</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20' }}>{user.husband_number || '-'}</Text>
-                          </View>
-
-                          <View style={{ height: 1, backgroundColor: '#f8fafc', marginVertical: 2 }} />
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>HPHT (Terakhir Haid)</Text>
-                            <Text style={{ fontSize: 12, color: '#ec4899', fontWeight: 'bold' }}>{user.last_period_date ? format(new Date(user.last_period_date), 'dd MMM yyyy') : '-'}</Text>
-                          </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Panjang Siklus / Haid</Text>
-                            <Text style={{ fontSize: 12, color: '#1e1b20' }}>{user.cycle_length} Hari / {user.period_length} Hari</Text>
-                          </View>
-                          
-                          <View style={{ height: 1, backgroundColor: '#f8fafc', marginVertical: 2 }} />
-
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Tabungan Terkumpul</Text>
-                            <Text style={{ fontSize: 12, color: '#10b981', fontWeight: 'bold' }}>Rp {user.current_saving?.toLocaleString('id-ID') || '0'}</Text>
-                          </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#64748b' }}>Target Tabungan</Text>
-                            <Text style={{ fontSize: 12, color: '#64748b', fontWeight: 'bold' }}>Rp {user.target_saving?.toLocaleString('id-ID') || '0'}</Text>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>Jumlah Anak</Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20" }}>
+                              {user.children_count || "0"}
+                            </Text>
                           </View>
 
-                          <View style={{ height: 1, backgroundColor: '#f8fafc', marginVertical: 2 }} />
+                          <View
+                            style={{ height: 1, backgroundColor: "#f8fafc", marginVertical: 2 }}
+                          />
 
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 12, color: '#94a3b8' }}>Tanggal Registrasi</Text>
-                            <Text style={{ fontSize: 12, color: '#94a3b8' }}>{registerDate}</Text>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>Nama Suami</Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20", fontWeight: "bold" }}>
+                              {user.husband_name || "-"}
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>No. WA Suami</Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20" }}>
+                              {user.husband_number || "-"}
+                            </Text>
+                          </View>
+
+                          <View
+                            style={{ height: 1, backgroundColor: "#f8fafc", marginVertical: 2 }}
+                          />
+
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>
+                              HPHT (Terakhir Haid)
+                            </Text>
+                            <Text style={{ fontSize: 12, color: "#ec4899", fontWeight: "bold" }}>
+                              {user.last_period_date
+                                ? format(new Date(user.last_period_date), "dd MMM yyyy")
+                                : "-"}
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>
+                              Panjang Siklus / Haid
+                            </Text>
+                            <Text style={{ fontSize: 12, color: "#1e1b20" }}>
+                              {user.cycle_length} Hari / {user.period_length} Hari
+                            </Text>
+                          </View>
+
+                          <View
+                            style={{ height: 1, backgroundColor: "#f8fafc", marginVertical: 2 }}
+                          />
+
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>
+                              Tabungan Terkumpul
+                            </Text>
+                            <Text style={{ fontSize: 12, color: "#10b981", fontWeight: "bold" }}>
+                              Rp {user.current_saving?.toLocaleString("id-ID") || "0"}
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#64748b" }}>Target Tabungan</Text>
+                            <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "bold" }}>
+                              Rp {user.target_saving?.toLocaleString("id-ID") || "0"}
+                            </Text>
+                          </View>
+
+                          <View
+                            style={{ height: 1, backgroundColor: "#f8fafc", marginVertical: 2 }}
+                          />
+
+                          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 12, color: "#94a3b8" }}>
+                              Tanggal Registrasi
+                            </Text>
+                            <Text style={{ fontSize: 12, color: "#94a3b8" }}>{registerDate}</Text>
                           </View>
                           {user.last_sign_in_at && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                              <Text style={{ fontSize: 12, color: '#94a3b8' }}>Terakhir Login</Text>
-                              <Text style={{ fontSize: 12, color: '#94a3b8' }}>{formatRelative(user.last_sign_in_at)}</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                              <Text style={{ fontSize: 12, color: "#94a3b8" }}>Terakhir Login</Text>
+                              <Text style={{ fontSize: 12, color: "#94a3b8" }}>
+                                {formatRelative(user.last_sign_in_at)}
+                              </Text>
                             </View>
                           )}
                         </View>
@@ -831,21 +1087,56 @@ export default function AdminDashboard() {
         )}
 
         {/* Tab Moderation */}
-        {activeTab === 'moderation' && (
+        {activeTab === "moderation" && (
           <View style={{ gap: 16 }}>
             {/* Toolbar Filter */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-              <View style={{ flexDirection: 'row', gap: 4, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1e6eb', borderRadius: 20, padding: 4, flex: 1, minWidth: 260 }}>
-                {(['pending', 'reviewed', 'all'] as const).map((f) => {
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 12,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 4,
+                  backgroundColor: "#fff",
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  borderRadius: 20,
+                  padding: 4,
+                  flex: 1,
+                  minWidth: 260,
+                }}
+              >
+                {(["pending", "reviewed", "all"] as const).map((f) => {
                   const isSel = modFilter === f;
-                  const lbl = f === 'pending' ? 'Menunggu' : f === 'reviewed' ? 'Direview' : 'Semua';
+                  const lbl =
+                    f === "pending" ? "Menunggu" : f === "reviewed" ? "Direview" : "Semua";
                   return (
                     <TouchableOpacity
-                       key={f}
-                       onPress={() => setModFilter(f)}
-                       style={{ flex: 1, paddingVertical: 6, borderRadius: 16, backgroundColor: isSel ? '#ec4899' : 'transparent', alignItems: 'center' }}
+                      key={f}
+                      onPress={() => setModFilter(f)}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 6,
+                        borderRadius: 16,
+                        backgroundColor: isSel ? "#ec4899" : "transparent",
+                        alignItems: "center",
+                      }}
                     >
-                      <Text style={{ fontSize: 11, fontWeight: 'bold', color: isSel ? '#fff' : '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: "bold",
+                          color: isSel ? "#fff" : "#64748b",
+                          textTransform: "uppercase",
+                          letterSpacing: 0.5,
+                        }}
+                      >
                         {lbl}
                       </Text>
                     </TouchableOpacity>
@@ -853,13 +1144,29 @@ export default function AdminDashboard() {
                 })}
               </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Text style={{ fontSize: 11, color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: "#64748b",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {moderationQueue.length} Item
                 </Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={fetchModeration}
-                  style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1e6eb', alignItems: 'center', justifyContent: 'center' }}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: "#fff",
+                    borderWidth: 1,
+                    borderColor: "#f1e6eb",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
                   <FontAwesome name="refresh" size={14} color="#ec4899" />
                 </TouchableOpacity>
@@ -867,24 +1174,55 @@ export default function AdminDashboard() {
             </View>
 
             {modError && (
-              <View style={{ backgroundColor: '#fef2f2', borderColor: '#fee2e2', borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: 'row', gap: 12 }}>
+              <View
+                style={{
+                  backgroundColor: "#fef2f2",
+                  borderColor: "#fee2e2",
+                  borderWidth: 1,
+                  borderRadius: 16,
+                  padding: 16,
+                  flexDirection: "row",
+                  gap: 12,
+                }}
+              >
                 <Text style={{ fontSize: 18 }}>⚠️</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#991b1b' }}>Gagal Mengambil Laporan</Text>
-                  <Text style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>{modError}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: "#991b1b" }}>
+                    Gagal Mengambil Laporan
+                  </Text>
+                  <Text style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>{modError}</Text>
                 </View>
               </View>
             )}
 
             {modLoading ? (
-              <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+              <View style={{ paddingVertical: 48, alignItems: "center" }}>
                 <ActivityIndicator size="large" color="#ec4899" />
               </View>
             ) : moderationQueue.length === 0 ? (
-              <View style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f1e6eb', padding: 32, alignItems: 'center', gap: 12 }}>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  padding: 32,
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
                 <Text style={{ fontSize: 32 }}>🚩</Text>
-                <Text style={{ fontSize: 14, color: '#94a3b8', fontWeight: 'bold', textAlign: 'center' }}>
-                  {modFilter === 'pending' ? 'Tidak ada laporan yang menunggu moderasi!' : 'Antrian kosong.'}
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: "#94a3b8",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {modFilter === "pending"
+                    ? "Tidak ada laporan yang menunggu moderasi!"
+                    : "Antrian kosong."}
                 </Text>
               </View>
             ) : (
@@ -892,90 +1230,200 @@ export default function AdminDashboard() {
                 {moderationQueue.map((item) => {
                   const isActing = actingKey === item.key;
                   const isExpandedReports = expandedQueueKey === item.key;
-                  
+
                   return (
-                    <View 
+                    <View
                       key={item.key}
-                      style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f1e6eb', shadowColor: '#000', shadowOffset: { width:0, height:2 }, shadowOpacity:0.02, shadowRadius:8, overflow: 'hidden' }}
+                      style={{
+                        backgroundColor: "#fff",
+                        borderRadius: 24,
+                        borderWidth: 1,
+                        borderColor: "#f1e6eb",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.02,
+                        shadowRadius: 8,
+                        overflow: "hidden",
+                      }}
                     >
                       {/* Top metadata row */}
-                      <View style={{ backgroundColor: '#faf5f8', paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1e6eb', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-                        <Text style={{ fontSize: 10, fontWeight: 'bold', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, color: item.target_type === 'post' ? '#ec4899' : '#3b82f6', backgroundColor: item.target_type === 'post' ? '#fce7f3' : '#dbeafe', textTransform: 'uppercase' }}>
-                          {item.target_type === 'post' ? 'Postingan' : 'Komentar'}
+                      <View
+                        style={{
+                          backgroundColor: "#faf5f8",
+                          paddingHorizontal: 16,
+                          paddingVertical: 10,
+                          borderBottomWidth: 1,
+                          borderBottomColor: "#f1e6eb",
+                          flexDirection: "row",
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            fontWeight: "bold",
+                            paddingHorizontal: 8,
+                            paddingVertical: 3,
+                            borderRadius: 8,
+                            color: item.target_type === "post" ? "#ec4899" : "#3b82f6",
+                            backgroundColor: item.target_type === "post" ? "#fce7f3" : "#dbeafe",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {item.target_type === "post" ? "Postingan" : "Komentar"}
                         </Text>
 
-                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#dc2626' }}>
+                        <Text style={{ fontSize: 11, fontWeight: "bold", color: "#dc2626" }}>
                           🚩 {item.reportCount} Laporan
                         </Text>
 
-                        <Text style={{ fontSize: 10, fontWeight: 'bold', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, color: item.is_hidden ? '#d97706' : '#15803d', backgroundColor: item.is_hidden ? '#fef3c7' : '#dcfce7', textTransform: 'uppercase' }}>
-                          {item.is_hidden ? '🚫 Tersembunyi' : '👁️ Tampil'}
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            fontWeight: "bold",
+                            paddingHorizontal: 8,
+                            paddingVertical: 3,
+                            borderRadius: 8,
+                            color: item.is_hidden ? "#d97706" : "#15803d",
+                            backgroundColor: item.is_hidden ? "#fef3c7" : "#dcfce7",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {item.is_hidden ? "🚫 Tersembunyi" : "👁️ Tampil"}
                         </Text>
 
-                        <Text style={{ fontSize: 10, color: '#94a3b8', marginLeft: 'auto' }}>
+                        <Text style={{ fontSize: 10, color: "#94a3b8", marginLeft: "auto" }}>
                           {formatRelative(item.createdAt)}
                         </Text>
                       </View>
 
                       {/* Content block */}
                       <View style={{ padding: 16, gap: 8 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#1e1b20' }}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 6,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e1b20" }}>
                             {item.authorLabel}
                           </Text>
-                          {item.authorRealLabel !== 'Pengguna' && item.authorRealLabel !== item.authorLabel && (
-                            <Text style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic' }}>
-                              (Asli: {item.authorRealLabel})
-                            </Text>
-                          )}
+                          {item.authorRealLabel !== "Pengguna" &&
+                            item.authorRealLabel !== item.authorLabel && (
+                              <Text style={{ fontSize: 11, color: "#64748b", fontStyle: "italic" }}>
+                                (Asli: {item.authorRealLabel})
+                              </Text>
+                            )}
                           {item.authorEmail && (
-                            <Text style={{ fontSize: 11, color: '#ec4899', fontWeight: '500' }}>
+                            <Text style={{ fontSize: 11, color: "#ec4899", fontWeight: "500" }}>
                               · {item.authorEmail}
                             </Text>
                           )}
-                          <Text style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
-                            · ID: {item.authorId.split('-')[0]}
+                          <Text style={{ fontSize: 10, color: "#94a3b8", fontFamily: "monospace" }}>
+                            · ID: {item.authorId.split("-")[0]}
                           </Text>
                         </View>
 
-                        <Text style={{ fontSize: 13, color: item.content ? '#334155' : '#ef4444', lineHeight: 18, fontStyle: item.content ? 'normal' : 'italic', fontWeight: item.content ? 'normal' : 'bold' }}>
-                          {item.content || '[Konten tidak ditemukan / sudah dihapus oleh pengguna]'}
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            color: item.content ? "#334155" : "#ef4444",
+                            lineHeight: 18,
+                            fontStyle: item.content ? "normal" : "italic",
+                            fontWeight: item.content ? "normal" : "bold",
+                          }}
+                        >
+                          {item.content || "[Konten tidak ditemukan / sudah dihapus oleh pengguna]"}
                         </Text>
                       </View>
 
                       {/* Collapsible Reports list */}
-                      <View style={{ borderTopWidth: 1, borderTopColor: '#f8fafc' }}>
+                      <View style={{ borderTopWidth: 1, borderTopColor: "#f8fafc" }}>
                         <TouchableOpacity
                           onPress={() => setExpandedQueueKey(isExpandedReports ? null : item.key)}
-                          style={{ paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                          style={{
+                            paddingHorizontal: 16,
+                            paddingVertical: 12,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
                         >
-                          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                          <Text
+                            style={{
+                              fontSize: 11,
+                              fontWeight: "bold",
+                              color: "#64748b",
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                            }}
+                          >
                             💬 Alasan Laporan ({item.reports.length})
                           </Text>
-                          <FontAwesome name={isExpandedReports ? 'chevron-up' : 'chevron-down'} size={12} color="#94a3b8" />
+                          <FontAwesome
+                            name={isExpandedReports ? "chevron-up" : "chevron-down"}
+                            size={12}
+                            color="#94a3b8"
+                          />
                         </TouchableOpacity>
 
                         {isExpandedReports && (
                           <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 6 }}>
                             {item.reports.map((rep) => (
-                              <View 
-                                key={rep.id} 
-                                style={{ backgroundColor: '#f8fafc', padding: 10, borderRadius: 12, gap: 4 }}
+                              <View
+                                key={rep.id}
+                                style={{
+                                  backgroundColor: "#f8fafc",
+                                  padding: 10,
+                                  borderRadius: 12,
+                                  gap: 4,
+                                }}
                               >
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
-                                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#475569' }}>
-                                    Pelapor: {rep.reporter_name || 'Pengguna'} {rep.reporter_nickname ? `(${rep.reporter_nickname})` : ''} 
-                                    {rep.reporter_email ? ` · ${rep.reporter_email}` : ''}
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    flexWrap: "wrap",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <Text
+                                    style={{ fontSize: 11, fontWeight: "bold", color: "#475569" }}
+                                  >
+                                    Pelapor: {rep.reporter_name || "Pengguna"}{" "}
+                                    {rep.reporter_nickname ? `(${rep.reporter_nickname})` : ""}
+                                    {rep.reporter_email ? ` · ${rep.reporter_email}` : ""}
                                   </Text>
-                                  <Text style={{ fontSize: 10, color: '#94a3b8' }}>
+                                  <Text style={{ fontSize: 10, color: "#94a3b8" }}>
                                     {formatRelative(rep.created_at)}
                                   </Text>
                                 </View>
-                                <Text style={{ fontSize: 12, color: '#1e1b20', fontWeight: '500' }}>
-                                  Alasan: {rep.reason || 'Tidak diisi'}
+                                <Text style={{ fontSize: 12, color: "#1e1b20", fontWeight: "500" }}>
+                                  Alasan: {rep.reason || "Tidak diisi"}
                                 </Text>
-                                <Text style={{ fontSize: 9, fontWeight: 'bold', color: rep.status === 'pending' ? '#d97706' : rep.status === 'resolved_hide' ? '#dc2626' : '#15803d', textTransform: 'uppercase' }}>
-                                  Status: {rep.status === 'pending' ? 'menunggu' : rep.status === 'resolved_keep' ? 'dipertahankan' : 'dihapus'}
+                                <Text
+                                  style={{
+                                    fontSize: 9,
+                                    fontWeight: "bold",
+                                    color:
+                                      rep.status === "pending"
+                                        ? "#d97706"
+                                        : rep.status === "resolved_hide"
+                                          ? "#dc2626"
+                                          : "#15803d",
+                                    textTransform: "uppercase",
+                                  }}
+                                >
+                                  Status:{" "}
+                                  {rep.status === "pending"
+                                    ? "menunggu"
+                                    : rep.status === "resolved_keep"
+                                      ? "dipertahankan"
+                                      : "dihapus"}
                                 </Text>
                               </View>
                             ))}
@@ -984,28 +1432,79 @@ export default function AdminDashboard() {
                       </View>
 
                       {/* Action buttons footer */}
-                      <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#f1e6eb', padding: 8, gap: 8, backgroundColor: '#fcf8fa' }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          borderTopWidth: 1,
+                          borderTopColor: "#f1e6eb",
+                          padding: 8,
+                          gap: 8,
+                          backgroundColor: "#fcf8fa",
+                        }}
+                      >
                         <TouchableOpacity
                           disabled={isActing}
-                          onPress={() => handleModerateAction(item, 'keep')}
-                          style={{ flex: 1, height: 40, borderRadius: 12, backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#bbf7d0', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
+                          onPress={() => handleModerateAction(item, "keep")}
+                          style={{
+                            flex: 1,
+                            height: 40,
+                            borderRadius: 12,
+                            backgroundColor: "#dcfce7",
+                            borderWidth: 1,
+                            borderColor: "#bbf7d0",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "row",
+                            gap: 6,
+                          }}
                         >
                           <FontAwesome name="check" size={14} color="#15803d" />
-                          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#15803d', textTransform: 'uppercase', letterSpacing: 0.5 }}>Pertahankan</Text>
+                          <Text
+                            style={{
+                              fontSize: 11,
+                              fontWeight: "bold",
+                              color: "#15803d",
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            Pertahankan
+                          </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                           disabled={isActing}
-                          onPress={() => handleModerateAction(item, 'remove')}
-                          style={{ flex: 1, height: 40, borderRadius: 12, backgroundColor: '#fee2e2', borderWidth: 1, borderColor: '#fecaca', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
+                          onPress={() => handleModerateAction(item, "remove")}
+                          style={{
+                            flex: 1,
+                            height: 40,
+                            borderRadius: 12,
+                            backgroundColor: "#fee2e2",
+                            borderWidth: 1,
+                            borderColor: "#fecaca",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "row",
+                            gap: 6,
+                          }}
                         >
                           <FontAwesome name="times" size={14} color="#b91c1c" />
-                          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#b91c1c', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sembunyikan</Text>
+                          <Text
+                            style={{
+                              fontSize: 11,
+                              fontWeight: "bold",
+                              color: "#b91c1c",
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            Sembunyikan
+                          </Text>
                         </TouchableOpacity>
                       </View>
 
                       {/* Avatar moderation: muncul hanya kalau penulis punya avatar custom */}
-                      {!item.is_anonymous && item.authorAvatarKind === 'custom' && (
+                      {!item.is_anonymous && item.authorAvatarKind === "custom" && (
                         <TouchableOpacity
                           disabled={actingKey === `avatar:${item.key}`}
                           onPress={() => handleResetAvatar(item)}
@@ -1013,12 +1512,12 @@ export default function AdminDashboard() {
                             marginTop: 8,
                             height: 36,
                             borderRadius: 12,
-                            backgroundColor: '#fffbeb',
+                            backgroundColor: "#fffbeb",
                             borderWidth: 1,
-                            borderColor: '#fef3c7',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection: 'row',
+                            borderColor: "#fef3c7",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "row",
                             gap: 6,
                           }}
                         >
@@ -1030,9 +1529,9 @@ export default function AdminDashboard() {
                           <Text
                             style={{
                               fontSize: 10,
-                              fontWeight: 'bold',
-                              color: '#b45309',
-                              textTransform: 'uppercase',
+                              fontWeight: "bold",
+                              color: "#b45309",
+                              textTransform: "uppercase",
                               letterSpacing: 0.5,
                             }}
                           >
@@ -1049,77 +1548,205 @@ export default function AdminDashboard() {
         )}
 
         {/* Tab Coupons */}
-        {activeTab === 'coupons' && (
+        {activeTab === "coupons" && (
           <View style={{ gap: 16 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1e1b20' }}>🎫 Manajemen Kupon Diskon</Text>
-              <TouchableOpacity 
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: "bold", color: "#1e1b20" }}>
+                🎫 Manajemen Kupon Diskon
+              </Text>
+              <TouchableOpacity
                 onPress={fetchCoupons}
-                style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1e6eb', alignItems: 'center', justifyContent: 'center' }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: "#fff",
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <FontAwesome name="refresh" size={14} color="#ec4899" />
               </TouchableOpacity>
             </View>
 
             {/* Form Tambah Kupon */}
-            <View style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f1e6eb', padding: 20, gap: 12 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#1e1b20' }}>Buat Kupon Baru</Text>
-              
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            <View
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 24,
+                borderWidth: 1,
+                borderColor: "#f1e6eb",
+                padding: 20,
+                gap: 12,
+              }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e1b20" }}>
+                Buat Kupon Baru
+              </Text>
+
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
                 <TextInput
                   placeholder="KODE KUPON (contoh: PROMO2024)"
                   autoCapitalize="characters"
                   value={newCoupon.code}
-                  onChangeText={(val) => setNewCoupon(prev => ({ ...prev, code: val.toUpperCase().replace(/\s/g, '') }))}
-                  style={{ flex: 1, minWidth: 200, height: 44, borderRadius: 12, backgroundColor: '#f8fafc', paddingHorizontal: 16, fontSize: 13, color: '#1e1b20', fontWeight: 'bold' }}
+                  onChangeText={(val) =>
+                    setNewCoupon((prev) => ({
+                      ...prev,
+                      code: val.toUpperCase().replace(/\s/g, ""),
+                    }))
+                  }
+                  style={{
+                    flex: 1,
+                    minWidth: 200,
+                    height: 44,
+                    borderRadius: 12,
+                    backgroundColor: "#f8fafc",
+                    paddingHorizontal: 16,
+                    fontSize: 13,
+                    color: "#1e1b20",
+                    fontWeight: "bold",
+                  }}
                 />
-                
-                <View style={{ flexDirection: 'row', backgroundColor: '#f8fafc', borderRadius: 12, overflow: 'hidden', height: 44 }}>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    backgroundColor: "#f8fafc",
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    height: 44,
+                  }}
+                >
                   <TouchableOpacity
-                    onPress={() => setNewCoupon(prev => ({ ...prev, discount_type: 'nominal' }))}
-                    style={{ paddingHorizontal: 16, justifyContent: 'center', backgroundColor: newCoupon.discount_type === 'nominal' ? '#ec4899' : 'transparent' }}
+                    onPress={() => setNewCoupon((prev) => ({ ...prev, discount_type: "nominal" }))}
+                    style={{
+                      paddingHorizontal: 16,
+                      justifyContent: "center",
+                      backgroundColor:
+                        newCoupon.discount_type === "nominal" ? "#ec4899" : "transparent",
+                    }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: newCoupon.discount_type === 'nominal' ? '#fff' : '#64748b' }}>Nominal (Rp)</Text>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        color: newCoupon.discount_type === "nominal" ? "#fff" : "#64748b",
+                      }}
+                    >
+                      Nominal (Rp)
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setNewCoupon(prev => ({ ...prev, discount_type: 'percentage' }))}
-                    style={{ paddingHorizontal: 16, justifyContent: 'center', backgroundColor: newCoupon.discount_type === 'percentage' ? '#ec4899' : 'transparent' }}
+                    onPress={() =>
+                      setNewCoupon((prev) => ({ ...prev, discount_type: "percentage" }))
+                    }
+                    style={{
+                      paddingHorizontal: 16,
+                      justifyContent: "center",
+                      backgroundColor:
+                        newCoupon.discount_type === "percentage" ? "#ec4899" : "transparent",
+                    }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: newCoupon.discount_type === 'percentage' ? '#fff' : '#64748b' }}>Persen (%)</Text>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        color: newCoupon.discount_type === "percentage" ? "#fff" : "#64748b",
+                      }}
+                    >
+                      Persen (%)
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
                 <TextInput
-                  placeholder={newCoupon.discount_type === 'nominal' ? "Nominal Diskon (Rp)" : "Persentase Diskon (0-100)"}
+                  placeholder={
+                    newCoupon.discount_type === "nominal"
+                      ? "Nominal Diskon (Rp)"
+                      : "Persentase Diskon (0-100)"
+                  }
                   keyboardType="numeric"
                   value={newCoupon.discount_value}
-                  onChangeText={(val) => setNewCoupon(prev => ({ ...prev, discount_value: val.replace(/[^0-9]/g, '') }))}
-                  style={{ flex: 1, minWidth: 150, height: 44, borderRadius: 12, backgroundColor: '#f8fafc', paddingHorizontal: 16, fontSize: 13, color: '#1e1b20' }}
+                  onChangeText={(val) =>
+                    setNewCoupon((prev) => ({
+                      ...prev,
+                      discount_value: val.replace(/[^0-9]/g, ""),
+                    }))
+                  }
+                  style={{
+                    flex: 1,
+                    minWidth: 150,
+                    height: 44,
+                    borderRadius: 12,
+                    backgroundColor: "#f8fafc",
+                    paddingHorizontal: 16,
+                    fontSize: 13,
+                    color: "#1e1b20",
+                  }}
                 />
               </View>
 
-              {newCoupon.discount_type === 'percentage' && newCoupon.discount_value === '100' && (
-                <Text style={{ fontSize: 12, color: '#10b981', fontWeight: 'bold', marginTop: -4 }}>✨ Kupon Gratis 100%! Pendaftar otomatis bypass Mayar dan langsung berhasil.</Text>
+              {newCoupon.discount_type === "percentage" && newCoupon.discount_value === "100" && (
+                <Text style={{ fontSize: 12, color: "#10b981", fontWeight: "bold", marginTop: -4 }}>
+                  ✨ Kupon Gratis 100%! Pendaftar otomatis bypass Mayar dan langsung berhasil.
+                </Text>
               )}
 
               <TouchableOpacity
                 onPress={handleCreateCoupon}
                 disabled={isSubmittingCoupon || !newCoupon.code || !newCoupon.discount_value}
-                style={{ height: 44, borderRadius: 12, backgroundColor: (!newCoupon.code || !newCoupon.discount_value) ? '#e2e8f0' : '#ec4899', alignItems: 'center', justifyContent: 'center' }}
+                style={{
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor:
+                    !newCoupon.code || !newCoupon.discount_value ? "#e2e8f0" : "#ec4899",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <Text style={{ fontSize: 13, fontWeight: 'bold', color: (!newCoupon.code || !newCoupon.discount_value) ? '#94a3b8' : '#fff', textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {isSubmittingCoupon ? 'Menyimpan...' : 'Simpan Kupon'}
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "bold",
+                    color: !newCoupon.code || !newCoupon.discount_value ? "#94a3b8" : "#fff",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  {isSubmittingCoupon ? "Menyimpan..." : "Simpan Kupon"}
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Error Message */}
             {couponsError && (
-              <View style={{ backgroundColor: '#fef2f2', borderColor: '#fee2e2', borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: 'row', gap: 12 }}>
+              <View
+                style={{
+                  backgroundColor: "#fef2f2",
+                  borderColor: "#fee2e2",
+                  borderWidth: 1,
+                  borderRadius: 16,
+                  padding: 16,
+                  flexDirection: "row",
+                  gap: 12,
+                }}
+              >
                 <Text style={{ fontSize: 18 }}>⚠️</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#991b1b' }}>Gagal Mengambil Data Kupon</Text>
-                  <Text style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>{couponsError}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: "#991b1b" }}>
+                    Gagal Mengambil Data Kupon
+                  </Text>
+                  <Text style={{ fontSize: 12, color: "#ef4444", marginTop: 4 }}>
+                    {couponsError}
+                  </Text>
                 </View>
               </View>
             )}
@@ -1128,40 +1755,92 @@ export default function AdminDashboard() {
             {couponsLoading ? (
               <ActivityIndicator size="large" color="#ec4899" style={{ marginVertical: 40 }} />
             ) : coupons.length === 0 ? (
-              <View style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f1e6eb', padding: 32, alignItems: 'center' }}>
-                <Text style={{ fontSize: 14, color: '#94a3b8', fontWeight: 'bold' }}>Belum ada kupon yang dibuat.</Text>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: "#f1e6eb",
+                  padding: 32,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 14, color: "#94a3b8", fontWeight: "bold" }}>
+                  Belum ada kupon yang dibuat.
+                </Text>
               </View>
             ) : (
               <View style={{ gap: 12 }}>
                 {coupons.map((coupon) => (
-                  <View 
-                    key={coupon.id} 
-                    style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#f1e6eb', padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', opacity: coupon.is_active ? 1 : 0.6 }}
+                  <View
+                    key={coupon.id}
+                    style={{
+                      backgroundColor: "#fff",
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      borderColor: "#f1e6eb",
+                      padding: 16,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      opacity: coupon.is_active ? 1 : 0.6,
+                    }}
                   >
                     <View style={{ flex: 1, gap: 4 }}>
-                      <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#1e1b20', fontFamily: 'monospace' }}>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "bold",
+                          color: "#1e1b20",
+                          fontFamily: "monospace",
+                        }}
+                      >
                         {coupon.code}
                       </Text>
-                      <Text style={{ fontSize: 13, color: '#ec4899', fontWeight: 'bold' }}>
-                        {coupon.discount_type === 'nominal' ? `Potongan Rp ${coupon.discount_value.toLocaleString('id-ID')}` : `Diskon ${coupon.discount_value}%`}
-                        {coupon.discount_type === 'percentage' && coupon.discount_value == 100 ? ' (KUPON GRATIS 100%)' : ''}
+                      <Text style={{ fontSize: 13, color: "#ec4899", fontWeight: "bold" }}>
+                        {coupon.discount_type === "nominal"
+                          ? `Potongan Rp ${coupon.discount_value.toLocaleString("id-ID")}`
+                          : `Diskon ${coupon.discount_value}%`}
+                        {coupon.discount_type === "percentage" && coupon.discount_value == 100
+                          ? " (KUPON GRATIS 100%)"
+                          : ""}
                       </Text>
-                      <Text style={{ fontSize: 11, color: '#94a3b8' }}>Dibuat pada {formatRelative(coupon.created_at)}</Text>
+                      <Text style={{ fontSize: 11, color: "#94a3b8" }}>
+                        Dibuat pada {formatRelative(coupon.created_at)}
+                      </Text>
                     </View>
-                    
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                       <TouchableOpacity
                         onPress={() => handleToggleCoupon(coupon.id, coupon.is_active)}
-                        style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: coupon.is_active ? '#fef2f2' : '#dcfce7' }}
+                        style={{
+                          paddingHorizontal: 12,
+                          paddingVertical: 8,
+                          borderRadius: 12,
+                          backgroundColor: coupon.is_active ? "#fef2f2" : "#dcfce7",
+                        }}
                       >
-                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: coupon.is_active ? '#b91c1c' : '#15803d' }}>
-                          {coupon.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: "bold",
+                            color: coupon.is_active ? "#b91c1c" : "#15803d",
+                          }}
+                        >
+                          {coupon.is_active ? "Nonaktifkan" : "Aktifkan"}
                         </Text>
                       </TouchableOpacity>
-                      
+
                       <TouchableOpacity
                         onPress={() => handleDeleteCoupon(coupon.id)}
-                        style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center' }}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 18,
+                          backgroundColor: "#f1f5f9",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
                         <FontAwesome name="trash" size={14} color="#64748b" />
                       </TouchableOpacity>
@@ -1174,10 +1853,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Tab Affiliates */}
-        {activeTab === 'affiliates' && (
-          <AdminAffiliatePanel />
-        )}
-
+        {activeTab === "affiliates" && <AdminAffiliatePanel />}
       </ScrollView>
     </View>
   );

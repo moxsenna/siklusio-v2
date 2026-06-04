@@ -1,9 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  createMemoryRateLimiter,
-  resolveRateLimitRule,
-} from "./rateLimit";
+import { createMemoryRateLimiter, resolveRateLimitRule } from "./rateLimit";
 
 test("memory rate limiter blocks requests after the configured max until the window resets", () => {
   let now = 1_000;

@@ -2,8 +2,15 @@ import { Hono } from "hono";
 import { type Env } from "../env";
 import { requireUser } from "../middleware/auth";
 import { getAiCreditBalance, chargeAiCredits } from "../services/aiCreditLedger";
-import { isDateKey, isValidHabitCoachWindow, shouldReplaceActivePlan } from "../ai/habitCoachWindow";
-import { buildHabitCoachActiveOverlapConflict, saveHabitCoachPlanWithCharge } from "../ai/habitCoachPlanLifecycle";
+import {
+  isDateKey,
+  isValidHabitCoachWindow,
+  shouldReplaceActivePlan,
+} from "../ai/habitCoachWindow";
+import {
+  buildHabitCoachActiveOverlapConflict,
+  saveHabitCoachPlanWithCharge,
+} from "../ai/habitCoachPlanLifecycle";
 import { summarizeActivityHistory } from "../ai/habitSummary";
 import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
@@ -17,7 +24,7 @@ const router = new Hono<{ Bindings: Env }>();
 const normalizeHabitCoachCycleDays = (
   value: unknown,
   dateKeys: string[],
-  cycleSnapshot: Record<string, unknown>
+  cycleSnapshot: Record<string, unknown>,
 ): HabitCoachCycleDay[] => {
   const rawDays = Array.isArray(value) ? value : [];
   const rawByDate = new Map<string, any>();
@@ -68,9 +75,7 @@ router.get("/api/habit-coach/current", async (c) => {
       .eq("status", "active");
 
     if (hasDateFilter && date) {
-      planQuery = planQuery
-        .lte("week_start", date)
-        .gte("week_end", date);
+      planQuery = planQuery.lte("week_start", date).gte("week_end", date);
     }
 
     const { data: plan, error } = await planQuery
@@ -168,7 +173,9 @@ router.post("/api/habit-coach/generate", async (c) => {
 
     const result = validateHabitCoachPlan(ai.data);
     if (containsForbiddenWords(result)) {
-      throw new Error("Safety validation failed: AI response contains forbidden medical claims or phrases.");
+      throw new Error(
+        "Safety validation failed: AI response contains forbidden medical claims or phrases.",
+      );
     }
 
     const { plan, balance: balanceAfter } = await saveHabitCoachPlanWithCharge({
@@ -205,10 +212,12 @@ router.post("/api/habit-coach/generate", async (c) => {
         }),
     });
 
-    return c.json(aiSafetyEnvelope({
-      plan,
-      balance: balanceAfter,
-    }));
+    return c.json(
+      aiSafetyEnvelope({
+        plan,
+        balance: balanceAfter,
+      }),
+    );
   } catch (error: any) {
     console.error("[habit-coach/generate]", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);

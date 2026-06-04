@@ -1,12 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, Modal, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useCycle } from '../../src/context/CycleContext';
-import { useAuth } from '../../src/context/AuthContext';
-import { resolveAvatarSource } from '../../src/lib/avatars';
-import { supabase } from '../../src/lib/supabase';
-import { getAuthenticatedSupabaseClientStatus } from '../../src/lib/supabaseAccess';
+import React, { useMemo, useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, Image, Modal, Platform } from "react-native";
+import { useRouter } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useCycle } from "../../src/context/CycleContext";
+import { useAuth } from "../../src/context/AuthContext";
+import { resolveAvatarSource } from "../../src/lib/avatars";
+import { supabase } from "../../src/lib/supabase";
+import { getAuthenticatedSupabaseClientStatus } from "../../src/lib/supabaseAccess";
 
 export function HeaderProfileButton() {
   const router = useRouter();
@@ -15,7 +15,10 @@ export function HeaderProfileButton() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const avatarSource = useMemo(() => resolveAvatarSource(avatarUrl, avatarKind), [avatarUrl, avatarKind]);
+  const avatarSource = useMemo(
+    () => resolveAvatarSource(avatarUrl, avatarKind),
+    [avatarUrl, avatarKind],
+  );
 
   // Check admin status dynamically only when the profile menu sheet is opened
   useEffect(() => {
@@ -27,9 +30,9 @@ export function HeaderProfileButton() {
       }
       try {
         const { data, error } = await status.client
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', status.userId)
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", status.userId)
           .single();
         if (data && !error) {
           setIsAdmin(!!data.is_admin);
@@ -59,7 +62,7 @@ export function HeaderProfileButton() {
     setMenuVisible(false);
     try {
       await signOut();
-      router.replace('/auth');
+      router.replace("/auth");
     } catch (e) {
       console.warn("Gagal melakukan logout:", e);
     }
@@ -76,7 +79,7 @@ export function HeaderProfileButton() {
           <Image source={avatarSource} className="w-full h-full" resizeMode="cover" />
         ) : (
           <Text className="text-primary font-bold text-lg">
-            {userNickname ? userNickname.charAt(0).toUpperCase() : 'U'}
+            {userNickname ? userNickname.charAt(0).toUpperCase() : "U"}
           </Text>
         )}
       </TouchableOpacity>
@@ -104,7 +107,7 @@ export function HeaderProfileButton() {
                   <Image source={avatarSource} className="w-full h-full" resizeMode="cover" />
                 ) : (
                   <Text className="text-primary font-extrabold text-2xl">
-                    {userNickname ? userNickname.charAt(0).toUpperCase() : 'U'}
+                    {userNickname ? userNickname.charAt(0).toUpperCase() : "U"}
                   </Text>
                 )}
               </View>
@@ -113,7 +116,7 @@ export function HeaderProfileButton() {
                   Anggota Siklusio
                 </Text>
                 <Text className="text-lg font-bold text-gray-800 leading-tight">
-                  {userNickname || 'Pengguna'}
+                  {userNickname || "Pengguna"}
                 </Text>
               </View>
               <TouchableOpacity
@@ -124,11 +127,11 @@ export function HeaderProfileButton() {
               </TouchableOpacity>
             </View>
 
-             {/* Menu Items */}
+            {/* Menu Items */}
             <View className="gap-3">
               {/* Edit Profile Option */}
               <TouchableOpacity
-                onPress={() => handleNavigate('/settings?tab=profile')}
+                onPress={() => handleNavigate("/settings?tab=profile")}
                 className="flex-row items-center gap-4 p-4 rounded-2xl bg-white border border-purple-100 shadow-sm active:scale-[0.98]"
               >
                 <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center">
@@ -136,29 +139,35 @@ export function HeaderProfileButton() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-bold text-gray-800">Edit Profil & Pasangan</Text>
-                  <Text className="text-[10px] text-gray-400 mt-0.5">Ubah nama panggilan & WhatsApp suami</Text>
+                  <Text className="text-[10px] text-gray-400 mt-0.5">
+                    Ubah nama panggilan & WhatsApp suami
+                  </Text>
                 </View>
                 <FontAwesome name="angle-right" size={16} color="#c084fc" />
               </TouchableOpacity>
 
               {/* Cycle & Savings Settings Option */}
               <TouchableOpacity
-                onPress={() => handleNavigate('/settings?tab=cycle')}
+                onPress={() => handleNavigate("/settings?tab=cycle")}
                 className="flex-row items-center gap-4 p-4 rounded-2xl bg-white border border-purple-100 shadow-sm active:scale-[0.98]"
               >
                 <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center">
                   <FontAwesome name="cog" size={18} color="#9333ea" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-sm font-bold text-gray-800">Pengaturan Siklus & Celengan</Text>
-                  <Text className="text-[10px] text-gray-400 mt-0.5">Ubah HPHT, panjang haid, & target tabungan</Text>
+                  <Text className="text-sm font-bold text-gray-800">
+                    Pengaturan Siklus & Celengan
+                  </Text>
+                  <Text className="text-[10px] text-gray-400 mt-0.5">
+                    Ubah HPHT, panjang haid, & target tabungan
+                  </Text>
                 </View>
                 <FontAwesome name="angle-right" size={16} color="#c084fc" />
               </TouchableOpacity>
 
               {/* Affiliate Program Option */}
               <TouchableOpacity
-                onPress={() => handleNavigate('/affiliate')}
+                onPress={() => handleNavigate("/affiliate")}
                 className="flex-row items-center gap-4 p-4 rounded-2xl bg-white border border-purple-100 shadow-sm active:scale-[0.98]"
               >
                 <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
@@ -166,7 +175,9 @@ export function HeaderProfileButton() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-bold text-gray-800">Program Afiliasi 🌸</Text>
-                  <Text className="text-[10px] text-gray-400 mt-0.5">Dapatkan komisi untuk setiap bunda yang bergabung</Text>
+                  <Text className="text-[10px] text-gray-400 mt-0.5">
+                    Dapatkan komisi untuk setiap bunda yang bergabung
+                  </Text>
                 </View>
                 <FontAwesome name="angle-right" size={16} color="#c084fc" />
               </TouchableOpacity>
@@ -174,7 +185,7 @@ export function HeaderProfileButton() {
               {/* Admin Panel Option (Visible only to authentic admins) */}
               {isAdmin && (
                 <TouchableOpacity
-                  onPress={() => handleNavigate('/admin')}
+                  onPress={() => handleNavigate("/admin")}
                   className="flex-row items-center gap-4 p-4 rounded-2xl bg-white border border-purple-100 shadow-sm active:scale-[0.98]"
                 >
                   <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center">
@@ -182,7 +193,9 @@ export function HeaderProfileButton() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-sm font-bold text-gray-800">Panel Admin Moderasi</Text>
-                    <Text className="text-[10px] text-gray-400 mt-0.5">Kelola kupon & verifikasi konten</Text>
+                    <Text className="text-[10px] text-gray-400 mt-0.5">
+                      Kelola kupon & verifikasi konten
+                    </Text>
                   </View>
                   <FontAwesome name="angle-right" size={16} color="#c084fc" />
                 </TouchableOpacity>
@@ -198,7 +211,9 @@ export function HeaderProfileButton() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-bold text-red-700">Keluar dari Akun</Text>
-                  <Text className="text-[10px] text-red-400 mt-0.5">Sesi Anda akan segera diakhiri</Text>
+                  <Text className="text-[10px] text-red-400 mt-0.5">
+                    Sesi Anda akan segera diakhiri
+                  </Text>
                 </View>
                 <FontAwesome name="angle-right" size={16} color="#fca5a5" />
               </TouchableOpacity>

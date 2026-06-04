@@ -85,7 +85,7 @@ const validRecipePayload = {
 
 test("parseOpenRouterJsonContent accepts fenced JSON", () => {
   const parsed = parseOpenRouterJsonContent<{ summary: string }>(
-    '```json\n{"summary":"Halo"}\n```'
+    '```json\n{"summary":"Halo"}\n```',
   );
 
   assert.deepEqual(parsed, { summary: "Halo" });
@@ -114,13 +114,7 @@ test("buildOpenRouterRequestBody caps fallback routing to three models", () => {
   const body = buildOpenRouterRequestBody({
     apiKey: "test-key",
     model: "qwen/free",
-    fallbackModels: [
-      "qwen/free",
-      "nvidia/free",
-      "openai/cheap",
-      "google/gemini",
-      "mistral/small",
-    ],
+    fallbackModels: ["qwen/free", "nvidia/free", "openai/cheap", "google/gemini", "mistral/small"],
     messages: [{ role: "user", content: "Halo" }],
     responseSchemaName: "test_schema",
     responseSchema: { type: "object" },
@@ -143,7 +137,7 @@ test("validateRecipesGeneration rejects payload without exactly two recipes", ()
         ...validRecipePayload,
         recipes: [validRecipePayload.recipes[0]],
       }),
-    /exactly 2 recipes/
+    /exactly 2 recipes/,
   );
 });
 
@@ -181,7 +175,7 @@ test("validateHabitCoachPlan rejects days with fewer than three personalized tas
 
   assert.throws(
     () => validateHabitCoachPlan(plan),
-    /Each habit coach day must contain 3 to 5 personalized tasks/
+    /Each habit coach day must contain 3 to 5 personalized tasks/,
   );
 });
 
@@ -198,22 +192,19 @@ test("validateHabitCoachPlan rejects days with more than five personalized tasks
 
   assert.throws(
     () => validateHabitCoachPlan(plan),
-    /Each habit coach day must contain 3 to 5 personalized tasks/
+    /Each habit coach day must contain 3 to 5 personalized tasks/,
   );
 });
 
 test("buildHabitCoachDayTasks prepends water and phase foundations", () => {
-  const tasks = buildHabitCoachDayTasks(
-    makePersonalizedTasks(),
-    {
-      dateKey: "2026-06-01",
-      dayIndex: 1,
-      phase: "Ovulation",
-      displayPhase: "Ovulasi",
-      cycleDay: 14,
-      isManualPeriod: false,
-    }
-  );
+  const tasks = buildHabitCoachDayTasks(makePersonalizedTasks(), {
+    dateKey: "2026-06-01",
+    dayIndex: 1,
+    phase: "Ovulation",
+    displayPhase: "Ovulasi",
+    cycleDay: 14,
+    isManualPeriod: false,
+  });
 
   assert.equal(tasks.length, 5);
   assert.equal(tasks[0].id, "foundation-water");
@@ -235,17 +226,14 @@ test("buildHabitCoachDayTasks picks phase foundations and filters duplicates", (
   ] as const;
 
   for (const [phase, expectedId] of phaseCases) {
-    const tasks = buildHabitCoachDayTasks(
-      makePersonalizedTasks(),
-      {
-        dateKey: "2026-06-01",
-        dayIndex: 1,
-        phase,
-        displayPhase: phase,
-        cycleDay: 1,
-        isManualPeriod: phase === "Menstrual",
-      }
-    );
+    const tasks = buildHabitCoachDayTasks(makePersonalizedTasks(), {
+      dateKey: "2026-06-01",
+      dayIndex: 1,
+      phase,
+      displayPhase: phase,
+      cycleDay: 1,
+      isManualPeriod: phase === "Menstrual",
+    });
     assert.equal(tasks[1].id, expectedId);
   }
 
@@ -294,12 +282,12 @@ test("buildHabitCoachDayTasks picks phase foundations and filters duplicates", (
       displayPhase: "Menstruasi",
       cycleDay: 2,
       isManualPeriod: true,
-    }
+    },
   );
 
   assert.deepEqual(
     tasks.map((task) => task.id),
-    ["foundation-water", "foundation-menstrual-warmth", "breath", "protein", "journal"]
+    ["foundation-water", "foundation-menstrual-warmth", "breath", "protein", "journal"],
   );
 });
 
@@ -335,7 +323,7 @@ test("buildHabitCoachDayTasks fills underfilled days after duplicate filtering",
       displayPhase: "Menstruasi",
       cycleDay: 2,
       isManualPeriod: true,
-    }
+    },
   );
 
   assert.equal(tasks.length, 5);
@@ -347,9 +335,12 @@ test("buildHabitCoachDayTasks fills underfilled days after duplicate filtering",
       "breath",
       "fallback-protein",
       "fallback-evening-reset",
-    ]
+    ],
   );
-  assert.equal(tasks.every((task) => task.text.length > 0), true);
+  assert.equal(
+    tasks.every((task) => task.text.length > 0),
+    true,
+  );
 });
 
 test("buildHabitCoachDayTasks keeps saved totals between five and seven", () => {
@@ -378,7 +369,7 @@ test("buildHabitCoachDayTasks keeps saved totals between five and seven", () => 
       displayPhase: "Luteal",
       cycleDay: 21,
       isManualPeriod: false,
-    }
+    },
   );
 
   assert.equal(tasks.length >= 5, true);
@@ -418,10 +409,13 @@ test("buildHabitCoachDayTasks keeps personalized non-foundation drink tasks", ()
       displayPhase: "Luteal",
       cycleDay: 21,
       isManualPeriod: false,
-    }
+    },
   );
 
-  assert.equal(tasks.some((task) => task.id === "vitamin"), true);
+  assert.equal(
+    tasks.some((task) => task.id === "vitamin"),
+    true,
+  );
   assert.equal(tasks.length, 5);
 });
 
@@ -448,7 +442,7 @@ test("validateCalmingReassurance rejects legacy-only reassurance payload", () =>
         reassurance: "Kamu tidak sendirian.",
         breathingTip: "Tarik napas pelan.",
       }),
-    /Calming reassurance title is required/
+    /Calming reassurance title is required/,
   );
 });
 

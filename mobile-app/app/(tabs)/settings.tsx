@@ -1,60 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  SafeAreaView, 
-  Alert, 
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Alert,
   Modal,
   Image,
   Platform,
-  Animated
-} from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useCycle } from '../../src/context/CycleContext';
-import { useAuth } from '../../src/context/AuthContext';
-import { format } from 'date-fns';
-import { router, useLocalSearchParams } from 'expo-router';
-import { supabase } from '../../src/lib/supabase';
-import { AvatarPicker } from '../../components/common/AvatarPicker';
-import { useUserAvatar } from '../../src/hooks/useUserAvatar';
-import { storage } from '../../src/lib/storage';
-import { stampDailyRecord } from '../../src/lib/activityHistorySync';
-import { getAuthenticatedSupabaseClientStatus } from '../../src/lib/supabaseAccess';
+  Animated,
+} from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useCycle } from "../../src/context/CycleContext";
+import { useAuth } from "../../src/context/AuthContext";
+import { format } from "date-fns";
+import { router, useLocalSearchParams } from "expo-router";
+import { supabase } from "../../src/lib/supabase";
+import { AvatarPicker } from "../../components/common/AvatarPicker";
+import { useUserAvatar } from "../../src/hooks/useUserAvatar";
+import { storage } from "../../src/lib/storage";
+import { stampDailyRecord } from "../../src/lib/activityHistorySync";
+import { getAuthenticatedSupabaseClientStatus } from "../../src/lib/supabaseAccess";
 import {
   DAILY_REMINDER_HOUR,
   DAILY_REMINDER_MINUTE,
   disableDailyReminder,
   enableDailyReminder,
   readDailyReminderEnabled,
-} from '../../src/lib/dailyReminder';
-import { expoDailyReminderNotifications } from '../../src/lib/expoDailyReminderNotifications';
+} from "../../src/lib/dailyReminder";
+import { expoDailyReminderNotifications } from "../../src/lib/expoDailyReminderNotifications";
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
   const { avatarUrl, avatarKind, updateAvatar } = useUserAvatar();
-  
+
   // Detect active tab from route search parameters
   const { tab } = useLocalSearchParams<{ tab?: string }>();
-  const [activeViewTab, setActiveViewTab] = useState<'profile' | 'cycle'>('profile');
+  const [activeViewTab, setActiveViewTab] = useState<"profile" | "cycle">("profile");
 
   useEffect(() => {
-    if (tab === 'profile') {
-      setActiveViewTab('profile');
-    } else if (tab === 'cycle') {
-      setActiveViewTab('cycle');
+    if (tab === "profile") {
+      setActiveViewTab("profile");
+    } else if (tab === "cycle") {
+      setActiveViewTab("cycle");
     }
   }, [tab]);
 
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "info" | "error";
+  } | null>(null);
   const toastOpacity = React.useRef(new Animated.Value(0)).current;
   const toastTranslateY = React.useRef(new Animated.Value(-20)).current;
 
-  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+  const showToast = (message: string, type: "success" | "info" | "error" = "success") => {
     setToast({ message, type });
-    
+
     // Reset values first
     toastOpacity.setValue(0);
     toastTranslateY.setValue(-20);
@@ -69,7 +72,7 @@ export default function SettingsScreen() {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
-      })
+      }),
     ]).start();
 
     // Fade out after 3 seconds
@@ -84,29 +87,39 @@ export default function SettingsScreen() {
           toValue: -20,
           duration: 300,
           useNativeDriver: true,
-        })
+        }),
       ]).start(() => {
         setToast(null);
       });
     }, 3000);
   };
 
-  const { 
-    lastPeriodDate, setLastPeriodDate,
-    cycleLength, setCycleLength,
-    periodLength, setPeriodLength,
-    activityHistory, setActivityHistory,
-    userNickname, setUserNickname,
-    husbandName, setHusbandName,
-    husbandNickname, setHusbandNickname,
-    husbandNumber, setHusbandNumber,
-    targetSaving, setTargetSaving,
-    currentSaving, setCurrentSaving,
+  const {
+    lastPeriodDate,
+    setLastPeriodDate,
+    cycleLength,
+    setCycleLength,
+    periodLength,
+    setPeriodLength,
+    activityHistory,
+    setActivityHistory,
+    userNickname,
+    setUserNickname,
+    husbandName,
+    setHusbandName,
+    husbandNickname,
+    setHusbandNickname,
+    husbandNumber,
+    setHusbandNumber,
+    targetSaving,
+    setTargetSaving,
+    currentSaving,
+    setCurrentSaving,
     hasManualLogs,
     currentPhase,
     cycleDay,
     daysToNextPeriod,
-    effectiveLastPeriod
+    effectiveLastPeriod,
   } = useCycle();
 
   // Local notification state is persisted by the reminder helper.
@@ -121,49 +134,69 @@ export default function SettingsScreen() {
   } | null>(null);
 
   const formatToLongIndonesianDate = (date: Date | null) => {
-    if (!date || isNaN(date.getTime())) return 'Pilih Tanggal';
+    if (!date || isNaN(date.getTime())) return "Pilih Tanggal";
     const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
     ];
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
   // Local inputs for cycle settings to avoid premature calculation updates
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(lastPeriodDate ? lastPeriodDate.getDate() : new Date().getDate());
-  const [selectedMonth, setSelectedMonth] = useState(lastPeriodDate ? lastPeriodDate.getMonth() + 1 : new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(lastPeriodDate ? lastPeriodDate.getFullYear() : new Date().getFullYear());
-  const [cycleInput, setCycleInput] = useState(cycleLength > 0 ? cycleLength.toString() : '28');
-  const [periodInput, setPeriodInput] = useState(periodLength > 0 ? periodLength.toString() : '5');
+  const [selectedDay, setSelectedDay] = useState(
+    lastPeriodDate ? lastPeriodDate.getDate() : new Date().getDate(),
+  );
+  const [selectedMonth, setSelectedMonth] = useState(
+    lastPeriodDate ? lastPeriodDate.getMonth() + 1 : new Date().getMonth() + 1,
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    lastPeriodDate ? lastPeriodDate.getFullYear() : new Date().getFullYear(),
+  );
+  const [cycleInput, setCycleInput] = useState(cycleLength > 0 ? cycleLength.toString() : "28");
+  const [periodInput, setPeriodInput] = useState(periodLength > 0 ? periodLength.toString() : "5");
 
   // Local inputs for savings
-  const [currentSavingInput, setCurrentSavingInput] = useState(currentSaving > 0 ? currentSaving.toString() : '');
-  const [targetSavingInput, setTargetSavingInput] = useState(targetSaving > 0 ? targetSaving.toString() : '');
+  const [currentSavingInput, setCurrentSavingInput] = useState(
+    currentSaving > 0 ? currentSaving.toString() : "",
+  );
+  const [targetSavingInput, setTargetSavingInput] = useState(
+    targetSaving > 0 ? targetSaving.toString() : "",
+  );
 
   // Synchronize local states when values change in the shared CycleContext (e.g., via Dashboard modal)
   useEffect(() => {
-    setCurrentSavingInput(currentSaving > 0 ? currentSaving.toString() : '');
+    setCurrentSavingInput(currentSaving > 0 ? currentSaving.toString() : "");
   }, [currentSaving]);
 
   useEffect(() => {
-    setTargetSavingInput(targetSaving > 0 ? targetSaving.toString() : '');
+    setTargetSavingInput(targetSaving > 0 ? targetSaving.toString() : "");
   }, [targetSaving]);
 
   // Phone error validation state
-  const [errorPhone, setErrorPhone] = useState('');
+  const [errorPhone, setErrorPhone] = useState("");
 
   useEffect(() => {
     if (husbandNumber && husbandNumber.length > 0) {
-      if (!husbandNumber.startsWith('62')) {
-        setErrorPhone('Nomor harus diawali dengan 62 (Kode Negara)');
+      if (!husbandNumber.startsWith("62")) {
+        setErrorPhone("Nomor harus diawali dengan 62 (Kode Negara)");
       } else if (husbandNumber.length < 10) {
-        setErrorPhone('Nomor terlalu pendek');
+        setErrorPhone("Nomor terlalu pendek");
       } else {
-        setErrorPhone('');
+        setErrorPhone("");
       }
     } else {
-      setErrorPhone('');
+      setErrorPhone("");
     }
   }, [husbandNumber]);
 
@@ -179,22 +212,22 @@ export default function SettingsScreen() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.replace('/auth');
+      router.replace("/auth");
     } catch (err: any) {
-      const message = err?.message || 'Gagal keluar dari akun. Coba lagi.';
-      if (Platform.OS === 'web') {
+      const message = err?.message || "Gagal keluar dari akun. Coba lagi.";
+      if (Platform.OS === "web") {
         window.alert(message);
       } else {
-        Alert.alert('Gagal Keluar', message);
+        Alert.alert("Gagal Keluar", message);
       }
     }
   };
 
   const confirmSignOut = () => {
-    const title = 'Keluar';
-    const message = 'Apakah Anda yakin ingin keluar dari akun ini?';
+    const title = "Keluar";
+    const message = "Apakah Anda yakin ingin keluar dari akun ini?";
 
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       if (window.confirm(`${title}\n\n${message}`)) {
         void handleSignOut();
       }
@@ -202,8 +235,8 @@ export default function SettingsScreen() {
     }
 
     Alert.alert(title, message, [
-      { text: 'Batal', style: 'cancel' },
-      { text: 'Keluar', style: 'destructive', onPress: () => void handleSignOut() },
+      { text: "Batal", style: "cancel" },
+      { text: "Keluar", style: "destructive", onPress: () => void handleSignOut() },
     ]);
   };
 
@@ -212,20 +245,20 @@ export default function SettingsScreen() {
     const pl = Number(periodInput);
 
     if (isNaN(cl) || isNaN(pl) || cl <= 0 || pl <= 0) {
-      Alert.alert('Eror', 'Silakan isi panjang siklus dan haid dengan angka yang valid.');
+      Alert.alert("Eror", "Silakan isi panjang siklus dan haid dengan angka yang valid.");
       return;
     }
 
     const proposedDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
     if (isNaN(proposedDate.getTime())) {
-      Alert.alert('Eror', 'Tanggal yang Anda masukkan tidak valid.');
+      Alert.alert("Eror", "Tanggal yang Anda masukkan tidak valid.");
       return;
     }
 
     const changes = {
       lastDate: proposedDate,
       cycle: cl,
-      period: pl
+      period: pl,
     };
 
     if (hasManualLogs) {
@@ -238,25 +271,25 @@ export default function SettingsScreen() {
 
   const applyCycleChanges = (changes: { lastDate: Date; cycle: number; period: number }) => {
     // Set local sync time to current timestamp to indicate local edits are newer
-    storage.setItem('hs_v3_last_sync_time', String(Date.now()));
+    storage.setItem("hs_v3_last_sync_time", String(Date.now()));
 
     setLastPeriodDate(changes.lastDate);
     setCycleLength(changes.cycle);
     setPeriodLength(changes.period);
 
     // Set this date as manually logged period to make it priority
-    const dateStr = format(changes.lastDate, 'yyyy-MM-dd');
-    setActivityHistory(prev => {
+    const dateStr = format(changes.lastDate, "yyyy-MM-dd");
+    setActivityHistory((prev) => {
       const updated = { ...prev };
-      
+
       // Hapus status isPeriod untuk semua tanggal setelah HPHT baru
       // agar tidak me-override perhitungan di cycleUtils (yang mengambil latestManual)
-      Object.keys(updated).forEach(key => {
+      Object.keys(updated).forEach((key) => {
         const d = new Date(key);
         if (d > changes.lastDate && updated[key]) {
           updated[key] = stampDailyRecord({
             ...updated[key],
-            isPeriod: false
+            isPeriod: false,
           });
         }
       });
@@ -265,7 +298,7 @@ export default function SettingsScreen() {
         ...updated[dateStr],
         symptoms: updated[dateStr]?.symptoms || [],
         tasks: updated[dateStr]?.tasks || [],
-        isPeriod: true
+        isPeriod: true,
       });
 
       return updated;
@@ -273,7 +306,7 @@ export default function SettingsScreen() {
 
     setShowOverrideWarning(false);
     setPendingChanges(null);
-    showToast('Data siklus haid berhasil diperbarui! 📅', 'success');
+    showToast("Data siklus haid berhasil diperbarui! 📅", "success");
   };
 
   const handleSavingsSubmit = () => {
@@ -281,48 +314,51 @@ export default function SettingsScreen() {
     const tarVal = Number(targetSavingInput);
 
     if (isNaN(curVal) || isNaN(tarVal) || curVal < 0 || tarVal <= 0) {
-      Alert.alert('Eror', 'Silakan masukkan jumlah tabungan yang valid.');
+      Alert.alert("Eror", "Silakan masukkan jumlah tabungan yang valid.");
       return;
     }
 
     setCurrentSaving(curVal);
     setTargetSaving(tarVal);
-    showToast('Pengaturan tabungan berhasil disimpan! 💰', 'success');
+    showToast("Pengaturan tabungan berhasil disimpan! 💰", "success");
   };
 
   const handleProfileSubmit = async () => {
     if (errorPhone) {
-      Alert.alert('Eror', 'Silakan perbaiki nomor WhatsApp suami sebelum menyimpan.');
+      Alert.alert("Eror", "Silakan perbaiki nomor WhatsApp suami sebelum menyimpan.");
       return;
     }
-    
+
     if (!userNickname.trim()) {
-      Alert.alert('Eror', 'Nama panggilan Anda tidak boleh kosong.');
+      Alert.alert("Eror", "Nama panggilan Anda tidak boleh kosong.");
       return;
     }
 
     const status = getAuthenticatedSupabaseClientStatus(supabase, user?.id);
     if (status.ready) {
       try {
-        const { error } = await status.client.from('profiles').update({
-          nickname: userNickname,
-          husband_name: husbandName,
-          husband_nickname: husbandNickname,
-          husband_number: husbandNumber
-        }).eq('id', status.userId);
+        const { error } = await status.client
+          .from("profiles")
+          .update({
+            nickname: userNickname,
+            husband_name: husbandName,
+            husband_nickname: husbandNickname,
+            husband_number: husbandNumber,
+          })
+          .eq("id", status.userId);
 
         if (error) {
-          console.error('Failed to sync profile data to Supabase:', error);
-          showToast('Gagal menyinkronkan data ke server.', 'error');
+          console.error("Failed to sync profile data to Supabase:", error);
+          showToast("Gagal menyinkronkan data ke server.", "error");
         } else {
-          showToast('Profil & Pasangan berhasil disimpan dan disinkronkan! 💖', 'success');
+          showToast("Profil & Pasangan berhasil disimpan dan disinkronkan! 💖", "success");
         }
       } catch (e: any) {
-        console.error('Failed to sync profile data to Supabase:', e);
-        showToast('Gagal menyinkronkan data.', 'error');
+        console.error("Failed to sync profile data to Supabase:", e);
+        showToast("Gagal menyinkronkan data.", "error");
       }
     } else {
-      showToast('Profil & Pasangan berhasil disimpan secara lokal! 💖', 'success');
+      showToast("Profil & Pasangan berhasil disimpan secara lokal! 💖", "success");
     }
   };
 
@@ -340,23 +376,26 @@ export default function SettingsScreen() {
           daysToNextPeriod,
         });
 
-        if (result.status === 'scheduled') {
+        if (result.status === "scheduled") {
           setDailyReminder(true);
-          showToast('Pengingat harian dijadwalkan pukul 08.00.', 'success');
+          showToast("Pengingat harian dijadwalkan pukul 08.00.", "success");
           return;
         }
 
         setDailyReminder(false);
-        if (result.status === 'unsupported') {
-          showToast('Notifikasi harian belum tersedia di web. Aktifkan dari aplikasi mobile.', 'info');
+        if (result.status === "unsupported") {
+          showToast(
+            "Notifikasi harian belum tersedia di web. Aktifkan dari aplikasi mobile.",
+            "info",
+          );
           return;
         }
 
-        showToast('Izin notifikasi belum diberikan, jadi pengingat tidak dijadwalkan.', 'error');
+        showToast("Izin notifikasi belum diberikan, jadi pengingat tidak dijadwalkan.", "error");
       } catch (err) {
-        console.error('Failed to schedule daily reminder:', err);
+        console.error("Failed to schedule daily reminder:", err);
         setDailyReminder(false);
-        showToast('Gagal menjadwalkan pengingat harian. Coba lagi nanti.', 'error');
+        showToast("Gagal menjadwalkan pengingat harian. Coba lagi nanti.", "error");
       }
 
       return;
@@ -368,25 +407,27 @@ export default function SettingsScreen() {
         storage,
       });
       setDailyReminder(false);
-      showToast('Pengingat harian dinonaktifkan.', 'info');
+      showToast("Pengingat harian dinonaktifkan.", "info");
     } catch (err) {
-      console.error('Failed to disable daily reminder:', err);
+      console.error("Failed to disable daily reminder:", err);
       setDailyReminder(readDailyReminderEnabled(storage));
-      showToast('Gagal menonaktifkan pengingat. Coba lagi nanti.', 'error');
+      showToast("Gagal menonaktifkan pengingat. Coba lagi nanti.", "error");
     }
   };
 
-  const reminderTimeLabel = `${String(DAILY_REMINDER_HOUR).padStart(2, '0')}.${String(DAILY_REMINDER_MINUTE).padStart(2, '0')}`;
+  const reminderTimeLabel = `${String(DAILY_REMINDER_HOUR).padStart(2, "0")}.${String(DAILY_REMINDER_MINUTE).padStart(2, "0")}`;
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
-      
+    <SafeAreaView
+      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
+      className="bg-background"
+    >
       {/* Dynamic Toast Notification Banner */}
       {toast && (
-        <Animated.View 
+        <Animated.View
           style={{
-            position: 'absolute',
-            top: Platform.OS === 'ios' ? 60 : 30,
+            position: "absolute",
+            top: Platform.OS === "ios" ? 60 : 30,
             left: 24,
             right: 24,
             zIndex: 9999,
@@ -394,31 +435,37 @@ export default function SettingsScreen() {
             transform: [{ translateY: toastTranslateY }],
           }}
         >
-          <View className={`flex-row items-center gap-3 p-4 rounded-2xl border shadow-lg ${
-            toast.type === 'success' 
-              ? 'bg-emerald-50 border-emerald-200' 
-              : toast.type === 'error'
-              ? 'bg-red-50 border-red-200'
-              : 'bg-indigo-50 border-indigo-200'
-          }`}>
-            <View className={`w-8 h-8 rounded-full items-center justify-center shrink-0 ${
-              toast.type === 'success'
-                ? 'bg-emerald-100'
-                : toast.type === 'error'
-                ? 'bg-red-100'
-                : 'bg-indigo-100'
-            }`}>
+          <View
+            className={`flex-row items-center gap-3 p-4 rounded-2xl border shadow-lg ${
+              toast.type === "success"
+                ? "bg-emerald-50 border-emerald-200"
+                : toast.type === "error"
+                  ? "bg-red-50 border-red-200"
+                  : "bg-indigo-50 border-indigo-200"
+            }`}
+          >
+            <View
+              className={`w-8 h-8 rounded-full items-center justify-center shrink-0 ${
+                toast.type === "success"
+                  ? "bg-emerald-100"
+                  : toast.type === "error"
+                    ? "bg-red-100"
+                    : "bg-indigo-100"
+              }`}
+            >
               <Text className="text-sm font-bold">
-                {toast.type === 'success' ? '✨' : toast.type === 'error' ? '⚠️' : 'ℹ️'}
+                {toast.type === "success" ? "✨" : toast.type === "error" ? "⚠️" : "ℹ️"}
               </Text>
             </View>
-            <Text className={`text-xs font-bold flex-1 leading-relaxed ${
-              toast.type === 'success'
-                ? 'text-emerald-800'
-                : toast.type === 'error'
-                ? 'text-red-800'
-                : 'text-indigo-800'
-            }`}>
+            <Text
+              className={`text-xs font-bold flex-1 leading-relaxed ${
+                toast.type === "success"
+                  ? "text-emerald-800"
+                  : toast.type === "error"
+                    ? "text-red-800"
+                    : "text-indigo-800"
+              }`}
+            >
               {toast.message}
             </Text>
           </View>
@@ -426,49 +473,67 @@ export default function SettingsScreen() {
       )}
 
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
-        
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-2">
             <Text className="text-3xl font-bold text-on-background">Pengaturan</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Privasi dan Akun</Text>
+            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+              Privasi dan Akun
+            </Text>
             {user && (
-              <Text className="text-[12px] font-mono font-bold mt-1 text-primary break-all">{user.email}</Text>
+              <Text className="text-[12px] font-mono font-bold mt-1 text-primary break-all">
+                {user.email}
+              </Text>
             )}
           </View>
         </View>
 
         {/* Tab Toggle: Edit Profil vs Pengaturan Siklus */}
         <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
-          <TouchableOpacity 
-            onPress={() => setActiveViewTab('profile')}
+          <TouchableOpacity
+            onPress={() => setActiveViewTab("profile")}
             className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === 'profile' ? 'bg-surface shadow-sm' : ''
+              activeViewTab === "profile" ? "bg-surface shadow-sm" : ""
             }`}
           >
-            <FontAwesome name="user" size={14} color={activeViewTab === 'profile' ? '#ec4899' : '#94a3b8'} />
-            <Text className={`text-sm font-bold ${
-              activeViewTab === 'profile' ? 'text-primary' : 'text-on-surface-variant/70'
-            }`}>Profil & Pasangan</Text>
+            <FontAwesome
+              name="user"
+              size={14}
+              color={activeViewTab === "profile" ? "#ec4899" : "#94a3b8"}
+            />
+            <Text
+              className={`text-sm font-bold ${
+                activeViewTab === "profile" ? "text-primary" : "text-on-surface-variant/70"
+              }`}
+            >
+              Profil & Pasangan
+            </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            onPress={() => setActiveViewTab('cycle')}
+
+          <TouchableOpacity
+            onPress={() => setActiveViewTab("cycle")}
             className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === 'cycle' ? 'bg-surface shadow-sm' : ''
+              activeViewTab === "cycle" ? "bg-surface shadow-sm" : ""
             }`}
           >
-            <FontAwesome name="cog" size={14} color={activeViewTab === 'cycle' ? '#ec4899' : '#94a3b8'} />
-            <Text className={`text-sm font-bold ${
-              activeViewTab === 'cycle' ? 'text-primary' : 'text-on-surface-variant/70'
-            }`}>Siklus & Celengan</Text>
+            <FontAwesome
+              name="cog"
+              size={14}
+              color={activeViewTab === "cycle" ? "#ec4899" : "#94a3b8"}
+            />
+            <Text
+              className={`text-sm font-bold ${
+                activeViewTab === "cycle" ? "text-primary" : "text-on-surface-variant/70"
+              }`}
+            >
+              Siklus & Celengan
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Content Area */}
         <View className="gap-6">
-          
-          {activeViewTab === 'cycle' && (
+          {activeViewTab === "cycle" && (
             <>
               {/* Card 1: Pengaturan Siklus */}
               <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
@@ -479,13 +544,17 @@ export default function SettingsScreen() {
 
                 <View className="gap-4">
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">HPHT (Hari Pertama Haid Terakhir)</Text>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                      HPHT (Hari Pertama Haid Terakhir)
+                    </Text>
                     <TouchableOpacity
                       onPress={() => setIsDatePickerVisible(true)}
                       className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 flex-row justify-between items-center"
                     >
                       <Text className="text-sm text-on-surface font-semibold">
-                        {formatToLongIndonesianDate(new Date(selectedYear, selectedMonth - 1, selectedDay))}
+                        {formatToLongIndonesianDate(
+                          new Date(selectedYear, selectedMonth - 1, selectedDay),
+                        )}
                       </Text>
                       <FontAwesome name="calendar" size={16} color="#ec4899" />
                     </TouchableOpacity>
@@ -493,7 +562,9 @@ export default function SettingsScreen() {
 
                   <View className="flex-row gap-4">
                     <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Siklus</Text>
+                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                        Siklus
+                      </Text>
                       <View className="relative justify-center">
                         <TextInput
                           value={cycleInput}
@@ -502,12 +573,16 @@ export default function SettingsScreen() {
                           placeholderTextColor="#ec489950"
                           className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
                         />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">
+                          Hari
+                        </Text>
                       </View>
                     </View>
 
                     <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Haid</Text>
+                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                        Haid
+                      </Text>
                       <View className="relative justify-center">
                         <TextInput
                           value={periodInput}
@@ -516,7 +591,9 @@ export default function SettingsScreen() {
                           placeholderTextColor="#ec489950"
                           className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
                         />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">Hari</Text>
+                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">
+                          Hari
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -525,7 +602,9 @@ export default function SettingsScreen() {
                     onPress={handleCycleSubmit}
                     className="w-full py-3 bg-primary rounded-2xl items-center justify-center shadow-sm mt-2"
                   >
-                    <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Siklus</Text>
+                    <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
+                      Simpan Siklus
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -539,9 +618,13 @@ export default function SettingsScreen() {
 
                 <View className="gap-4">
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Tabungan Terkumpul</Text>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                      Total Tabungan Terkumpul
+                    </Text>
                     <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">
+                        Rp
+                      </Text>
                       <TextInput
                         value={currentSavingInput}
                         onChangeText={setCurrentSavingInput}
@@ -554,9 +637,13 @@ export default function SettingsScreen() {
                   </View>
 
                   <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Target Tabungan</Text>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                      Target Tabungan
+                    </Text>
                     <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">Rp</Text>
+                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">
+                        Rp
+                      </Text>
                       <TextInput
                         value={targetSavingInput}
                         onChangeText={setTargetSavingInput}
@@ -572,7 +659,9 @@ export default function SettingsScreen() {
                     onPress={handleSavingsSubmit}
                     className="w-full py-3 bg-teal-600 rounded-2xl items-center justify-center shadow-sm mt-2"
                   >
-                    <Text className="text-white font-bold text-sm uppercase tracking-wider">Simpan Tabungan</Text>
+                    <Text className="text-white font-bold text-sm uppercase tracking-wider">
+                      Simpan Tabungan
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -585,54 +674,67 @@ export default function SettingsScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-base font-bold text-on-surface">Asisten AI Siklusio</Text>
-                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">OpenRouter Server</Text>
+                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">
+                      OpenRouter Server
+                    </Text>
                   </View>
                 </View>
 
                 <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 gap-3">
                   <Text className="text-xs text-indigo-900/90 leading-relaxed">
-                    Semua fitur AI sekarang memakai OpenRouter dari server Siklusio. Kamu tidak perlu memasukkan Gemini API Key pribadi di aplikasi.
+                    Semua fitur AI sekarang memakai OpenRouter dari server Siklusio. Kamu tidak
+                    perlu memasukkan Gemini API Key pribadi di aplikasi.
                   </Text>
                   <TouchableOpacity
                     onPress={() => {
-                      storage.removeItem('hs_gemini_api_key');
-                      showToast('Kunci Gemini lama dibersihkan dari perangkat.', 'info');
+                      storage.removeItem("hs_gemini_api_key");
+                      showToast("Kunci Gemini lama dibersihkan dari perangkat.", "info");
                     }}
                     className="w-full py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
                   >
-                    <Text className="text-white font-bold text-xs uppercase tracking-wider">Bersihkan Kunci Lama</Text>
+                    <Text className="text-white font-bold text-xs uppercase tracking-wider">
+                      Bersihkan Kunci Lama
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               {/* Card 4: Pengaturan Pengingat */}
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={handleReminderToggle}
                 className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-4 flex-1 pr-4">
-                  <View className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? 'bg-primary/20 text-primary' : 'bg-surface-variant text-on-surface-variant'}`}>
-                    <FontAwesome name="bell" size={18} color={dailyReminder ? '#ec4899' : '#888'} />
+                  <View
+                    className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? "bg-primary/20 text-primary" : "bg-surface-variant text-on-surface-variant"}`}
+                  >
+                    <FontAwesome name="bell" size={18} color={dailyReminder ? "#ec4899" : "#888"} />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">Pengingat Harian & Promil</Text>
+                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">
+                      Pengingat Harian & Promil
+                    </Text>
                     <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
                       {dailyReminder
                         ? `Notifikasi lokal terjadwal setiap pukul ${reminderTimeLabel}.`
-                        : 'Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile.'}
+                        : "Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile."}
                     </Text>
                   </View>
                 </View>
-                
+
                 {/* Custom Toggle Switch */}
-                <View className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? 'bg-primary' : 'bg-surface-variant'}`}>
-                  <View className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? 'self-end' : 'self-start'}`} />
+                <View
+                  className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? "bg-primary" : "bg-surface-variant"}`}
+                >
+                  <View
+                    className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? "self-end" : "self-start"}`}
+                  />
                 </View>
               </TouchableOpacity>
 
               {/* Card 5: Program Afiliasi */}
-              <TouchableOpacity 
-                onPress={() => router.push('/affiliate')}
+              <TouchableOpacity
+                onPress={() => router.push("/affiliate")}
                 className="bg-pink-50 rounded-[32px] p-6 shadow-sm border border-pink-100 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center gap-4 flex-1 pr-4">
@@ -640,7 +742,9 @@ export default function SettingsScreen() {
                     <FontAwesome name="gift" size={18} color="#db2777" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-pink-900">Program Afiliasi 🌸</Text>
+                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-pink-900">
+                      Program Afiliasi 🌸
+                    </Text>
                     <Text className="text-[10px] font-mono text-pink-700 opacity-80 mt-1 leading-relaxed">
                       Dapatkan komisi untuk setiap bunda yang bergabung lewat referal Anda.
                     </Text>
@@ -653,7 +757,7 @@ export default function SettingsScreen() {
             </>
           )}
 
-          {activeViewTab === 'profile' && (
+          {activeViewTab === "profile" && (
             /* Card 3: Profil & Pasangan */
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
               <View className="flex-row items-center gap-3 mb-2">
@@ -672,9 +776,9 @@ export default function SettingsScreen() {
                   onChange={async (next) => {
                     try {
                       await updateAvatar(next);
-                      showToast('Foto profil Bunda berhasil diubah! ✨', 'success');
+                      showToast("Foto profil Bunda berhasil diubah! ✨", "success");
                     } catch (e: any) {
-                      showToast(e?.message || 'Tidak bisa menyimpan avatar.', 'error');
+                      showToast(e?.message || "Tidak bisa menyimpan avatar.", "error");
                     }
                   }}
                   size={80}
@@ -686,7 +790,9 @@ export default function SettingsScreen() {
 
               <View className="gap-4">
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Anda</Text>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                    Nama Panggilan Anda
+                  </Text>
                   <TextInput
                     value={userNickname}
                     onChangeText={setUserNickname}
@@ -697,7 +803,9 @@ export default function SettingsScreen() {
                 </View>
 
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Suami</Text>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                    Nama Suami
+                  </Text>
                   <TextInput
                     value={husbandName}
                     onChangeText={setHusbandName}
@@ -708,7 +816,9 @@ export default function SettingsScreen() {
                 </View>
 
                 <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Panggilan Suami</Text>
+                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
+                    Nama Panggilan Suami
+                  </Text>
                   <TextInput
                     value={husbandNickname}
                     onChangeText={setHusbandNickname}
@@ -720,7 +830,9 @@ export default function SettingsScreen() {
 
                 <View>
                   <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nomor WhatsApp Suami</Text>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                      Nomor WhatsApp Suami
+                    </Text>
                     {errorPhone ? (
                       <Text className="text-[10px] text-error font-medium">{errorPhone}</Text>
                     ) : null}
@@ -728,13 +840,13 @@ export default function SettingsScreen() {
                   <TextInput
                     value={husbandNumber}
                     onChangeText={(val) => {
-                      const digits = val.replace(/[^0-9]/g, '');
+                      const digits = val.replace(/[^0-9]/g, "");
                       setHusbandNumber(digits);
                     }}
                     placeholder="Cth: 6281234567890"
                     keyboardType="phone-pad"
                     placeholderTextColor="#ec489950"
-                    className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? 'border-error text-error' : 'border-outline-variant text-on-surface'}`}
+                    className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? "border-error text-error" : "border-outline-variant text-on-surface"}`}
                   />
                 </View>
 
@@ -742,10 +854,12 @@ export default function SettingsScreen() {
                   onPress={handleProfileSubmit}
                   disabled={!!errorPhone}
                   className={`w-full py-3 rounded-2xl items-center justify-center shadow-sm mt-2 active:scale-95 ${
-                    errorPhone ? 'bg-primary/50' : 'bg-primary'
+                    errorPhone ? "bg-primary/50" : "bg-primary"
                   }`}
                 >
-                  <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Simpan Profil & Pasangan</Text>
+                  <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
+                    Simpan Profil & Pasangan
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -757,9 +871,10 @@ export default function SettingsScreen() {
             className="w-full mt-4 flex-row items-center justify-center gap-2 py-4 bg-error/10 rounded-2xl border border-error/20"
           >
             <FontAwesome name="sign-out" size={18} color="#ef4444" />
-            <Text className="text-error font-bold tracking-widest text-sm uppercase">Keluar (Log Out)</Text>
+            <Text className="text-error font-bold tracking-widest text-sm uppercase">
+              Keluar (Log Out)
+            </Text>
           </TouchableOpacity>
-
         </View>
       </ScrollView>
 
@@ -778,12 +893,15 @@ export default function SettingsScreen() {
             <View className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4 mx-auto">
               <FontAwesome name="exclamation-circle" size={24} color="#ef4444" />
             </View>
-            <Text className="text-xl font-bold text-center mb-2 text-on-surface">Ubah Data Siklus?</Text>
+            <Text className="text-xl font-bold text-center mb-2 text-on-surface">
+              Ubah Data Siklus?
+            </Text>
             <Text className="text-sm text-on-surface-variant/80 text-center mb-6 leading-relaxed">
-              Mengubah data siklus secara manual akan memengaruhi prediksi menstruasi dan masa subur yang sudah dihitung. Apakah kamu yakin?
+              Mengubah data siklus secara manual akan memengaruhi prediksi menstruasi dan masa subur
+              yang sudah dihitung. Apakah kamu yakin?
             </Text>
             <View className="flex-row gap-3">
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   setShowOverrideWarning(false);
                   setPendingChanges(null);
@@ -792,10 +910,12 @@ export default function SettingsScreen() {
               >
                 <Text className="text-on-surface font-bold text-sm">Batal</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   if (pendingChanges) {
-                    applyCycleChanges(pendingChanges as { lastDate: Date; cycle: number; period: number });
+                    applyCycleChanges(
+                      pendingChanges as { lastDate: Date; cycle: number; period: number },
+                    );
                   }
                 }}
                 className="flex-1 py-3 rounded-xl items-center justify-center bg-primary shadow-sm"
@@ -825,21 +945,24 @@ export default function SettingsScreen() {
 
             {/* Three scrollable columns side-by-side */}
             <View className="flex-row flex-1 h-[220px] gap-2 mb-6">
-              
               {/* Day Column */}
               <View className="flex-1 bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">HARI</Text>
+                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
+                  HARI
+                </Text>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                   <View className="p-1">
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
                       const isSelected = selectedDay === day;
                       return (
                         <TouchableOpacity
                           key={day}
                           onPress={() => setSelectedDay(day)}
-                          className={`py-2 rounded-lg items-center ${isSelected ? 'bg-primary' : 'active:bg-surface-variant'}`}
+                          className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
                         >
-                          <Text className={`text-sm ${isSelected ? 'text-on-primary font-bold' : 'text-on-surface'}`}>
+                          <Text
+                            className={`text-sm ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
+                          >
                             {day}
                           </Text>
                         </TouchableOpacity>
@@ -851,12 +974,24 @@ export default function SettingsScreen() {
 
               {/* Month Column */}
               <View className="flex-[1.5] bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">BULAN</Text>
+                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
+                  BULAN
+                </Text>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                   <View className="p-1">
                     {[
-                      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                      "Januari",
+                      "Februari",
+                      "Maret",
+                      "April",
+                      "Mei",
+                      "Juni",
+                      "Juli",
+                      "Agustus",
+                      "September",
+                      "Oktober",
+                      "November",
+                      "Desember",
                     ].map((month, index) => {
                       const monthVal = index + 1;
                       const isSelected = selectedMonth === monthVal;
@@ -864,9 +999,11 @@ export default function SettingsScreen() {
                         <TouchableOpacity
                           key={monthVal}
                           onPress={() => setSelectedMonth(monthVal)}
-                          className={`py-2 rounded-lg items-center ${isSelected ? 'bg-primary' : 'active:bg-surface-variant'}`}
+                          className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
                         >
-                          <Text className={`text-xs ${isSelected ? 'text-on-primary font-bold' : 'text-on-surface'}`}>
+                          <Text
+                            className={`text-xs ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
+                          >
                             {month}
                           </Text>
                         </TouchableOpacity>
@@ -878,27 +1015,32 @@ export default function SettingsScreen() {
 
               {/* Year Column */}
               <View className="flex-1 bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">TAHUN</Text>
+                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
+                  TAHUN
+                </Text>
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                   <View className="p-1">
-                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 3 + i).map(year => {
-                      const isSelected = selectedYear === year;
-                      return (
-                        <TouchableOpacity
-                          key={year}
-                          onPress={() => setSelectedYear(year)}
-                          className={`py-2 rounded-lg items-center ${isSelected ? 'bg-primary' : 'active:bg-surface-variant'}`}
-                        >
-                          <Text className={`text-sm ${isSelected ? 'text-on-primary font-bold' : 'text-on-surface'}`}>
-                            {year}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 3 + i).map(
+                      (year) => {
+                        const isSelected = selectedYear === year;
+                        return (
+                          <TouchableOpacity
+                            key={year}
+                            onPress={() => setSelectedYear(year)}
+                            className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
+                          >
+                            <Text
+                              className={`text-sm ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
+                            >
+                              {year}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      },
+                    )}
                   </View>
                 </ScrollView>
               </View>
-
             </View>
 
             {/* Confirm Button */}
@@ -906,20 +1048,20 @@ export default function SettingsScreen() {
               onPress={() => {
                 const testDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
                 if (testDate.getDate() !== selectedDay) {
-                  Alert.alert('Eror', 'Tanggal yang dipilih tidak valid untuk bulan tersebut.');
+                  Alert.alert("Eror", "Tanggal yang dipilih tidak valid untuk bulan tersebut.");
                   return;
                 }
                 setIsDatePickerVisible(false);
               }}
               className="w-full py-3.5 bg-primary rounded-2xl items-center justify-center shadow-md active:scale-95"
             >
-              <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">Konfirmasi</Text>
+              <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
+                Konfirmasi
+              </Text>
             </TouchableOpacity>
-
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }

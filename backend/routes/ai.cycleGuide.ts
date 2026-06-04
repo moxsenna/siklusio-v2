@@ -22,9 +22,7 @@ router.post("/api/cycle-guide/generate", async (c) => {
     }
 
     const guideLevel =
-      body.guideLevel === "active" || body.guideLevel === "personal"
-        ? body.guideLevel
-        : "starter";
+      body.guideLevel === "active" || body.guideLevel === "personal" ? body.guideLevel : "starter";
     const creditCost = 40;
 
     const { data: existingActive, error: existingError } = await auth.supabaseAdmin
@@ -37,11 +35,14 @@ router.post("/api/cycle-guide/generate", async (c) => {
 
     if (existingError) throw existingError;
     if (existingActive) {
-      return c.json({
-        error: "Panduan siklus untuk hari ini sudah dibuat.",
-        guideId: existingActive.id,
-        result: aiSafetyEnvelope(existingActive.result as any),
-      }, 409);
+      return c.json(
+        {
+          error: "Panduan siklus untuk hari ini sudah dibuat.",
+          guideId: existingActive.id,
+          result: aiSafetyEnvelope(existingActive.result as any),
+        },
+        409,
+      );
     }
 
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);

@@ -1,13 +1,17 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React from "react";
+import { View, Text } from "react-native";
 
 export function AffirmationCard({ displayPhase }: { displayPhase: string }) {
   const getAffirmationMessage = () => {
-    switch(displayPhase) {
-      case 'Menstruasi': return "Tubuhmu sedang beristirahat. Berikan kasih sayang dan waktu untuk memulihkan energi.";
-      case 'Masa Subur': return "Ini waktu yang tepat untuk produktif dan menjalin koneksi. Energimu sedang berada di puncak!";
-      case 'Ovulasi': return "Pancarkan pesonamu. Kamu berada dalam fase paling alami dan indah.";
-      default: return "Cintai dirimu setiap harinya. Perjalanan ini milikmu.";
+    switch (displayPhase) {
+      case "Menstruasi":
+        return "Tubuhmu sedang beristirahat. Berikan kasih sayang dan waktu untuk memulihkan energi.";
+      case "Masa Subur":
+        return "Ini waktu yang tepat untuk produktif dan menjalin koneksi. Energimu sedang berada di puncak!";
+      case "Ovulasi":
+        return "Pancarkan pesonamu. Kamu berada dalam fase paling alami dan indah.";
+      default:
+        return "Cintai dirimu setiap harinya. Perjalanan ini milikmu.";
     }
   };
 
@@ -17,7 +21,9 @@ export function AffirmationCard({ displayPhase }: { displayPhase: string }) {
         <Text className="text-lg">💬</Text>
       </View>
       <View className="flex-1">
-        <Text className="text-[10px] font-bold uppercase tracking-widest text-pink-500 mb-1">Afirmasi Hari Ini</Text>
+        <Text className="text-[10px] font-bold uppercase tracking-widest text-pink-500 mb-1">
+          Afirmasi Hari Ini
+        </Text>
         <Text className="text-sm font-medium text-gray-800 italic pr-2 leading-relaxed">
           "{getAffirmationMessage()}"
         </Text>

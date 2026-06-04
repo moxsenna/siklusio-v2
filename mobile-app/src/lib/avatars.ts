@@ -15,7 +15,7 @@
  *    karena id ini disimpan di DB).
  */
 
-export type AvatarKind = 'preset' | 'custom';
+export type AvatarKind = "preset" | "custom";
 
 export interface PresetAvatar {
   id: string;
@@ -29,10 +29,10 @@ export interface PresetAvatar {
  * yang re-use icon yang sudah ada — ganti dengan asset baru kamu nanti.
  */
 export const PRESET_AVATARS: PresetAvatar[] = [
-  { id: 'p1', source: require('../../assets/images/icon.png') },
-  { id: 'p2', source: require('../../assets/images/adaptive-icon.png') },
-  { id: 'p3', source: require('../../assets/images/splash-icon.png') },
-  { id: 'p4', source: require('../../assets/images/favicon.png') },
+  { id: "p1", source: require("../../assets/images/icon.png") },
+  { id: "p2", source: require("../../assets/images/adaptive-icon.png") },
+  { id: "p3", source: require("../../assets/images/splash-icon.png") },
+  { id: "p4", source: require("../../assets/images/favicon.png") },
 ];
 
 /**
@@ -41,15 +41,15 @@ export const PRESET_AVATARS: PresetAvatar[] = [
  */
 export function resolveAvatarSource(
   avatarUrl: string | null | undefined,
-  avatarKind: AvatarKind | null | undefined
+  avatarKind: AvatarKind | null | undefined,
 ): any | null {
   if (!avatarUrl) return null;
-  if (avatarKind === 'preset') {
-    const id = avatarUrl.replace(/^preset:/, '');
+  if (avatarKind === "preset") {
+    const id = avatarUrl.replace(/^preset:/, "");
     const found = PRESET_AVATARS.find((p) => p.id === id);
     return found?.source ?? null;
   }
-  if (avatarKind === 'custom') {
+  if (avatarKind === "custom") {
     return { uri: avatarUrl };
   }
   // legacy fallback: kalau cuma URL tanpa kind, treat sebagai uri
@@ -76,7 +76,7 @@ export const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
  * @returns         URL https final dari image yang sudah di-host di R2
  */
 export async function uploadAvatarToR2(base64: string): Promise<string> {
-  const { getApiBaseUrl, getAccessToken } = await import('./api');
+  const { getApiBaseUrl, getAccessToken } = await import("./api");
 
   const token = await getAccessToken();
   const baseUrl = getApiBaseUrl();
@@ -84,22 +84,22 @@ export async function uploadAvatarToR2(base64: string): Promise<string> {
   let res: Response;
   try {
     res = await fetch(`${baseUrl}/api/upload-avatar`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ base64 }),
     });
   } catch (e: any) {
-    throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet.');
+    throw new Error("Tidak bisa terhubung ke server. Cek koneksi internet.");
   }
 
   let json: any;
   try {
     json = await res.json();
   } catch {
-    throw new Error('Server mengembalikan respons tidak terduga.');
+    throw new Error("Server mengembalikan respons tidak terduga.");
   }
 
   if (!res.ok) {
@@ -107,9 +107,8 @@ export async function uploadAvatarToR2(base64: string): Promise<string> {
   }
 
   if (!json?.url) {
-    throw new Error('Server tidak mengembalikan URL gambar.');
+    throw new Error("Server tidak mengembalikan URL gambar.");
   }
 
   return json.url;
 }
-

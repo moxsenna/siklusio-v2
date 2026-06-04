@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,16 @@ import {
   ActivityIndicator,
   Platform,
   Alert,
-} from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useAuth } from '../../src/context/AuthContext';
-import { useCommunityFeed } from '../../src/hooks/useCommunityFeed';
-import { PostCard } from '../../components/community/PostCard';
-import { ComposerModal } from '../../components/community/ComposerModal';
-import { CommentsModal } from '../../components/community/CommentsModal';
-import { ReportModal } from '../../components/community/ReportModal';
-import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
-import { analytics } from '../../src/lib/analytics';
+} from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useAuth } from "../../src/context/AuthContext";
+import { useCommunityFeed } from "../../src/hooks/useCommunityFeed";
+import { PostCard } from "../../components/community/PostCard";
+import { ComposerModal } from "../../components/community/ComposerModal";
+import { CommentsModal } from "../../components/community/CommentsModal";
+import { ReportModal } from "../../components/community/ReportModal";
+import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
+import { analytics } from "../../src/lib/analytics";
 
 export default function CommunityScreen() {
   const { user } = useAuth();
@@ -31,36 +31,36 @@ export default function CommunityScreen() {
   const [commentsPostPreview, setCommentsPostPreview] = useState<string | null>(null);
 
   const [reportTargetId, setReportTargetId] = useState<string | null>(null);
-  const [reportTargetType, setReportTargetType] = useState<'post' | 'comment'>('post');
+  const [reportTargetType, setReportTargetType] = useState<"post" | "comment">("post");
   const [reportOpen, setReportOpen] = useState(false);
 
   const showError = (msg: string) => {
-    if (Platform.OS === 'web') window.alert(msg);
-    else Alert.alert('Eror', msg);
+    if (Platform.OS === "web") window.alert(msg);
+    else Alert.alert("Eror", msg);
   };
 
   const handleReact = async (postId: string, rx: any) => {
     try {
       await feed.toggleReaction(postId, rx);
-      analytics.logEvent('community_react', { reaction_type: rx });
+      analytics.logEvent("community_react", { reaction_type: rx });
     } catch (e: any) {
-      showError(e?.message || 'Gagal mengirim reaksi.');
+      showError(e?.message || "Gagal mengirim reaksi.");
     }
   };
 
   const handleCreatePost = async (content: string) => {
     const res = await feed.createPost(content, false, null);
-    analytics.logEvent('community_post_created');
+    analytics.logEvent("community_post_created");
     return res;
   };
 
   const handleCreateComment = async (postId: string, content: string) => {
     const res = await feed.createComment(postId, content, false);
-    analytics.logEvent('community_comment_created');
+    analytics.logEvent("community_comment_created");
     return res;
   };
 
-  const handleOpenReport = (id: string, type: 'post' | 'comment') => {
+  const handleOpenReport = (id: string, type: "post" | "comment") => {
     setReportTargetId(id);
     setReportTargetType(type);
     setReportOpen(true);
@@ -80,12 +80,15 @@ export default function CommunityScreen() {
     try {
       await feed.deleteOwnPost(postId);
     } catch (e: any) {
-      showError(e?.message || 'Gagal menghapus postingan.');
+      showError(e?.message || "Gagal menghapus postingan.");
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
+      className="bg-background"
+    >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
@@ -97,7 +100,7 @@ export default function CommunityScreen() {
             refreshing={feed.refreshing}
             onRefresh={feed.refresh}
             tintColor="#ec4899"
-            colors={['#ec4899']}
+            colors={["#ec4899"]}
           />
         }
         onScroll={({ nativeEvent }) => {
@@ -113,9 +116,7 @@ export default function CommunityScreen() {
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
-            <Text className="text-3xl font-bold text-on-background">
-              Komunitas
-            </Text>
+            <Text className="text-3xl font-bold text-on-background">Komunitas</Text>
             <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
               Ruang Saling Mendukung
             </Text>
@@ -147,27 +148,25 @@ export default function CommunityScreen() {
           {feed.error && (
             <View
               style={{
-                backgroundColor: '#fef2f2',
-                borderColor: '#fee2e2',
+                backgroundColor: "#fef2f2",
+                borderColor: "#fee2e2",
                 borderWidth: 1,
                 borderRadius: 16,
                 padding: 14,
-                flexDirection: 'row',
+                flexDirection: "row",
                 gap: 10,
               }}
             >
               <FontAwesome name="exclamation-triangle" size={18} color="#ef4444" />
-              <Text style={{ fontSize: 12, color: '#ef4444', flex: 1 }}>
-                {feed.error}
-              </Text>
+              <Text style={{ fontSize: 12, color: "#ef4444", flex: 1 }}>{feed.error}</Text>
             </View>
           )}
 
           {!feed.refreshing && feed.posts.length === 0 && !feed.error && (
             <View
               style={{
-                alignItems: 'center',
-                justifyContent: 'center',
+                alignItems: "center",
+                justifyContent: "center",
                 paddingVertical: 64,
                 gap: 12,
               }}
@@ -177,11 +176,11 @@ export default function CommunityScreen() {
                   width: 72,
                   height: 72,
                   borderRadius: 36,
-                  backgroundColor: '#fce7f3',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "#fce7f3",
+                  alignItems: "center",
+                  justifyContent: "center",
                   borderWidth: 1,
-                  borderColor: '#fbcfe8',
+                  borderColor: "#fbcfe8",
                 }}
               >
                 <FontAwesome name="heart" size={28} color="#ec4899" />
@@ -189,9 +188,9 @@ export default function CommunityScreen() {
               <Text
                 style={{
                   fontSize: 16,
-                  fontWeight: 'bold',
-                  color: '#1e1b20',
-                  textAlign: 'center',
+                  fontWeight: "bold",
+                  color: "#1e1b20",
+                  textAlign: "center",
                 }}
               >
                 Belum ada cerita di komunitas
@@ -199,20 +198,19 @@ export default function CommunityScreen() {
               <Text
                 style={{
                   fontSize: 13,
-                  color: '#94a3b8',
-                  textAlign: 'center',
+                  color: "#94a3b8",
+                  textAlign: "center",
                   maxWidth: 280,
                   lineHeight: 19,
                 }}
               >
-                Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan
-                orang lain.
+                Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan orang lain.
               </Text>
               <TouchableOpacity
                 onPress={() => setComposerOpen(true)}
                 style={{
                   marginTop: 6,
-                  backgroundColor: '#ec4899',
+                  backgroundColor: "#ec4899",
                   paddingHorizontal: 20,
                   paddingVertical: 12,
                   borderRadius: 18,
@@ -221,9 +219,9 @@ export default function CommunityScreen() {
                 <Text
                   style={{
                     fontSize: 13,
-                    fontWeight: 'bold',
-                    color: '#fff',
-                    textTransform: 'uppercase',
+                    fontWeight: "bold",
+                    color: "#fff",
+                    textTransform: "uppercase",
                     letterSpacing: 1,
                   }}
                 >
@@ -237,19 +235,21 @@ export default function CommunityScreen() {
             <PostCard
               key={p.id}
               post={p}
-              reactions={feed.reactions[p.id] ?? {
-                counts: { hug: 0, pray: 0, sad: 0, strong: 0, me_too: 0 },
-                mine: new Set(),
-              }}
+              reactions={
+                feed.reactions[p.id] ?? {
+                  counts: { hug: 0, pray: 0, sad: 0, strong: 0, me_too: 0 },
+                  mine: new Set(),
+                }
+              }
               onReact={(rx) => handleReact(p.id, rx)}
               onOpenComments={() => handleOpenComments(p.id, p.content)}
-              onReport={() => handleOpenReport(p.id, 'post')}
+              onReport={() => handleOpenReport(p.id, "post")}
               onDeleteOwn={() => handleDeleteOwn(p.id)}
             />
           ))}
 
           {feed.loading && feed.posts.length > 0 && (
-            <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+            <View style={{ paddingVertical: 16, alignItems: "center" }}>
               <ActivityIndicator size="small" color="#ec4899" />
             </View>
           )}
@@ -257,9 +257,9 @@ export default function CommunityScreen() {
           {!feed.hasMore && feed.posts.length > 0 && (
             <Text
               style={{
-                textAlign: 'center',
+                textAlign: "center",
                 fontSize: 11,
-                color: '#cbd5e1',
+                color: "#cbd5e1",
                 paddingVertical: 16,
               }}
             >
@@ -268,8 +268,6 @@ export default function CommunityScreen() {
           )}
         </View>
       </ScrollView>
-
-
 
       <ComposerModal
         visible={composerOpen}
@@ -285,9 +283,7 @@ export default function CommunityScreen() {
         onClose={handleCloseComments}
         fetchComments={feed.fetchComments}
         onCreateComment={handleCreateComment}
-        onReportComment={(commentId, reason) =>
-          feed.reportTarget('comment', commentId, reason)
-        }
+        onReportComment={(commentId, reason) => feed.reportTarget("comment", commentId, reason)}
         cooldownLeft={feed.commentCooldownLeft}
       />
 

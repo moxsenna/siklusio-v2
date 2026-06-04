@@ -19,7 +19,9 @@ const normalizeSavingsAmount = (value: unknown): number => {
   return amount;
 };
 
-export function mapCloudSavingsProfile(profile: CloudSavingsProfile | null | undefined): MappedSavingsProfile {
+export function mapCloudSavingsProfile(
+  profile: CloudSavingsProfile | null | undefined,
+): MappedSavingsProfile {
   return {
     target_saving: normalizeSavingsAmount(profile?.target_saving),
     current_saving: normalizeSavingsAmount(profile?.current_saving),
@@ -29,7 +31,7 @@ export function mapCloudSavingsProfile(profile: CloudSavingsProfile | null | und
 
 export function buildSavingsProfileUpdate(
   payload: SavingsSyncPayload,
-  updatedAt: string
+  updatedAt: string,
 ): SavingsSyncPayload & { updated_at: string } {
   return {
     target_saving: normalizeSavingsAmount(payload.target_saving),
@@ -38,7 +40,10 @@ export function buildSavingsProfileUpdate(
   };
 }
 
-export function isCloudSavingsNewer(updatedAt: string | null | undefined, localSyncTimeMs: number): boolean {
+export function isCloudSavingsNewer(
+  updatedAt: string | null | undefined,
+  localSyncTimeMs: number,
+): boolean {
   if (!updatedAt) return false;
   const cloudTime = new Date(updatedAt).getTime();
   return Number.isFinite(cloudTime) && cloudTime > localSyncTimeMs;

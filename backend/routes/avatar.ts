@@ -3,7 +3,11 @@ import { Buffer } from "node:buffer";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { type Env } from "../env";
 import { requireUser } from "../middleware/auth";
-import { detectAvatarImage, isAvatarImageWithinPolicy, sanitizeAvatarImage } from "../storage/avatarImage";
+import {
+  detectAvatarImage,
+  isAvatarImageWithinPolicy,
+  sanitizeAvatarImage,
+} from "../storage/avatarImage";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -54,7 +58,12 @@ router.post("/api/upload-avatar", async (c) => {
     const secretAccessKey = c.env.R2_SECRET_ACCESS_KEY;
 
     if (!accountId || !accessKeyId || !secretAccessKey) {
-      return c.json({ error: "Missing R2 configuration (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)" }, 500);
+      return c.json(
+        {
+          error: "Missing R2 configuration (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)",
+        },
+        500,
+      );
     }
 
     const r2Client = new S3Client({
@@ -72,17 +81,22 @@ router.post("/api/upload-avatar", async (c) => {
         Key: key,
         Body: sanitizedBuffer,
         ContentType: avatarImage.contentType,
-      })
+      }),
     );
 
     const url = `${publicUrl}/${key}`;
-    console.log("<-- [BACKEND] Avatar uploaded successfully", { contentType: avatarImage.contentType });
+    console.log("<-- [BACKEND] Avatar uploaded successfully", {
+      contentType: avatarImage.contentType,
+    });
     return c.json({ url });
   } catch (error: any) {
     console.error("<-- [BACKEND] Avatar upload error:", error.stack || error);
-    return c.json({
-      error: error instanceof Error ? error.message : "Gagal mengunggah avatar",
-    }, 500);
+    return c.json(
+      {
+        error: error instanceof Error ? error.message : "Gagal mengunggah avatar",
+      },
+      500,
+    );
   }
 });
 

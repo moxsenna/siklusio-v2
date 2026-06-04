@@ -4,7 +4,7 @@ module.exports = {
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}"
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
@@ -25,7 +25,7 @@ module.exports = {
         "on-secondary": "#0f766e", // teal-700
         tertiary: "#14b8a6", // teal-500 (Ovulasi)
         "on-tertiary": "#ffffff", // white
-      }
+      },
     },
   },
   plugins: [],

@@ -1,10 +1,7 @@
-import { addDays, subDays, differenceInDays, startOfDay, format } from 'date-fns';
-import {
-  calculateAdaptiveCyclePrediction,
-  type PredictionConfidence,
-} from './cyclePrediction';
+import { addDays, subDays, differenceInDays, startOfDay, format } from "date-fns";
+import { calculateAdaptiveCyclePrediction, type PredictionConfidence } from "./cyclePrediction";
 
-export type CyclePhase = 'Menstrual' | 'Folikular' | 'Ovulasi' | 'Luteal';
+export type CyclePhase = "Menstrual" | "Folikular" | "Ovulasi" | "Luteal";
 
 export interface Task {
   id: number;
@@ -52,9 +49,14 @@ export function calculateCycleData(
   cycleLength: number,
   periodLength: number,
   activityHistory: Record<string, DailyRecord>,
-  todayOverride?: Date
+  todayOverride?: Date,
 ): CycleCalculations & {
-  getDayInfo: (date: Date) => { phase: CyclePhase; displayPhase: string; cycleDay: number; isManualPeriod: boolean };
+  getDayInfo: (date: Date) => {
+    phase: CyclePhase;
+    displayPhase: string;
+    cycleDay: number;
+    isManualPeriod: boolean;
+  };
 } {
   const safeCycleLength = Math.max(20, cycleLength || 28);
   const safePeriodLength = Math.max(1, periodLength || 5);
@@ -109,27 +111,27 @@ export function calculateCycleData(
     const startF = ovulationDayIndex - 5;
     const endF = ovulationDayIndex;
 
-    const dateKey = format(date, 'yyyy-MM-dd');
+    const dateKey = format(date, "yyyy-MM-dd");
     const isManualPeriod = !!activityHistory[dateKey]?.isPeriod;
 
-    let phase: CyclePhase = 'Luteal';
-    let displayPhase = 'Normal';
+    let phase: CyclePhase = "Luteal";
+    let displayPhase = "Normal";
 
     if (isManualPeriod || cDay <= finalPeriodLength) {
-      phase = 'Menstrual';
-      displayPhase = 'Menstruasi';
+      phase = "Menstrual";
+      displayPhase = "Menstruasi";
     } else if (cDay === ovulationDayIndex) {
-      phase = 'Ovulasi';
-      displayPhase = 'Ovulasi';
+      phase = "Ovulasi";
+      displayPhase = "Ovulasi";
     } else if (cDay >= startF && cDay <= endF) {
-      phase = 'Ovulasi';
-      displayPhase = 'Masa Subur';
+      phase = "Ovulasi";
+      displayPhase = "Masa Subur";
     } else if (cDay < ovulationDayIndex) {
-      phase = 'Folikular';
-      displayPhase = 'Normal';
+      phase = "Folikular";
+      displayPhase = "Normal";
     } else {
-      phase = 'Luteal';
-      displayPhase = 'Normal';
+      phase = "Luteal";
+      displayPhase = "Normal";
     }
 
     return { phase, displayPhase, cycleDay: cDay, isManualPeriod };

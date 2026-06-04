@@ -1,4 +1,4 @@
-export const SUPABASE_NOT_CONFIGURED_ERROR = 'Supabase belum terkonfigurasi.';
+export const SUPABASE_NOT_CONFIGURED_ERROR = "Supabase belum terkonfigurasi.";
 
 export type SupabaseClientStatus<TClient> =
   | { ready: true; client: TClient }
@@ -14,7 +14,7 @@ export interface AuthenticatedSupabaseClientStatusOptions {
 }
 
 export function getSupabaseClientStatus<TClient>(
-  client: TClient | null | undefined
+  client: TClient | null | undefined,
 ): SupabaseClientStatus<TClient> {
   if (!client) {
     return { ready: false, error: SUPABASE_NOT_CONFIGURED_ERROR };
@@ -35,7 +35,7 @@ export function requireSupabaseClient<TClient>(client: TClient | null | undefine
 export function getAuthenticatedSupabaseClientStatus<TClient>(
   client: TClient | null | undefined,
   userId: string | null | undefined,
-  options: AuthenticatedSupabaseClientStatusOptions = {}
+  options: AuthenticatedSupabaseClientStatusOptions = {},
 ): AuthenticatedSupabaseClientStatus<TClient> {
   const status = getSupabaseClientStatus(client);
   if (!status.ready) {
@@ -43,7 +43,7 @@ export function getAuthenticatedSupabaseClientStatus<TClient>(
   }
 
   if (!userId) {
-    return { ready: false, error: options.authError ?? 'Anda belum login.' };
+    return { ready: false, error: options.authError ?? "Anda belum login." };
   }
 
   return { ready: true, client: status.client, userId };
@@ -62,7 +62,7 @@ type SupabaseSessionClient = {
 };
 
 export async function getSupabaseAccessToken<TClient extends SupabaseSessionClient>(
-  client: TClient | null | undefined
+  client: TClient | null | undefined,
 ): Promise<string | null> {
   const status = getSupabaseClientStatus(client);
   if (!status.ready) {

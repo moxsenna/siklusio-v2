@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabase";
 import {
   getAuthenticatedSupabaseClientStatus,
   getSupabaseClientStatus,
-} from '../lib/supabaseAccess';
+} from "../lib/supabaseAccess";
 import {
   CommunityFeedItem,
   CommunityComment,
@@ -11,7 +11,7 @@ import {
   PhaseTag,
   POST_MAX_LENGTH,
   COMMENT_MAX_LENGTH,
-} from '../lib/communityTypes';
+} from "../lib/communityTypes";
 
 const PAGE_SIZE = 10;
 // Sinkron dengan trigger di community_rate_limit.sql
@@ -30,9 +30,9 @@ const COMMENT_COOLDOWN_SEC = 10;
  */
 function translateError(err: any): Error {
   const raw =
-    typeof err === 'string'
+    typeof err === "string"
       ? err
-      : err?.message || err?.error_description || String(err ?? 'Terjadi kesalahan.');
+      : err?.message || err?.error_description || String(err ?? "Terjadi kesalahan.");
 
   // Postgres lewat supabase-js menempel "raise exception ... message"
   const m = raw.match(/rate_limit:([a-z_]+):(?:(\d+):)?([^]+)/);
@@ -40,10 +40,10 @@ function translateError(err: any): Error {
     return new Error(m[3].trim());
   }
   // Cek pesan generic dari postgres: "violates check constraint"
-  if (raw.includes('content_length_check')) {
+  if (raw.includes("content_length_check")) {
     return new Error(`Tulisan terlalu panjang (maks ${POST_MAX_LENGTH} karakter).`);
   }
-  if (raw.includes('comment_length_check')) {
+  if (raw.includes("comment_length_check")) {
     return new Error(`Komentar terlalu panjang (maks ${COMMENT_MAX_LENGTH} karakter).`);
   }
   return new Error(raw);
@@ -84,17 +84,9 @@ export interface UseCommunityFeed {
   loadMore: () => Promise<void>;
   createPost: (content: string, isAnonymous: boolean, phaseTag: PhaseTag | null) => Promise<void>;
   toggleReaction: (postId: string, reactionType: ReactionType) => Promise<void>;
-  reportTarget: (
-    targetType: 'post' | 'comment',
-    targetId: string,
-    reason: string
-  ) => Promise<void>;
+  reportTarget: (targetType: "post" | "comment", targetId: string, reason: string) => Promise<void>;
   fetchComments: (postId: string) => Promise<CommentWithAuthor[]>;
-  createComment: (
-    postId: string,
-    content: string,
-    isAnonymous: boolean
-  ) => Promise<void>;
+  createComment: (postId: string, content: string, isAnonymous: boolean) => Promise<void>;
   deleteOwnPost: (postId: string) => Promise<void>;
 }
 
@@ -123,13 +115,13 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
     if (lastPostAt == null) return 0;
     const elapsed = (Date.now() - lastPostAt) / 1000;
     return Math.max(0, Math.ceil(POST_COOLDOWN_SEC - elapsed));
-  }, [lastPostAt, /* re-eval on tick */]);
+  }, [lastPostAt /* re-eval on tick */]);
 
   const commentCooldownLeft = useMemo(() => {
     if (lastCommentAt == null) return 0;
     const elapsed = (Date.now() - lastCommentAt) / 1000;
     return Math.max(0, Math.ceil(COMMENT_COOLDOWN_SEC - elapsed));
-  }, [lastCommentAt, /* re-eval on tick */]);
+  }, [lastCommentAt /* re-eval on tick */]);
 
   // Tick setiap detik kalau ada cooldown aktif (hemat: berhenti otomatis)
   useEffect(() => {
@@ -145,11 +137,11 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       if (!status.ready) return {};
 
       const { data, error: rxErr } = await status.client
-        .from('community_reactions')
-        .select('post_id, reaction_type, user_id')
-        .in('post_id', postIds);
+        .from("community_reactions")
+        .select("post_id, reaction_type, user_id")
+        .in("post_id", postIds);
       if (rxErr) {
-        console.warn('[useCommunityFeed] fetch reactions failed:', rxErr.message);
+        console.warn("[useCommunityFeed] fetch reactions failed:", rxErr.message);
         return {};
       }
       const map: Record<string, PostReactionState> = {};
@@ -162,7 +154,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       });
       return map;
     },
-    [currentUserId]
+    [currentUserId],
   );
 
   const fetchPage = useCallback(
@@ -170,7 +162,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       const status = getSupabaseClientStatus(supabase);
       if (!status.ready) throw new Error(status.error);
 
-      const { data, error: feedErr } = await status.client.rpc('get_community_feed', {
+      const { data, error: feedErr } = await status.client.rpc("get_community_feed", {
         page_size: PAGE_SIZE,
         before,
       });
@@ -179,7 +171,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       const rxMap = await fetchReactionsFor(rows.map((p) => p.id));
       return { rows, reactionsMap: rxMap };
     },
-    [fetchReactionsFor]
+    [fetchReactionsFor],
   );
 
   const refresh = useCallback(async () => {
@@ -196,7 +188,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       setReactions(reactionsMap);
       setHasMore(rows.length === PAGE_SIZE);
     } catch (e: any) {
-      setError(e.message || 'Gagal memuat feed komunitas.');
+      setError(e.message || "Gagal memuat feed komunitas.");
     } finally {
       setRefreshing(false);
     }
@@ -216,7 +208,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       setReactions((prev) => ({ ...prev, ...reactionsMap }));
       setHasMore(rows.length === PAGE_SIZE);
     } catch (e: any) {
-      setError(e.message || 'Gagal memuat lebih banyak.');
+      setError(e.message || "Gagal memuat lebih banyak.");
     } finally {
       setLoading(false);
     }
@@ -233,12 +225,12 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
   const createPost = useCallback(
     async (content: string, isAnonymous: boolean, phaseTag: PhaseTag | null) => {
       const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
-        supabaseError: 'Anda belum login.',
+        supabaseError: "Anda belum login.",
       });
       if (!status.ready) throw new Error(status.error);
 
       const trimmed = content.trim();
-      if (!trimmed) throw new Error('Tulisan tidak boleh kosong.');
+      if (!trimmed) throw new Error("Tulisan tidak boleh kosong.");
       if (trimmed.length > POST_MAX_LENGTH)
         throw new Error(`Tulisan maksimal ${POST_MAX_LENGTH} karakter.`);
 
@@ -247,12 +239,12 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         const elapsed = (Date.now() - lastPostAt) / 1000;
         if (elapsed < POST_COOLDOWN_SEC) {
           throw new Error(
-            `Tunggu ${Math.ceil(POST_COOLDOWN_SEC - elapsed)} detik sebelum membuat postingan baru.`
+            `Tunggu ${Math.ceil(POST_COOLDOWN_SEC - elapsed)} detik sebelum membuat postingan baru.`,
           );
         }
       }
 
-      const { error: insErr } = await status.client.from('community_posts').insert({
+      const { error: insErr } = await status.client.from("community_posts").insert({
         user_id: status.userId,
         content: trimmed,
         is_anonymous: isAnonymous,
@@ -262,13 +254,13 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       setLastPostAt(Date.now());
       await refresh();
     },
-    [currentUserId, lastPostAt, refresh]
+    [currentUserId, lastPostAt, refresh],
   );
 
   const toggleReaction = useCallback(
     async (postId: string, reactionType: ReactionType) => {
       const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
-        supabaseError: 'Anda belum login.',
+        supabaseError: "Anda belum login.",
       });
       if (!status.ready) throw new Error(status.error);
 
@@ -293,14 +285,14 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       try {
         if (has) {
           const { error: delErr } = await status.client
-            .from('community_reactions')
+            .from("community_reactions")
             .delete()
-            .eq('post_id', postId)
-            .eq('user_id', status.userId)
-            .eq('reaction_type', reactionType);
+            .eq("post_id", postId)
+            .eq("user_id", status.userId)
+            .eq("reaction_type", reactionType);
           if (delErr) throw delErr;
         } else {
-          const { error: insErr } = await status.client.from('community_reactions').insert({
+          const { error: insErr } = await status.client.from("community_reactions").insert({
             post_id: postId,
             user_id: status.userId,
             reaction_type: reactionType,
@@ -325,36 +317,32 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         throw e;
       }
     },
-    [currentUserId, reactions]
+    [currentUserId, reactions],
   );
 
   const reportTarget = useCallback(
-    async (
-      targetType: 'post' | 'comment',
-      targetId: string,
-      reason: string
-    ) => {
+    async (targetType: "post" | "comment", targetId: string, reason: string) => {
       const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
-        supabaseError: 'Anda belum login.',
+        supabaseError: "Anda belum login.",
       });
       if (!status.ready) throw new Error(status.error);
 
-      const { error: rErr } = await status.client.from('community_reports').insert({
+      const { error: rErr } = await status.client.from("community_reports").insert({
         target_type: targetType,
         target_id: targetId,
         reporter_id: status.userId,
         reason: reason?.trim() || null,
-        status: 'pending',
+        status: "pending",
       });
       if (rErr) {
         // PG unique violation: 1 user 1 report per target
-        if ((rErr as any).code === '23505') {
-          throw new Error('Anda sudah pernah melaporkan konten ini.');
+        if ((rErr as any).code === "23505") {
+          throw new Error("Anda sudah pernah melaporkan konten ini.");
         }
         throw rErr;
       }
     },
-    [currentUserId]
+    [currentUserId],
   );
 
   const fetchComments = useCallback(
@@ -362,7 +350,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       const status = getSupabaseClientStatus(supabase);
       if (!status.ready) return [];
 
-      const { data: rows, error: cErr } = await status.client.rpc('get_post_comments', {
+      const { data: rows, error: cErr } = await status.client.rpc("get_post_comments", {
         p_post_id: postId,
       });
       if (cErr) throw cErr;
@@ -371,7 +359,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         return {
           id: c.id,
           post_id: c.post_id,
-          user_id: c.is_own ? currentUserId || '' : '',
+          user_id: c.is_own ? currentUserId || "" : "",
           content: c.content,
           is_anonymous: c.is_anonymous,
           is_hidden: c.is_hidden,
@@ -384,18 +372,18 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         };
       });
     },
-    [currentUserId]
+    [currentUserId],
   );
 
   const createComment = useCallback(
     async (postId: string, content: string, isAnonymous: boolean) => {
       const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
-        supabaseError: 'Anda belum login.',
+        supabaseError: "Anda belum login.",
       });
       if (!status.ready) throw new Error(status.error);
 
       const trimmed = content.trim();
-      if (!trimmed) throw new Error('Komentar tidak boleh kosong.');
+      if (!trimmed) throw new Error("Komentar tidak boleh kosong.");
       if (trimmed.length > COMMENT_MAX_LENGTH)
         throw new Error(`Komentar maksimal ${COMMENT_MAX_LENGTH} karakter.`);
 
@@ -403,12 +391,12 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         const elapsed = (Date.now() - lastCommentAt) / 1000;
         if (elapsed < COMMENT_COOLDOWN_SEC) {
           throw new Error(
-            `Tunggu ${Math.ceil(COMMENT_COOLDOWN_SEC - elapsed)} detik sebelum berkomentar lagi.`
+            `Tunggu ${Math.ceil(COMMENT_COOLDOWN_SEC - elapsed)} detik sebelum berkomentar lagi.`,
           );
         }
       }
 
-      const { error: insErr } = await status.client.from('community_comments').insert({
+      const { error: insErr } = await status.client.from("community_comments").insert({
         post_id: postId,
         user_id: status.userId,
         content: trimmed,
@@ -419,26 +407,24 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
       // bump comment count locally for snappier UX
       setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId ? { ...p, comment_count: p.comment_count + 1 } : p
-        )
+        prev.map((p) => (p.id === postId ? { ...p, comment_count: p.comment_count + 1 } : p)),
       );
     },
-    [currentUserId, lastCommentAt]
+    [currentUserId, lastCommentAt],
   );
 
   const deleteOwnPost = useCallback(
     async (postId: string) => {
       const status = getAuthenticatedSupabaseClientStatus(supabase, currentUserId, {
-        supabaseError: 'Anda belum login.',
+        supabaseError: "Anda belum login.",
       });
       if (!status.ready) throw new Error(status.error);
 
       const { error: delErr } = await status.client
-        .from('community_posts')
+        .from("community_posts")
         .delete()
-        .eq('id', postId)
-        .eq('user_id', status.userId);
+        .eq("id", postId)
+        .eq("user_id", status.userId);
       if (delErr) throw delErr;
       setPosts((prev) => prev.filter((p) => p.id !== postId));
       setReactions((prev) => {
@@ -447,7 +433,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
         return next;
       });
     },
-    [currentUserId]
+    [currentUserId],
   );
 
   return useMemo(
@@ -486,6 +472,6 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       fetchComments,
       createComment,
       deleteOwnPost,
-    ]
+    ],
   );
 }

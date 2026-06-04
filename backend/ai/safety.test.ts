@@ -1,10 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  aiSafetyEnvelope,
-  containsForbiddenWords,
-  MEDICAL_DISCLAIMER,
-} from "./safety";
+import { aiSafetyEnvelope, containsForbiddenWords, MEDICAL_DISCLAIMER } from "./safety";
 
 test("aiSafetyEnvelope successfully wraps valid AI results", () => {
   const result = {
@@ -23,18 +19,24 @@ test("aiSafetyEnvelope successfully wraps valid AI results", () => {
 });
 
 test("containsForbiddenWords flags unsafe medical claims", () => {
-  assert.equal(containsForbiddenWords({ text: "Kamu pasti hamil jika mengikuti panduan ini" }), true);
+  assert.equal(
+    containsForbiddenWords({ text: "Kamu pasti hamil jika mengikuti panduan ini" }),
+    true,
+  );
   assert.equal(containsForbiddenWords({ text: "Metode ini dijamin berhasil 100%" }), true);
   assert.equal(containsForbiddenWords({ text: "Gunakan obat hormon secara mandiri" }), true);
   assert.equal(containsForbiddenWords({ text: "Tidak perlu dokter untuk masalah ini" }), true);
   assert.equal(containsForbiddenWords({ text: "Minum dosis obat X sebanyak 5mg" }), true);
-  
+
   // Case-insensitivity checks
   assert.equal(containsForbiddenWords({ text: "PASTI HAMIL" }), true);
   assert.equal(containsForbiddenWords({ text: "DIJAMIN" }), true);
-  
+
   // Safe input check
-  assert.equal(containsForbiddenWords({ text: "Konsumsi bayam merah untuk zat besi harian." }), false);
+  assert.equal(
+    containsForbiddenWords({ text: "Konsumsi bayam merah untuk zat besi harian." }),
+    false,
+  );
 
   // Contextual word check (allowed without action triggers)
   assert.equal(containsForbiddenWords({ text: "Siklusio tidak memberikan dosis obat." }), false);
@@ -76,4 +78,3 @@ test("aiSafetyEnvelope successfully strips existing envelope fields before re-wr
   });
   assert.equal((reEnveloped.safetyFlags as any).extraFlag, undefined);
 });
-

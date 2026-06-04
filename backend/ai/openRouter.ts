@@ -80,7 +80,7 @@ export function buildOpenRouterRequestBody(options: OpenRouterChatOptions) {
 }
 
 export async function callOpenRouterJson<T>(
-  options: OpenRouterChatOptions
+  options: OpenRouterChatOptions,
 ): Promise<OpenRouterJsonResult<T>> {
   if (!options.apiKey) {
     throw new Error("OPENROUTER_API_KEY is not configured");

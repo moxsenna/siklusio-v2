@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
-import { getLocalDateKey, getMsUntilNextLocalDay } from '../lib/todayKey';
+import { useEffect, useState } from "react";
+import { AppState } from "react-native";
+import { getLocalDateKey, getMsUntilNextLocalDay } from "../lib/todayKey";
 
 const MIDNIGHT_REFRESH_BUFFER_MS = 1000;
 
@@ -27,8 +27,8 @@ export function useTodayKey(): string {
 
     scheduleNextRefresh();
 
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
         refresh();
         scheduleNextRefresh();
       }

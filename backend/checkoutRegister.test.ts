@@ -49,11 +49,14 @@ test("paid checkout stores pending registration without plaintext password", asy
             user_metadata: {},
           },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       pendingBodies.push(JSON.parse(String(init?.body || "{}")));
       return new Response("{}", {
         status: 201,
@@ -74,7 +77,7 @@ test("paid checkout stores pending registration without plaintext password", asy
           statusCode: 200,
           data: { link: "https://mayar.test/pay/tx-1", id: "tx-1" },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -98,7 +101,7 @@ test("paid checkout stores pending registration without plaintext password", asy
         password: "secret123",
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();
@@ -124,7 +127,10 @@ test("payment webhook activates existing pending auth user instead of creating o
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       if (!init?.method || init.method === "GET") {
         return new Response(
           JSON.stringify({
@@ -135,7 +141,7 @@ test("payment webhook activates existing pending auth user instead of creating o
             whatsapp: "08123456789",
             affiliate_code: null,
           }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
 
@@ -155,7 +161,7 @@ test("payment webhook activates existing pending auth user instead of creating o
             user_metadata: {},
           },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -173,7 +179,7 @@ test("payment webhook activates existing pending auth user instead of creating o
               user_metadata: {},
             },
           }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
 
@@ -188,7 +194,7 @@ test("payment webhook activates existing pending auth user instead of creating o
               user_metadata: {},
             },
           }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
     }
@@ -207,7 +213,10 @@ test("payment webhook activates existing pending auth user instead of creating o
       });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/grant_ai_credits"
+    ) {
       return new Response("500", {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -237,7 +246,7 @@ test("payment webhook activates existing pending auth user instead of creating o
     {
       ...env,
       MAYAR_WEBHOOK_TOKEN: "valid-token",
-    }
+    },
   );
 
   const responseText = await response.text();
@@ -280,7 +289,7 @@ test("paid checkout does not return payment URL when checkout session insert fai
             user_metadata: {},
           },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -292,11 +301,14 @@ test("paid checkout does not return payment URL when checkout session insert fai
       deletedAuthUserIds.push("22222222-2222-4222-8222-222222222222");
       return new Response(
         JSON.stringify({ user: { id: "22222222-2222-4222-8222-222222222222" } }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       if (init?.method === "POST") {
         return new Response("{}", {
           status: 201,
@@ -316,7 +328,7 @@ test("paid checkout does not return payment URL when checkout session insert fai
           statusCode: 200,
           data: { link: "https://mayar.test/pay/tx-2", id: "tx-2" },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -346,7 +358,7 @@ test("paid checkout does not return payment URL when checkout session insert fai
         password: "secret123",
       }),
     },
-    env
+    env,
   );
 
   const payload = await response.json();

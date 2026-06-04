@@ -1,34 +1,42 @@
-import React, { useEffect, useState, useMemo, useTransition } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert, Platform } from 'react-native';
-import { addDays, differenceInDays, format, startOfDay } from 'date-fns';
-import { useCycle } from '../../src/context/CycleContext';
-import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
-import { analytics } from '../../src/lib/analytics';
-import { useTodayKey } from '../../src/hooks/useTodayKey';
-import { stampDailyRecord } from '../../src/lib/activityHistorySync';
-import { ApiError, apiGetJson, apiPostJson } from '../../src/lib/api';
-import { parseLocalDate } from '../../src/lib/dateUtils';
+import React, { useEffect, useState, useMemo, useTransition } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Alert,
+  Platform,
+} from "react-native";
+import { addDays, differenceInDays, format, startOfDay } from "date-fns";
+import { useCycle } from "../../src/context/CycleContext";
+import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
+import { analytics } from "../../src/lib/analytics";
+import { useTodayKey } from "../../src/hooks/useTodayKey";
+import { stampDailyRecord } from "../../src/lib/activityHistorySync";
+import { ApiError, apiGetJson, apiPostJson } from "../../src/lib/api";
+import { parseLocalDate } from "../../src/lib/dateUtils";
 import {
   getPlanTasksForDate,
   mergeCoachTasksWithSavedState,
   mapApiHabitPlan,
   summarizeHabitPlanCompletion,
-} from '../../src/lib/habitCoachPlan';
+} from "../../src/lib/habitCoachPlan";
 import {
   buildHabitCoachCycleDays,
   buildSevenDayPlanWindow,
   getPlanDateOffsetBounds,
   getPlanDayNumber,
   isFuturePlanDate,
-} from '../../src/lib/habitCoachFlow';
-import type { CoachQuestionAnswer, HabitCoachPlan } from '../../src/lib/habitCoachTypes';
+} from "../../src/lib/habitCoachFlow";
+import type { CoachQuestionAnswer, HabitCoachPlan } from "../../src/lib/habitCoachTypes";
 
-import { AiRecommendationSection } from '../../components/habits/AiRecommendationSection';
-import { HabitCoachCard } from '../../components/habits/HabitCoachCard';
-import { HabitCoachSheet } from '../../components/habits/HabitCoachSheet';
-import { HistoryView } from '../../components/habits/HistoryView';
-import { TodayRecipesCard } from '../../components/habits/TodayRecipesCard';
-import { TodayRecipesModal } from '../../components/habits/TodayRecipesModal';
+import { AiRecommendationSection } from "../../components/habits/AiRecommendationSection";
+import { HabitCoachCard } from "../../components/habits/HabitCoachCard";
+import { HabitCoachSheet } from "../../components/habits/HabitCoachSheet";
+import { HistoryView } from "../../components/habits/HistoryView";
+import { TodayRecipesCard } from "../../components/habits/TodayRecipesCard";
+import { TodayRecipesModal } from "../../components/habits/TodayRecipesModal";
 
 // Error boundary wrapper untuk HistoryView yang crash di native
 class HistoryErrorBoundary extends React.Component<
@@ -42,15 +50,20 @@ class HistoryErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <View style={{ padding: 16, alignItems: 'center', gap: 8 }}>
-          <Text style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center' }}>
+        <View style={{ padding: 16, alignItems: "center", gap: 8 }}>
+          <Text style={{ fontSize: 13, color: "#94a3b8", textAlign: "center" }}>
             Grafik histori tidak tersedia di perangkat ini.
           </Text>
           <TouchableOpacity
             onPress={() => this.setState({ hasError: false })}
-            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, backgroundColor: '#fce7f3' }}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 12,
+              backgroundColor: "#fce7f3",
+            }}
           >
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#ec4899' }}>Coba Lagi</Text>
+            <Text style={{ fontSize: 12, fontWeight: "bold", color: "#ec4899" }}>Coba Lagi</Text>
           </TouchableOpacity>
         </View>
       );
@@ -77,8 +90,8 @@ export default function HabitsScreen() {
     getDayInfo,
   } = useCycle();
   const [, startTransition] = useTransition();
-  
-  const [viewMode, setViewMode] = useState<'daily' | 'history'>('daily');
+
+  const [viewMode, setViewMode] = useState<"daily" | "history">("daily");
   const [historyFilter, setHistoryFilter] = useState<7 | 14 | 30>(7);
   const [habitCoachPlan, setHabitCoachPlan] = useState<HabitCoachPlan | null>(null);
   const [aiCreditBalance, setAiCreditBalance] = useState<number | null>(null);
@@ -92,26 +105,42 @@ export default function HabitsScreen() {
     activeUntil?: string | null;
     message?: string | null;
   } | null>(null);
-  
+
   const [viewedDateOffset, setViewedDateOffset] = useState(0); // 0 = today, positive values are future plan days
   const todayDateKey = useTodayKey();
   const todayDate = useMemo(() => parseLocalDate(todayDateKey), [todayDateKey]);
   const todayCycleInfo = useMemo(() => getDayInfo(todayDate), [getDayInfo, todayDate]);
   const effectiveCurrentPhase = todayCycleInfo.phase || currentPhase;
   const effectiveCycleDay = todayCycleInfo.cycleDay;
-  const effectiveDaysToNextPeriod = differenceInDays(startOfDay(nextPeriodDate), startOfDay(todayDate));
-  
+  const effectiveDaysToNextPeriod = differenceInDays(
+    startOfDay(nextPeriodDate),
+    startOfDay(todayDate),
+  );
+
   const viewedDate = useMemo(() => {
     return addDays(startOfDay(todayDate), viewedDateOffset);
   }, [todayDate, viewedDateOffset]);
 
   const dateString = useMemo(() => {
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
     return `${days[viewedDate.getDay()]}, ${viewedDate.getDate()} ${months[viewedDate.getMonth()]}`;
   }, [viewedDate]);
 
-  const dateKey = format(viewedDate, 'yyyy-MM-dd');
+  const dateKey = format(viewedDate, "yyyy-MM-dd");
 
   useEffect(() => {
     let mounted = true;
@@ -119,7 +148,7 @@ export default function HabitsScreen() {
 
     Promise.all([
       apiGetJson<{ plan: any | null }>(`/api/habit-coach/current?date=${todayDateKey}`),
-      apiGetJson<{ balance: number }>('/api/ai/credits'),
+      apiGetJson<{ balance: number }>("/api/ai/credits"),
     ])
       .then(([planResponse, creditResponse]) => {
         if (!mounted) return;
@@ -127,7 +156,7 @@ export default function HabitsScreen() {
         setAiCreditBalance(creditResponse.balance);
       })
       .catch((error: any) => {
-        console.warn('[Habits] Gagal mengambil Habit Coach:', error?.message || error);
+        console.warn("[Habits] Gagal mengambil Habit Coach:", error?.message || error);
       })
       .finally(() => {
         if (mounted) setCoachFetching(false);
@@ -137,93 +166,91 @@ export default function HabitsScreen() {
       mounted = false;
     };
   }, [todayDateKey]);
-  
+
   // Dynamic Tasks Based on Phase
   const fallbackTasks = useMemo(() => {
     const baseTasks = [
-      { id: 1, text: 'Minum Air (2L)', emoji: '💧', done: false },
-      { id: 2, text: 'Asam Folat', emoji: '💊', done: false },
+      { id: 1, text: "Minum Air (2L)", emoji: "💧", done: false },
+      { id: 2, text: "Asam Folat", emoji: "💊", done: false },
     ];
-    
-    if (effectiveCurrentPhase === 'Menstrual') {
-      baseTasks.push({ id: 3, text: 'Kompres Hangat', emoji: '🌡️', done: false });
-      baseTasks.push({ id: 4, text: 'Istirahat Cukup', emoji: '🛌', done: false });
-    } else if (effectiveCurrentPhase === 'Ovulasi') {
-      baseTasks.push({ id: 3, text: 'Berhubungan Intim', emoji: '💖', done: false });
-      baseTasks.push({ id: 4, text: 'Olahraga Ringan', emoji: '🧘‍♀️', done: false });
+
+    if (effectiveCurrentPhase === "Menstrual") {
+      baseTasks.push({ id: 3, text: "Kompres Hangat", emoji: "🌡️", done: false });
+      baseTasks.push({ id: 4, text: "Istirahat Cukup", emoji: "🛌", done: false });
+    } else if (effectiveCurrentPhase === "Ovulasi") {
+      baseTasks.push({ id: 3, text: "Berhubungan Intim", emoji: "💖", done: false });
+      baseTasks.push({ id: 4, text: "Olahraga Ringan", emoji: "🧘‍♀️", done: false });
     } else {
-      baseTasks.push({ id: 3, text: 'Nutrisi Susu Promil', emoji: '🥛', done: false });
-      baseTasks.push({ id: 4, text: 'Jalan Santai 15 Menit', emoji: '🚶‍♀️', done: false });
+      baseTasks.push({ id: 3, text: "Nutrisi Susu Promil", emoji: "🥛", done: false });
+      baseTasks.push({ id: 4, text: "Jalan Santai 15 Menit", emoji: "🚶‍♀️", done: false });
     }
-    
+
     return baseTasks;
   }, [effectiveCurrentPhase]);
 
   const activeHabitCoachPlan = useMemo(
     () => (getPlanDayNumber(habitCoachPlan, todayDateKey) ? habitCoachPlan : null),
-    [habitCoachPlan, todayDateKey]
+    [habitCoachPlan, todayDateKey],
   );
   const coachPlanOffsetBounds = useMemo(
     () => getPlanDateOffsetBounds(activeHabitCoachPlan, todayDateKey),
-    [activeHabitCoachPlan, todayDateKey]
+    [activeHabitCoachPlan, todayDateKey],
   );
   const dateOffsetBounds = useMemo(
     () => ({
       minOffset: -60,
       maxOffset: Math.max(0, coachPlanOffsetBounds.maxOffset),
     }),
-    [coachPlanOffsetBounds.maxOffset]
+    [coachPlanOffsetBounds.maxOffset],
   );
 
   useEffect(() => {
     setViewedDateOffset((current) =>
-      Math.min(Math.max(current, dateOffsetBounds.minOffset), dateOffsetBounds.maxOffset)
+      Math.min(Math.max(current, dateOffsetBounds.minOffset), dateOffsetBounds.maxOffset),
     );
   }, [dateOffsetBounds.minOffset, dateOffsetBounds.maxOffset]);
 
   const coachTasks = useMemo(
     () => getPlanTasksForDate(activeHabitCoachPlan, dateKey),
-    [activeHabitCoachPlan, dateKey]
+    [activeHabitCoachPlan, dateKey],
   );
   const todayCoachTasks = useMemo(
     () => getPlanTasksForDate(activeHabitCoachPlan, todayDateKey),
-    [activeHabitCoachPlan, todayDateKey]
+    [activeHabitCoachPlan, todayDateKey],
   );
   const todayPlanFocus = useMemo(
     () => activeHabitCoachPlan?.days.find((day) => day.dateKey === todayDateKey)?.focus || null,
-    [activeHabitCoachPlan, todayDateKey]
+    [activeHabitCoachPlan, todayDateKey],
   );
   const selectedPlanDayNumber = useMemo(
     () => getPlanDayNumber(activeHabitCoachPlan, dateKey),
-    [activeHabitCoachPlan, dateKey]
+    [activeHabitCoachPlan, dateKey],
   );
   const todayPlanDayNumber = useMemo(
     () => getPlanDayNumber(activeHabitCoachPlan, todayDateKey),
-    [activeHabitCoachPlan, todayDateKey]
+    [activeHabitCoachPlan, todayDateKey],
   );
   const isFutureDate = isFuturePlanDate(dateKey, todayDateKey);
   const savedDayData = activityHistory[dateKey];
   const mergedCoachTasks = useMemo(
     () => mergeCoachTasksWithSavedState(coachTasks, savedDayData?.tasks),
-    [coachTasks, savedDayData?.tasks]
+    [coachTasks, savedDayData?.tasks],
   );
   const currentDayData = {
     ...(savedDayData || {}),
-    tasks: coachTasks.length > 0
-      ? mergedCoachTasks
-      : [],
+    tasks: coachTasks.length > 0 ? mergedCoachTasks : [],
     symptoms: savedDayData?.symptoms || [],
   };
   const tasks = currentDayData.tasks;
   const symptoms = currentDayData.symptoms || [];
 
   const updateCurrentDay = (newData: Partial<typeof currentDayData>) => {
-    setActivityHistory(prev => ({
+    setActivityHistory((prev) => ({
       ...prev,
       [dateKey]: stampDailyRecord({
         ...currentDayData,
-        ...newData
-      })
+        ...newData,
+      }),
     }));
   };
 
@@ -231,18 +258,18 @@ export default function HabitsScreen() {
     if (isFutureDate) return;
 
     startTransition(() => {
-      const task = tasks.find(t => t.id === id);
+      const task = tasks.find((t) => t.id === id);
       if (task) {
         const nextState = !task.done;
         if (nextState) {
-          analytics.logEvent('habit_completed', {
+          analytics.logEvent("habit_completed", {
             habit_name: task.text,
-            phase: effectiveCurrentPhase
+            phase: effectiveCurrentPhase,
           });
         }
       }
       updateCurrentDay({
-        tasks: tasks.map(t => t.id === id ? { ...t, done: !t.done } : t)
+        tasks: tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
       });
     });
   };
@@ -253,13 +280,13 @@ export default function HabitsScreen() {
     startTransition(() => {
       const isAdding = !symptoms.includes(id);
       if (isAdding) {
-        analytics.logEvent('symptom_logged', {
+        analytics.logEvent("symptom_logged", {
           symptom_id: id,
-          phase: effectiveCurrentPhase
+          phase: effectiveCurrentPhase,
         });
       }
       if (symptoms.includes(id)) {
-        updateCurrentDay({ symptoms: symptoms.filter(s => s !== id) });
+        updateCurrentDay({ symptoms: symptoms.filter((s) => s !== id) });
       } else {
         updateCurrentDay({ symptoms: [...symptoms, id] });
       }
@@ -269,7 +296,7 @@ export default function HabitsScreen() {
   const handlePrevDay = () => {
     if (viewedDateOffset > dateOffsetBounds.minOffset) {
       startTransition(() => {
-        setViewedDateOffset(prev => prev - 1);
+        setViewedDateOffset((prev) => prev - 1);
       });
     }
   };
@@ -277,7 +304,7 @@ export default function HabitsScreen() {
   const handleNextDay = () => {
     if (viewedDateOffset < dateOffsetBounds.maxOffset) {
       startTransition(() => {
-        setViewedDateOffset(prev => prev + 1);
+        setViewedDateOffset((prev) => prev + 1);
       });
     }
   };
@@ -287,18 +314,20 @@ export default function HabitsScreen() {
     setCoachError(null);
 
     try {
-      const mode = activeHabitCoachPlan ? 'renewal' : 'initial';
+      const mode = activeHabitCoachPlan ? "renewal" : "initial";
       const planWindow = buildSevenDayPlanWindow(todayDate);
       const cycleDays = buildHabitCoachCycleDays(planWindow.dateKeys, getDayInfo);
       const previousSummary = habitCoachPlan
         ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
         : null;
 
-      const json = await apiPostJson<{ plan: any; balance: number }>('/api/habit-coach/generate', {
+      const json = await apiPostJson<{ plan: any; balance: number }>("/api/habit-coach/generate", {
         mode,
         answers,
         nickname: userNickname,
-        userGoal: answers.find((answer) => answer.id === 'goal' || answer.id === 'next_focus')?.answer || 'habit sehat',
+        userGoal:
+          answers.find((answer) => answer.id === "goal" || answer.id === "next_focus")?.answer ||
+          "habit sehat",
         weekStart: planWindow.weekStart,
         weekEnd: planWindow.weekEnd,
         dateKeys: planWindow.dateKeys,
@@ -309,15 +338,23 @@ export default function HabitsScreen() {
         replaceActivePlan,
       });
 
-      const refreshed = await apiGetJson<{ plan: any | null }>(`/api/habit-coach/current?date=${todayDateKey}`);
-      setHabitCoachPlan(refreshed.plan ? mapApiHabitPlan(refreshed.plan) : mapApiHabitPlan(json.plan));
+      const refreshed = await apiGetJson<{ plan: any | null }>(
+        `/api/habit-coach/current?date=${todayDateKey}`,
+      );
+      setHabitCoachPlan(
+        refreshed.plan ? mapApiHabitPlan(refreshed.plan) : mapApiHabitPlan(json.plan),
+      );
       setAiCreditBalance(json.balance);
       setViewedDateOffset(0);
       setReplaceActivePlan(false);
       setReplacementWarning(null);
       setCoachOpen(false);
     } catch (error: any) {
-      if (error instanceof ApiError && error.status === 409 && error.code === 'ACTIVE_PLAN_OVERLAP') {
+      if (
+        error instanceof ApiError &&
+        error.status === 409 &&
+        error.code === "ACTIVE_PLAN_OVERLAP"
+      ) {
         const payload = (error.payload || {}) as {
           activeUntil?: string | null;
           message?: string | null;
@@ -327,97 +364,117 @@ export default function HabitsScreen() {
           activeUntil: payload.activeUntil,
           message:
             payload.message ||
-            `Kamu masih punya plan sampai ${payload.activeUntil || '-'}. Jika lanjut, coach akan membangun ulang plan dari hari ini sampai 7 hari ke depan.`,
+            `Kamu masih punya plan sampai ${payload.activeUntil || "-"}. Jika lanjut, coach akan membangun ulang plan dari hari ini sampai 7 hari ke depan.`,
         });
         setReplaceActivePlan(true);
         setCoachOpen(true);
         return;
       }
 
-      const message = error?.message || 'Gagal membuat rencana habit.';
+      const message = error?.message || "Gagal membuat rencana habit.";
       setCoachError(message);
-      if (Platform.OS !== 'web') {
-        Alert.alert('Habit Coach', message);
+      if (Platform.OS !== "web") {
+        Alert.alert("Habit Coach", message);
       }
     } finally {
       setCoachLoading(false);
     }
   };
 
-  const completed = tasks.filter(t => t.done).length;
+  const completed = tasks.filter((t) => t.done).length;
   const percent = Math.round((completed / tasks.length) * 100) || 0;
 
   const getMotivationalMessage = (percent: number) => {
-    if (!activeHabitCoachPlan) return 'Generate plan 7 hari dulu agar target harian dari coach muncul di sini.';
-    if (isFutureDate) return 'Ini preview plan. Checkbox baru aktif saat tanggalnya tiba.';
-    if (percent === 100) return `Luar biasa, ${userNickname}! Semua target hari ini selesai. Bangga banget! 💕`;
+    if (!activeHabitCoachPlan)
+      return "Generate plan 7 hari dulu agar target harian dari coach muncul di sini.";
+    if (isFutureDate) return "Ini preview plan. Checkbox baru aktif saat tanggalnya tiba.";
+    if (percent === 100)
+      return `Luar biasa, ${userNickname}! Semua target hari ini selesai. Bangga banget! 💕`;
     if (percent >= 50) return `Keren! Separuh jalan terlewati, semangat terus ya! ✨`;
-    if (percent > 0) return `Awal yang bagus, ${userNickname}. Yuk, pelan-pelan selesaikan sisanya! 🌟`;
+    if (percent > 0)
+      return `Awal yang bagus, ${userNickname}. Yuk, pelan-pelan selesaikan sisanya! 🌟`;
     return `Halo ${userNickname}! Yuk mulai hari ini dengan senyuman dan semangat! 😊`;
   };
 
   const SYMPTOMS_LIST = [
-    { id: 'cramps', emoji: '😣', label: 'Kram Perut' },
-    { id: 'headache', emoji: '🤕', label: 'Sakit Kepala' },
-    { id: 'fatigue', emoji: '😴', label: 'Kelelahan' },
-    { id: 'mood', emoji: '😠', label: 'Mood Swing' },
+    { id: "cramps", emoji: "😣", label: "Kram Perut" },
+    { id: "headache", emoji: "🤕", label: "Sakit Kepala" },
+    { id: "fatigue", emoji: "😴", label: "Kelelahan" },
+    { id: "mood", emoji: "😠", label: "Mood Swing" },
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
+      className="bg-background"
+    >
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
             <Text className="text-3xl font-bold text-on-background">Halo, {userNickname}</Text>
-            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">Gimana kabarmu hari ini?</Text>
+            <Text className="text-xs uppercase tracking-widest text-on-surface-variant font-bold mt-1">
+              Gimana kabarmu hari ini?
+            </Text>
           </View>
           <HeaderProfileButton />
         </View>
 
         {/* Tab Toggle Daily vs History */}
         <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
-          <TouchableOpacity 
-            onPress={() => startTransition(() => setViewMode('daily'))}
+          <TouchableOpacity
+            onPress={() => startTransition(() => setViewMode("daily"))}
             className={`flex-1 py-3 rounded-xl items-center ${
-              viewMode === 'daily' ? 'bg-surface shadow-sm' : ''
+              viewMode === "daily" ? "bg-surface shadow-sm" : ""
             }`}
           >
-            <Text className={`text-sm font-bold ${
-              viewMode === 'daily' ? 'text-primary' : 'text-on-surface-variant/70'
-            }`}>Harian</Text>
+            <Text
+              className={`text-sm font-bold ${
+                viewMode === "daily" ? "text-primary" : "text-on-surface-variant/70"
+              }`}
+            >
+              Harian
+            </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            onPress={() => startTransition(() => setViewMode('history'))}
+
+          <TouchableOpacity
+            onPress={() => startTransition(() => setViewMode("history"))}
             className={`flex-1 py-3 rounded-xl items-center ${
-              viewMode === 'history' ? 'bg-surface shadow-sm' : ''
+              viewMode === "history" ? "bg-surface shadow-sm" : ""
             }`}
           >
-            <Text className={`text-sm font-bold ${
-              viewMode === 'history' ? 'text-primary' : 'text-on-surface-variant/70'
-            }`}>📊 Histori</Text>
+            <Text
+              className={`text-sm font-bold ${
+                viewMode === "history" ? "text-primary" : "text-on-surface-variant/70"
+              }`}
+            >
+              📊 Histori
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {viewMode === 'daily' ? (
+        {viewMode === "daily" ? (
           <View className="space-y-6">
             {/* Date Switcher */}
             <View className="flex-row justify-between items-center bg-surface px-4 py-3 rounded-2xl border border-outline-variant shadow-sm mb-4">
-              <TouchableOpacity 
-                onPress={handlePrevDay} 
+              <TouchableOpacity
+                onPress={handlePrevDay}
                 disabled={viewedDateOffset <= dateOffsetBounds.minOffset}
                 className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset <= dateOffsetBounds.minOffset ? 'opacity-30' : 'text-primary'}`}>←</Text>
+                <Text
+                  className={`text-xl font-bold ${viewedDateOffset <= dateOffsetBounds.minOffset ? "opacity-30" : "text-primary"}`}
+                >
+                  ←
+                </Text>
               </TouchableOpacity>
-              
+
               <View className="items-center">
                 <Text className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
                   Tanggal Fokus
                 </Text>
                 <Text className="text-sm font-bold text-on-surface mt-1">
-                  {viewedDateOffset === 0 ? 'Hari ini' : dateString}
+                  {viewedDateOffset === 0 ? "Hari ini" : dateString}
                 </Text>
                 {selectedPlanDayNumber && (
                   <Text className="text-[10px] font-bold text-primary mt-1">
@@ -425,16 +482,20 @@ export default function HabitsScreen() {
                   </Text>
                 )}
               </View>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 onPress={handleNextDay}
                 disabled={viewedDateOffset >= dateOffsetBounds.maxOffset}
                 className="w-9 h-9 rounded-full items-center justify-center bg-surface-variant"
               >
-                <Text className={`text-xl font-bold ${viewedDateOffset >= dateOffsetBounds.maxOffset ? 'opacity-30' : 'text-primary'}`}>→</Text>
+                <Text
+                  className={`text-xl font-bold ${viewedDateOffset >= dateOffsetBounds.maxOffset ? "opacity-30" : "text-primary"}`}
+                >
+                  →
+                </Text>
               </TouchableOpacity>
             </View>
-            
+
             <View className="mb-6">
               <HabitCoachCard
                 plan={activeHabitCoachPlan}
@@ -465,18 +526,22 @@ export default function HabitsScreen() {
               <View className="flex-row items-center justify-between z-10">
                 <View className="flex-1 pr-4">
                   <Text className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
-                    {isFutureDate ? 'Preview Plan' : 'Progres Hari Ini'}
+                    {isFutureDate ? "Preview Plan" : "Progres Hari Ini"}
                   </Text>
                   <Text className="text-2xl font-bold text-on-background mb-2">
-                    {tasks.length > 0 ? `${completed} dari ${tasks.length} Selesai` : 'Belum ada target'}
+                    {tasks.length > 0
+                      ? `${completed} dari ${tasks.length} Selesai`
+                      : "Belum ada target"}
                   </Text>
                   <Text className="text-sm text-on-surface-variant leading-relaxed font-medium">
                     {getMotivationalMessage(percent)}
                   </Text>
                 </View>
-                
+
                 <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-                  <Text className="text-xl font-bold text-primary">{tasks.length > 0 ? `${percent}%` : '-'}</Text>
+                  <Text className="text-xl font-bold text-primary">
+                    {tasks.length > 0 ? `${percent}%` : "-"}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -484,17 +549,20 @@ export default function HabitsScreen() {
             {/* Daily Checklist */}
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant mb-6">
               <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
-                {selectedPlanDayNumber ? `Target Plan Hari ${selectedPlanDayNumber}` : 'Target Habit Coach'}
+                {selectedPlanDayNumber
+                  ? `Target Plan Hari ${selectedPlanDayNumber}`
+                  : "Target Habit Coach"}
               </Text>
 
               {isFutureDate && tasks.length > 0 && (
                 <View className="bg-primary/5 border border-primary/10 rounded-2xl p-4 mb-4">
                   <Text className="text-xs font-bold text-primary leading-5">
-                    Preview lembut: checkbox baru bisa dipakai saat tanggal ini tiba. Untuk sekarang, kamu bisa melihat rencananya dulu.
+                    Preview lembut: checkbox baru bisa dipakai saat tanggal ini tiba. Untuk
+                    sekarang, kamu bisa melihat rencananya dulu.
                   </Text>
                 </View>
               )}
-              
+
               <View className="gap-3">
                 {tasks.length === 0 && (
                   <View className="bg-surface-variant/50 border border-outline-variant rounded-2xl p-4">
@@ -502,26 +570,33 @@ export default function HabitsScreen() {
                       Kamu perlu generate plan 7 hari dulu.
                     </Text>
                     <Text className="text-xs text-on-surface-variant leading-5">
-                      Setelah plan aktif, target harian dari Habit Coach akan muncul di sini. Checklist fallback lama tidak ditampilkan sebagai task AI.
+                      Setelah plan aktif, target harian dari Habit Coach akan muncul di sini.
+                      Checklist fallback lama tidak ditampilkan sebagai task AI.
                     </Text>
                   </View>
                 )}
 
-                {tasks.map(task => (
-                  <TouchableOpacity 
-                    key={task.id} 
+                {tasks.map((task) => (
+                  <TouchableOpacity
+                    key={task.id}
                     onPress={() => toggleTask(task.id)}
                     disabled={isFutureDate}
                     className={`flex-row items-center justify-between p-4 rounded-2xl border ${
-                      task.done ? 'bg-surface-variant/50 border-outline-variant shadow-sm' : 'bg-surface border-outline-variant hover:border-primary/50'
+                      task.done
+                        ? "bg-surface-variant/50 border-outline-variant shadow-sm"
+                        : "bg-surface border-outline-variant hover:border-primary/50"
                     }`}
                   >
                     <View className="flex-row items-start gap-4 flex-1 pr-3">
-                      <View className={`w-12 h-12 rounded-2xl items-center justify-center bg-surface border border-outline-variant ${task.done ? 'opacity-50' : ''}`}>
+                      <View
+                        className={`w-12 h-12 rounded-2xl items-center justify-center bg-surface border border-outline-variant ${task.done ? "opacity-50" : ""}`}
+                      >
                         <Text className="text-2xl">{task.emoji}</Text>
                       </View>
                       <View className="flex-1">
-                        <Text className={`text-base font-bold leading-6 ${task.done ? 'text-on-surface-variant opacity-60 line-through' : 'text-on-surface'}`}>
+                        <Text
+                          className={`text-base font-bold leading-6 ${task.done ? "text-on-surface-variant opacity-60 line-through" : "text-on-surface"}`}
+                        >
                           {task.text}
                         </Text>
                         {task.reason ? (
@@ -529,46 +604,58 @@ export default function HabitsScreen() {
                             {task.reason}
                           </Text>
                         ) : null}
-                        <Text className={`text-xs font-bold uppercase tracking-wider mt-2 ${task.done ? 'text-green-500' : isFutureDate ? 'text-on-surface-variant' : 'text-primary'}`}>
-                          {isFutureDate ? 'Bisa diceklis nanti' : task.done ? 'Selesai' : 'Yuk Bisa!'}
+                        <Text
+                          className={`text-xs font-bold uppercase tracking-wider mt-2 ${task.done ? "text-green-500" : isFutureDate ? "text-on-surface-variant" : "text-primary"}`}
+                        >
+                          {isFutureDate
+                            ? "Bisa diceklis nanti"
+                            : task.done
+                              ? "Selesai"
+                              : "Yuk Bisa!"}
                         </Text>
                       </View>
                     </View>
-                    <View className={`w-8 h-8 rounded-full border-2 items-center justify-center ${
-                      task.done ? 'border-green-500 bg-green-500' : isFutureDate ? 'border-outline-variant bg-surface-variant' : 'border-outline-variant bg-surface'
-                    }`}>
+                    <View
+                      className={`w-8 h-8 rounded-full border-2 items-center justify-center ${
+                        task.done
+                          ? "border-green-500 bg-green-500"
+                          : isFutureDate
+                            ? "border-outline-variant bg-surface-variant"
+                            : "border-outline-variant bg-surface"
+                      }`}
+                    >
                       {task.done && <Text className="text-white font-bold text-xs">✓</Text>}
                     </View>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
-            
+
             {/* Symptoms Tracker */}
             <View className="bg-surface rounded-[32px] p-6 border border-outline-variant mb-6">
-               <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
-                 💝 Apa yang kamu rasakan?
-               </Text>
-               <View className="flex-row flex-wrap gap-3">
-                 {SYMPTOMS_LIST.map(symptom => {
-                   const isActive = symptoms.includes(symptom.id);
-                   return (
-                     <TouchableOpacity
-                       key={symptom.id}
-                       onPress={() => toggleSymptom(symptom.id)}
-                       disabled={isFutureDate}
-                       className={`flex-row items-center gap-2 px-4 py-3 rounded-2xl shadow-sm ${
-                         isActive 
-                           ? 'bg-surface border-primary border-2 text-primary' 
-                           : 'bg-surface-variant text-on-surface-variant border-transparent'
-                       }`}
-                     >
-                       <Text className="text-lg">{symptom.emoji}</Text>
-                       <Text className="text-sm font-bold text-on-background">{symptom.label}</Text>
-                     </TouchableOpacity>
-                   );
-                 })}
-               </View>
+              <Text className="text-sm font-bold tracking-wide text-on-surface mb-6">
+                💝 Apa yang kamu rasakan?
+              </Text>
+              <View className="flex-row flex-wrap gap-3">
+                {SYMPTOMS_LIST.map((symptom) => {
+                  const isActive = symptoms.includes(symptom.id);
+                  return (
+                    <TouchableOpacity
+                      key={symptom.id}
+                      onPress={() => toggleSymptom(symptom.id)}
+                      disabled={isFutureDate}
+                      className={`flex-row items-center gap-2 px-4 py-3 rounded-2xl shadow-sm ${
+                        isActive
+                          ? "bg-surface border-primary border-2 text-primary"
+                          : "bg-surface-variant text-on-surface-variant border-transparent"
+                      }`}
+                    >
+                      <Text className="text-lg">{symptom.emoji}</Text>
+                      <Text className="text-sm font-bold text-on-background">{symptom.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
             {!activeHabitCoachPlan && (
@@ -583,10 +670,10 @@ export default function HabitsScreen() {
           </View>
         ) : (
           <View className="bg-white rounded-[32px] p-6 shadow-sm border border-outline-variant">
-            <HistoryViewSafe 
-              historyFilter={historyFilter} 
-              setHistoryFilter={setHistoryFilter} 
-              activityHistory={activityHistory} 
+            <HistoryViewSafe
+              historyFilter={historyFilter}
+              setHistoryFilter={setHistoryFilter}
+              activityHistory={activityHistory}
             />
           </View>
         )}
@@ -603,7 +690,7 @@ export default function HabitsScreen() {
       />
       <HabitCoachSheet
         visible={coachOpen}
-        mode={activeHabitCoachPlan ? 'renewal' : 'initial'}
+        mode={activeHabitCoachPlan ? "renewal" : "initial"}
         loading={coachLoading}
         error={coachError}
         balance={aiCreditBalance}

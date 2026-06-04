@@ -1,20 +1,20 @@
-import { supabase } from './supabase';
-import { storage } from './storage';
-import { format, subDays } from 'date-fns';
+import { supabase } from "./supabase";
+import { storage } from "./storage";
+import { format, subDays } from "date-fns";
 import {
   activityHistoryToRows,
   mergeActivityHistories,
   rowsToActivityHistory,
   type ActivityHistoryMap,
   type ActivityHistoryRow,
-} from './activityHistorySync';
+} from "./activityHistorySync";
 import {
   buildSavingsProfileUpdate,
   isCloudSavingsNewer,
   mapCloudSavingsProfile,
   type SavingsSyncPayload,
-} from './savingsSync';
-import { getSupabaseClientStatus } from './supabaseAccess';
+} from "./savingsSync";
+import { getSupabaseClientStatus } from "./supabaseAccess";
 
 export interface CycleSyncPayload {
   last_period_date: string;
@@ -23,7 +23,7 @@ export interface CycleSyncPayload {
 }
 
 export interface SyncResult {
-  action: 'pulled' | 'pushed' | 'skipped' | 'error';
+  action: "pulled" | "pushed" | "skipped" | "error";
   data?: {
     last_period_date: string | null;
     cycle_length: number;
@@ -34,13 +34,13 @@ export interface SyncResult {
 }
 
 export interface ActivitySyncResult {
-  action: 'merged' | 'pushed' | 'pulled' | 'skipped' | 'error';
+  action: "merged" | "pushed" | "pulled" | "skipped" | "error";
   data?: ActivityHistoryMap;
   error?: any;
 }
 
 export interface SavingsSyncResult {
-  action: 'pulled' | 'pushed' | 'skipped' | 'error';
+  action: "pulled" | "pushed" | "skipped" | "error";
   data?: SavingsSyncPayload & { updated_at: string | null };
   error?: any;
 }
@@ -55,28 +55,32 @@ export const SyncManager = {
     try {
       const supabaseStatus = getSupabaseClientStatus(supabase);
       if (!supabaseStatus.ready) {
-        return { action: 'skipped', error: supabaseStatus.error };
+        return { action: "skipped", error: supabaseStatus.error };
       }
       const client = supabaseStatus.client;
 
-      const { data: { user }, error: authError } = await client.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await client.auth.getUser();
       if (authError || !user) {
-        return { action: 'skipped', error: 'User not authenticated' };
+        return { action: "skipped", error: "User not authenticated" };
       }
 
       // 1. Ambil data profil dari Supabase cloud
       const { data: cloudProfile, error: fetchError } = await client
-        .from('profiles')
-        .select('last_period_date, cycle_length, period_length, updated_at')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("last_period_date, cycle_length, period_length, updated_at")
+        .eq("id", user.id)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = Object not found (e.g. newly created user)
-        return { action: 'error', error: fetchError };
+      if (fetchError && fetchError.code !== "PGRST116") {
+        // PGRST116 = Object not found (e.g. newly created user)
+        return { action: "error", error: fetchError };
       }
 
       // Ambil waktu sinkronisasi lokal terakhir
-      const lastSyncTimeStr = storage.getItem('hs_v3_last_sync_time') || '0';
+      const lastSyncTimeStr = storage.getItem("hs_v3_last_sync_time") || "0";
       const localSyncTime = parseInt(lastSyncTimeStr, 10);
 
       // 2. Jika profil ada di cloud, lakukan cek konflik timestamp
@@ -85,23 +89,25 @@ export const SyncManager = {
 
         // Jika waktu di cloud lebih baru daripada pencatatan sinkronisasi lokal terakhir
         if (cloudTime > localSyncTime) {
-          console.info("[SyncManager] Cloud data is newer than local sync time. Pulling cloud changes.");
-          
+          console.info(
+            "[SyncManager] Cloud data is newer than local sync time. Pulling cloud changes.",
+          );
+
           // Simpan data cloud ke penyimpanan lokal secara aman
           if (cloudProfile.last_period_date) {
-            storage.setItem('hs_v3_lastPeriodDate', cloudProfile.last_period_date);
+            storage.setItem("hs_v3_lastPeriodDate", cloudProfile.last_period_date);
           } else {
-            storage.removeItem('hs_v3_lastPeriodDate');
+            storage.removeItem("hs_v3_lastPeriodDate");
           }
-          storage.setItem('hs_v3_cycleLength', String(cloudProfile.cycle_length || 28));
-          storage.setItem('hs_v3_periodLength', String(cloudProfile.period_length || 5));
-          
+          storage.setItem("hs_v3_cycleLength", String(cloudProfile.cycle_length || 28));
+          storage.setItem("hs_v3_periodLength", String(cloudProfile.period_length || 5));
+
           // Samakan waktu sinkronisasi terakhir dengan cloud updated_at
-          storage.setItem('hs_v3_last_sync_time', String(cloudTime));
+          storage.setItem("hs_v3_last_sync_time", String(cloudTime));
 
           return {
-            action: 'pulled',
-            data: cloudProfile
+            action: "pulled",
+            data: cloudProfile,
           };
         }
       }
@@ -111,28 +117,28 @@ export const SyncManager = {
       const newSyncTimeMs = new Date(newSyncTime).getTime();
 
       const { error: updateError } = await client
-        .from('profiles')
+        .from("profiles")
         .update({
           last_period_date: localData.last_period_date,
           cycle_length: localData.cycle_length,
           period_length: localData.period_length,
-          updated_at: newSyncTime
+          updated_at: newSyncTime,
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) {
         // Jika update gagal (misal RLS tidak mengizinkan atau kendala jaringan)
-        return { action: 'error', error: updateError };
+        return { action: "error", error: updateError };
       }
 
       // Perbarui penanda waktu lokal setelah push berhasil
-      storage.setItem('hs_v3_last_sync_time', String(newSyncTimeMs));
+      storage.setItem("hs_v3_last_sync_time", String(newSyncTimeMs));
       console.info("[SyncManager] Local cycle data pushed successfully to cloud.");
 
-      return { action: 'pushed' };
+      return { action: "pushed" };
     } catch (err) {
       console.error("[SyncManager] Exception during syncProfileData:", err);
-      return { action: 'error', error: err };
+      return { action: "error", error: err };
     }
   },
 
@@ -140,34 +146,40 @@ export const SyncManager = {
     try {
       const supabaseStatus = getSupabaseClientStatus(supabase);
       if (!supabaseStatus.ready) {
-        return { action: 'skipped', error: supabaseStatus.error };
+        return { action: "skipped", error: supabaseStatus.error };
       }
       const client = supabaseStatus.client;
 
-      const { data: { user }, error: authError } = await client.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await client.auth.getUser();
       if (authError || !user) {
-        return { action: 'skipped', error: 'User not authenticated' };
+        return { action: "skipped", error: "User not authenticated" };
       }
 
-      const startDate = format(subDays(new Date(), 400), 'yyyy-MM-dd');
+      const startDate = format(subDays(new Date(), 400), "yyyy-MM-dd");
       const { data: cloudRows, error: fetchError } = await client
-        .from('activity_history')
-        .select('date_key, is_period, symptoms, tasks, updated_at')
-        .eq('user_id', user.id)
-        .gte('date_key', startDate)
-        .order('date_key', { ascending: true });
+        .from("activity_history")
+        .select("date_key, is_period, symptoms, tasks, updated_at")
+        .eq("user_id", user.id)
+        .gte("date_key", startDate)
+        .order("date_key", { ascending: true });
 
       if (fetchError) {
-        return { action: 'error', error: fetchError };
+        return { action: "error", error: fetchError };
       }
 
       const cloudHistory = rowsToActivityHistory((cloudRows ?? []) as ActivityHistoryRow[]);
-      const localHistoryWindow = Object.keys(localHistory).reduce<ActivityHistoryMap>((acc, dateKey) => {
-        if (dateKey >= startDate) {
-          acc[dateKey] = localHistory[dateKey];
-        }
-        return acc;
-      }, {});
+      const localHistoryWindow = Object.keys(localHistory).reduce<ActivityHistoryMap>(
+        (acc, dateKey) => {
+          if (dateKey >= startDate) {
+            acc[dateKey] = localHistory[dateKey];
+          }
+          return acc;
+        },
+        {},
+      );
       const rowsToPush = activityHistoryToRows(localHistoryWindow, cloudHistory, user.id);
       const mergedHistory = mergeActivityHistories(localHistory, cloudHistory);
 
@@ -182,29 +194,29 @@ export const SyncManager = {
 
       if (rowsToPush.length > 0) {
         const { error: upsertError } = await client
-          .from('activity_history')
-          .upsert(rowsToPush, { onConflict: 'user_id,date_key' });
+          .from("activity_history")
+          .upsert(rowsToPush, { onConflict: "user_id,date_key" });
 
         if (upsertError) {
-          return { action: 'error', data: mergedHistory, error: upsertError };
+          return { action: "error", data: mergedHistory, error: upsertError };
         }
       }
 
       const hasCloudRows = (cloudRows ?? []).length > 0;
       if (rowsToPush.length > 0 && hasCloudRows) {
-        return { action: 'merged', data: mergedHistory };
+        return { action: "merged", data: mergedHistory };
       }
       if (rowsToPush.length > 0) {
-        return { action: 'pushed', data: mergedHistory };
+        return { action: "pushed", data: mergedHistory };
       }
       if (hasCloudRows) {
-        return { action: 'pulled', data: mergedHistory };
+        return { action: "pulled", data: mergedHistory };
       }
 
-      return { action: 'skipped', data: mergedHistory };
+      return { action: "skipped", data: mergedHistory };
     } catch (err) {
       console.error("[SyncManager] Exception during syncActivityHistory:", err);
-      return { action: 'error', error: err };
+      return { action: "error", error: err };
     }
   },
 
@@ -212,58 +224,63 @@ export const SyncManager = {
     try {
       const supabaseStatus = getSupabaseClientStatus(supabase);
       if (!supabaseStatus.ready) {
-        return { action: 'skipped', error: supabaseStatus.error };
+        return { action: "skipped", error: supabaseStatus.error };
       }
       const client = supabaseStatus.client;
 
-      const { data: { user }, error: authError } = await client.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await client.auth.getUser();
       if (authError || !user) {
-        return { action: 'skipped', error: 'User not authenticated' };
+        return { action: "skipped", error: "User not authenticated" };
       }
 
       const { data: cloudProfile, error: fetchError } = await client
-        .from('profiles')
-        .select('target_saving, current_saving, updated_at')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("target_saving, current_saving, updated_at")
+        .eq("id", user.id)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        return { action: 'error', error: fetchError };
+      if (fetchError && fetchError.code !== "PGRST116") {
+        return { action: "error", error: fetchError };
       }
 
-      const lastSyncTimeStr = storage.getItem('hs_v3_savings_sync_time') || '0';
+      const lastSyncTimeStr = storage.getItem("hs_v3_savings_sync_time") || "0";
       const localSyncTime = parseInt(lastSyncTimeStr, 10) || 0;
 
       if (cloudProfile && isCloudSavingsNewer(cloudProfile.updated_at, localSyncTime)) {
         const cloudSavings = mapCloudSavingsProfile(cloudProfile);
-        storage.setItem('hs_v3_targetSaving', JSON.stringify(cloudSavings.target_saving));
-        storage.setItem('hs_v3_currentSaving', JSON.stringify(cloudSavings.current_saving));
+        storage.setItem("hs_v3_targetSaving", JSON.stringify(cloudSavings.target_saving));
+        storage.setItem("hs_v3_currentSaving", JSON.stringify(cloudSavings.current_saving));
 
-        const cloudTime = cloudSavings.updated_at ? new Date(cloudSavings.updated_at).getTime() : Date.now();
-        storage.setItem('hs_v3_savings_sync_time', String(cloudTime));
+        const cloudTime = cloudSavings.updated_at
+          ? new Date(cloudSavings.updated_at).getTime()
+          : Date.now();
+        storage.setItem("hs_v3_savings_sync_time", String(cloudTime));
 
-        return { action: 'pulled', data: cloudSavings };
+        return { action: "pulled", data: cloudSavings };
       }
 
       const newSyncTime = new Date().toISOString();
       const updatePayload = buildSavingsProfileUpdate(localData, newSyncTime);
 
       const { error: updateError } = await client
-        .from('profiles')
+        .from("profiles")
         .update(updatePayload)
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) {
-        return { action: 'error', error: updateError };
+        return { action: "error", error: updateError };
       }
 
-      storage.setItem('hs_v3_savings_sync_time', String(new Date(newSyncTime).getTime()));
+      storage.setItem("hs_v3_savings_sync_time", String(new Date(newSyncTime).getTime()));
       console.info("[SyncManager] Local savings data pushed successfully to cloud.");
 
-      return { action: 'pushed', data: updatePayload };
+      return { action: "pushed", data: updatePayload };
     } catch (err) {
       console.error("[SyncManager] Exception during syncSavingsData:", err);
-      return { action: 'error', error: err };
+      return { action: "error", error: err };
     }
-  }
+  },
 };

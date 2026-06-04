@@ -1,5 +1,5 @@
-import type { DailyRecord, Task } from './cycleUtils';
-import { parseLocalDate } from './dateUtils';
+import type { DailyRecord, Task } from "./cycleUtils";
+import { parseLocalDate } from "./dateUtils";
 
 export type ActivityHistoryMap = Record<string, DailyRecord>;
 
@@ -22,11 +22,11 @@ export interface ActivityHistoryUpsertRow {
 }
 
 const normalizeDateKey = (dateKey: string) => {
-  if (!dateKey.includes('T')) return dateKey;
+  if (!dateKey.includes("T")) return dateKey;
   const parsed = parseLocalDate(dateKey);
   const year = parsed.getFullYear();
-  const month = String(parsed.getMonth() + 1).padStart(2, '0');
-  const day = String(parsed.getDate()).padStart(2, '0');
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -58,7 +58,7 @@ export const isAuthoritativeLocalRecord = (record?: Partial<DailyRecord>) => {
 
 export const stampDailyRecord = (
   record: Partial<DailyRecord>,
-  timestamp = new Date().toISOString()
+  timestamp = new Date().toISOString(),
 ): DailyRecord => ({
   ...normalizeRecord(record),
   updatedAt: timestamp,
@@ -87,7 +87,7 @@ export function rowsToActivityHistory(rows: ActivityHistoryRow[] = []): Activity
 
 export function mergeActivityHistories(
   localHistory: ActivityHistoryMap,
-  cloudHistory: ActivityHistoryMap
+  cloudHistory: ActivityHistoryMap,
 ): ActivityHistoryMap {
   const merged: ActivityHistoryMap = {};
   const dateKeys = new Set([...Object.keys(localHistory), ...Object.keys(cloudHistory)]);
@@ -112,14 +112,18 @@ export function activityHistoryToRows(
   localHistory: ActivityHistoryMap,
   cloudHistory: ActivityHistoryMap,
   userId: string,
-  timestamp = new Date().toISOString()
+  timestamp = new Date().toISOString(),
 ): ActivityHistoryUpsertRow[] {
   return Object.keys(localHistory)
     .sort()
-    .filter((dateKey) => shouldLocalWin(normalizeRecord(localHistory[dateKey]), cloudHistory[dateKey]))
+    .filter((dateKey) =>
+      shouldLocalWin(normalizeRecord(localHistory[dateKey]), cloudHistory[dateKey]),
+    )
     .map((dateKey) => {
       const record = localHistory[dateKey];
-      const stamped = record.updatedAt ? normalizeRecord(record) : stampDailyRecord(record, timestamp);
+      const stamped = record.updatedAt
+        ? normalizeRecord(record)
+        : stampDailyRecord(record, timestamp);
 
       return {
         user_id: userId,

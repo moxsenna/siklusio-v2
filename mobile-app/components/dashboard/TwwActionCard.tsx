@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 
 interface TwwActionCardProps {
   onOpenSanctuary: () => void;
@@ -14,10 +14,11 @@ export function TwwActionCard({ onOpenSanctuary }: TwwActionCardProps) {
         </View>
         <Text className="text-sm font-bold text-purple-900 mb-[4px]">Pojok Tenang TWW</Text>
         <Text className="text-[10px] text-purple-800 opacity-80 leading-relaxed min-h-[40px] font-bold">
-          Waktunya menjaga ketenangan pikiran. Sedang cemas atau overthinking menunggu hasil? Yuk masuk ke Pojok Tenang.
+          Waktunya menjaga ketenangan pikiran. Sedang cemas atau overthinking menunggu hasil? Yuk
+          masuk ke Pojok Tenang.
         </Text>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           onPress={onOpenSanctuary}
           className="w-full bg-purple-600 py-[16px] rounded-2xl items-center justify-center mt-[16px] shadow-md active:scale-95"
         >

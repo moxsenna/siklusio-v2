@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { useCycle } from '../../src/context/CycleContext';
-import { format } from 'date-fns';
-import { parseLocalDate } from '../../src/lib/dateUtils';
-import { AiFallbackNotice } from '../common/AiFallbackNotice';
-import { apiPostJson } from '../../src/lib/api';
-import { extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { useCycle } from "../../src/context/CycleContext";
+import { format } from "date-fns";
+import { parseLocalDate } from "../../src/lib/dateUtils";
+import { AiFallbackNotice } from "../common/AiFallbackNotice";
+import { apiPostJson } from "../../src/lib/api";
+import { extractAiFallbackInput, type AiFallbackInput } from "../../src/lib/aiFallback";
 
 interface AiReportModalProps {
   onClose: () => void;
 }
 
 export function AiReportModal({ onClose }: AiReportModalProps) {
-  const { currentPhase, cycleDay, daysToNextPeriod, activityHistory, fertileWindowStart, fertileWindowEnd, userNickname } = useCycle();
-  
+  const {
+    currentPhase,
+    cycleDay,
+    daysToNextPeriod,
+    activityHistory,
+    fertileWindowStart,
+    fertileWindowEnd,
+    userNickname,
+  } = useCycle();
+
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AiFallbackInput | null>(null);
@@ -23,10 +31,10 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
     setError(null);
     try {
       const recentHistoryKeys = Object.keys(activityHistory)
-        .sort((a,b) => parseLocalDate(b).getTime() - parseLocalDate(a).getTime())
+        .sort((a, b) => parseLocalDate(b).getTime() - parseLocalDate(a).getTime())
         .slice(0, 14);
       const recentHistory: any = {};
-      recentHistoryKeys.forEach(k => {
+      recentHistoryKeys.forEach((k) => {
         recentHistory[k] = activityHistory[k];
       });
 
@@ -35,17 +43,23 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
         cycleDay,
         daysToNextPeriod,
         fertilityWindow: {
-          start: fertileWindowStart ? format(fertileWindowStart, 'yyyy-MM-dd') : '',
-          end: fertileWindowEnd ? format(fertileWindowEnd, 'yyyy-MM-dd') : ''
+          start: fertileWindowStart ? format(fertileWindowStart, "yyyy-MM-dd") : "",
+          end: fertileWindowEnd ? format(fertileWindowEnd, "yyyy-MM-dd") : "",
         },
         cycleData: recentHistory,
-        nickname: userNickname
+        nickname: userNickname,
       };
 
-      const data = await apiPostJson<any>('/api/generate-cycle-report', payload);
+      const data = await apiPostJson<any>("/api/generate-cycle-report", payload);
       setReport(data);
     } catch (err: any) {
-      setError(extractAiFallbackInput(err, 'Terjadi kesalahan menghubungi server lokal', 'Analisis Siklus AI'));
+      setError(
+        extractAiFallbackInput(
+          err,
+          "Terjadi kesalahan menghubungi server lokal",
+          "Analisis Siklus AI",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -54,47 +68,50 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
   return (
     <View className="absolute inset-0 z-50 justify-end">
       {/* Backdrop */}
-      <TouchableOpacity 
+      <TouchableOpacity
         activeOpacity={1}
         onPress={onClose}
         className="absolute inset-0 bg-black/40"
       />
-      
+
       {/* Bottom Sheet */}
       <View className="relative bg-background rounded-t-[32px] w-full max-w-md mx-auto p-[24px] pb-[40px] border border-outline-variant shadow-lg max-h-[85vh]">
         <View className="flex-row justify-between items-center mb-[24px] border-b border-primary/10 pb-4">
-           <Text className="text-sm font-bold uppercase tracking-widest text-primary">
-             ✨ Analisis Siklus AI
-           </Text>
-           <TouchableOpacity 
-             onPress={onClose}
-             className="w-8 h-8 rounded-full bg-surface-variant items-center justify-center"
-           >
-             <Text className="text-sm font-bold text-on-surface-variant">✕</Text>
-           </TouchableOpacity>
+          <Text className="text-sm font-bold uppercase tracking-widest text-primary">
+            ✨ Analisis Siklus AI
+          </Text>
+          <TouchableOpacity
+            onPress={onClose}
+            className="w-8 h-8 rounded-full bg-surface-variant items-center justify-center"
+          >
+            <Text className="text-sm font-bold text-on-surface-variant">✕</Text>
+          </TouchableOpacity>
         </View>
-        
+
         <ScrollView className="mb-[24px]">
           {!report && !loading && (
             <View className="items-center justify-center py-8 gap-4">
               <View className="w-16 h-16 bg-primary/10 rounded-full items-center justify-center mb-2">
                 <Text className="text-3xl">📊</Text>
               </View>
-              <Text className="text-xl font-bold text-on-background">Dapatkan Analisis Mendalam</Text>
-              <Text className="text-sm text-on-surface-variant text-center opacity-80 max-w-[280px]">
-                AI cerdas kami akan menganalisis posisi siklus Anda saat ini dan memberikan wawasan khusus yang dipersonalisasi.
+              <Text className="text-xl font-bold text-on-background">
+                Dapatkan Analisis Mendalam
               </Text>
-              
+              <Text className="text-sm text-on-surface-variant text-center opacity-80 max-w-[280px]">
+                AI cerdas kami akan menganalisis posisi siklus Anda saat ini dan memberikan wawasan
+                khusus yang dipersonalisasi.
+              </Text>
+
               {error && (
                 <AiFallbackNotice
                   {...error}
                   compact
                   accentColor="#ec4899"
-                  style={{ width: '100%', marginTop: 8 }}
+                  style={{ width: "100%", marginTop: 8 }}
                 />
               )}
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={generateReport}
                 className="w-full mt-6 bg-primary py-[16px] rounded-[16px] items-center justify-center shadow-md active:scale-95"
               >
@@ -107,10 +124,10 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
 
           {loading && (
             <View className="items-center justify-center py-[48px] gap-4">
-               <ActivityIndicator size="large" color="#ec4899" />
-               <Text className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-on-background">
-                 Menghitung Wawasan...
-               </Text>
+              <ActivityIndicator size="large" color="#ec4899" />
+              <Text className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-on-background">
+                Menghitung Wawasan...
+              </Text>
             </View>
           )}
 
@@ -129,7 +146,9 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
                 {report.bodyInsights?.map((insight: string, idx: number) => (
                   <View key={idx} className="flex-row gap-3 items-start mb-2">
                     <Text className="text-primary mt-0.5">•</Text>
-                    <Text className="text-sm text-on-background flex-1 leading-relaxed">{insight}</Text>
+                    <Text className="text-sm text-on-background flex-1 leading-relaxed">
+                      {insight}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -143,7 +162,9 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
                     <View className="w-5 h-5 rounded-full bg-primary/20 text-primary items-center justify-center shrink-0 mt-0.5">
                       <Text className="text-xs font-bold text-primary">{idx + 1}</Text>
                     </View>
-                    <Text className="text-sm text-on-background flex-1 leading-relaxed">{plan}</Text>
+                    <Text className="text-sm text-on-background flex-1 leading-relaxed">
+                      {plan}
+                    </Text>
                   </View>
                 ))}
               </View>

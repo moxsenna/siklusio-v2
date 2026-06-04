@@ -1,60 +1,60 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { resolveApiBaseUrl } from './apiBaseUrl';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { resolveApiBaseUrl } from "./apiBaseUrl";
 
-test('resolveApiBaseUrl trims configured API base URL trailing slashes', () => {
+test("resolveApiBaseUrl trims configured API base URL trailing slashes", () => {
   assert.equal(
     resolveApiBaseUrl({
-      configured: 'https://api.siklusio.web.id///',
-      debuggerHost: '',
+      configured: "https://api.siklusio.web.id///",
+      debuggerHost: "",
       isDevelopment: false,
     }),
-    'https://api.siklusio.web.id'
+    "https://api.siklusio.web.id",
   );
 });
 
-test('resolveApiBaseUrl falls back to Expo debugger host only in development', () => {
+test("resolveApiBaseUrl falls back to Expo debugger host only in development", () => {
   assert.equal(
     resolveApiBaseUrl({
-      configured: '',
-      debuggerHost: '192.168.1.20:8081',
+      configured: "",
+      debuggerHost: "192.168.1.20:8081",
       isDevelopment: true,
     }),
-    'http://192.168.1.20:3000'
+    "http://192.168.1.20:3000",
   );
 });
 
-test('resolveApiBaseUrl allows localhost fallback only in development', () => {
+test("resolveApiBaseUrl allows localhost fallback only in development", () => {
   assert.equal(
     resolveApiBaseUrl({
-      configured: '',
-      debuggerHost: '',
+      configured: "",
+      debuggerHost: "",
       isDevelopment: true,
     }),
-    'http://localhost:3000'
+    "http://localhost:3000",
   );
 });
 
-test('resolveApiBaseUrl rejects missing production API base URL', () => {
+test("resolveApiBaseUrl rejects missing production API base URL", () => {
   assert.throws(
     () =>
       resolveApiBaseUrl({
-        configured: '',
-        debuggerHost: '192.168.1.20:8081',
+        configured: "",
+        debuggerHost: "192.168.1.20:8081",
         isDevelopment: false,
       }),
-    /EXPO_PUBLIC_API_BASE_URL/
+    /EXPO_PUBLIC_API_BASE_URL/,
   );
 });
 
-test('resolveApiBaseUrl rejects invalid configured API base URL', () => {
+test("resolveApiBaseUrl rejects invalid configured API base URL", () => {
   assert.throws(
     () =>
       resolveApiBaseUrl({
-        configured: 'localhost:3000',
-        debuggerHost: '',
+        configured: "localhost:3000",
+        debuggerHost: "",
         isDevelopment: false,
       }),
-    /valid absolute URL/
+    /valid absolute URL/,
   );
 });

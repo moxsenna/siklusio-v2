@@ -14,7 +14,7 @@ test("avatar upload rejects non-image base64 before R2 upload", async (t) => {
           id: "11111111-1111-4111-8111-111111111111",
           email: "maya@example.com",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -41,7 +41,7 @@ test("avatar upload rejects non-image base64 before R2 upload", async (t) => {
       VITE_SUPABASE_URL: "https://project.supabase.co",
       SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
       R2_PUBLIC_URL: "https://cdn.siklusio.web.id",
-    }
+    },
   );
 
   if (response.status !== 400) {
@@ -77,7 +77,7 @@ test("avatar upload rejects oversized avatar dimensions before R2 upload", async
           id: "11111111-1111-4111-8111-111111111111",
           email: "maya@example.com",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -104,7 +104,7 @@ test("avatar upload rejects oversized avatar dimensions before R2 upload", async
       VITE_SUPABASE_URL: "https://project.supabase.co",
       SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
       R2_PUBLIC_URL: "https://cdn.siklusio.web.id",
-    }
+    },
   );
 
   assert.equal(response.status, 400);

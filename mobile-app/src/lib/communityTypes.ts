@@ -3,26 +3,26 @@
 // Mirror of frontend/src/lib/communityTypes.ts
 // ============================================================
 
-export const REACTION_TYPES = ['hug', 'pray', 'sad', 'strong', 'me_too'] as const;
+export const REACTION_TYPES = ["hug", "pray", "sad", "strong", "me_too"] as const;
 export type ReactionType = (typeof REACTION_TYPES)[number];
 
 export const REACTION_EMOJI: Record<ReactionType, string> = {
-  hug: '💖',
-  pray: '🙏',
-  sad: '😢',
-  strong: '💪',
-  me_too: '🤝',
+  hug: "💖",
+  pray: "🙏",
+  sad: "😢",
+  strong: "💪",
+  me_too: "🤝",
 };
 
 export const REACTION_LABEL: Record<ReactionType, string> = {
-  hug: 'Peluk',
-  pray: 'Doa',
-  sad: 'Sedih',
-  strong: 'Kuat',
-  me_too: 'Aku juga',
+  hug: "Peluk",
+  pray: "Doa",
+  sad: "Sedih",
+  strong: "Kuat",
+  me_too: "Aku juga",
 };
 
-export type PhaseTag = 'Menstrual' | 'Folikular' | 'Ovulasi' | 'Luteal';
+export type PhaseTag = "Menstrual" | "Folikular" | "Ovulasi" | "Luteal";
 
 export const POST_MAX_LENGTH = 500;
 export const COMMENT_MAX_LENGTH = 300;
@@ -38,7 +38,7 @@ export interface CommunityPost {
   hidden_reason: string | null;
   report_count: number;
   admin_reviewed_at: string | null;
-  admin_review_status: 'kept' | 'removed' | null;
+  admin_review_status: "kept" | "removed" | null;
   comment_count: number;
   reaction_count: number;
   created_at: string;
@@ -82,11 +82,11 @@ export interface CommunityReaction {
 
 export interface CommunityReport {
   id: string;
-  target_type: 'post' | 'comment';
+  target_type: "post" | "comment";
   target_id: string;
   reporter_id: string;
   reason: string | null;
-  status: 'pending' | 'resolved_hide' | 'resolved_keep';
+  status: "pending" | "resolved_hide" | "resolved_keep";
   created_at: string;
   resolved_at: string | null;
   resolver_id: string | null;

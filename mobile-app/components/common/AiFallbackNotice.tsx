@@ -1,6 +1,6 @@
-﻿import React from 'react';
-import { Text, TouchableOpacity, View, type ViewStyle } from 'react-native';
-import { buildAiFallbackCopy, type AiFallbackInput } from '../../src/lib/aiFallback';
+﻿import React from "react";
+import { Text, TouchableOpacity, View, type ViewStyle } from "react-native";
+import { buildAiFallbackCopy, type AiFallbackInput } from "../../src/lib/aiFallback";
 
 interface Props extends AiFallbackInput {
   accentColor?: string;
@@ -13,28 +13,28 @@ interface Props extends AiFallbackInput {
 
 const tonePalette = {
   credit: {
-    background: '#fffbeb',
-    border: '#fde68a',
-    title: '#92400e',
-    body: '#78350f',
+    background: "#fffbeb",
+    border: "#fde68a",
+    title: "#92400e",
+    body: "#78350f",
   },
   network: {
-    background: '#eff6ff',
-    border: '#bfdbfe',
-    title: '#1d4ed8',
-    body: '#1e3a8a',
+    background: "#eff6ff",
+    border: "#bfdbfe",
+    title: "#1d4ed8",
+    body: "#1e3a8a",
   },
   rate_limit: {
-    background: '#fff7ed',
-    border: '#fed7aa',
-    title: '#c2410c',
-    body: '#7c2d12',
+    background: "#fff7ed",
+    border: "#fed7aa",
+    title: "#c2410c",
+    body: "#7c2d12",
   },
   server: {
-    background: '#fef2f2',
-    border: '#fecaca',
-    title: '#b91c1c',
-    body: '#7f1d1d',
+    background: "#fef2f2",
+    border: "#fecaca",
+    title: "#b91c1c",
+    body: "#7f1d1d",
   },
 } as const;
 
@@ -63,12 +63,12 @@ export function AiFallbackNotice({
         ...style,
       }}
     >
-      <Text style={{ color: palette.title, fontSize: compact ? 12 : 13, fontWeight: '800' }}>
+      <Text style={{ color: palette.title, fontSize: compact ? 12 : 13, fontWeight: "800" }}>
         {copy.title}
       </Text>
       <Text
         selectable={selectableMessage}
-        style={{ color: palette.body, fontSize: 12, lineHeight: 18, fontWeight: '600' }}
+        style={{ color: palette.body, fontSize: 12, lineHeight: 18, fontWeight: "600" }}
       >
         {copy.message}
       </Text>
@@ -80,7 +80,7 @@ export function AiFallbackNotice({
           onPress={onRetry}
           activeOpacity={0.82}
           style={{
-            alignSelf: 'flex-start',
+            alignSelf: "flex-start",
             backgroundColor: actionColor,
             borderRadius: 999,
             marginTop: 3,
@@ -88,7 +88,7 @@ export function AiFallbackNotice({
             paddingVertical: 8,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>
+          <Text style={{ color: "#fff", fontSize: 11, fontWeight: "800" }}>
             {retryLabel || copy.retryLabel}
           </Text>
         </TouchableOpacity>

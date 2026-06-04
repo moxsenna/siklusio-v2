@@ -16,7 +16,7 @@ test("TWW calming reassurance requires an authenticated session before AI config
         userJournal: "Aku cemas menunggu hasil.",
       }),
     },
-    {}
+    {},
   );
 
   assert.equal(response.status, 401);
@@ -31,7 +31,7 @@ test("payment webhook refuses to process when webhook token is not configured", 
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ event: "payment.success", email: "maya@example.com" }),
     },
-    {}
+    {},
   );
 
   assert.equal(response.status, 500);
@@ -49,7 +49,7 @@ test("payment webhook rejects invalid callback token", async () => {
       },
       body: JSON.stringify({ event: "payment.success", email: "maya@example.com" }),
     },
-    { MAYAR_WEBHOOK_TOKEN: "correct-token" }
+    { MAYAR_WEBHOOK_TOKEN: "correct-token" },
   );
 
   assert.equal(response.status, 401);
@@ -91,7 +91,7 @@ test("payment webhook logs redact customer PII and payment URLs", async (t) => {
         },
       }),
     },
-    { MAYAR_WEBHOOK_TOKEN: "valid-token" }
+    { MAYAR_WEBHOOK_TOKEN: "valid-token" },
   );
 
   assert.equal(response.status, 200);
@@ -121,7 +121,7 @@ test("AI endpoints reject repeated requests from the same client after rate limi
         userJournal: "Aku cemas menunggu hasil.",
       }),
     },
-    env
+    env,
   );
 
   const second = await app.request(
@@ -134,7 +134,7 @@ test("AI endpoints reject repeated requests from the same client after rate limi
         userJournal: "Aku cemas menunggu hasil.",
       }),
     },
-    env
+    env,
   );
 
   assert.equal(first.status, 401);
@@ -163,7 +163,7 @@ test("checkout endpoints reject repeated requests from the same client after rat
       headers,
       body: JSON.stringify({}),
     },
-    env
+    env,
   );
 
   const second = await app.request(
@@ -173,7 +173,7 @@ test("checkout endpoints reject repeated requests from the same client after rat
       headers,
       body: JSON.stringify({}),
     },
-    env
+    env,
   );
 
   assert.equal(first.status, 400);

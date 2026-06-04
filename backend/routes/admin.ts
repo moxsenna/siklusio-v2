@@ -33,19 +33,19 @@ router.get("/api/admin/users", async (c) => {
     const authUsersById = new Map(authUsers.map((authUser: any) => [authUser.id, authUser]));
 
     const { data: profiles, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
     if (profileError) throw profileError;
 
     // Merge database profiles and Auth emails
-    const usersData = profiles.map(p => {
+    const usersData = profiles.map((p) => {
       const authUser = authUsersById.get(p.id);
       return {
         ...p,
         email: authUser?.email,
-        last_sign_in_at: authUser?.last_sign_in_at
+        last_sign_in_at: authUser?.last_sign_in_at,
       };
     });
 
@@ -62,14 +62,21 @@ router.get("/api/admin/coupons", async (c) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
-    
+
     const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle();
     if (!profile?.is_admin) return c.json({ error: "Forbidden: admin access required" }, 403);
 
-    const { data: coupons, error } = await supabaseAdmin.from("coupons").select("*").order("created_at", { ascending: false });
+    const { data: coupons, error } = await supabaseAdmin
+      .from("coupons")
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) throw error;
-    
+
     return c.json({ coupons });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
@@ -82,7 +89,11 @@ router.post("/api/admin/coupons", async (c) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing session" }, 401);
     const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle();
     if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
 
     const { code, discount_type, discount_value, is_active } = await c.req.json();
@@ -90,12 +101,16 @@ router.post("/api/admin/coupons", async (c) => {
       return c.json({ error: "Input tidak valid" }, 400);
     }
 
-    const { data, error } = await supabaseAdmin.from("coupons").insert({
-      code: code.trim(),
-      discount_type,
-      discount_value: Number(discount_value),
-      is_active: is_active ?? true
-    }).select().single();
+    const { data, error } = await supabaseAdmin
+      .from("coupons")
+      .insert({
+        code: code.trim(),
+        discount_type,
+        discount_value: Number(discount_value),
+        is_active: is_active ?? true,
+      })
+      .select()
+      .single();
 
     if (error) throw error;
     return c.json({ coupon: data });
@@ -109,12 +124,16 @@ router.patch("/api/admin/coupons/:id", async (c) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing session" }, 401);
     const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle();
     if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
 
     const id = c.req.param("id");
     const { is_active } = await c.req.json();
-    
+
     const { error } = await supabaseAdmin.from("coupons").update({ is_active }).eq("id", id);
     if (error) throw error;
     return c.json({ status: "ok" });
@@ -128,7 +147,11 @@ router.delete("/api/admin/coupons/:id", async (c) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing session" }, 401);
     const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle();
     if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
 
     const id = c.req.param("id");
@@ -168,9 +191,20 @@ router.post("/api/admin/affiliates", async (c) => {
     if (!admin) return c.json({ error: "Forbidden" }, 403);
 
     const body = await c.req.json();
-    const { name, email, whatsapp, code, commission_type, commission_value,
-            bank_name, account_number, account_holder,
-            autoCreateCoupon, coupon_discount_type, coupon_discount_value } = body;
+    const {
+      name,
+      email,
+      whatsapp,
+      code,
+      commission_type,
+      commission_value,
+      bank_name,
+      account_number,
+      account_holder,
+      autoCreateCoupon,
+      coupon_discount_type,
+      coupon_discount_value,
+    } = body;
 
     if (!name || !email || !whatsapp || !code || !commission_type || commission_value == null) {
       return c.json({ error: "Data afiliasi tidak lengkap" }, 400);
@@ -230,17 +264,24 @@ router.patch("/api/admin/affiliates/:id", async (c) => {
     const updates = await c.req.json();
 
     // Only allow safe fields to be updated
-    const allowedFields = ["name", "email", "whatsapp", "commission_type", "commission_value",
-      "bank_name", "account_number", "account_holder", "is_active", "allow_zero_order_commission"];
+    const allowedFields = [
+      "name",
+      "email",
+      "whatsapp",
+      "commission_type",
+      "commission_value",
+      "bank_name",
+      "account_number",
+      "account_holder",
+      "is_active",
+      "allow_zero_order_commission",
+    ];
     const safeUpdates: Record<string, any> = {};
     for (const key of allowedFields) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];
     }
 
-    const { error } = await admin.supabaseAdmin
-      .from("affiliates")
-      .update(safeUpdates)
-      .eq("id", id);
+    const { error } = await admin.supabaseAdmin.from("affiliates").update(safeUpdates).eq("id", id);
     if (error) throw error;
     return c.json({ status: "ok" });
   } catch (error: any) {
@@ -256,10 +297,7 @@ router.delete("/api/admin/affiliates/:id", async (c) => {
     if (!admin) return c.json({ error: "Forbidden" }, 403);
 
     const id = c.req.param("id");
-    const { error } = await admin.supabaseAdmin
-      .from("affiliates")
-      .delete()
-      .eq("id", id);
+    const { error } = await admin.supabaseAdmin.from("affiliates").delete().eq("id", id);
     if (error) throw error;
     return c.json({ status: "ok" });
   } catch (error: any) {
@@ -276,7 +314,9 @@ router.get("/api/admin/affiliates/conversions", async (c) => {
 
     const { data, error } = await admin.supabaseAdmin
       .from("affiliate_conversions")
-      .select("*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)")
+      .select(
+        "*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)",
+      )
       .order("created_at", { ascending: false });
     if (error) throw error;
     return c.json({ conversions: data });

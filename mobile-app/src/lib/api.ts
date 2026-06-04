@@ -1,7 +1,7 @@
-import Constants from 'expo-constants';
-import { supabase } from './supabase';
-import { resolveApiBaseUrl } from './apiBaseUrl';
-import { getSupabaseAccessToken } from './supabaseAccess';
+import Constants from "expo-constants";
+import { supabase } from "./supabase";
+import { resolveApiBaseUrl } from "./apiBaseUrl";
+import { getSupabaseAccessToken } from "./supabaseAccess";
 
 export class ApiError extends Error {
   status: number;
@@ -10,7 +10,7 @@ export class ApiError extends Error {
 
   constructor(message: string, status: number, code?: string, payload?: unknown) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.payload = payload;
@@ -20,8 +20,8 @@ export class ApiError extends Error {
 export function getApiBaseUrl(): string {
   return resolveApiBaseUrl({
     configured: process.env.EXPO_PUBLIC_API_BASE_URL,
-    debuggerHost: Constants.expoConfig?.hostUri || '',
-    isDevelopment: typeof __DEV__ !== 'undefined' ? __DEV__ : process.env.NODE_ENV !== 'production',
+    debuggerHost: Constants.expoConfig?.hostUri || "",
+    isDevelopment: typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production",
   });
 }
 
@@ -29,15 +29,12 @@ export async function getAccessToken(): Promise<string | null> {
   return getSupabaseAccessToken(supabase);
 }
 
-export async function apiPostJson<TResponse>(
-  path: string,
-  body: unknown
-): Promise<TResponse> {
+export async function apiPostJson<TResponse>(path: string, body: unknown): Promise<TResponse> {
   const token = await getAccessToken();
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
@@ -49,7 +46,7 @@ export async function apiPostJson<TResponse>(
       json?.message || json?.error || `Server error (${res.status})`,
       res.status,
       json?.code,
-      json
+      json,
     );
   }
   return json as TResponse;
@@ -69,21 +66,18 @@ export async function apiGetJson<TResponse>(path: string): Promise<TResponse> {
       json?.message || json?.error || `Server error (${res.status})`,
       res.status,
       json?.code,
-      json
+      json,
     );
   }
   return json as TResponse;
 }
 
-export async function apiPatchJson<TResponse>(
-  path: string,
-  body: unknown
-): Promise<TResponse> {
+export async function apiPatchJson<TResponse>(path: string, body: unknown): Promise<TResponse> {
   const token = await getAccessToken();
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
@@ -95,7 +89,7 @@ export async function apiPatchJson<TResponse>(
       json?.message || json?.error || `Server error (${res.status})`,
       res.status,
       json?.code,
-      json
+      json,
     );
   }
   return json as TResponse;
@@ -104,7 +98,7 @@ export async function apiPatchJson<TResponse>(
 export async function apiDeleteJson<TResponse>(path: string): Promise<TResponse> {
   const token = await getAccessToken();
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -116,7 +110,7 @@ export async function apiDeleteJson<TResponse>(path: string): Promise<TResponse>
       json?.message || json?.error || `Server error (${res.status})`,
       res.status,
       json?.code,
-      json
+      json,
     );
   }
   return json as TResponse;

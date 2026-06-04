@@ -16,7 +16,8 @@ router.post("/api/payment/webhook", async (c) => {
       return c.json({ error: "Webhook secret is not configured" }, 500);
     }
 
-    const callbackToken = c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
+    const callbackToken =
+      c.req.header("x-callback-token") || c.req.header("X-Callback-Token") || "";
     if (callbackToken !== expectedToken) {
       logWarn("--> Webhook rejected: invalid or missing X-Callback-Token");
       return c.json({ error: "Unauthorized webhook request" }, 401);
@@ -44,7 +45,7 @@ router.post("/api/payment/webhook", async (c) => {
     }
 
     // Extract email from multiple possible payload locations (Mayar sends different formats)
-    const email = 
+    const email =
       body.data?.customerEmail ||
       body.data?.email ||
       body.data?.customer?.email ||
@@ -55,11 +56,7 @@ router.post("/api/payment/webhook", async (c) => {
 
     // Extract Mayar transaction ID for idempotency
     const mayarTransactionId =
-      body.data?.id ||
-      body.data?.transactionId ||
-      body.data?.transaction_id ||
-      body.id ||
-      null;
+      body.data?.id || body.data?.transactionId || body.data?.transaction_id || body.id || null;
 
     if (c.env.DEBUG_WEBHOOK_LOGS === "true") {
       logInfo("Webhook body metadata", {
@@ -76,7 +73,7 @@ router.post("/api/payment/webhook", async (c) => {
 
     // Only process purchase/payment success events for account creation
     // Skip reminders, tracking, and other non-payment events
-    const isPurchaseEvent = 
+    const isPurchaseEvent =
       event === "payment.success" ||
       event === "payment" ||
       event === "purchase" ||
@@ -87,7 +84,10 @@ router.post("/api/payment/webhook", async (c) => {
 
     if (!isPurchaseEvent && event) {
       logInfo(`--> Webhook skipped: event '${event}' is not a purchase event`);
-      return c.json({ status: "ok", message: `Event '${event}' acknowledged, no action needed` }, 200);
+      return c.json(
+        { status: "ok", message: `Event '${event}' acknowledged, no action needed` },
+        200,
+      );
     }
 
     const supabaseAdmin = getSupabaseAdmin(c);
@@ -107,16 +107,23 @@ router.post("/api/payment/webhook", async (c) => {
 
       if (topup) {
         if (topup.status === "paid") {
-          logInfo(`--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`);
+          logInfo(
+            `--> Webhook idempotency: topup ${mayarTransactionId} already processed, skipping`,
+          );
           return c.json({ status: "ok", message: "Topup already processed" }, 200);
         }
 
-        logInfo(`--> Processing successful topup via atomic RPC for user: ${topup.user_id}, credits: ${topup.credits_amount}`);
-        
+        logInfo(
+          `--> Processing successful topup via atomic RPC for user: ${topup.user_id}, credits: ${topup.credits_amount}`,
+        );
+
         // Atomically process top-up (Phase 8 RPC)
-        const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc("process_paid_ai_credit_topup", {
-          p_mayar_transaction_id: mayarTransactionId,
-        });
+        const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc(
+          "process_paid_ai_credit_topup",
+          {
+            p_mayar_transaction_id: mayarTransactionId,
+          },
+        );
 
         if (rpcErr) {
           logError("Error processing topup atomically:", rpcErr);
@@ -137,7 +144,9 @@ router.post("/api/payment/webhook", async (c) => {
         .maybeSingle();
 
       if (existingConversion) {
-        logInfo(`--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`);
+        logInfo(
+          `--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`,
+        );
         return c.json({ status: "ok", message: "Transaction already processed" }, 200);
       }
     }
@@ -168,7 +177,7 @@ router.post("/api/payment/webhook", async (c) => {
         app_metadata: {
           siklusio_access_status: "active",
         },
-      }
+      },
     );
 
     if (signupErr) {
@@ -196,7 +205,7 @@ router.post("/api/payment/webhook", async (c) => {
     const affiliateCode = pending.affiliate_code;
     if (affiliateCode) {
       logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
-      
+
       // Find the matching checkout session
       const { data: session } = await supabaseAdmin
         .from("checkout_sessions")
@@ -218,35 +227,37 @@ router.post("/api/payment/webhook", async (c) => {
 
       if (affiliate) {
         const amountPaid = session?.final_amount || body.data?.amount || 0;
-        
+
         // Calculate commission
         let commissionAmount = 0;
         if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
           // No commission for free orders by default
           commissionAmount = 0;
         } else if (affiliate.commission_type === "percentage") {
-          commissionAmount = Math.floor(Number(amountPaid) * (Number(affiliate.commission_value) / 100));
+          commissionAmount = Math.floor(
+            Number(amountPaid) * (Number(affiliate.commission_value) / 100),
+          );
         } else {
           commissionAmount = Number(affiliate.commission_value);
         }
 
         // Insert conversion with idempotency key
-        const { error: convErr } = await supabaseAdmin
-          .from("affiliate_conversions")
-          .insert({
-            affiliate_id: affiliate.id,
-            checkout_session_id: session?.id || null,
-            buyer_name: pending.name,
-            buyer_email: pending.email,
-            buyer_whatsapp: pending.whatsapp,
-            amount_paid: Number(amountPaid),
-            commission_amount: commissionAmount,
-            mayar_transaction_id: mayarTransactionId,
-          });
+        const { error: convErr } = await supabaseAdmin.from("affiliate_conversions").insert({
+          affiliate_id: affiliate.id,
+          checkout_session_id: session?.id || null,
+          buyer_name: pending.name,
+          buyer_email: pending.email,
+          buyer_whatsapp: pending.whatsapp,
+          amount_paid: Number(amountPaid),
+          commission_amount: commissionAmount,
+          mayar_transaction_id: mayarTransactionId,
+        });
 
         if (convErr) {
           if (convErr.code === "23505") {
-            logInfo(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
+            logInfo(
+              `--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`,
+            );
           } else {
             logError("Error inserting affiliate conversion:", convErr);
           }
@@ -266,10 +277,7 @@ router.post("/api/payment/webhook", async (c) => {
 
     // Delete the pending registration record (cleanup)
     logInfo("--> Deleting pending registration record");
-    await supabaseAdmin
-      .from("pending_registrations")
-      .delete()
-      .eq("id", pending.id);
+    await supabaseAdmin.from("pending_registrations").delete().eq("id", pending.id);
 
     logInfo("<-- Webhook processed successfully! User created ID:", authData.user?.id);
     return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });

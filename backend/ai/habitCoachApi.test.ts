@@ -2,7 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildHabitCoachMessages } from "./prompts";
 import { summarizeActivityHistory } from "./habitSummary";
-import { hasDateRangeOverlap, isValidHabitCoachWindow, shouldReplaceActivePlan } from "./habitCoachWindow";
+import {
+  hasDateRangeOverlap,
+  isValidHabitCoachWindow,
+  shouldReplaceActivePlan,
+} from "./habitCoachWindow";
 import {
   buildHabitCoachActiveOverlapConflict,
   saveHabitCoachPlanWithCharge,
@@ -36,12 +40,14 @@ const lifecycleDateKeys = [
   "2026-06-06",
 ];
 
-function createLifecycleSupabaseMock(options: {
-  archiveError?: Error;
-  deleteArchivedConflictError?: Error;
-  activateError?: Error;
-  insertDaysError?: Error;
-} = {}) {
+function createLifecycleSupabaseMock(
+  options: {
+    archiveError?: Error;
+    deleteArchivedConflictError?: Error;
+    activateError?: Error;
+    insertDaysError?: Error;
+  } = {},
+) {
   const calls: string[] = [];
 
   const supabaseAdmin = {
@@ -249,7 +255,7 @@ test("isValidHabitCoachWindow requires a seven-day continuous request window", (
         "2026-06-06",
       ],
     }),
-    true
+    true,
   );
 
   assert.equal(
@@ -266,7 +272,7 @@ test("isValidHabitCoachWindow requires a seven-day continuous request window", (
         "2026-06-07",
       ],
     }),
-    false
+    false,
   );
 
   assert.equal(
@@ -283,7 +289,7 @@ test("isValidHabitCoachWindow requires a seven-day continuous request window", (
         "2026-06-06",
       ],
     }),
-    false
+    false,
   );
 
   assert.equal(
@@ -300,7 +306,7 @@ test("isValidHabitCoachWindow requires a seven-day continuous request window", (
         "2026-06-06",
       ],
     }),
-    false
+    false,
   );
 });
 
@@ -312,7 +318,7 @@ test("hasDateRangeOverlap detects active plan conflicts", () => {
       otherStart: "2026-06-03",
       otherEnd: "2026-06-09",
     }),
-    true
+    true,
   );
 
   assert.equal(
@@ -322,7 +328,7 @@ test("hasDateRangeOverlap detects active plan conflicts", () => {
       otherStart: "2026-06-07",
       otherEnd: "2026-06-13",
     }),
-    false
+    false,
   );
 });
 
@@ -340,7 +346,10 @@ test("buildHabitCoachActiveOverlapConflict returns 409 payload with latest activ
   assert.equal(conflict?.activeUntil, "2026-06-13");
   assert.equal(conflict?.planId, "plan-latest");
   assert.match(conflict?.message || "", /Rencana habit aktif masih berlaku sampai 2026-06-13/);
-  assert.match(conflict?.message || "", /membangun ulang rencana mulai hari ini sampai 7 hari ke depan/);
+  assert.match(
+    conflict?.message || "",
+    /membangun ulang rencana mulai hari ini sampai 7 hari ke depan/,
+  );
   assert.equal(conflict?.error, conflict?.message);
 
   assert.equal(
@@ -349,7 +358,7 @@ test("buildHabitCoachActiveOverlapConflict returns 409 payload with latest activ
       replaceActivePlan: true,
       fallbackWeekEnd: "2026-06-06",
     }),
-    null
+    null,
   );
 });
 
@@ -415,7 +424,7 @@ test("saveHabitCoachPlanWithCharge does not charge when archive fails", async ()
           return 450;
         },
       }),
-    /archive failed/
+    /archive failed/,
   );
 
   assert.deepEqual(calls, [
@@ -453,7 +462,7 @@ test("saveHabitCoachPlanWithCharge cleans up and restores old plan when activati
           return 450;
         },
       }),
-    /activate failed/
+    /activate failed/,
   );
 
   assert.deepEqual(calls, [
@@ -491,7 +500,7 @@ test("saveHabitCoachPlanWithCharge cleans up and restores old plan when charge f
           throw new Error("charge failed");
         },
       }),
-    /charge failed/
+    /charge failed/,
   );
 
   assert.deepEqual(calls, [
@@ -560,7 +569,7 @@ test("saveHabitCoachPlanWithCharge fills underbuilt generated days before insert
   assert.equal(result.plan.habit_coach_plan_days[0].tasks.length, 5);
   assert.equal(
     result.plan.habit_coach_plan_days[0].tasks.some((task: any) => task.id === "fallback-protein"),
-    true
+    true,
   );
   assert.equal(calls.includes("charge:new-plan"), true);
 });

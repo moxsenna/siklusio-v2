@@ -1,6 +1,6 @@
-import { addDays, differenceInCalendarDays, format, startOfDay } from 'date-fns';
-import { parseLocalDate } from './dateUtils';
-import type { HabitCoachCycleDay, HabitCoachPlan } from './habitCoachTypes';
+import { addDays, differenceInCalendarDays, format, startOfDay } from "date-fns";
+import { parseLocalDate } from "./dateUtils";
+import type { HabitCoachCycleDay, HabitCoachPlan } from "./habitCoachTypes";
 
 export interface SevenDayPlanWindow {
   weekStart: string;
@@ -22,7 +22,9 @@ type DayInfo = {
 
 export function buildSevenDayPlanWindow(today: Date): SevenDayPlanWindow {
   const start = startOfDay(today);
-  const dateKeys = Array.from({ length: 7 }, (_, index) => format(addDays(start, index), 'yyyy-MM-dd'));
+  const dateKeys = Array.from({ length: 7 }, (_, index) =>
+    format(addDays(start, index), "yyyy-MM-dd"),
+  );
 
   return {
     weekStart: dateKeys[0],
@@ -33,7 +35,7 @@ export function buildSevenDayPlanWindow(today: Date): SevenDayPlanWindow {
 
 export function getPlanDateOffsetBounds(
   plan: HabitCoachPlan | null,
-  todayDateKey: string
+  todayDateKey: string,
 ): PlanDateOffsetBounds {
   if (!plan) {
     return { minOffset: 0, maxOffset: 0 };
@@ -49,7 +51,9 @@ export function getPlanDateOffsetBounds(
   }
 
   const today = parseLocalDate(todayDateKey);
-  const offsets = planDateKeys.map((dateKey) => differenceInCalendarDays(parseLocalDate(dateKey), today));
+  const offsets = planDateKeys.map((dateKey) =>
+    differenceInCalendarDays(parseLocalDate(dateKey), today),
+  );
 
   return {
     minOffset: Math.min(...offsets),
@@ -67,7 +71,7 @@ export function getPlanDayNumber(plan: HabitCoachPlan | null, dateKey: string): 
 
 export function buildHabitCoachCycleDays(
   dateKeys: string[],
-  getDayInfo: (date: Date) => DayInfo
+  getDayInfo: (date: Date) => DayInfo,
 ): HabitCoachCycleDay[] {
   return dateKeys.map((dateKey, index) => {
     const dayInfo = getDayInfo(parseLocalDate(dateKey));

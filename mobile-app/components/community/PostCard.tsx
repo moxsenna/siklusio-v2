@@ -1,18 +1,18 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform, Image } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { format } from 'date-fns';
-import { id as localeId } from 'date-fns/locale';
+import React from "react";
+import { View, Text, TouchableOpacity, Alert, Platform, Image } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import {
   CommunityFeedItem,
   REACTION_TYPES,
   REACTION_EMOJI,
   REACTION_LABEL,
   ReactionType,
-} from '../../src/lib/communityTypes';
-import { resolveAvatarSource } from '../../src/lib/avatars';
-import { PostReactionState } from '../../src/hooks/useCommunityFeed';
-import { colors } from '@/src/theme/tokens';
+} from "../../src/lib/communityTypes";
+import { resolveAvatarSource } from "../../src/lib/avatars";
+import { PostReactionState } from "../../src/hooks/useCommunityFeed";
+import { colors } from "@/src/theme/tokens";
 
 interface PostCardProps {
   post: CommunityFeedItem;
@@ -43,29 +43,25 @@ export function PostCard({
 
   const handleDelete = () => {
     const performDelete = () => onDeleteOwn();
-    if (Platform.OS === 'web') {
-      if (window.confirm('Hapus postingan ini? Tindakan tidak dapat dibatalkan.')) {
+    if (Platform.OS === "web") {
+      if (window.confirm("Hapus postingan ini? Tindakan tidak dapat dibatalkan.")) {
         performDelete();
       }
     } else {
-      Alert.alert(
-        'Hapus Postingan',
-        'Hapus postingan ini? Tindakan tidak dapat dibatalkan.',
-        [
-          { text: 'Batal', style: 'cancel' },
-          { text: 'Hapus', style: 'destructive', onPress: performDelete },
-        ]
-      );
+      Alert.alert("Hapus Postingan", "Hapus postingan ini? Tindakan tidak dapat dibatalkan.", [
+        { text: "Batal", style: "cancel" },
+        { text: "Hapus", style: "destructive", onPress: performDelete },
+      ]);
     }
   };
 
   return (
     <View
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: "#fff",
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: '#f1e6eb',
+        borderColor: "#f1e6eb",
         padding: 18,
         gap: 12,
       }}
@@ -73,8 +69,8 @@ export function PostCard({
       {/* Header: identitas + waktu + menu */}
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: 10,
         }}
       >
@@ -84,22 +80,18 @@ export function PostCard({
               width: 36,
               height: 36,
               borderRadius: 18,
-              backgroundColor: '#e2e8f0',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: "#e2e8f0",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <FontAwesome
-              name="user-secret"
-              size={16}
-              color="#64748b"
-            />
+            <FontAwesome name="user-secret" size={16} color="#64748b" />
           </View>
         ) : (
           (() => {
             const src = resolveAvatarSource(
               post.avatar_url,
-              post.avatar_url?.startsWith('preset:') ? 'preset' : 'custom'
+              post.avatar_url?.startsWith("preset:") ? "preset" : "custom",
             );
             if (src) {
               return (
@@ -110,7 +102,7 @@ export function PostCard({
                     height: 36,
                     borderRadius: 18,
                     borderWidth: 1,
-                    borderColor: '#fce7f3',
+                    borderColor: "#fce7f3",
                   }}
                 />
               );
@@ -121,9 +113,9 @@ export function PostCard({
                   width: 36,
                   height: 36,
                   borderRadius: 18,
-                  backgroundColor: '#fce7f3',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "#fce7f3",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <FontAwesome name="user" size={16} color={colors.pink500} />
@@ -133,12 +125,12 @@ export function PostCard({
         )}
 
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#1e1b20' }}>
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e1b20" }}>
             {post.display_name}
           </Text>
-          <Text style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+          <Text style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
             {dateLabel}
-            {post.phase_tag ? ` · ${post.phase_tag}` : ''}
+            {post.phase_tag ? ` · ${post.phase_tag}` : ""}
           </Text>
         </View>
 
@@ -166,7 +158,7 @@ export function PostCard({
         style={{
           fontSize: 14,
           lineHeight: 21,
-          color: '#1e1b20',
+          color: "#1e1b20",
         }}
       >
         {post.content}
@@ -175,8 +167,8 @@ export function PostCard({
       {/* Reactions row */}
       <View
         style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
+          flexDirection: "row",
+          flexWrap: "wrap",
           gap: 6,
           marginTop: 4,
         }}
@@ -190,22 +182,22 @@ export function PostCard({
               onPress={() => onReact(rx)}
               accessibilityLabel={`Reaksi ${REACTION_LABEL[rx]}`}
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
+                flexDirection: "row",
+                alignItems: "center",
                 gap: 6,
                 paddingVertical: 6,
                 paddingHorizontal: 10,
                 borderRadius: 16,
-                backgroundColor: mine ? '#fce7f3' : '#f8fafc',
+                backgroundColor: mine ? "#fce7f3" : "#f8fafc",
                 borderWidth: 1,
-                borderColor: mine ? colors.pink500 : '#f1e6eb',
+                borderColor: mine ? colors.pink500 : "#f1e6eb",
               }}
             >
               <Text style={{ fontSize: 14 }}>{REACTION_EMOJI[rx]}</Text>
               <Text
                 style={{
                   fontSize: 12,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                   color: mine ? colors.pink500 : colors.slate600,
                 }}
               >
@@ -219,28 +211,28 @@ export function PostCard({
       {/* Footer actions */}
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: 12,
           paddingTop: 8,
           borderTopWidth: 1,
-          borderTopColor: '#f8fafc',
+          borderTopColor: "#f8fafc",
         }}
       >
         <TouchableOpacity
           onPress={onOpenComments}
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
             gap: 8,
             paddingVertical: 6,
             paddingHorizontal: 10,
             borderRadius: 14,
-            backgroundColor: '#f8fafc',
+            backgroundColor: "#f8fafc",
           }}
         >
           <FontAwesome name="comment-o" size={14} color="#64748b" />
-          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#64748b' }}>
+          <Text style={{ fontSize: 12, fontWeight: "bold", color: "#64748b" }}>
             {post.comment_count} Komentar
           </Text>
         </TouchableOpacity>

@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
-import { useCycle } from '../context/CycleContext';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
-import { AvatarKind } from '../lib/avatars';
-import { getAuthenticatedSupabaseClientStatus } from '../lib/supabaseAccess';
+import { useCallback } from "react";
+import { useCycle } from "../context/CycleContext";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { AvatarKind } from "../lib/avatars";
+import { getAuthenticatedSupabaseClientStatus } from "../lib/supabaseAccess";
 
 /**
  * Wrapper untuk update avatar user — sync ke local state (CycleContext)
@@ -23,12 +23,12 @@ export function useUserAvatar() {
       if (!status.ready) return;
 
       const { error } = await status.client
-        .from('profiles')
+        .from("profiles")
         .update({
           avatar_url: next.url,
           avatar_kind: next.kind,
         })
-        .eq('id', status.userId);
+        .eq("id", status.userId);
       if (error) {
         // Roll back on error
         setAvatarUrl(avatarUrl);
@@ -36,7 +36,7 @@ export function useUserAvatar() {
         throw error;
       }
     },
-    [user, avatarUrl, avatarKind, setAvatarUrl, setAvatarKind]
+    [user, avatarUrl, avatarKind, setAvatarUrl, setAvatarKind],
   );
 
   return { avatarUrl, avatarKind, updateAvatar };

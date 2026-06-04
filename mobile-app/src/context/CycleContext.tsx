@@ -1,19 +1,22 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode, useEffect, useRef } from 'react';
-import { subDays, format } from 'date-fns';
-import { parseLocalDate } from '../lib/dateUtils';
-import { isCloudOnboardingCompleted } from '../lib/profileOnboarding';
-import { getSupabaseClientStatus } from '../lib/supabaseAccess';
-import { canSyncCycleProfile } from '../lib/syncGuards';
-import { storage } from '../lib/storage';
-import { useAuth } from './AuthContext';
-import { supabase } from '../lib/supabase';
-import {
-  CyclePhase,
-  Task,
-  DailyRecord,
-  calculateCycleData
-} from '../lib/cycleUtils';
-import type { PredictionConfidence } from '../lib/cyclePrediction';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  ReactNode,
+  useEffect,
+  useRef,
+} from "react";
+import { subDays, format } from "date-fns";
+import { parseLocalDate } from "../lib/dateUtils";
+import { isCloudOnboardingCompleted } from "../lib/profileOnboarding";
+import { getSupabaseClientStatus } from "../lib/supabaseAccess";
+import { canSyncCycleProfile } from "../lib/syncGuards";
+import { storage } from "../lib/storage";
+import { useAuth } from "./AuthContext";
+import { supabase } from "../lib/supabase";
+import { CyclePhase, Task, DailyRecord, calculateCycleData } from "../lib/cycleUtils";
+import type { PredictionConfidence } from "../lib/cyclePrediction";
 
 interface CycleContextType {
   lastPeriodDate: Date | null;
@@ -35,8 +38,8 @@ interface CycleContextType {
   setUserNickname: (name: string) => void;
   avatarUrl: string | null;
   setAvatarUrl: (url: string | null) => void;
-  avatarKind: 'preset' | 'custom' | null;
-  setAvatarKind: (kind: 'preset' | 'custom' | null) => void;
+  avatarKind: "preset" | "custom" | null;
+  setAvatarKind: (kind: "preset" | "custom" | null) => void;
   userBirthDate: Date | null;
   setUserBirthDate: (date: Date | null) => void;
   childrenCount: string;
@@ -60,7 +63,12 @@ interface CycleContextType {
   lastPredictionDeltaDays: number | null;
   lastPredictedPeriodDate: Date | null;
   lastActualPeriodDate: Date | null;
-  getDayInfo: (date: Date) => { phase: string; displayPhase: string; cycleDay: number; isManualPeriod: boolean };
+  getDayInfo: (date: Date) => {
+    phase: string;
+    displayPhase: string;
+    cycleDay: number;
+    isManualPeriod: boolean;
+  };
   isOnboardingCompleted: boolean;
   setIsOnboardingCompleted: (val: boolean) => void;
   isProfileLoading: boolean;
@@ -72,7 +80,11 @@ const createEmptyActivityHistory = (): Record<string, DailyRecord> => {
   return {};
 };
 
-function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?: (val: string) => T): [T, React.Dispatch<React.SetStateAction<T>>] {
+function usePersistentState<T>(
+  key: string,
+  initialValue: T | (() => T),
+  parser?: (val: string) => T,
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = useState<T>(() => {
     try {
       const item = storage.getItem(key);
@@ -81,9 +93,9 @@ function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?
         return JSON.parse(item);
       }
     } catch (e) {
-      console.warn('Error reading storage', e);
+      console.warn("Error reading storage", e);
     }
-    return typeof initialValue === 'function' ? (initialValue as () => T)() : initialValue;
+    return typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
   });
 
   useEffect(() => {
@@ -94,7 +106,7 @@ function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?
         storage.setItem(key, JSON.stringify(state));
       }
     } catch (e) {
-      console.warn('Error setting storage', e);
+      console.warn("Error setting storage", e);
     }
   }, [key, state]);
 
@@ -104,32 +116,45 @@ function usePersistentState<T>(key: string, initialValue: T | (() => T), parser?
 export function CycleProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [lastPeriodDate, setLastPeriodDate] = usePersistentState<Date | null>(
-    'hs_v3_lastPeriodDate',
+    "hs_v3_lastPeriodDate",
     null,
-    (val) => (val && val !== 'null' ? parseLocalDate(val) : null)
+    (val) => (val && val !== "null" ? parseLocalDate(val) : null),
   );
-  const [cycleLength, setCycleLength] = usePersistentState<number>('hs_v3_cycleLength', 0);
-  const [periodLength, setPeriodLength] = usePersistentState<number>('hs_v3_periodLength', 0);
-  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', createEmptyActivityHistory);
-  const [userNickname, setUserNickname] = usePersistentState<string>('hs_v3_userNickname', '');
+  const [cycleLength, setCycleLength] = usePersistentState<number>("hs_v3_cycleLength", 0);
+  const [periodLength, setPeriodLength] = usePersistentState<number>("hs_v3_periodLength", 0);
+  const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>(
+    "hs_v3_activityHistory",
+    createEmptyActivityHistory,
+  );
+  const [userNickname, setUserNickname] = usePersistentState<string>("hs_v3_userNickname", "");
   const [avatarUrl, setAvatarUrl] = usePersistentState<string | null>(
-    'hs_v3_avatarUrl',
+    "hs_v3_avatarUrl",
     null,
-    (val) => (val && val !== 'null' && val !== '""' ? JSON.parse(val) : null)
+    (val) => (val && val !== "null" && val !== '""' ? JSON.parse(val) : null),
   );
-  const [avatarKind, setAvatarKind] = usePersistentState<'preset' | 'custom' | null>(
-    'hs_v3_avatarKind',
+  const [avatarKind, setAvatarKind] = usePersistentState<"preset" | "custom" | null>(
+    "hs_v3_avatarKind",
     null,
-    (val) => (val && val !== 'null' && val !== '""' ? JSON.parse(val) : null)
+    (val) => (val && val !== "null" && val !== '""' ? JSON.parse(val) : null),
   );
-  const [userBirthDate, setUserBirthDate] = usePersistentState<Date | null>('hs_v3_userBirthDate', null, (val) => val && val !== 'null' ? parseLocalDate(val) : null);
-  const [childrenCount, setChildrenCount] = usePersistentState<string>('hs_v3_childrenCount', '');
-  const [husbandName, setHusbandName] = usePersistentState<string>('hs_v3_husbandName', '');
-  const [husbandNickname, setHusbandNickname] = usePersistentState<string>('hs_v3_husbandNickname', '');
-  const [husbandNumber, setHusbandNumber] = usePersistentState<string>('hs_v3_husbandNumber', '');
-  const [targetSaving, setTargetSaving] = usePersistentState<number>('hs_v3_targetSaving', 0);
-  const [currentSaving, setCurrentSaving] = usePersistentState<number>('hs_v3_currentSaving', 0);
-  const [isOnboardingCompleted, setIsOnboardingCompleted] = usePersistentState<boolean>('hs_onboardingCompleted', false);
+  const [userBirthDate, setUserBirthDate] = usePersistentState<Date | null>(
+    "hs_v3_userBirthDate",
+    null,
+    (val) => (val && val !== "null" ? parseLocalDate(val) : null),
+  );
+  const [childrenCount, setChildrenCount] = usePersistentState<string>("hs_v3_childrenCount", "");
+  const [husbandName, setHusbandName] = usePersistentState<string>("hs_v3_husbandName", "");
+  const [husbandNickname, setHusbandNickname] = usePersistentState<string>(
+    "hs_v3_husbandNickname",
+    "",
+  );
+  const [husbandNumber, setHusbandNumber] = usePersistentState<string>("hs_v3_husbandNumber", "");
+  const [targetSaving, setTargetSaving] = usePersistentState<number>("hs_v3_targetSaving", 0);
+  const [currentSaving, setCurrentSaving] = usePersistentState<number>("hs_v3_currentSaving", 0);
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = usePersistentState<boolean>(
+    "hs_onboardingCompleted",
+    false,
+  );
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const profileSyncUserRef = useRef<string | null>(null);
   const activityInitialSyncUserRef = useRef<string | null>(null);
@@ -154,30 +179,32 @@ export function CycleProvider({ children }: { children: ReactNode }) {
       lastPeriodDate
     ) {
       const payload = {
-        last_period_date: format(lastPeriodDate, 'yyyy-MM-dd'),
+        last_period_date: format(lastPeriodDate, "yyyy-MM-dd"),
         cycle_length: cycleLength,
         period_length: periodLength,
       };
 
-      import('../lib/SyncManager')
+      import("../lib/SyncManager")
         .then(({ SyncManager }) => {
           SyncManager.syncProfileData(payload)
             .then((res) => {
-              if (res.action === 'pulled' && res.data) {
+              if (res.action === "pulled" && res.data) {
                 // Jika cloud memiliki data baru, sesuaikan state lokal untuk menghindari overriding
-                const cloudDate = res.data.last_period_date ? parseLocalDate(res.data.last_period_date) : null;
+                const cloudDate = res.data.last_period_date
+                  ? parseLocalDate(res.data.last_period_date)
+                  : null;
                 setLastPeriodDate(cloudDate);
                 setCycleLength(res.data.cycle_length || 28);
                 setPeriodLength(res.data.period_length || 5);
               }
             })
             .catch((err) => {
-              console.warn('[CycleContext] Gagal menyelaraskan data siklus:', err);
+              console.warn("[CycleContext] Gagal menyelaraskan data siklus:", err);
             });
         })
         .catch((e) => {
-          console.error('[CycleContext] Gagal mengimpor SyncManager:', e);
-      });
+          console.error("[CycleContext] Gagal mengimpor SyncManager:", e);
+        });
     }
   }, [user?.id, isProfileLoading, lastPeriodDate, cycleLength, periodLength]);
 
@@ -214,15 +241,15 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         const client = supabaseStatus.client;
 
         const { data: cloudProfile, error } = await client
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
           .single();
 
         if (cancelled) return;
 
         if (error) {
-          console.warn('[CycleContext] Gagal memuat profil cloud:', error);
+          console.warn("[CycleContext] Gagal memuat profil cloud:", error);
           setIsProfileLoading(false);
           return;
         }
@@ -245,7 +272,8 @@ export function CycleProvider({ children }: { children: ReactNode }) {
               setUserBirthDate(parseLocalDate(cloudProfile.birth_date));
             }
             if (cloudProfile.avatar_url) setAvatarUrl(cloudProfile.avatar_url);
-            if (cloudProfile.avatar_kind) setAvatarKind(cloudProfile.avatar_kind as 'preset' | 'custom' | null);
+            if (cloudProfile.avatar_kind)
+              setAvatarKind(cloudProfile.avatar_kind as "preset" | "custom" | null);
             if (cloudProfile.target_saving !== null && cloudProfile.target_saving !== undefined) {
               setTargetSaving(Number(cloudProfile.target_saving));
             }
@@ -254,11 +282,13 @@ export function CycleProvider({ children }: { children: ReactNode }) {
             }
 
             setIsOnboardingCompleted(true);
-            console.info('[CycleContext] Profil pengguna berhasil di-sync dari cloud, otomatis menyelesaikan onboarding.');
+            console.info(
+              "[CycleContext] Profil pengguna berhasil di-sync dari cloud, otomatis menyelesaikan onboarding.",
+            );
           }
         }
       } catch (e) {
-        console.warn('[CycleContext] Exception saat load cloud profile:', e);
+        console.warn("[CycleContext] Exception saat load cloud profile:", e);
       } finally {
         if (!cancelled) {
           setIsProfileLoading(false);
@@ -279,15 +309,15 @@ export function CycleProvider({ children }: { children: ReactNode }) {
     savingsInitialSyncUserRef.current = user.id;
     let cancelled = false;
 
-    import('../lib/SyncManager')
+    import("../lib/SyncManager")
       .then(({ SyncManager }) =>
         SyncManager.syncSavingsData({
           target_saving: targetSaving,
           current_saving: currentSaving,
-        })
+        }),
       )
       .then((res) => {
-        if (cancelled || !res.data || res.action !== 'pulled') return;
+        if (cancelled || !res.data || res.action !== "pulled") return;
 
         isApplyingSavingsSyncRef.current = true;
         setTargetSaving(res.data.target_saving);
@@ -297,7 +327,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         }, 0);
       })
       .catch((err) => {
-        console.warn('[CycleContext] Gagal menyelaraskan tabungan:', err);
+        console.warn("[CycleContext] Gagal menyelaraskan tabungan:", err);
       })
       .finally(() => {
         if (!cancelled) {
@@ -324,15 +354,15 @@ export function CycleProvider({ children }: { children: ReactNode }) {
     }
 
     savingsSyncTimerRef.current = setTimeout(() => {
-      import('../lib/SyncManager')
+      import("../lib/SyncManager")
         .then(({ SyncManager }) =>
           SyncManager.syncSavingsData({
             target_saving: targetSaving,
             current_saving: currentSaving,
-          })
+          }),
         )
         .then((res) => {
-          if (!res.data || res.action !== 'pulled') return;
+          if (!res.data || res.action !== "pulled") return;
 
           isApplyingSavingsSyncRef.current = true;
           setTargetSaving(res.data.target_saving);
@@ -342,7 +372,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
           }, 0);
         })
         .catch((err) => {
-          console.warn('[CycleContext] Gagal mengunggah tabungan:', err);
+          console.warn("[CycleContext] Gagal mengunggah tabungan:", err);
         });
     }, 1200);
 
@@ -364,10 +394,10 @@ export function CycleProvider({ children }: { children: ReactNode }) {
     activityInitialSyncUserRef.current = user.id;
     let cancelled = false;
 
-    import('../lib/SyncManager')
+    import("../lib/SyncManager")
       .then(({ SyncManager }) => SyncManager.syncActivityHistory(activityHistory))
       .then((res) => {
-        if (cancelled || !res.data || res.action === 'skipped' || res.action === 'error') return;
+        if (cancelled || !res.data || res.action === "skipped" || res.action === "error") return;
 
         setActivityHistory((prev) => {
           if (JSON.stringify(prev) === JSON.stringify(res.data)) return prev;
@@ -380,7 +410,7 @@ export function CycleProvider({ children }: { children: ReactNode }) {
         }, 0);
       })
       .catch((err) => {
-        console.warn('[CycleContext] Gagal menyelaraskan histori aktivitas:', err);
+        console.warn("[CycleContext] Gagal menyelaraskan histori aktivitas:", err);
       })
       .finally(() => {
         if (!cancelled) {
@@ -394,17 +424,22 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   useEffect(() => {
-    if (!user?.id || activityInitialSyncDoneUserRef.current !== user.id || isApplyingActivitySyncRef.current) return;
+    if (
+      !user?.id ||
+      activityInitialSyncDoneUserRef.current !== user.id ||
+      isApplyingActivitySyncRef.current
+    )
+      return;
 
     if (activitySyncTimerRef.current) {
       clearTimeout(activitySyncTimerRef.current);
     }
 
     activitySyncTimerRef.current = setTimeout(() => {
-      import('../lib/SyncManager')
+      import("../lib/SyncManager")
         .then(({ SyncManager }) => SyncManager.syncActivityHistory(activityHistory))
         .catch((err) => {
-          console.warn('[CycleContext] Gagal mengunggah histori aktivitas:', err);
+          console.warn("[CycleContext] Gagal mengunggah histori aktivitas:", err);
         });
     }, 1500);
 
@@ -425,48 +460,67 @@ export function CycleProvider({ children }: { children: ReactNode }) {
   // infinite navigation replace loops in React Navigation 7.
   const contextValue = useMemo(
     () => ({
-      lastPeriodDate, setLastPeriodDate,
-      cycleLength, setCycleLength,
-      periodLength, setPeriodLength,
-      activityHistory, setActivityHistory,
-      userNickname, setUserNickname,
-      avatarUrl, setAvatarUrl,
-      avatarKind, setAvatarKind,
-      userBirthDate, setUserBirthDate,
-      childrenCount, setChildrenCount,
-      husbandName, setHusbandName,
-      husbandNickname, setHusbandNickname,
-      husbandNumber, setHusbandNumber,
-      targetSaving, setTargetSaving,
-      currentSaving, setCurrentSaving,
-      isOnboardingCompleted, setIsOnboardingCompleted,
+      lastPeriodDate,
+      setLastPeriodDate,
+      cycleLength,
+      setCycleLength,
+      periodLength,
+      setPeriodLength,
+      activityHistory,
+      setActivityHistory,
+      userNickname,
+      setUserNickname,
+      avatarUrl,
+      setAvatarUrl,
+      avatarKind,
+      setAvatarKind,
+      userBirthDate,
+      setUserBirthDate,
+      childrenCount,
+      setChildrenCount,
+      husbandName,
+      setHusbandName,
+      husbandNickname,
+      setHusbandNickname,
+      husbandNumber,
+      setHusbandNumber,
+      targetSaving,
+      setTargetSaving,
+      currentSaving,
+      setCurrentSaving,
+      isOnboardingCompleted,
+      setIsOnboardingCompleted,
       isProfileLoading,
       ...cycleData,
     }),
     [
-      lastPeriodDate, cycleLength, periodLength,
-      activityHistory, userNickname,
-      avatarUrl, avatarKind,
-      userBirthDate, childrenCount,
-      husbandName, husbandNickname, husbandNumber,
-      targetSaving, currentSaving,
+      lastPeriodDate,
+      cycleLength,
+      periodLength,
+      activityHistory,
+      userNickname,
+      avatarUrl,
+      avatarKind,
+      userBirthDate,
+      childrenCount,
+      husbandName,
+      husbandNickname,
+      husbandNumber,
+      targetSaving,
+      currentSaving,
       isOnboardingCompleted,
       isProfileLoading,
       cycleData,
-    ]
+    ],
   );
 
-  return (
-    <CycleContext.Provider value={contextValue}>
-      {children}
-    </CycleContext.Provider>
-  );
+  return <CycleContext.Provider value={contextValue}>{children}</CycleContext.Provider>;
 }
 
 export function useCycle() {
   const context = useContext(CycleContext);
   if (context === undefined) {
-    throw new Error('useCycle must be used within a CycleProvider');
+    throw new Error("useCycle must be used within a CycleProvider");
   }
   return context;
 }

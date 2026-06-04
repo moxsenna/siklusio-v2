@@ -1,23 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  Modal, 
-  SafeAreaView 
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useCycle } from '../src/context/CycleContext';
-import { useAuth } from '../src/context/AuthContext';
-import { supabase } from '../src/lib/supabase';
-import { format } from 'date-fns';
-import { DatePickerField } from '../components/common/DatePickerField';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { storage } from '../src/lib/storage';
-import { stampDailyRecord } from '../src/lib/activityHistorySync';
-import { getAuthenticatedSupabaseClientStatus } from '../src/lib/supabaseAccess';
+import React, { useState, useMemo } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  SafeAreaView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useCycle } from "../src/context/CycleContext";
+import { useAuth } from "../src/context/AuthContext";
+import { supabase } from "../src/lib/supabase";
+import { format } from "date-fns";
+import { DatePickerField } from "../components/common/DatePickerField";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { storage } from "../src/lib/storage";
+import { stampDailyRecord } from "../src/lib/activityHistorySync";
+import { getAuthenticatedSupabaseClientStatus } from "../src/lib/supabaseAccess";
 
 interface DropdownOption {
   label: string;
@@ -36,7 +36,7 @@ function CustomDropdown({ label, value, placeholder, options, onSelect }: Custom
   const [modalOpen, setModalOpen] = useState(false);
 
   const displayLabel = useMemo(() => {
-    const selected = options.find(o => o.value === value);
+    const selected = options.find((o) => o.value === value);
     return selected ? selected.label : placeholder;
   }, [value, options, placeholder]);
 
@@ -46,7 +46,9 @@ function CustomDropdown({ label, value, placeholder, options, onSelect }: Custom
         onPress={() => setModalOpen(true)}
         className="w-full bg-surface-variant border border-outline-variant rounded-2xl px-5 py-4 flex-row justify-between items-center"
       >
-        <Text className={`text-base font-medium ${value ? 'text-on-background' : 'text-on-background/40'}`}>
+        <Text
+          className={`text-base font-medium ${value ? "text-on-background" : "text-on-background/40"}`}
+        >
           {displayLabel}
         </Text>
         <FontAwesome name="chevron-down" size={14} color="#ec4899" />
@@ -79,10 +81,12 @@ function CustomDropdown({ label, value, placeholder, options, onSelect }: Custom
                         setModalOpen(false);
                       }}
                       className={`w-full p-4 rounded-xl flex-row justify-between items-center ${
-                        isSelected ? 'bg-primary/10' : 'active:bg-surface-variant/50'
+                        isSelected ? "bg-primary/10" : "active:bg-surface-variant/50"
                       }`}
                     >
-                      <Text className={`text-base ${isSelected ? 'text-primary font-bold' : 'text-on-surface'}`}>
+                      <Text
+                        className={`text-base ${isSelected ? "text-primary font-bold" : "text-on-surface"}`}
+                      >
                         {opt.label}
                       </Text>
                       {isSelected && <FontAwesome name="check" size={14} color="#ec4899" />}
@@ -99,55 +103,93 @@ function CustomDropdown({ label, value, placeholder, options, onSelect }: Custom
 }
 
 export default function OnboardingScreen() {
-  const { 
-    userNickname, setUserNickname,
-    userBirthDate, setUserBirthDate,
-    childrenCount, setChildrenCount,
-    lastPeriodDate, setLastPeriodDate,
-    cycleLength, setCycleLength,
-    periodLength, setPeriodLength,
+  const {
+    userNickname,
+    setUserNickname,
+    userBirthDate,
+    setUserBirthDate,
+    childrenCount,
+    setChildrenCount,
+    lastPeriodDate,
+    setLastPeriodDate,
+    cycleLength,
+    setCycleLength,
+    periodLength,
+    setPeriodLength,
     setActivityHistory,
-    husbandName, setHusbandName,
-    husbandNickname, setHusbandNickname,
-    husbandNumber, setHusbandNumber,
-    isOnboardingCompleted, setIsOnboardingCompleted
+    husbandName,
+    setHusbandName,
+    husbandNickname,
+    setHusbandNickname,
+    husbandNumber,
+    setHusbandNumber,
+    isOnboardingCompleted,
+    setIsOnboardingCompleted,
   } = useCycle();
-  
+
   const { session } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const totalSteps = 8; // Kembali menjadi 8 langkah dengan dropdown di masing-masing langkah kelahiran
 
   // Birth Date local states
-  const [birthDay, setBirthDay] = useState(userBirthDate && !isNaN(userBirthDate.getTime()) ? userBirthDate.getDate().toString() : '');
-  const [birthMonth, setBirthMonth] = useState(userBirthDate && !isNaN(userBirthDate.getTime()) ? (userBirthDate.getMonth() + 1).toString() : '');
-  const [birthYear, setBirthYear] = useState(userBirthDate && !isNaN(userBirthDate.getTime()) ? userBirthDate.getFullYear().toString() : '');
+  const [birthDay, setBirthDay] = useState(
+    userBirthDate && !isNaN(userBirthDate.getTime()) ? userBirthDate.getDate().toString() : "",
+  );
+  const [birthMonth, setBirthMonth] = useState(
+    userBirthDate && !isNaN(userBirthDate.getTime())
+      ? (userBirthDate.getMonth() + 1).toString()
+      : "",
+  );
+  const [birthYear, setBirthYear] = useState(
+    userBirthDate && !isNaN(userBirthDate.getTime()) ? userBirthDate.getFullYear().toString() : "",
+  );
 
   // Last Period Date local states (safer alternative to date picker)
-  const [periodDay, setPeriodDay] = useState(lastPeriodDate && !isNaN(lastPeriodDate.getTime()) ? lastPeriodDate.getDate().toString() : '');
-  const [periodMonth, setPeriodMonth] = useState(lastPeriodDate && !isNaN(lastPeriodDate.getTime()) ? (lastPeriodDate.getMonth() + 1).toString() : '');
-  const [periodYear, setPeriodYear] = useState(lastPeriodDate && !isNaN(lastPeriodDate.getTime()) ? lastPeriodDate.getFullYear().toString() : new Date().getFullYear().toString());
+  const [periodDay, setPeriodDay] = useState(
+    lastPeriodDate && !isNaN(lastPeriodDate.getTime()) ? lastPeriodDate.getDate().toString() : "",
+  );
+  const [periodMonth, setPeriodMonth] = useState(
+    lastPeriodDate && !isNaN(lastPeriodDate.getTime())
+      ? (lastPeriodDate.getMonth() + 1).toString()
+      : "",
+  );
+  const [periodYear, setPeriodYear] = useState(
+    lastPeriodDate && !isNaN(lastPeriodDate.getTime())
+      ? lastPeriodDate.getFullYear().toString()
+      : new Date().getFullYear().toString(),
+  );
 
-  const [cycleInput, setCycleInput] = useState(cycleLength > 0 ? cycleLength.toString() : '28');
-  const [periodInput, setPeriodInput] = useState(periodLength > 0 ? periodLength.toString() : '5');
+  const [cycleInput, setCycleInput] = useState(cycleLength > 0 ? cycleLength.toString() : "28");
+  const [periodInput, setPeriodInput] = useState(periodLength > 0 ? periodLength.toString() : "5");
 
   const months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
   ];
 
   // Options generator untuk Dropdowns
   const dayOptions = useMemo(() => {
     return Array.from({ length: 31 }, (_, i) => ({
       label: (i + 1).toString(),
-      value: (i + 1).toString()
+      value: (i + 1).toString(),
     }));
   }, []);
 
   const monthOptions = useMemo(() => {
     return months.map((m, i) => ({
       label: m,
-      value: (i + 1).toString()
+      value: (i + 1).toString(),
     }));
   }, []);
 
@@ -157,28 +199,46 @@ export default function OnboardingScreen() {
       const year = currentYear - 10 - i;
       return {
         label: year.toString(),
-        value: year.toString()
+        value: year.toString(),
       };
     });
   }, []);
 
   const isNextDisabled = () => {
     switch (step) {
-      case 1: return !userNickname.trim();
-      case 2: return !birthDay;
-      case 3: return !birthMonth;
-      case 4: return !birthYear;
-      case 5: return !childrenCount;
+      case 1:
+        return !userNickname.trim();
+      case 2:
+        return !birthDay;
+      case 3:
+        return !birthMonth;
+      case 4:
+        return !birthYear;
+      case 5:
+        return !childrenCount;
       case 6: {
         const d = Number(periodDay);
         const m = Number(periodMonth);
         const y = Number(periodYear);
         const cl = Number(cycleInput);
         const pl = Number(periodInput);
-        return !periodDay || !periodMonth || !periodYear || isNaN(d) || isNaN(m) || isNaN(y) || isNaN(cl) || isNaN(pl) || cl <= 0 || pl <= 0;
+        return (
+          !periodDay ||
+          !periodMonth ||
+          !periodYear ||
+          isNaN(d) ||
+          isNaN(m) ||
+          isNaN(y) ||
+          isNaN(cl) ||
+          isNaN(pl) ||
+          cl <= 0 ||
+          pl <= 0
+        );
       }
-      case 7: return !husbandName.trim() || !husbandNickname.trim() || !husbandNumber.trim();
-      default: return false;
+      case 7:
+        return !husbandName.trim() || !husbandNickname.trim() || !husbandNumber.trim();
+      default:
+        return false;
     }
   };
 
@@ -202,8 +262,8 @@ export default function OnboardingScreen() {
       const date = new Date(year, month, day);
       if (!isNaN(date.getTime())) {
         setLastPeriodDate(date);
-        const dateKey = format(date, 'yyyy-MM-dd');
-        setActivityHistory(prev => ({
+        const dateKey = format(date, "yyyy-MM-dd");
+        setActivityHistory((prev) => ({
           ...prev,
           [dateKey]: stampDailyRecord({
             ...prev[dateKey],
@@ -215,7 +275,7 @@ export default function OnboardingScreen() {
       }
       setCycleLength(Number(cycleInput));
       setPeriodLength(Number(periodInput));
-      storage.setItem('hs_v3_last_sync_time', String(Date.now()));
+      storage.setItem("hs_v3_last_sync_time", String(Date.now()));
     }
 
     if (step < totalSteps) {
@@ -224,28 +284,43 @@ export default function OnboardingScreen() {
       const status = getAuthenticatedSupabaseClientStatus(supabase, session?.user?.id);
       if (status.ready) {
         try {
-          const finalBirthDate = new Date(Number(birthYear), Number(birthMonth) - 1, Number(birthDay));
-          const finalLastPeriodDate = new Date(Number(periodYear), Number(periodMonth) - 1, Number(periodDay));
-          
-          await status.client.from('profiles').update({
-            nickname: userNickname,
-            birth_date: !isNaN(finalBirthDate.getTime()) ? format(finalBirthDate, 'yyyy-MM-dd') : null,
-            children_count: childrenCount,
-            last_period_date: !isNaN(finalLastPeriodDate.getTime()) ? format(finalLastPeriodDate, 'yyyy-MM-dd') : null,
-            cycle_length: Number(cycleInput),
-            period_length: Number(periodInput),
-            husband_name: husbandName,
-            husband_nickname: husbandNickname,
-            husband_number: husbandNumber,
-            onboarding_completed: true
-          }).eq('id', status.userId);
+          const finalBirthDate = new Date(
+            Number(birthYear),
+            Number(birthMonth) - 1,
+            Number(birthDay),
+          );
+          const finalLastPeriodDate = new Date(
+            Number(periodYear),
+            Number(periodMonth) - 1,
+            Number(periodDay),
+          );
+
+          await status.client
+            .from("profiles")
+            .update({
+              nickname: userNickname,
+              birth_date: !isNaN(finalBirthDate.getTime())
+                ? format(finalBirthDate, "yyyy-MM-dd")
+                : null,
+              children_count: childrenCount,
+              last_period_date: !isNaN(finalLastPeriodDate.getTime())
+                ? format(finalLastPeriodDate, "yyyy-MM-dd")
+                : null,
+              cycle_length: Number(cycleInput),
+              period_length: Number(periodInput),
+              husband_name: husbandName,
+              husband_nickname: husbandNickname,
+              husband_number: husbandNumber,
+              onboarding_completed: true,
+            })
+            .eq("id", status.userId);
         } catch (e) {
           console.error("Failed to sync onboarding data", e);
         }
       }
       setIsOnboardingCompleted(true);
-      storage.setItem('hs_v3_last_sync_time', String(Date.now()));
-      router.replace('/(tabs)/dashboard');
+      storage.setItem("hs_v3_last_sync_time", String(Date.now()));
+      router.replace("/(tabs)/dashboard");
     }
   };
 
@@ -259,54 +334,56 @@ export default function OnboardingScreen() {
     <ScrollView
       contentContainerStyle={{
         flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: 16,
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
       }}
       style={{
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
       }}
     >
       <View
         style={{
-          width: '100%',
+          width: "100%",
           maxWidth: 448,
-          backgroundColor: '#ffffff',
+          backgroundColor: "#ffffff",
           borderRadius: 32,
           borderWidth: 1,
-          borderColor: '#fbcfe8',
-          shadowColor: '#000',
+          borderColor: "#fbcfe8",
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.1,
           shadowRadius: 6,
           elevation: 5,
           minHeight: 500,
-          flexDirection: 'column',
-          justifyContent: 'space-between',
+          flexDirection: "column",
+          justifyContent: "space-between",
         }}
       >
-        
         {/* Header */}
         <View className="flex-row items-center justify-between p-6">
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleBack}
             disabled={step === 1 || step === totalSteps}
-            className={`w-10 h-10 items-center justify-center rounded-full bg-surface-variant ${step === 1 || step === totalSteps ? 'opacity-0' : 'opacity-100'}`}
+            className={`w-10 h-10 items-center justify-center rounded-full bg-surface-variant ${step === 1 || step === totalSteps ? "opacity-0" : "opacity-100"}`}
           >
             <Text className="text-xl font-bold text-primary">←</Text>
           </TouchableOpacity>
-          
+
           {/* Custom Step Indicator dots */}
           <View className="flex-row gap-1.5 flex-1 justify-center px-4">
             {Array.from({ length: totalSteps }).map((_, i) => (
-              <View 
-                key={i} 
+              <View
+                key={i}
                 className={`h-1.5 rounded-full transition-all ${
-                  i + 1 === step ? 'w-6 bg-primary' : 
-                  i + 1 < step ? 'w-2 bg-primary/60' : 'w-2 bg-outline-variant'
-                }`} 
+                  i + 1 === step
+                    ? "w-6 bg-primary"
+                    : i + 1 < step
+                      ? "w-2 bg-primary/60"
+                      : "w-2 bg-outline-variant"
+                }`}
               />
             ))}
           </View>
@@ -323,10 +400,13 @@ export default function OnboardingScreen() {
               </View>
               <Text className="text-3xl font-bold mb-3 text-on-background">Kenalan yuk! 👋</Text>
               <Text className="text-on-surface-variant opacity-80 mb-8 leading-relaxed">
-                Biar aplikasinya lebih personal dan akrab, boleh kasih tahu kami kamu lebih suka dipanggil apa?
+                Biar aplikasinya lebih personal dan akrab, boleh kasih tahu kami kamu lebih suka
+                dipanggil apa?
               </Text>
               <View>
-                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Nama Panggilan</Text>
+                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                  Nama Panggilan
+                </Text>
                 <TextInput
                   value={userNickname}
                   onChangeText={setUserNickname}
@@ -348,7 +428,9 @@ export default function OnboardingScreen() {
                 Tanggal berapa kamu lahir?
               </Text>
               <View>
-                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Pilih Tanggal</Text>
+                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                  Pilih Tanggal
+                </Text>
                 <CustomDropdown
                   label="Tanggal Lahir"
                   value={birthDay}
@@ -370,7 +452,9 @@ export default function OnboardingScreen() {
                 Di bulan apa kamu lahir?
               </Text>
               <View>
-                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Pilih Bulan</Text>
+                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                  Pilih Bulan
+                </Text>
                 <CustomDropdown
                   label="Bulan Lahir"
                   value={birthMonth}
@@ -392,7 +476,9 @@ export default function OnboardingScreen() {
                 Tahun berapa kamu lahir?
               </Text>
               <View>
-                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Pilih Tahun</Text>
+                <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                  Pilih Tahun
+                </Text>
                 <CustomDropdown
                   label="Tahun Lahir"
                   value={birthYear}
@@ -415,20 +501,30 @@ export default function OnboardingScreen() {
               </Text>
               <View className="space-y-3">
                 {[
-                  { value: 'belum punya', label: 'Belum punya' },
-                  { value: '1', label: '1 Anak' },
-                  { value: '2', label: '2 Anak' },
-                  { value: '3', label: '3 Anak' },
-                  { value: '4+', label: '4 Anak atau lebih' }
-                ].map(opt => (
+                  { value: "belum punya", label: "Belum punya" },
+                  { value: "1", label: "1 Anak" },
+                  { value: "2", label: "2 Anak" },
+                  { value: "3", label: "3 Anak" },
+                  { value: "4+", label: "4 Anak atau lebih" },
+                ].map((opt) => (
                   <TouchableOpacity
                     key={opt.value}
                     onPress={() => setChildrenCount(opt.value)}
                     className={`w-full px-5 py-4 rounded-2xl border ${
-                      childrenCount === opt.value ? 'bg-primary border-primary' : 'bg-surface-variant border-outline-variant'
+                      childrenCount === opt.value
+                        ? "bg-primary border-primary"
+                        : "bg-surface-variant border-outline-variant"
                     } flex-row justify-between items-center mb-2`}
                   >
-                    <Text className={childrenCount === opt.value ? 'text-white font-bold' : 'text-on-background font-medium'}>{opt.label}</Text>
+                    <Text
+                      className={
+                        childrenCount === opt.value
+                          ? "text-white font-bold"
+                          : "text-on-background font-medium"
+                      }
+                    >
+                      {opt.label}
+                    </Text>
                     {childrenCount === opt.value && <Text className="text-white font-bold">✓</Text>}
                   </TouchableOpacity>
                 ))}
@@ -441,13 +537,17 @@ export default function OnboardingScreen() {
               <View className="w-16 h-16 rounded-2xl bg-pink-100 items-center justify-center mb-6">
                 <Text className="text-3xl">🩸</Text>
               </View>
-              <Text className="text-2xl font-bold mb-3 text-on-background">Siklus Haid terakhir ✨</Text>
+              <Text className="text-2xl font-bold mb-3 text-on-background">
+                Siklus Haid terakhir ✨
+              </Text>
               <Text className="text-xs text-on-surface-variant opacity-80 mb-4">
                 Pilih tanggal haid terakhir dan durasi siklusmu.
               </Text>
               <View className="space-y-4">
                 <View>
-                  <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Tanggal Haid Terakhir</Text>
+                  <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                    Tanggal Haid Terakhir
+                  </Text>
                   <DatePickerField
                     value={(() => {
                       const d = Number(periodDay);
@@ -469,7 +569,9 @@ export default function OnboardingScreen() {
                 </View>
                 <View className="flex-row gap-4 mt-4">
                   <View className="flex-1">
-                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Panjang Siklus (Hari)</Text>
+                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                      Panjang Siklus (Hari)
+                    </Text>
                     <TextInput
                       value={cycleInput}
                       onChangeText={setCycleInput}
@@ -480,7 +582,9 @@ export default function OnboardingScreen() {
                     />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Lama Haid (Hari)</Text>
+                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                      Lama Haid (Hari)
+                    </Text>
                     <TextInput
                       value={periodInput}
                       onChangeText={setPeriodInput}
@@ -506,7 +610,9 @@ export default function OnboardingScreen() {
               </Text>
               <View className="space-y-3">
                 <View>
-                  <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Nama Suami</Text>
+                  <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                    Nama Suami
+                  </Text>
                   <TextInput
                     value={husbandName}
                     onChangeText={setHusbandName}
@@ -517,7 +623,9 @@ export default function OnboardingScreen() {
                 </View>
                 <View className="flex-row gap-4 mt-2">
                   <View className="flex-1">
-                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Panggilan</Text>
+                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                      Panggilan
+                    </Text>
                     <TextInput
                       value={husbandNickname}
                       onChangeText={setHusbandNickname}
@@ -527,7 +635,9 @@ export default function OnboardingScreen() {
                     />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">WhatsApp</Text>
+                    <Text className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
+                      WhatsApp
+                    </Text>
                     <TextInput
                       value={husbandNumber}
                       onChangeText={setHusbandNumber}
@@ -547,9 +657,12 @@ export default function OnboardingScreen() {
               <View className="w-24 h-24 rounded-full bg-emerald-100 items-center justify-center mb-6">
                 <Text className="text-5xl">🎉</Text>
               </View>
-              <Text className="text-3xl font-bold mb-4 text-center text-on-background">Semua Sudah Siap! 🎉</Text>
+              <Text className="text-3xl font-bold mb-4 text-center text-on-background">
+                Semua Sudah Siap! 🎉
+              </Text>
               <Text className="text-on-surface-variant opacity-80 text-center leading-relaxed">
-                Pengaturan berhasil disimpan. Sekarang kita bisa mulai mencatat siklus dan merencanakan masa depan bersama.
+                Pengaturan berhasil disimpan. Sekarang kita bisa mulai mencatat siklus dan
+                merencanakan masa depan bersama.
               </Text>
             </View>
           )}
@@ -561,11 +674,11 @@ export default function OnboardingScreen() {
             onPress={handleNext}
             disabled={isNextDisabled()}
             className={`w-full py-4 rounded-2xl items-center justify-center shadow-md active:scale-95 ${
-              isNextDisabled() ? 'bg-outline-variant opacity-50' : 'bg-primary'
+              isNextDisabled() ? "bg-outline-variant opacity-50" : "bg-primary"
             }`}
           >
             <Text className="text-on-primary font-bold uppercase tracking-wider text-sm">
-              {step === totalSteps ? 'Mulai Sekarang' : 'Lanjut →'}
+              {step === totalSteps ? "Mulai Sekarang" : "Lanjut →"}
             </Text>
           </TouchableOpacity>
         </View>

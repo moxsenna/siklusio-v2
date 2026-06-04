@@ -1,4 +1,4 @@
-import { parse } from 'date-fns';
+import { parse } from "date-fns";
 
 /**
  * Safely parses a 'yyyy-MM-dd' string into a local Date object.
@@ -7,10 +7,10 @@ import { parse } from 'date-fns';
  * timezones behind UTC.
  */
 export function parseLocalDate(dateStr: string): Date {
-  if (dateStr.includes('T')) {
-      return new Date(dateStr);
+  if (dateStr.includes("T")) {
+    return new Date(dateStr);
   }
-  const parts = dateStr.split('-');
+  const parts = dateStr.split("-");
   if (parts.length === 3) {
     return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   }

@@ -1,21 +1,21 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useCycle } from '../../src/context/CycleContext';
-import { analytics } from '../../src/lib/analytics';
-import { useTodayKey } from '../../src/hooks/useTodayKey';
-import { parseLocalDate } from '../../src/lib/dateUtils';
+import React, { useState, useMemo } from "react";
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from "react-native";
+import { useRouter } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useCycle } from "../../src/context/CycleContext";
+import { analytics } from "../../src/lib/analytics";
+import { useTodayKey } from "../../src/hooks/useTodayKey";
+import { parseLocalDate } from "../../src/lib/dateUtils";
 
-import { CycleCard } from '../../components/dashboard/CycleCard';
-import { AffirmationCard } from '../../components/dashboard/AffirmationCard';
-import { SavingsCard } from '../../components/dashboard/SavingsCard';
-import { ActionCard } from '../../components/dashboard/ActionCard';
-import { MessageModal } from '../../components/dashboard/MessageModal';
-import { TwwActionCard } from '../../components/dashboard/TwwActionCard';
-import { TwwSanctuaryModal } from '../../components/dashboard/TwwSanctuaryModal';
-import { HeaderProfileButton } from '../../components/common/HeaderProfileButton';
-import { HeaderCreditChip } from '../../components/common/HeaderCreditChip';
+import { CycleCard } from "../../components/dashboard/CycleCard";
+import { AffirmationCard } from "../../components/dashboard/AffirmationCard";
+import { SavingsCard } from "../../components/dashboard/SavingsCard";
+import { ActionCard } from "../../components/dashboard/ActionCard";
+import { MessageModal } from "../../components/dashboard/MessageModal";
+import { TwwActionCard } from "../../components/dashboard/TwwActionCard";
+import { TwwSanctuaryModal } from "../../components/dashboard/TwwSanctuaryModal";
+import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
+import { HeaderCreditChip } from "../../components/common/HeaderCreditChip";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -24,8 +24,21 @@ export default function DashboardScreen() {
   const todayDate = useMemo(() => parseLocalDate(todayKey), [todayKey]);
 
   const dateString = useMemo(() => {
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
     const d = todayDate;
     return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
   }, [todayDate]);
@@ -34,9 +47,9 @@ export default function DashboardScreen() {
     return getDayInfo(todayDate);
   }, [getDayInfo, todayDate]);
 
-  const isFertile = displayPhase === 'Masa Subur';
-  const isStrictOvulation = displayPhase === 'Ovulasi';
-  
+  const isFertile = displayPhase === "Masa Subur";
+  const isStrictOvulation = displayPhase === "Ovulasi";
+
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [isTwwModalOpen, setIsTwwModalOpen] = useState(false);
 
@@ -52,15 +65,18 @@ export default function DashboardScreen() {
 
   // Determine icon for CycleCard from same logic as ActionCard
   const actionCardIcon = useMemo(() => {
-     if (completionPercent < 50) return '🔔';
-     if (isStrictOvulation) return '💖';
-     if (isFertile) return '💕';
-     if (currentPhase === 'Menstrual') return '🩸';
-     return '✨';
+    if (completionPercent < 50) return "🔔";
+    if (isStrictOvulation) return "💖";
+    if (isFertile) return "💕";
+    if (currentPhase === "Menstrual") return "🩸";
+    return "✨";
   }, [completionPercent, currentPhase, isFertile, isStrictOvulation]);
 
   return (
-    <SafeAreaView style={{ flex: 1, minHeight: Platform.OS === 'web' ? '100%' : undefined }} className="bg-background">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
+      className="bg-background"
+    >
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
         {/* Custom Header */}
         <View className="mb-6 pt-4 border-b border-primary/20 pb-4 flex-row justify-between items-end">
@@ -84,25 +100,25 @@ export default function DashboardScreen() {
         {/* Dashboard Content */}
         <View className="space-y-6">
           <CycleCard displayPhase={displayPhase} actionCardIcon={actionCardIcon} />
-          
+
           <View className="mt-4">
-            {currentPhase === 'Luteal' ? (
+            {currentPhase === "Luteal" ? (
               <TwwActionCard onOpenSanctuary={() => setIsTwwModalOpen(true)} />
             ) : (
-              <ActionCard 
-                onOpenMessageModal={() => setIsMessageModalOpen(true)} 
-                isFertile={isFertile} 
-                isStrictOvulation={isStrictOvulation} 
+              <ActionCard
+                onOpenMessageModal={() => setIsMessageModalOpen(true)}
+                isFertile={isFertile}
+                isStrictOvulation={isStrictOvulation}
               />
             )}
           </View>
 
           {/* Husband Message Button - Always Visible */}
           <View className="mt-4">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => {
                 setIsMessageModalOpen(true);
-                analytics.logEvent('click_husband_message', { phase: displayPhase });
+                analytics.logEvent("click_husband_message", { phase: displayPhase });
               }}
               className="w-full bg-pink-50 py-[16px] rounded-[24px] items-center justify-center flex-row shadow-sm border border-pink-100 active:scale-95"
             >
@@ -112,7 +128,7 @@ export default function DashboardScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-          
+
           <View className="mt-4">
             <SavingsCard />
           </View>
@@ -120,14 +136,10 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* Message Template Bottom Sheet */}
-      {isMessageModalOpen && (
-        <MessageModal onClose={() => setIsMessageModalOpen(false)} />
-      )}
+      {isMessageModalOpen && <MessageModal onClose={() => setIsMessageModalOpen(false)} />}
 
       {/* TWW Sanctuary Modal */}
-      {isTwwModalOpen && (
-        <TwwSanctuaryModal onClose={() => setIsTwwModalOpen(false)} />
-      )}
+      {isTwwModalOpen && <TwwSanctuaryModal onClose={() => setIsTwwModalOpen(false)} />}
     </SafeAreaView>
   );
 }

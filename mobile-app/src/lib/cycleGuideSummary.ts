@@ -1,7 +1,7 @@
-import type { PredictionConfidence } from './cyclePrediction';
-import type { CyclePhase, DailyRecord } from './cycleUtils';
+import type { PredictionConfidence } from "./cyclePrediction";
+import type { CyclePhase, DailyRecord } from "./cycleUtils";
 
-export type CycleGuideLevel = 'starter' | 'active' | 'personal';
+export type CycleGuideLevel = "starter" | "active" | "personal";
 
 interface BuildCycleGuidePreviewInput {
   currentPhase: CyclePhase;
@@ -24,10 +24,10 @@ export interface CycleGuidePreview {
 }
 
 const phaseCopy: Record<CyclePhase, string> = {
-  Menstrual: 'tubuh sedang memulai ulang siklus dan biasanya butuh ritme yang lebih lembut',
-  Folikular: 'energi biasanya mulai naik dan tubuh bersiap menuju masa subur',
-  Ovulasi: 'masa subur sedang menjadi fokus utama',
-  Luteal: 'tubuh masuk fase menunggu dan sensitivitas emosi bisa meningkat',
+  Menstrual: "tubuh sedang memulai ulang siklus dan biasanya butuh ritme yang lebih lembut",
+  Folikular: "energi biasanya mulai naik dan tubuh bersiap menuju masa subur",
+  Ovulasi: "masa subur sedang menjadi fokus utama",
+  Luteal: "tubuh masuk fase menunggu dan sensitivitas emosi bisa meningkat",
 };
 
 function countObservedDays(activityHistory: Record<string, DailyRecord>) {
@@ -35,42 +35,42 @@ function countObservedDays(activityHistory: Record<string, DailyRecord>) {
 }
 
 function getConfidenceLabel(confidence: PredictionConfidence) {
-  if (confidence === 'high') return 'Pola cukup stabil';
-  if (confidence === 'medium') return 'Mulai personal';
-  return 'Butuh catatan lagi';
+  if (confidence === "high") return "Pola cukup stabil";
+  if (confidence === "medium") return "Mulai personal";
+  return "Butuh catatan lagi";
 }
 
 export function buildCycleGuidePreview(input: BuildCycleGuidePreviewInput): CycleGuidePreview {
   const observedDayCount = countObservedDays(input.activityHistory);
   const level: CycleGuideLevel =
-    input.hasManualLogs && input.cycleConfidence !== 'low' && observedDayCount >= 3
-      ? 'personal'
+    input.hasManualLogs && input.cycleConfidence !== "low" && observedDayCount >= 3
+      ? "personal"
       : observedDayCount > 0 || input.hasManualLogs
-        ? 'active'
-        : 'starter';
+        ? "active"
+        : "starter";
 
   const title =
-    level === 'starter'
-      ? 'Panduan awal siklusmu'
-      : level === 'active'
-        ? 'Panduan minggu ini'
-        : 'Insight personal siklusmu';
+    level === "starter"
+      ? "Panduan awal siklusmu"
+      : level === "active"
+        ? "Panduan minggu ini"
+        : "Insight personal siklusmu";
 
   const suggestedHabitFocus =
-    input.currentPhase === 'Ovulasi'
-      ? 'promil dan energi'
-      : input.currentPhase === 'Menstrual'
-        ? 'istirahat dan hidrasi'
-        : input.currentPhase === 'Luteal'
-          ? 'emosi, tidur, dan ketenangan'
-          : 'nutrisi dan konsistensi ringan';
+    input.currentPhase === "Ovulasi"
+      ? "promil dan energi"
+      : input.currentPhase === "Menstrual"
+        ? "istirahat dan hidrasi"
+        : input.currentPhase === "Luteal"
+          ? "emosi, tidur, dan ketenangan"
+          : "nutrisi dan konsistensi ringan";
 
   return {
     level,
     title,
     summary: `Hari ke-${input.cycleDay}. Saat ini ${phaseCopy[input.currentPhase]}. Perkiraan haid berikutnya sekitar ${input.daysToNextPeriod} hari lagi.`,
     confidenceLabel: getConfidenceLabel(input.cycleConfidence),
-    canShowPersonalPatterns: level === 'personal',
+    canShowPersonalPatterns: level === "personal",
     suggestedHabitFocus,
   };
 }

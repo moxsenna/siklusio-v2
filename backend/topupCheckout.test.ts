@@ -22,7 +22,7 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
           id: "11111111-1111-4111-8111-111111111111",
           email: "maya@example.com",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -32,7 +32,7 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
           name: "Maya",
           whatsapp_number: "08123456789",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -43,7 +43,7 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
           statusCode: 200,
           data: { link: "https://mayar.test/pay/topup-1", id: "tx-topup-1" },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -76,7 +76,7 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
         credits: 999999,
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();
@@ -102,7 +102,7 @@ test("topup checkout rejects unknown package ids before payment creation", async
           id: "11111111-1111-4111-8111-111111111111",
           email: "maya@example.com",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -129,7 +129,7 @@ test("topup checkout rejects unknown package ids before payment creation", async
         packageId: "paket_palsu",
       }),
     },
-    env
+    env,
   );
 
   assert.equal(response.status, 400);

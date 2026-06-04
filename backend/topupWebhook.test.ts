@@ -27,7 +27,7 @@ test("topup webhook processes paid transaction through atomic RPC", async (t) =>
             credits_amount: 300,
             status: "pending",
           }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
 
@@ -40,7 +40,10 @@ test("topup webhook processes paid transaction through atomic RPC", async (t) =>
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/grant_ai_credits"
+    ) {
       directGrantBodies.push(JSON.parse(String(init?.body || "{}")));
       return new Response("300", {
         status: 200,
@@ -48,7 +51,10 @@ test("topup webhook processes paid transaction through atomic RPC", async (t) =>
       });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/process_paid_ai_credit_topup") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/process_paid_ai_credit_topup"
+    ) {
       atomicRpcBodies.push(JSON.parse(String(init?.body || "{}")));
       return new Response(
         JSON.stringify({
@@ -57,7 +63,7 @@ test("topup webhook processes paid transaction through atomic RPC", async (t) =>
           balance: 300,
           topup_id: "topup-1",
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       );
     }
 
@@ -85,7 +91,7 @@ test("topup webhook processes paid transaction through atomic RPC", async (t) =>
         },
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();

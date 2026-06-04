@@ -26,7 +26,7 @@ const shouldRedactKey = (key: string): boolean => SENSITIVE_KEY_PATTERN.test(nor
 export const redactLogValue = (
   value: unknown,
   depth = 0,
-  seen = new WeakSet<object>()
+  seen = new WeakSet<object>(),
 ): unknown => {
   if (value == null) return value;
 
@@ -81,7 +81,7 @@ export const redactLogValue = (
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
         shouldRedactKey(key) ? REDACTED : redactLogValue(entry, depth + 1, seen),
-      ])
+      ]),
     );
   }
 

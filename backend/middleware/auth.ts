@@ -4,9 +4,7 @@ import { getSupabaseAdmin } from "../services/supabaseAdmin";
 
 export const requireUser = async (c: Context<{ Bindings: Env }>) => {
   const authHeader = c.req.header("authorization") || "";
-  const token = authHeader.startsWith("Bearer ")
-    ? authHeader.slice("Bearer ".length)
-    : null;
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
 
   if (!token) {
     return null;

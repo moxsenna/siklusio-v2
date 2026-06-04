@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+.expo
+.turbo
+.cache
+coverage
+supabase/.branches
+supabase/.temp
+my-video
+graphify-out
+**/graphify-out
+*.lock
+package-lock.json

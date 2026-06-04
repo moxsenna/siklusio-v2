@@ -166,16 +166,26 @@ export function validateCycleGuide(value: unknown): CycleGuideAiResult {
   assertString(value.habitCoachBridge, "Cycle guide habit bridge is required");
   assertString(value.disclaimer, "Cycle guide disclaimer is required");
 
-  if (!Array.isArray(value.bodySignals) || value.bodySignals.length < 2 || value.bodySignals.length > 4) {
+  if (
+    !Array.isArray(value.bodySignals) ||
+    value.bodySignals.length < 2 ||
+    value.bodySignals.length > 4
+  ) {
     throw new Error("Cycle guide bodySignals must contain 2 to 4 items");
   }
 
-  if (!Array.isArray(value.importantDates) || value.importantDates.length < 1 || value.importantDates.length > 4) {
+  if (
+    !Array.isArray(value.importantDates) ||
+    value.importantDates.length < 1 ||
+    value.importantDates.length > 4
+  ) {
     throw new Error("Cycle guide importantDates must contain 1 to 4 items");
   }
 
   value.bodySignals.forEach((item) => assertString(item, "Cycle guide body signal is required"));
-  value.importantDates.forEach((item) => assertString(item, "Cycle guide important date is required"));
+  value.importantDates.forEach((item) =>
+    assertString(item, "Cycle guide important date is required"),
+  );
 
   return value as unknown as CycleGuideAiResult;
 }
@@ -198,9 +208,9 @@ export const recipesGenerationSchema = {
           id: { type: "integer" },
           name: { type: "string" },
           desc: { type: "string" },
-          emoji: { type: "string" }
-        }
-      }
+          emoji: { type: "string" },
+        },
+      },
     },
     recipes: {
       type: "array",
@@ -228,21 +238,21 @@ export const recipesGenerationSchema = {
             type: "array",
             minItems: 3,
             maxItems: 8,
-            items: { type: "string" }
+            items: { type: "string" },
           },
           steps: {
             type: "array",
             minItems: 2,
             maxItems: 6,
-            items: { type: "string" }
+            items: { type: "string" },
           },
           phaseBenefit: { type: "string" },
-          emoji: { type: "string" }
-        }
-      }
+          emoji: { type: "string" },
+        },
+      },
     },
-    disclaimer: { type: "string" }
-  }
+    disclaimer: { type: "string" },
+  },
 };
 
 export const cycleReportSchema = {
@@ -253,14 +263,14 @@ export const cycleReportSchema = {
     summary: { type: "string" },
     bodyInsights: {
       type: "array",
-      items: { type: "string" }
+      items: { type: "string" },
     },
     actionPlan: {
       type: "array",
-      items: { type: "string" }
+      items: { type: "string" },
     },
-    encouragement: { type: "string" }
-  }
+    encouragement: { type: "string" },
+  },
 };
 
 export const habitsInsightSchema = {
@@ -272,10 +282,10 @@ export const habitsInsightSchema = {
     symptomAnalysis: { type: "string" },
     tips: {
       type: "array",
-      items: { type: "string" }
+      items: { type: "string" },
     },
-    motivation: { type: "string" }
-  }
+    motivation: { type: "string" },
+  },
 };
 
 export const calmingReassuranceSchema = {
@@ -300,7 +310,7 @@ export const calmingReassuranceSchema = {
     reassurance: { type: "string" },
     breathingTip: { type: "string" },
     closing: { type: "string" },
-  }
+  },
 };
 
 export interface RecipesGenerationResult {
@@ -376,7 +386,11 @@ export function validateRecipesGeneration(value: unknown): RecipesGenerationResu
     assertString(recipe.phaseBenefit, "Recipe phase benefit is required");
     assertString(recipe.emoji, "Recipe emoji is required");
 
-    if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length < 3 || recipe.ingredients.length > 8) {
+    if (
+      !Array.isArray(recipe.ingredients) ||
+      recipe.ingredients.length < 3 ||
+      recipe.ingredients.length > 8
+    ) {
       throw new Error("Recipe ingredients must contain 3 to 8 items");
     }
     if (!Array.isArray(recipe.steps) || recipe.steps.length < 2 || recipe.steps.length > 6) {
@@ -391,7 +405,11 @@ export function validateRecipesGeneration(value: unknown): RecipesGenerationResu
 }
 
 export function validateCycleReport(value: unknown): CycleReportResult {
-  if (!isPlainRecord(value) || !Array.isArray(value.bodyInsights) || !Array.isArray(value.actionPlan)) {
+  if (
+    !isPlainRecord(value) ||
+    !Array.isArray(value.bodyInsights) ||
+    !Array.isArray(value.actionPlan)
+  ) {
     throw new Error("Invalid cycle report payload");
   }
   return value as unknown as CycleReportResult;

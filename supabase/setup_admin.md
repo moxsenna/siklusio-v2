@@ -48,6 +48,7 @@ Harus muncul 1 baris dengan `is_admin = true`.
 ## Langkah 3 — Login
 
 Setelah deploy:
+
 - Buka aplikasi → login dengan `admin@siklusio.local` / `123456`
 - Akses `/admin` (akan dicek oleh frontend, hanya admin yang lolos)
 - Backend `/api/admin/users` juga akan menolak non-admin

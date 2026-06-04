@@ -170,11 +170,11 @@ function fillPersonalizedTasks(tasks: HabitCoachTask[]) {
 
 export function buildHabitCoachDayTasks(
   aiTasks: HabitCoachTask[],
-  cycleDay?: HabitCoachCycleDay
+  cycleDay?: HabitCoachCycleDay,
 ): HabitCoachTask[] {
   const foundations = getHabitCoachFoundationTasks(cycleDay);
   const personalizedTasks = fillPersonalizedTasks(
-    aiTasks.filter((task) => !isFoundationDuplicate(task, foundations[1]))
+    aiTasks.filter((task) => !isFoundationDuplicate(task, foundations[1])),
   );
 
   return [...foundations, ...personalizedTasks.slice(0, 5)];

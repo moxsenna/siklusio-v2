@@ -18,7 +18,7 @@ router.post("/api/checkout/topup", async (c) => {
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
     const { packageId } = await c.req.json();
-    
+
     const selectedPackage = resolveTopupPackage(packageId);
     if (!selectedPackage) {
       return c.json({ error: "Paket topup tidak valid." }, 400);
@@ -32,14 +32,14 @@ router.post("/api/checkout/topup", async (c) => {
     const finalAmount = selectedPackage.price;
     const credits = selectedPackage.credits;
     const { supabaseAdmin, user } = auth;
-    
+
     // Get user details
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("name, whatsapp_number")
       .eq("id", user.id)
       .maybeSingle();
-      
+
     const name = profile?.name || user.email?.split("@")[0] || "User";
     const whatsapp = profile?.whatsapp_number || "-";
     const email = user.email || "";
@@ -56,16 +56,14 @@ router.post("/api/checkout/topup", async (c) => {
     });
 
     // Create ai_credit_topups record
-    const { error: insertErr } = await supabaseAdmin
-      .from("ai_credit_topups")
-      .insert({
-        user_id: user.id,
-        mayar_link: paymentUrl,
-        mayar_transaction_id: mayarTxId,
-        amount_rp: finalAmount,
-        credits_amount: credits,
-        status: "pending",
-      });
+    const { error: insertErr } = await supabaseAdmin.from("ai_credit_topups").insert({
+      user_id: user.id,
+      mayar_link: paymentUrl,
+      mayar_transaction_id: mayarTxId,
+      amount_rp: finalAmount,
+      credits_amount: credits,
+      status: "pending",
+    });
 
     if (insertErr) {
       console.error("DB Insert topup error:", insertErr);
@@ -83,20 +81,20 @@ router.post("/api/checkout/topup", async (c) => {
 router.post("/api/checkout/register", async (c) => {
   logInfo("--> [BACKEND] Received request /api/checkout/register");
   try {
-    const { 
-      name, 
-      email, 
-      whatsapp, 
-      password, 
-      couponCode, 
-      affiliateCode, 
-      lead_event_id, 
-      fbp, 
-      fbc, 
-      test_event_code, 
-      test_secret 
+    const {
+      name,
+      email,
+      whatsapp,
+      password,
+      couponCode,
+      affiliateCode,
+      lead_event_id,
+      fbp,
+      fbc,
+      test_event_code,
+      test_secret,
     } = await c.req.json();
-    
+
     if (!name || !email || !whatsapp || !password) {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
     }
@@ -136,16 +134,19 @@ router.post("/api/checkout/register", async (c) => {
       logError("Error listing users:", authErr);
     }
     const emailExists = authUserList?.users.some(
-      (u: any) => u.email?.toLowerCase() === email.toLowerCase()
+      (u: any) => u.email?.toLowerCase() === email.toLowerCase(),
     );
 
     if (emailExists) {
-      return c.json({ error: "Email ini sudah terdaftar. Silakan login langsung di aplikasi." }, 400);
+      return c.json(
+        { error: "Email ini sudah terdaftar. Silakan login langsung di aplikasi." },
+        400,
+      );
     }
 
     // Determine final price based on coupon
     let finalAmount = 37000;
-    
+
     if (couponCode) {
       const normalizedCode = couponCode.trim().toUpperCase();
       logInfo(`--> Validating coupon: ${normalizedCode}`);
@@ -158,13 +159,16 @@ router.post("/api/checkout/register", async (c) => {
 
       if (couponErr) {
         logError("Error fetching coupon:", couponErr);
-        return c.json({ error: "Terjadi kesalahan saat memvalidasi kupon. Silakan coba lagi." }, 500);
+        return c.json(
+          { error: "Terjadi kesalahan saat memvalidasi kupon. Silakan coba lagi." },
+          500,
+        );
       }
-      
+
       if (coupon) {
-        if (coupon.discount_type === 'nominal') {
+        if (coupon.discount_type === "nominal") {
           finalAmount = Math.max(0, finalAmount - Number(coupon.discount_value));
-        } else if (coupon.discount_type === 'percentage') {
+        } else if (coupon.discount_type === "percentage") {
           const discount = Math.floor(finalAmount * (Number(coupon.discount_value) / 100));
           finalAmount = Math.max(0, finalAmount - discount);
         }
@@ -173,7 +177,7 @@ router.post("/api/checkout/register", async (c) => {
         return c.json({ error: "Kode kupon tidak valid atau sudah tidak aktif." }, 400);
       }
     }
-    
+
     // Safety check: Mayar minimum is 10k, unless it's completely free
     if (finalAmount > 0 && finalAmount < 10000) {
       finalAmount = 10000;
@@ -210,7 +214,7 @@ router.post("/api/checkout/register", async (c) => {
 
     if (finalAmount === 0) {
       logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
-      
+
       // Create user directly
       const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
         email: email.toLowerCase(),
@@ -222,7 +226,7 @@ router.post("/api/checkout/register", async (c) => {
         },
         app_metadata: {
           siklusio_access_status: "active",
-        }
+        },
       });
 
       if (signupErr) {
@@ -258,9 +262,7 @@ router.post("/api/checkout/register", async (c) => {
           // [FIX-5] Default: no commission for free orders unless explicitly allowed
           let commissionAmount = 0;
           if (aff.allow_zero_order_commission) {
-            commissionAmount = aff.commission_type === "nominal"
-              ? Number(aff.commission_value)
-              : 0; // percentage of 0 is always 0
+            commissionAmount = aff.commission_type === "nominal" ? Number(aff.commission_value) : 0; // percentage of 0 is always 0
           }
 
           await supabaseAdmin.from("affiliate_conversions").insert({
@@ -273,7 +275,9 @@ router.post("/api/checkout/register", async (c) => {
             commission_amount: commissionAmount,
             mayar_transaction_id: null, // free bypass has no Mayar tx
           });
-          logInfo(`--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`);
+          logInfo(
+            `--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`,
+          );
         }
       }
 
@@ -284,7 +288,7 @@ router.post("/api/checkout/register", async (c) => {
           referenceId: session?.id || null,
         });
       }
-      
+
       logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
     }
@@ -301,7 +305,7 @@ router.post("/api/checkout/register", async (c) => {
       },
       app_metadata: {
         siklusio_access_status: "pending_payment",
-      }
+      },
     });
 
     if (signupErr) {
@@ -313,16 +317,17 @@ router.post("/api/checkout/register", async (c) => {
 
     // Normal paid flow: Save pending registration & call Mayar (without plaintext password)
     logInfo("--> Inserting pending registration...");
-    const { error: insertErr } = await supabaseAdmin
-      .from("pending_registrations")
-      .upsert({
+    const { error: insertErr } = await supabaseAdmin.from("pending_registrations").upsert(
+      {
         email: email.toLowerCase(),
         user_id: userId,
         name,
         whatsapp,
         coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
         affiliate_code: validatedAffiliateCode,
-      }, { onConflict: "email" });
+      },
+      { onConflict: "email" },
+    );
 
     if (insertErr) {
       logError("DB Insert pending registration error:", insertErr);
@@ -338,7 +343,8 @@ router.post("/api/checkout/register", async (c) => {
       const result = await createMayarPaymentLink(mayarKey, {
         name: "Siklusio Premium — Akses Selamanya",
         amount: finalAmount,
-        description: "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
+        description:
+          "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
         redirectUrl: "https://app.siklusio.web.id/auth?status=success",
         email: email.toLowerCase(),
         mobile: whatsapp,
@@ -354,19 +360,17 @@ router.post("/api/checkout/register", async (c) => {
     }
 
     // Create checkout_session for paid flow [FIX-2]
-    const { error: sessionErr } = await supabaseAdmin
-      .from("checkout_sessions")
-      .insert({
-        email: email.toLowerCase(),
-        name,
-        whatsapp,
-        coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
-        affiliate_code: validatedAffiliateCode,
-        final_amount: finalAmount,
-        mayar_link: paymentUrl,
-        mayar_transaction_id: mayarTxId,
-        status: "pending",
-      });
+    const { error: sessionErr } = await supabaseAdmin.from("checkout_sessions").insert({
+      email: email.toLowerCase(),
+      name,
+      whatsapp,
+      coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
+      affiliate_code: validatedAffiliateCode,
+      final_amount: finalAmount,
+      mayar_link: paymentUrl,
+      mayar_transaction_id: mayarTxId,
+      status: "pending",
+    });
 
     if (sessionErr) {
       logError("DB Insert checkout_session error:", sessionErr);
@@ -412,9 +416,10 @@ router.get("/api/affiliate/validate", async (c) => {
 
     let discountLabel = "";
     if (coupon) {
-      discountLabel = coupon.discount_type === "percentage"
-        ? `Diskon ${coupon.discount_value}%`
-        : `Diskon Rp ${Number(coupon.discount_value).toLocaleString("id-ID")}`;
+      discountLabel =
+        coupon.discount_type === "percentage"
+          ? `Diskon ${coupon.discount_value}%`
+          : `Diskon Rp ${Number(coupon.discount_value).toLocaleString("id-ID")}`;
     }
 
     return c.json({ valid: true, discountLabel });
@@ -432,7 +437,7 @@ router.get("/api/affiliate/me", async (c) => {
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
     const { supabaseAdmin, user } = auth;
-    
+
     // Find affiliate by user email
     const { data: affiliate } = await supabaseAdmin
       .from("affiliates")
@@ -459,7 +464,7 @@ router.post("/api/affiliate/register", async (c) => {
     if (!code) {
       return c.json({ error: "Kode referal wajib diisi" }, 400);
     }
-    const safeCode = code.trim().toUpperCase().replace(/\s/g, '');
+    const safeCode = code.trim().toUpperCase().replace(/\s/g, "");
 
     // Get user profile details
     const { data: profile } = await supabaseAdmin
@@ -488,7 +493,8 @@ router.post("/api/affiliate/register", async (c) => {
     });
 
     if (error) {
-      if (error.code === '23505') return c.json({ error: "Kode referal sudah digunakan, pilih kode lain." }, 400);
+      if (error.code === "23505")
+        return c.json({ error: "Kode referal sudah digunakan, pilih kode lain." }, 400);
       throw error;
     }
 
@@ -506,7 +512,7 @@ router.get("/api/affiliate/me/conversions", async (c) => {
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
     const { supabaseAdmin, user } = auth;
-    
+
     // Find affiliate ID first
     const { data: affiliate } = await supabaseAdmin
       .from("affiliates")
@@ -546,7 +552,7 @@ router.patch("/api/affiliate/me/bank", async (c) => {
       .update({
         bank_name,
         account_number,
-        account_holder
+        account_holder,
       })
       .eq("email", user.email);
 

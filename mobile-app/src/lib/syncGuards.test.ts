@@ -1,21 +1,21 @@
-import { strict as assert } from 'node:assert';
-import test from 'node:test';
-import { canSyncCycleProfile } from './syncGuards';
+import { strict as assert } from "node:assert";
+import test from "node:test";
+import { canSyncCycleProfile } from "./syncGuards";
 
-test('canSyncCycleProfile blocks sync while cloud profile is loading', () => {
+test("canSyncCycleProfile blocks sync while cloud profile is loading", () => {
   assert.equal(
     canSyncCycleProfile({
-      userId: 'user-1',
+      userId: "user-1",
       isProfileLoading: true,
       hasLastPeriodDate: true,
       cycleLength: 28,
       periodLength: 5,
     }),
-    false
+    false,
   );
 });
 
-test('canSyncCycleProfile requires an authenticated user and valid cycle settings', () => {
+test("canSyncCycleProfile requires an authenticated user and valid cycle settings", () => {
   assert.equal(
     canSyncCycleProfile({
       userId: null,
@@ -24,41 +24,41 @@ test('canSyncCycleProfile requires an authenticated user and valid cycle setting
       cycleLength: 28,
       periodLength: 5,
     }),
-    false
+    false,
   );
 
   assert.equal(
     canSyncCycleProfile({
-      userId: 'user-1',
+      userId: "user-1",
       isProfileLoading: false,
       hasLastPeriodDate: false,
       cycleLength: 28,
       periodLength: 5,
     }),
-    false
+    false,
   );
 
   assert.equal(
     canSyncCycleProfile({
-      userId: 'user-1',
+      userId: "user-1",
       isProfileLoading: false,
       hasLastPeriodDate: true,
       cycleLength: 0,
       periodLength: 5,
     }),
-    false
+    false,
   );
 });
 
-test('canSyncCycleProfile allows sync after profile load with complete cycle settings', () => {
+test("canSyncCycleProfile allows sync after profile load with complete cycle settings", () => {
   assert.equal(
     canSyncCycleProfile({
-      userId: 'user-1',
+      userId: "user-1",
       isProfileLoading: false,
       hasLastPeriodDate: true,
       cycleLength: 28,
       periodLength: 5,
     }),
-    true
+    true,
   );
 });

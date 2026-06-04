@@ -3,27 +3,36 @@ export type EventParams = {
 };
 
 export function normalizeAnalyticsEventName(eventName: string): string {
-  return eventName.trim().replace(/\s+/g, '_').toLowerCase();
+  return eventName.trim().replace(/\s+/g, "_").toLowerCase();
 }
 
-export function buildAnalyticsEventPayload(eventName: string, params: EventParams = {}): EventParams {
+export function buildAnalyticsEventPayload(
+  eventName: string,
+  params: EventParams = {},
+): EventParams {
   return {
     ...params,
     event: normalizeAnalyticsEventName(eventName),
   };
 }
 
-export function buildAnalyticsScreenViewPayload(screenName: string, screenClass?: string): EventParams {
+export function buildAnalyticsScreenViewPayload(
+  screenName: string,
+  screenClass?: string,
+): EventParams {
   return {
-    event: 'screen_view',
+    event: "screen_view",
     screen_name: screenName,
-    screen_class: screenClass || 'ReactNavigation',
+    screen_class: screenClass || "ReactNavigation",
   };
 }
 
-export function buildAnalyticsUserPayload(userId: string | null, properties: EventParams = {}): EventParams {
+export function buildAnalyticsUserPayload(
+  userId: string | null,
+  properties: EventParams = {},
+): EventParams {
   return {
-    event: 'user_properties_set',
+    event: "user_properties_set",
     userId,
     ...properties,
   };
@@ -34,7 +43,7 @@ function isDevLoggingEnabled(): boolean {
 }
 
 function pushToDataLayer(payload: EventParams): void {
-  if (typeof window === 'undefined' || typeof document === 'undefined') {
+  if (typeof window === "undefined" || typeof document === "undefined") {
     return;
   }
 
@@ -43,7 +52,7 @@ function pushToDataLayer(payload: EventParams): void {
     browserWindow.dataLayer = browserWindow.dataLayer || [];
     browserWindow.dataLayer.push(payload);
   } catch (err) {
-    console.error('[Analytics Error] Failed to push to dataLayer:', err);
+    console.error("[Analytics Error] Failed to push to dataLayer:", err);
   }
 }
 

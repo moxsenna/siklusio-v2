@@ -20,7 +20,8 @@ const router = new Hono<{ Bindings: Env }>();
 router.post("/api/generate-cycle-report", async (c) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
-    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } = await c.req.json();
+    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } =
+      await c.req.json();
     const apiKey = c.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
@@ -49,17 +50,17 @@ router.post("/api/generate-cycle-report", async (c) => {
           - Days to next period: ${daysToNextPeriod}
           - Fertile window: ${fertilityWindow.start} to ${fertilityWindow.end}
           - Activity & Body Data logic: ${JSON.stringify(cycleData).slice(0, 500)} // limited to avoid massive prompts
-          - User nickname: ${nickname || ''}
+          - User nickname: ${nickname || ""}
           
           Write a warm, supportive, and sweet report IN INDONESIAN, specifically tailored for a woman.
           
           TONE AND PERSONALIZATION RULES (CRITICAL):
-          1. Address the user directly using her nickname if provided: "${nickname || ''}".
+          1. Address the user directly using her nickname if provided: "${nickname || ""}".
           2. NEVER use the formal word "Anda".
           3. ALWAYS address her warmly as "kamu" and her nickname.
           4. DO NOT call her "Bunda" in the report text (strictly use "kamu" or her actual nickname).
           5. Keep the tone loving, empathetic, and sweet.`,
-        }
+        },
       ],
       responseSchemaName: "cycle_report",
       responseSchema: cycleReportSchema,
@@ -71,7 +72,10 @@ router.post("/api/generate-cycle-report", async (c) => {
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
-    return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat laporan" }, 500);
+    return c.json(
+      { error: error instanceof Error ? error.message || String(error) : "Gagal membuat laporan" },
+      500,
+    );
   }
 });
 
@@ -104,7 +108,7 @@ router.post("/api/generate-habits-insight", async (c) => {
           content: `Kamu adalah asisten kesehatan reproduksi wanita yang hangat dan suportif. Analisis data aktivitas dan gejala 7 hari terakhir pengguna, lalu berikan insight dan saran yang actionable.
  
           Konteks:
-          - Nama panggilan: ${nickname || ''}
+          - Nama panggilan: ${nickname || ""}
           - Fase siklus saat ini: ${currentPhase}
           - Data 7 hari terakhir: ${JSON.stringify(weeklyData)}
  
@@ -116,12 +120,12 @@ router.post("/api/generate-habits-insight", async (c) => {
  
           PENTING & GAYA BAHASA (SANGAT PENTING):
           - Gunakan bahasa yang hangat, suportif, bersahabat, dan tidak menggurui.
-          - Panggil pengguna dengan nama panggilannya jika ada: "${nickname || ''}" atau gunakan kata ganti "kamu".
+          - Panggil pengguna dengan nama panggilannya jika ada: "${nickname || ""}" atau gunakan kata ganti "kamu".
           - JANGAN PERNAH menggunakan kata formal "Anda".
           - JANGAN PERNAH memanggil pengguna dengan sebutan "Bunda" (selalu gunakan "kamu" atau nama panggilannya).
           - Saran harus realistis dan mudah dilakukan.
           - Jika data kosong/sedikit, tetap berikan saran umum yang relevan dengan fase siklus.`,
-        }
+        },
       ],
       responseSchemaName: "habits_insight",
       responseSchema: habitsInsightSchema,
@@ -133,7 +137,10 @@ router.post("/api/generate-habits-insight", async (c) => {
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
-    return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat insight" }, 500);
+    return c.json(
+      { error: error instanceof Error ? error.message || String(error) : "Gagal membuat insight" },
+      500,
+    );
   }
 });
 
@@ -163,13 +170,13 @@ router.post("/api/generate-calming-reassurance", async (c) => {
       messages: [
         {
           role: "user",
-          content: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname || ''} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
+          content: `Kamu adalah asisten/sahabat kehamilan yang sangat menenangkan dan berempati. Pengguna bernama ${nickname || ""} sedang berada di masa TWW (Two-Week Wait - penantian setelah ovulasi hingga haid berikutnya).
           Masa ini sangat rentan memicu kecemasan (symptom spotting).
           Ini adalah curahan hatinya (jurnal emosi): "${userJournal}"
  
           Berikan balasan surat yang:
           1. Menvalidasi perasaannya (tidak meremehkan).
-          2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ''}".
+          2. Sangat hangat, empatis, bersahabat, dan menyemangati menggunakan kata ganti "kamu" dan nama panggilannya: "${nickname || ""}".
           3. JANGAN PERNAH memanggil/menyebut pengguna dengan sebutan "Bunda" maupun kata formal "Anda" (selalu gunakan "kamu" atau nama panggilannya).
           4. Mengajaknya untuk kembali fokus pada kedamaian saat ini dan mempercayai proses tubuhnya.
           5. Jangan memberikan diagnosa medis atau janji kehamilan palsu.
@@ -183,7 +190,7 @@ router.post("/api/generate-calming-reassurance", async (c) => {
           - breathingTip: 1 instruksi napas praktis dan lembut.
           - closing: 1 kalimat penutup hangat.
           - reassurance: gabungan opening, validation, grounding, affirmation, dan closing agar app versi lama tetap bisa membaca hasilnya.`,
-        }
+        },
       ],
       responseSchemaName: "calming_reassurance",
       responseSchema: calmingReassuranceSchema,
@@ -194,7 +201,13 @@ router.post("/api/generate-calming-reassurance", async (c) => {
     return c.json(result);
   } catch (error: any) {
     logError("<-- [BACKEND] OpenRouter API Error / Exception:", error.stack || error);
-    return c.json({ error: error instanceof Error ? (error.message || String(error)) : "Gagal membuat pesan penenang" }, 500);
+    return c.json(
+      {
+        error:
+          error instanceof Error ? error.message || String(error) : "Gagal membuat pesan penenang",
+      },
+      500,
+    );
   }
 });
 

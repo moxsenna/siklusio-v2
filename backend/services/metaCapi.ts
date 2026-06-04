@@ -16,20 +16,22 @@ export async function hashData(val: string): Promise<string> {
   const data = encoder.encode(val.trim().toLowerCase());
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export function sendMetaCapiEvent(
-  c: Context<{ Bindings: Env }>, 
-  eventName: string, 
-  eventId: string, 
-  userData: any, 
+  c: Context<{ Bindings: Env }>,
+  eventName: string,
+  eventId: string,
+  userData: any,
   customData: any,
-  testEventCode?: string
+  testEventCode?: string,
 ) {
   const env = c.env;
   if (!env.META_PIXEL_ID || !env.META_CAPI_ACCESS_TOKEN) {
-    console.warn(`--> sendMetaCapiEvent skipped: META_PIXEL_ID or META_CAPI_ACCESS_TOKEN missing for event ${eventName}`);
+    console.warn(
+      `--> sendMetaCapiEvent skipped: META_PIXEL_ID or META_CAPI_ACCESS_TOKEN missing for event ${eventName}`,
+    );
     return;
   }
 
@@ -54,8 +56,8 @@ export function sendMetaCapiEvent(
         event_source_url: "https://siklusio.web.id",
         user_data: processedUserData,
         custom_data: customData,
-      }
-    ]
+      },
+    ],
   };
 
   let finalTestCode: string | undefined = undefined;
@@ -73,9 +75,11 @@ export function sendMetaCapiEvent(
     payload.test_event_code = finalTestCode;
   }
 
-  console.log(`--> CAPI Event Sent: ${eventName} | Event ID: ${eventId} | test_event_code_present: ${!!finalTestCode} | test_event_code_source: ${testCodeSource}`);
+  console.log(
+    `--> CAPI Event Sent: ${eventName} | Event ID: ${eventId} | test_event_code_present: ${!!finalTestCode} | test_event_code_source: ${testCodeSource}`,
+  );
 
-  const performFetch = () => 
+  const performFetch = () =>
     fetch(url, {
       method: "POST",
       headers: {

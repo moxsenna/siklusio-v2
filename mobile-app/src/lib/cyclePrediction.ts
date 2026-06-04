@@ -1,7 +1,7 @@
-import { addDays, differenceInDays, format, startOfDay, subDays } from 'date-fns';
-import { parseLocalDate } from './dateUtils';
+import { addDays, differenceInDays, format, startOfDay, subDays } from "date-fns";
+import { parseLocalDate } from "./dateUtils";
 
-export type PredictionConfidence = 'low' | 'medium' | 'high';
+export type PredictionConfidence = "low" | "medium" | "high";
 
 export interface ActivityDailyRecord {
   symptoms?: string[];
@@ -49,7 +49,7 @@ const weightedRound = (values: number[]) => {
         weights: acc.weights + weight,
       };
     },
-    { weighted: 0, weights: 0 }
+    { weighted: 0, weights: 0 },
   );
 
   return Math.round(totals.weighted / totals.weights);
@@ -60,14 +60,14 @@ const confidenceForValues = (
   highCount: number,
   highRange: number,
   mediumCount: number,
-  mediumRange: number
+  mediumRange: number,
 ): PredictionConfidence => {
-  if (values.length === 0) return 'low';
+  if (values.length === 0) return "low";
 
   const range = Math.max(...values) - Math.min(...values);
-  if (values.length >= highCount && range <= highRange) return 'high';
-  if (values.length >= mediumCount && range <= mediumRange) return 'medium';
-  return 'low';
+  if (values.length >= highCount && range <= highRange) return "high";
+  if (values.length >= mediumCount && range <= mediumRange) return "medium";
+  return "low";
 };
 
 const median = (values: number[]) => {
@@ -91,7 +91,7 @@ export function getManualPeriodStarts(activityHistory: ActivityHistory, today = 
   const normalizedToday = startOfDay(today);
   const starts: Date[] = [];
   const historyDates = Object.keys(activityHistory).sort(
-    (a, b) => parseLocalDate(a).getTime() - parseLocalDate(b).getTime()
+    (a, b) => parseLocalDate(a).getTime() - parseLocalDate(b).getTime(),
   );
 
   for (const dateKey of historyDates) {
@@ -100,7 +100,7 @@ export function getManualPeriodStarts(activityHistory: ActivityHistory, today = 
     const dateObj = startOfDay(parseLocalDate(dateKey));
     if (dateObj > normalizedToday) continue;
 
-    const prevDayKey = format(subDays(dateObj, 1), 'yyyy-MM-dd');
+    const prevDayKey = format(subDays(dateObj, 1), "yyyy-MM-dd");
     if (!activityHistory[prevDayKey]?.isPeriod) {
       starts.push(dateObj);
     }
@@ -117,7 +117,7 @@ function getPeriodDurations(activityHistory: ActivityHistory, starts: Date[]) {
     let checkDate = start;
 
     while (
-      activityHistory[format(checkDate, 'yyyy-MM-dd')]?.isPeriod &&
+      activityHistory[format(checkDate, "yyyy-MM-dd")]?.isPeriod &&
       duration < MAX_PERIOD_LENGTH
     ) {
       duration += 1;
@@ -183,12 +183,12 @@ export function calculateAdaptiveCyclePrediction({
   const predictedCycleLength = clamp(
     weightedRound(cycleIntervals) ?? safeCycleLength,
     MIN_CYCLE_LENGTH,
-    MAX_CYCLE_LENGTH
+    MAX_CYCLE_LENGTH,
   );
   const predictedPeriodLength = clamp(
     weightedRound(periodDurations) ?? safePeriodLength,
     1,
-    MAX_PERIOD_LENGTH
+    MAX_PERIOD_LENGTH,
   );
 
   const delta = calculateLastPredictionDelta(manualPeriodStarts, safeCycleLength);

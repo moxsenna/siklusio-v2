@@ -1,4 +1,4 @@
-import { ScrollViewStyleReset } from 'expo-router/html';
+import { ScrollViewStyleReset } from "expo-router/html";
 
 // This file is web-only and used to configure the root HTML for every
 // web page during static rendering.
@@ -36,7 +36,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
                   }
                 });
               }
-            `
+            `,
           }}
         />
 
@@ -69,7 +69,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             src="https://www.googletagmanager.com/ns.html?id=GTM-PX5J3XBM"
             height="0"
             width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
+            style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}

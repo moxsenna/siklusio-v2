@@ -7,10 +7,7 @@ test("CORS allows trusted Siklusio app origin", async () => {
     headers: { origin: "https://app.siklusio.web.id" },
   });
 
-  assert.equal(
-    response.headers.get("access-control-allow-origin"),
-    "https://app.siklusio.web.id"
-  );
+  assert.equal(response.headers.get("access-control-allow-origin"), "https://app.siklusio.web.id");
 });
 
 test("CORS does not allow untrusted browser origins", async () => {

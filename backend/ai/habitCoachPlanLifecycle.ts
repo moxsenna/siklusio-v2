@@ -1,4 +1,8 @@
-import { buildHabitCoachDayTasks, type HabitCoachCycleDay, type HabitCoachTask } from "./habitCoachFoundation";
+import {
+  buildHabitCoachDayTasks,
+  type HabitCoachCycleDay,
+  type HabitCoachTask,
+} from "./habitCoachFoundation";
 
 export interface HabitCoachActiveOverlap {
   id?: string | null;
@@ -31,7 +35,7 @@ export function buildHabitCoachActiveOverlapConflict(input: {
   }
 
   const latestOverlap = [...input.activeOverlaps].sort((left, right) =>
-    getWeekEnd(right).localeCompare(getWeekEnd(left))
+    getWeekEnd(right).localeCompare(getWeekEnd(left)),
   )[0];
   const activeUntil = getWeekEnd(latestOverlap) || input.fallbackWeekEnd;
   const message =
@@ -60,7 +64,10 @@ export function buildHabitCoachPlanDayPayloads(input: {
       date_key: dateKey,
       day_index: index + 1,
       focus: day.focus,
-      tasks: buildHabitCoachDayTasks(day.tasks, cycleDaysByDate.get(dateKey) || input.cycleDays[index]),
+      tasks: buildHabitCoachDayTasks(
+        day.tasks,
+        cycleDaysByDate.get(dateKey) || input.cycleDays[index],
+      ),
     };
   });
 }
@@ -189,10 +196,7 @@ async function removeArchivedPlanConflicts(input: {
 
 async function deletePlanBestEffort(supabaseAdmin: any, planId: string) {
   try {
-    const { error } = await supabaseAdmin
-      .from("habit_coach_plans")
-      .delete()
-      .eq("id", planId);
+    const { error } = await supabaseAdmin.from("habit_coach_plans").delete().eq("id", planId);
 
     if (error) throw error;
   } catch (error) {

@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from '../lib/api';
+import { useState, useCallback } from "react";
+import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from "../lib/api";
 
 // ============================================================
 // Types
@@ -10,7 +10,7 @@ export interface Affiliate {
   email: string;
   whatsapp: string;
   code: string;
-  commission_type: 'nominal' | 'percentage';
+  commission_type: "nominal" | "percentage";
   commission_value: number;
   allow_zero_order_commission: boolean;
   bank_name: string | null;
@@ -30,7 +30,7 @@ export interface AffiliateConversion {
   amount_paid: number;
   commission_amount: number;
   mayar_transaction_id: string | null;
-  payout_status: 'pending' | 'paid';
+  payout_status: "pending" | "paid";
   payout_at: string | null;
   payout_marked_by: string | null;
   payout_reference: string | null;
@@ -53,7 +53,7 @@ export interface CreateAffiliatePayload {
   email: string;
   whatsapp: string;
   code: string;
-  commission_type: 'nominal' | 'percentage';
+  commission_type: "nominal" | "percentage";
   commission_value: number;
   bank_name?: string;
   account_number?: string;
@@ -77,10 +77,10 @@ export function useAdminAffiliates() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiGetJson<{ affiliates: Affiliate[] }>('/api/admin/affiliates');
+      const data = await apiGetJson<{ affiliates: Affiliate[] }>("/api/admin/affiliates");
       setAffiliates(data.affiliates || []);
     } catch (err: any) {
-      setError(err.message || 'Gagal memuat daftar afiliasi.');
+      setError(err.message || "Gagal memuat daftar afiliasi.");
     } finally {
       setLoading(false);
     }
@@ -90,50 +90,63 @@ export function useAdminAffiliates() {
     setConversionsLoading(true);
     setError(null);
     try {
-      const data = await apiGetJson<{ conversions: AffiliateConversion[] }>('/api/admin/affiliates/conversions');
+      const data = await apiGetJson<{ conversions: AffiliateConversion[] }>(
+        "/api/admin/affiliates/conversions",
+      );
       setConversions(data.conversions || []);
     } catch (err: any) {
-      setError(err.message || 'Gagal memuat riwayat konversi.');
+      setError(err.message || "Gagal memuat riwayat konversi.");
     } finally {
       setConversionsLoading(false);
     }
   }, []);
 
-  const createAffiliate = useCallback(async (payload: CreateAffiliatePayload) => {
-    const result = await apiPostJson<any>('/api/admin/affiliates', payload);
-    await fetchAffiliates();
-    return result;
-  }, [fetchAffiliates]);
+  const createAffiliate = useCallback(
+    async (payload: CreateAffiliatePayload) => {
+      const result = await apiPostJson<any>("/api/admin/affiliates", payload);
+      await fetchAffiliates();
+      return result;
+    },
+    [fetchAffiliates],
+  );
 
-  const toggleAffiliate = useCallback(async (id: string, currentStatus: boolean) => {
-    await apiPatchJson(`/api/admin/affiliates/${id}`, { is_active: !currentStatus });
-    await fetchAffiliates();
-  }, [fetchAffiliates]);
+  const toggleAffiliate = useCallback(
+    async (id: string, currentStatus: boolean) => {
+      await apiPatchJson(`/api/admin/affiliates/${id}`, { is_active: !currentStatus });
+      await fetchAffiliates();
+    },
+    [fetchAffiliates],
+  );
 
-  const deleteAffiliate = useCallback(async (id: string) => {
-    await apiDeleteJson(`/api/admin/affiliates/${id}`);
-    await fetchAffiliates();
-  }, [fetchAffiliates]);
+  const deleteAffiliate = useCallback(
+    async (id: string) => {
+      await apiDeleteJson(`/api/admin/affiliates/${id}`);
+      await fetchAffiliates();
+    },
+    [fetchAffiliates],
+  );
 
-  const markPayout = useCallback(async (conversionId: string, payout_reference: string, payout_note: string) => {
-    await apiPatchJson(`/api/admin/affiliates/conversions/${conversionId}/payout`, {
-      payout_reference,
-      payout_note,
-    });
-    await fetchConversions();
-  }, [fetchConversions]);
+  const markPayout = useCallback(
+    async (conversionId: string, payout_reference: string, payout_note: string) => {
+      await apiPatchJson(`/api/admin/affiliates/conversions/${conversionId}/payout`, {
+        payout_reference,
+        payout_note,
+      });
+      await fetchConversions();
+    },
+    [fetchConversions],
+  );
 
   // Computed metrics
   const pendingCommission = conversions
-    .filter(c => c.payout_status === 'pending')
+    .filter((c) => c.payout_status === "pending")
     .reduce((sum, c) => sum + Number(c.commission_amount), 0);
 
   const paidCommission = conversions
-    .filter(c => c.payout_status === 'paid')
+    .filter((c) => c.payout_status === "paid")
     .reduce((sum, c) => sum + Number(c.commission_amount), 0);
 
-  const totalRevenue = conversions
-    .reduce((sum, c) => sum + Number(c.amount_paid), 0);
+  const totalRevenue = conversions.reduce((sum, c) => sum + Number(c.amount_paid), 0);
 
   return {
     affiliates,

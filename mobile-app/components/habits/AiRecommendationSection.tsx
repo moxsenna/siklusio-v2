@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator, Platform, Alert } from "react-native";
+import { format, subDays } from "date-fns";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { AiFallbackNotice } from "../common/AiFallbackNotice";
+import { apiPostJson } from "../../src/lib/api";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Alert,
-} from 'react-native';
-import { format, subDays } from 'date-fns';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { AiFallbackNotice } from '../common/AiFallbackNotice';
-import { apiPostJson } from '../../src/lib/api';
-import { buildAiFallbackCopy, extractAiFallbackInput, type AiFallbackInput } from '../../src/lib/aiFallback';
+  buildAiFallbackCopy,
+  extractAiFallbackInput,
+  type AiFallbackInput,
+} from "../../src/lib/aiFallback";
 
 interface WeeklyDayData {
   date: string;
@@ -32,11 +29,7 @@ interface Props {
   nickname: string;
 }
 
-export function AiRecommendationSection({
-  currentPhase,
-  activityHistory,
-  nickname,
-}: Props) {
+export function AiRecommendationSection({ currentPhase, activityHistory, nickname }: Props) {
   const [result, setResult] = useState<AiInsightResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AiFallbackInput | null>(null);
@@ -45,12 +38,12 @@ export function AiRecommendationSection({
     const data: WeeklyDayData[] = [];
     for (let i = 0; i < 7; i++) {
       const d = subDays(new Date(), i);
-      const key = format(d, 'yyyy-MM-dd');
+      const key = format(d, "yyyy-MM-dd");
       const record = activityHistory[key];
       data.push({
         date: key,
         tasks: (record?.tasks || []).map((t: any) => ({
-          text: t.text || t.emoji || '',
+          text: t.text || t.emoji || "",
           done: Boolean(t.done),
         })),
         symptoms: record?.symptoms || [],
@@ -66,19 +59,23 @@ export function AiRecommendationSection({
 
     try {
       const weeklyData = collectWeeklyData();
-      const json = await apiPostJson<AiInsightResult>('/api/generate-habits-insight', {
+      const json = await apiPostJson<AiInsightResult>("/api/generate-habits-insight", {
         weeklyData,
         currentPhase,
         nickname,
       });
       setResult(json);
     } catch (e: any) {
-      const fallback = extractAiFallbackInput(e, 'Gagal menghasilkan insight.', 'Insight AI Mingguan');
+      const fallback = extractAiFallbackInput(
+        e,
+        "Gagal menghasilkan insight.",
+        "Insight AI Mingguan",
+      );
       setError(fallback);
-      if (Platform.OS === 'web') {
+      if (Platform.OS === "web") {
         // silent, shown in UI
       } else {
-        Alert.alert('Gagal', buildAiFallbackCopy(fallback).message);
+        Alert.alert("Gagal", buildAiFallbackCopy(fallback).message);
       }
     } finally {
       setLoading(false);
@@ -92,13 +89,13 @@ export function AiRecommendationSection({
         onPress={handleGenerate}
         activeOpacity={0.8}
         style={{
-          backgroundColor: '#eef2ff',
+          backgroundColor: "#eef2ff",
           borderRadius: 24,
           padding: 20,
           borderWidth: 1,
-          borderColor: '#e0e7ff',
-          flexDirection: 'row',
-          alignItems: 'center',
+          borderColor: "#e0e7ff",
+          flexDirection: "row",
+          alignItems: "center",
           gap: 14,
         }}
       >
@@ -107,9 +104,9 @@ export function AiRecommendationSection({
             width: 48,
             height: 48,
             borderRadius: 16,
-            backgroundColor: '#c7d2fe',
-            alignItems: 'center',
-            justifyContent: 'center',
+            backgroundColor: "#c7d2fe",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <FontAwesome name="magic" size={20} color="#4f46e5" />
@@ -118,8 +115,8 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 14,
-              fontWeight: 'bold',
-              color: '#312e81',
+              fontWeight: "bold",
+              color: "#312e81",
               marginBottom: 2,
             }}
           >
@@ -128,7 +125,7 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 12,
-              color: '#6366f1',
+              color: "#6366f1",
               lineHeight: 17,
             }}
           >
@@ -145,12 +142,12 @@ export function AiRecommendationSection({
     return (
       <View
         style={{
-          backgroundColor: '#eef2ff',
+          backgroundColor: "#eef2ff",
           borderRadius: 24,
           padding: 24,
           borderWidth: 1,
-          borderColor: '#e0e7ff',
-          alignItems: 'center',
+          borderColor: "#e0e7ff",
+          alignItems: "center",
           gap: 12,
         }}
       >
@@ -158,15 +155,15 @@ export function AiRecommendationSection({
         <Text
           style={{
             fontSize: 12,
-            color: '#6366f1',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
+            color: "#6366f1",
+            fontWeight: "bold",
+            textTransform: "uppercase",
             letterSpacing: 1,
           }}
         >
           Menganalisis data 7 hari...
         </Text>
-        <Text style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+        <Text style={{ fontSize: 11, color: "#94a3b8", textAlign: "center" }}>
           AI sedang membaca pola aktivitas dan gejala kamu
         </Text>
       </View>
@@ -190,27 +187,27 @@ export function AiRecommendationSection({
   return (
     <View
       style={{
-        backgroundColor: '#eef2ff',
+        backgroundColor: "#eef2ff",
         borderRadius: 24,
         padding: 20,
         borderWidth: 1,
-        borderColor: '#e0e7ff',
+        borderColor: "#e0e7ff",
         gap: 14,
       }}
     >
       {/* Header */}
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
         <Text
           style={{
             fontSize: 14,
-            fontWeight: 'bold',
-            color: '#312e81',
+            fontWeight: "bold",
+            color: "#312e81",
           }}
         >
           ✨ Insight AI Mingguan
@@ -218,19 +215,17 @@ export function AiRecommendationSection({
         <TouchableOpacity
           onPress={handleGenerate}
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
             gap: 4,
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 10,
-            backgroundColor: '#c7d2fe',
+            backgroundColor: "#c7d2fe",
           }}
         >
           <FontAwesome name="refresh" size={10} color="#4f46e5" />
-          <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#4f46e5' }}>
-            Refresh
-          </Text>
+          <Text style={{ fontSize: 10, fontWeight: "bold", color: "#4f46e5" }}>Refresh</Text>
         </TouchableOpacity>
       </View>
 
@@ -240,9 +235,9 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 10,
-              fontWeight: 'bold',
-              color: '#6366f1',
-              textTransform: 'uppercase',
+              fontWeight: "bold",
+              color: "#6366f1",
+              textTransform: "uppercase",
               letterSpacing: 1,
             }}
           >
@@ -251,7 +246,7 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 13,
-              color: '#1e1b4b',
+              color: "#1e1b4b",
               lineHeight: 20,
             }}
           >
@@ -261,14 +256,14 @@ export function AiRecommendationSection({
       )}
 
       {/* Symptom Analysis */}
-      {result?.symptomAnalysis && result.symptomAnalysis.trim() !== '' && (
+      {result?.symptomAnalysis && result.symptomAnalysis.trim() !== "" && (
         <View style={{ gap: 4 }}>
           <Text
             style={{
               fontSize: 10,
-              fontWeight: 'bold',
-              color: '#6366f1',
-              textTransform: 'uppercase',
+              fontWeight: "bold",
+              color: "#6366f1",
+              textTransform: "uppercase",
               letterSpacing: 1,
             }}
           >
@@ -277,7 +272,7 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 13,
-              color: '#1e1b4b',
+              color: "#1e1b4b",
               lineHeight: 20,
             }}
           >
@@ -292,9 +287,9 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 10,
-              fontWeight: 'bold',
-              color: '#6366f1',
-              textTransform: 'uppercase',
+              fontWeight: "bold",
+              color: "#6366f1",
+              textTransform: "uppercase",
               letterSpacing: 1,
             }}
           >
@@ -304,9 +299,9 @@ export function AiRecommendationSection({
             <View
               key={i}
               style={{
-                flexDirection: 'row',
+                flexDirection: "row",
                 gap: 8,
-                alignItems: 'flex-start',
+                alignItems: "flex-start",
               }}
             >
               <View
@@ -314,17 +309,17 @@ export function AiRecommendationSection({
                   width: 20,
                   height: 20,
                   borderRadius: 10,
-                  backgroundColor: '#c7d2fe',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  backgroundColor: "#c7d2fe",
+                  alignItems: "center",
+                  justifyContent: "center",
                   marginTop: 1,
                 }}
               >
                 <Text
                   style={{
                     fontSize: 10,
-                    fontWeight: 'bold',
-                    color: '#4f46e5',
+                    fontWeight: "bold",
+                    color: "#4f46e5",
                   }}
                 >
                   {i + 1}
@@ -334,7 +329,7 @@ export function AiRecommendationSection({
                 style={{
                   flex: 1,
                   fontSize: 13,
-                  color: '#1e1b4b',
+                  color: "#1e1b4b",
                   lineHeight: 19,
                 }}
               >
@@ -349,7 +344,7 @@ export function AiRecommendationSection({
       {result?.motivation && (
         <View
           style={{
-            backgroundColor: '#c7d2fe',
+            backgroundColor: "#c7d2fe",
             borderRadius: 14,
             padding: 12,
             marginTop: 4,
@@ -358,10 +353,10 @@ export function AiRecommendationSection({
           <Text
             style={{
               fontSize: 13,
-              color: '#312e81',
-              fontStyle: 'italic',
+              color: "#312e81",
+              fontStyle: "italic",
               lineHeight: 19,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           >
             💜 {result.motivation}

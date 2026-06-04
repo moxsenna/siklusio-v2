@@ -34,10 +34,7 @@ const AI_PATHS = new Set([
   "/api/cycle-guide/generate",
 ]);
 
-const CHECKOUT_PATHS = new Set([
-  "/api/checkout/register",
-  "/api/checkout/topup",
-]);
+const CHECKOUT_PATHS = new Set(["/api/checkout/register", "/api/checkout/topup"]);
 
 const DEFAULT_RULES = {
   ai: { max: 20, windowSeconds: 60 },
@@ -54,7 +51,7 @@ const buildRule = (
   name: RateLimitRule["name"],
   maxValue: unknown,
   windowValue: unknown,
-  fallback: { max: number; windowSeconds: number }
+  fallback: { max: number; windowSeconds: number },
 ): RateLimitRule => ({
   name,
   max: parsePositiveInteger(maxValue, fallback.max),
@@ -64,7 +61,7 @@ const buildRule = (
 export const resolveRateLimitRule = (
   method: string,
   pathname: string,
-  env: Record<string, unknown> = {}
+  env: Record<string, unknown> = {},
 ): RateLimitRule | null => {
   if (method.toUpperCase() !== "POST") {
     return null;
@@ -75,7 +72,7 @@ export const resolveRateLimitRule = (
       "ai",
       env.AI_RATE_LIMIT_MAX,
       env.AI_RATE_LIMIT_WINDOW_SECONDS,
-      DEFAULT_RULES.ai
+      DEFAULT_RULES.ai,
     );
   }
 
@@ -84,7 +81,7 @@ export const resolveRateLimitRule = (
       "checkout",
       env.CHECKOUT_RATE_LIMIT_MAX,
       env.CHECKOUT_RATE_LIMIT_WINDOW_SECONDS,
-      DEFAULT_RULES.checkout
+      DEFAULT_RULES.checkout,
     );
   }
 
@@ -93,7 +90,7 @@ export const resolveRateLimitRule = (
       "webhook",
       env.WEBHOOK_RATE_LIMIT_MAX,
       env.WEBHOOK_RATE_LIMIT_WINDOW_SECONDS,
-      DEFAULT_RULES.webhook
+      DEFAULT_RULES.webhook,
     );
   }
 
@@ -178,10 +175,7 @@ const getClientIp = (c: any): string => {
   const forwardedFor = c.req.header("x-forwarded-for") || "";
   const firstForwardedIp = forwardedFor.split(",")[0]?.trim();
   return (
-    c.req.header("cf-connecting-ip") ||
-    c.req.header("x-real-ip") ||
-    firstForwardedIp ||
-    "unknown"
+    c.req.header("cf-connecting-ip") || c.req.header("x-real-ip") || firstForwardedIp || "unknown"
   );
 };
 
@@ -268,10 +262,15 @@ export const createRateLimitMiddleware =
     if (fallbackToMemory) {
       const fallbackMode = c.env?.RATE_LIMIT_FALLBACK_MODE || "memory";
       if (fallbackMode === "fail_closed" && (rule.name === "ai" || rule.name === "checkout")) {
-        console.error(`Rate limiting DB failed in fail_closed mode for rule: ${rule.name}. Rejecting request.`);
-        return c.json({
-          error: "Layanan pembatasan akses tidak tersedia. Coba lagi sebentar lagi.",
-        }, 503);
+        console.error(
+          `Rate limiting DB failed in fail_closed mode for rule: ${rule.name}. Rejecting request.`,
+        );
+        return c.json(
+          {
+            error: "Layanan pembatasan akses tidak tersedia. Coba lagi sebentar lagi.",
+          },
+          503,
+        );
       }
       result = limiter.check(key, rule);
     }
@@ -284,10 +283,13 @@ export const createRateLimitMiddleware =
 
     if (!result.allowed) {
       c.header("Retry-After", String(result.retryAfterSeconds));
-      return c.json({
-        error: "Terlalu banyak permintaan. Coba lagi sebentar lagi.",
-        retryAfterSeconds: result.retryAfterSeconds,
-      }, 429);
+      return c.json(
+        {
+          error: "Terlalu banyak permintaan. Coba lagi sebentar lagi.",
+          retryAfterSeconds: result.retryAfterSeconds,
+        },
+        429,
+      );
     }
 
     return next();

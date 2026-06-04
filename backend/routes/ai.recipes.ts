@@ -181,7 +181,10 @@ PENTING:
     });
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter recipes error:", error.stack || error);
-    return c.json({ error: error instanceof Error ? error.message : "Gagal membuat resep hari ini." }, 500);
+    return c.json(
+      { error: error instanceof Error ? error.message : "Gagal membuat resep hari ini." },
+      500,
+    );
   }
 });
 

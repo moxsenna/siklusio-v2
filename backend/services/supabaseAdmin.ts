@@ -7,7 +7,9 @@ export const getSupabaseAdmin = (c: Context<{ Bindings: Env }>) => {
   const serviceRoleKey = c.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Missing Supabase configuration (VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)");
+    throw new Error(
+      "Missing Supabase configuration (VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)",
+    );
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {

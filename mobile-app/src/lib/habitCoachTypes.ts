@@ -1,13 +1,13 @@
 export type HabitCategory =
-  | 'hydration'
-  | 'nutrition'
-  | 'movement'
-  | 'rest'
-  | 'emotional'
-  | 'promil'
-  | 'partner';
+  | "hydration"
+  | "nutrition"
+  | "movement"
+  | "rest"
+  | "emotional"
+  | "promil"
+  | "partner";
 
-export type HabitCoachMode = 'initial' | 'renewal';
+export type HabitCoachMode = "initial" | "renewal";
 
 export interface CoachQuestionAnswer {
   id: string;
@@ -44,7 +44,7 @@ export interface HabitCoachPlan {
   weekStart: string;
   weekEnd: string;
   mode: HabitCoachMode;
-  status: 'pending_charge' | 'active' | 'completed' | 'archived';
+  status: "pending_charge" | "active" | "completed" | "archived";
   userGoal: string;
   coachSummary: string;
   creditCost: number;

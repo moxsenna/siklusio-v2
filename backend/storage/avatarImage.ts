@@ -11,13 +11,15 @@ export const MAX_AVATAR_PIXELS = MAX_AVATAR_DIMENSION * MAX_AVATAR_DIMENSION;
 const startsWithBytes = (buffer: Buffer, signature: number[]): boolean =>
   signature.every((byte, index) => buffer[index] === byte);
 
-function hasSafeDimensions(image: AvatarImageInfo | null): image is AvatarImageInfo & { width: number; height: number } {
+function hasSafeDimensions(
+  image: AvatarImageInfo | null,
+): image is AvatarImageInfo & { width: number; height: number } {
   return Boolean(
     image &&
     Number.isInteger(image.width) &&
     Number.isInteger(image.height) &&
     image.width! > 0 &&
-    image.height! > 0
+    image.height! > 0,
   );
 }
 
@@ -42,7 +44,12 @@ function readJpegDimensions(buffer: Buffer): Pick<AvatarImageInfo, "width" | "he
     const marker = buffer[offset];
     offset += 1;
 
-    if (marker === 0xd8 || marker === 0xd9 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+    if (
+      marker === 0xd8 ||
+      marker === 0xd9 ||
+      marker === 0x01 ||
+      (marker >= 0xd0 && marker <= 0xd7)
+    ) {
       continue;
     }
 
@@ -88,7 +95,10 @@ function readWebpDimensions(buffer: Buffer): Pick<AvatarImageInfo, "width" | "he
     }
 
     if (chunkType === "VP8 " && chunkSize >= 10) {
-      const hasStartCode = buffer[dataOffset + 3] === 0x9d && buffer[dataOffset + 4] === 0x01 && buffer[dataOffset + 5] === 0x2a;
+      const hasStartCode =
+        buffer[dataOffset + 3] === 0x9d &&
+        buffer[dataOffset + 4] === 0x01 &&
+        buffer[dataOffset + 5] === 0x2a;
       if (!hasStartCode) return null;
       return {
         width: buffer.readUInt16LE(dataOffset + 6) & 0x3fff,
@@ -112,7 +122,6 @@ function readWebpDimensions(buffer: Buffer): Pick<AvatarImageInfo, "width" | "he
 
   return null;
 }
-
 
 function sanitizePng(buffer: Buffer): Buffer {
   if (!startsWithBytes(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return buffer;
@@ -178,7 +187,11 @@ function sanitizeJpeg(buffer: Buffer): Buffer {
 }
 
 function sanitizeWebp(buffer: Buffer): Buffer {
-  if (buffer.length < 12 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WEBP") {
+  if (
+    buffer.length < 12 ||
+    buffer.toString("ascii", 0, 4) !== "RIFF" ||
+    buffer.toString("ascii", 8, 12) !== "WEBP"
+  ) {
     return buffer;
   }
 

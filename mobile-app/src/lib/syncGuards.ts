@@ -9,9 +9,9 @@ export interface CycleProfileSyncGuardInput {
 export function canSyncCycleProfile(input: CycleProfileSyncGuardInput): boolean {
   return Boolean(
     input.userId &&
-      !input.isProfileLoading &&
-      input.hasLastPeriodDate &&
-      input.cycleLength > 0 &&
-      input.periodLength > 0
+    !input.isProfileLoading &&
+    input.hasLastPeriodDate &&
+    input.cycleLength > 0 &&
+    input.periodLength > 0,
   );
 }

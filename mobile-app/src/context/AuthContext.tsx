@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-import { storage } from '../lib/storage';
-import { analytics } from '../lib/analytics';
-import { buildAnalyticsUserProperties } from '../lib/analyticsIdentity';
-import { getSupabaseClientStatus } from '../lib/supabaseAccess';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
+import { storage } from "../lib/storage";
+import { analytics } from "../lib/analytics";
+import { buildAnalyticsUserProperties } from "../lib/analyticsIdentity";
+import { getSupabaseClientStatus } from "../lib/supabaseAccess";
 
 interface AuthContextType {
   session: Session | null;
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     analytics.setUser(user?.id ?? null, buildAnalyticsUserProperties(user)).catch((error) => {
       if (__DEV__) {
-        console.warn('[Auth] Failed to update analytics user identity:', error);
+        console.warn("[Auth] Failed to update analytics user identity:", error);
       }
     });
   }, [user]);
@@ -67,8 +67,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const allKeys = storage.getKeys();
-    const keysToRemove = allKeys.filter(k => k.startsWith('hs_'));
-    keysToRemove.forEach(k => storage.removeItem(k));
+    const keysToRemove = allKeys.filter((k) => k.startsWith("hs_"));
+    keysToRemove.forEach((k) => storage.removeItem(k));
     const { error } = await status.client.auth.signOut();
     if (error) throw error;
     setSession(null);

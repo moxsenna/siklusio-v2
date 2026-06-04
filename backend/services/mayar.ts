@@ -12,8 +12,8 @@ export const createMayarPaymentLink = async (mayarKey: string, payload: MayarPay
   const response = await fetch("https://api.mayar.id/hl/v1/payment/create", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${mayarKey}`,
-      "Accept": "application/json",
+      Authorization: `Bearer ${mayarKey}`,
+      Accept: "application/json",
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),

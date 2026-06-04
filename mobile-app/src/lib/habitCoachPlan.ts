@@ -1,40 +1,38 @@
-import { addDays, startOfDay, subDays } from 'date-fns';
-import type { DailyRecord, Task } from './cycleUtils';
+import { addDays, startOfDay, subDays } from "date-fns";
+import type { DailyRecord, Task } from "./cycleUtils";
 import type {
   HabitCategory,
   HabitCoachCompletionSummary,
   HabitCoachPlan,
   HabitCoachTask,
-} from './habitCoachTypes';
+} from "./habitCoachTypes";
 
 const habitCategories: HabitCategory[] = [
-  'hydration',
-  'nutrition',
-  'movement',
-  'rest',
-  'emotional',
-  'promil',
-  'partner',
+  "hydration",
+  "nutrition",
+  "movement",
+  "rest",
+  "emotional",
+  "promil",
+  "partner",
 ];
 
 function normalizeCategory(value: unknown): HabitCategory {
-  return habitCategories.includes(value as HabitCategory)
-    ? (value as HabitCategory)
-    : 'emotional';
+  return habitCategories.includes(value as HabitCategory) ? (value as HabitCategory) : "emotional";
 }
 
 function normalizeTaskEmoji(value: unknown) {
-  const raw = String(value || 'star').trim();
+  const raw = String(value || "star").trim();
   const emojiMap: Record<string, string> = {
-    water: '💧',
-    heat: '♨️',
-    warmth: '♨️',
-    walking: '🚶',
-    walk: '🚶',
-    stretch: '🧘',
-    relief: '🌿',
-    sparkles: '✨',
-    star: '✨',
+    water: "💧",
+    heat: "♨️",
+    warmth: "♨️",
+    walking: "🚶",
+    walk: "🚶",
+    stretch: "🧘",
+    relief: "🌿",
+    sparkles: "✨",
+    star: "✨",
   };
 
   return emojiMap[raw.toLowerCase()] || raw;
@@ -43,16 +41,16 @@ function normalizeTaskEmoji(value: unknown) {
 function normalizeCoachTask(task: any, index: number): HabitCoachTask {
   return {
     id: String(task?.id || `task-${index + 1}`),
-    text: String(task?.text || ''),
+    text: String(task?.text || ""),
     emoji: normalizeTaskEmoji(task?.emoji),
     category: normalizeCategory(task?.category),
-    reason: String(task?.reason || ''),
+    reason: String(task?.reason || ""),
   };
 }
 
 export function mapApiHabitPlan(row: any): HabitCoachPlan {
   if (!row) {
-    throw new Error('Habit coach plan is empty');
+    throw new Error("Habit coach plan is empty");
   }
 
   const rawDays = Array.isArray(row.habit_coach_plan_days)
@@ -63,18 +61,18 @@ export function mapApiHabitPlan(row: any): HabitCoachPlan {
 
   return {
     id: String(row.id),
-    weekStart: String(row.week_start || row.weekStart || ''),
-    weekEnd: String(row.week_end || row.weekEnd || ''),
-    mode: row.mode === 'renewal' ? 'renewal' : 'initial',
-    status: row.status || 'active',
-    userGoal: String(row.user_goal || row.userGoal || ''),
-    coachSummary: String(row.coach_summary || row.coachSummary || ''),
+    weekStart: String(row.week_start || row.weekStart || ""),
+    weekEnd: String(row.week_end || row.weekEnd || ""),
+    mode: row.mode === "renewal" ? "renewal" : "initial",
+    status: row.status || "active",
+    userGoal: String(row.user_goal || row.userGoal || ""),
+    coachSummary: String(row.coach_summary || row.coachSummary || ""),
     creditCost: Number(row.credit_cost || row.creditCost || 0),
     days: rawDays
       .map((day: any) => ({
-        dateKey: String(day.date_key || day.dateKey || ''),
+        dateKey: String(day.date_key || day.dateKey || ""),
         dayIndex: Number(day.day_index || day.dayIndex || 0),
-        focus: String(day.focus || ''),
+        focus: String(day.focus || ""),
         tasks: Array.isArray(day.tasks)
           ? day.tasks.map((task: any, index: number) => normalizeCoachTask(task, index))
           : [],
@@ -116,19 +114,14 @@ function taskSignature(task: Task) {
   return `${(task.text || "").trim().toLowerCase()}::${task.category || ""}`;
 }
 
-export function mergeCoachTasksWithSavedState(
-  plannedTasks: Task[],
-  savedTasks?: Task[]
-): Task[] {
+export function mergeCoachTasksWithSavedState(plannedTasks: Task[], savedTasks?: Task[]): Task[] {
   if (!savedTasks || savedTasks.length === 0) {
     return plannedTasks;
   }
 
   const savedByCoachTaskId = new Map<string, Task>();
   const savedBySignature = new Map<string, Task>();
-  const plannedCoachPlanIds = new Set(
-    plannedTasks.map((task) => task.coachPlanId).filter(Boolean)
-  );
+  const plannedCoachPlanIds = new Set(plannedTasks.map((task) => task.coachPlanId).filter(Boolean));
 
   for (const savedTask of savedTasks) {
     if (
@@ -159,7 +152,7 @@ export function mergeCoachTasksWithSavedState(
 
 export function summarizeHabitPlanCompletion(
   plan: HabitCoachPlan,
-  activityHistory: Record<string, DailyRecord>
+  activityHistory: Record<string, DailyRecord>,
 ): HabitCoachCompletionSummary {
   const missedCategories = new Set<HabitCategory>();
   const symptoms = new Set<string>();
@@ -178,7 +171,7 @@ export function summarizeHabitPlanCompletion(
           (task.coachTaskId === plannedTask.id ||
             (!task.coachTaskId &&
               task.text === plannedTask.text &&
-              task.category === plannedTask.category))
+              task.category === plannedTask.category)),
       );
 
       if (actual?.done) {

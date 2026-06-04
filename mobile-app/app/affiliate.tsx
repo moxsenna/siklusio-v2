@@ -8,12 +8,12 @@ import {
   Alert,
   ScrollView,
   Platform,
-  Clipboard,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAffiliate } from "../src/hooks/useAffiliate";
 import { formatRelative } from "date-fns";
+import * as Clipboard from "expo-clipboard";
 
 export default function AffiliatePage() {
   const router = useRouter();
@@ -94,18 +94,32 @@ export default function AffiliatePage() {
     }
   };
 
-  const copyLink = () => {
-    if (!affiliate) return;
-    const link = `https://siklusio.web.id/checkout.html?ref=${affiliate.code}`;
-    // Using simple clipboard since expo-clipboard might not be installed
-    if (Platform.OS === "web") {
-      navigator.clipboard
-        .writeText(link)
-        .then(() => window.alert("Link tersalin!"))
-        .catch(() => {});
-    } else {
-      Clipboard.setString(link);
-      Alert.alert("Tersalin", "Link pendaftaran berhasil disalin ke clipboard.");
+  const getAffiliateLink = () => {
+    if (!affiliate?.code) return "";
+    return `https://siklusio.web.id/checkout.html?ref=${affiliate.code}`;
+  };
+
+  const copyLink = async () => {
+    const link = getAffiliateLink();
+
+    if (!link) {
+      Alert.alert("Belum tersedia", "Kode referal Bunda belum tersedia.");
+      return;
+    }
+
+    try {
+      await Clipboard.setStringAsync(link);
+
+      if (Platform.OS === "web") {
+        window.alert("Link affiliate berhasil disalin!");
+      } else {
+        Alert.alert("Tersalin", "Link affiliate berhasil disalin ke clipboard.");
+      }
+    } catch {
+      Alert.alert(
+        "Gagal menyalin",
+        "Link belum bisa disalin otomatis. Bunda bisa salin manual dari teks link."
+      );
     }
   };
 
@@ -363,11 +377,53 @@ export default function AffiliatePage() {
                 <Text
                   style={{ fontSize: 12, color: "#64748b", marginTop: 12, textAlign: "center" }}
                 >
-                  Bagikan link otomatis:{"\n"}
-                  <Text style={{ fontWeight: "bold", color: "#ec4899" }}>
-                    siklusio.web.id/checkout.html?ref={affiliate.code}
-                  </Text>
+                  Bagikan link otomatis:
                 </Text>
+                <Text
+                  selectable
+                  style={{
+                    marginTop: 8,
+                    color: "#ec4899",
+                    fontSize: 13,
+                    lineHeight: 20,
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {getAffiliateLink()}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={copyLink}
+                  activeOpacity={0.85}
+                  style={{
+                    marginTop: 14,
+                    backgroundColor: "#ec4899",
+                    borderRadius: 14,
+                    paddingVertical: 14,
+                    paddingHorizontal: 18,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    shadowColor: "#ec4899",
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 14,
+                    elevation: 3,
+                  }}
+                >
+                  <FontAwesome name="copy" size={16} color="#ffffff" />
+                  <Text
+                    style={{
+                      color: "#ffffff",
+                      fontSize: 14,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Copy Link Affiliate
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               <View style={{ padding: 24 }}>

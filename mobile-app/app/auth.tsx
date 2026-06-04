@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Platform,
   Linking,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "../src/lib/supabase";
@@ -16,7 +17,6 @@ import { useAuth } from "../src/context/AuthContext";
 import { storage } from "../src/lib/storage";
 import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { LoginLogoAnimation } from "../src/components/auth/LoginLogoAnimation";
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -144,7 +144,11 @@ export default function AuthScreen() {
         >
           {/* Logo & Header */}
           <View className="items-center mb-8">
-            <LoginLogoAnimation />
+            <Image
+              source={require("../assets/images/logo-siklusio-bg.png")}
+              style={{ width: 150, height: 97, marginBottom: 12 }}
+              resizeMode="contain"
+            />
             <Text className="text-2xl font-bold text-center text-on-background">
               {isLogin ? "Selamat Datang" : "Buat Akun Baru"}
             </Text>

@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs, router } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SiklusioLoadingScreen } from "../../src/components/loading/SiklusioLoadingScreen";
 
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/src/theme/useColorScheme";
@@ -54,18 +55,7 @@ export default function TabLayout() {
   }, [isLoading, session]);
 
   if (isLoading || !session) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#fdf2f8",
-        }}
-      >
-        <ActivityIndicator size="large" color="#ec4899" />
-      </View>
-    );
+    return <SiklusioLoadingScreen />;
   }
 
   return (

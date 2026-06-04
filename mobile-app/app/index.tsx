@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
-import { View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import { useCycle } from "../src/context/CycleContext";
 import { isPaymentPendingUser } from "../src/lib/paymentAccess";
+import { SiklusioLoadingScreen } from "../src/components/loading/SiklusioLoadingScreen";
 
 export default function IndexPage() {
   const { session, user, isLoading: authLoading } = useAuth();
@@ -31,16 +31,5 @@ export default function IndexPage() {
     router.replace(targetPath as any);
   }, [session, user, authLoading, isOnboardingCompleted, isProfileLoading, router]);
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fdf2f8",
-      }}
-    >
-      <ActivityIndicator size="large" color="#ec4899" />
-    </View>
-  );
+  return <SiklusioLoadingScreen />;
 }

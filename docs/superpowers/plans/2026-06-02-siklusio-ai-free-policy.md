@@ -13,6 +13,7 @@
 ### Task 1: Add AI Model Policy Helper
 
 **Files:**
+
 - Create: `backend/ai/modelPolicy.test.ts`
 - Create: `backend/ai/modelPolicy.ts`
 
@@ -21,7 +22,11 @@
 Test cases:
 
 ```ts
-resolveOpenRouterModels({ policy: 'free_included', freeModel: 'free-main', paidModel: 'paid-main' })
+resolveOpenRouterModels({
+  policy: "free_included",
+  freeModel: "free-main",
+  paidModel: "paid-main",
+});
 ```
 
 Expected:
@@ -33,7 +38,7 @@ Expected:
 And:
 
 ```ts
-resolveOpenRouterModels({ policy: 'paid', freeModel: 'free-main', paidModel: 'paid-main' })
+resolveOpenRouterModels({ policy: "paid", freeModel: "free-main", paidModel: "paid-main" });
 ```
 
 Expected includes paid fallback:
@@ -57,13 +62,14 @@ Expected: FAIL because `modelPolicy.ts` does not exist yet.
 Create:
 
 ```ts
-export type AiCreditPolicy = 'paid' | 'free_included';
-export const DEFAULT_OPENROUTER_FREE_MODEL = 'qwen/qwen3-next-80b-a3b-instruct:free';
-export const DEFAULT_OPENROUTER_FREE_FALLBACK_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
-export const DEFAULT_OPENROUTER_PAID_MODEL = 'openai/gpt-5-nano';
+export type AiCreditPolicy = "paid" | "free_included";
+export const DEFAULT_OPENROUTER_FREE_MODEL = "qwen/qwen3-next-80b-a3b-instruct:free";
+export const DEFAULT_OPENROUTER_FREE_FALLBACK_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+export const DEFAULT_OPENROUTER_PAID_MODEL = "openai/gpt-5-nano";
 ```
 
 `resolveOpenRouterModels` should:
+
 - prefer env free model when present.
 - always include the free fallback model when different.
 - include paid fallback only for `policy: 'paid'`.
@@ -82,6 +88,7 @@ Expected: PASS.
 ### Task 2: Apply Policy To Backend AI Routes
 
 **Files:**
+
 - Modify: `backend/index.ts`
 
 - [x] **Step 1: Import model policy helper**
@@ -91,6 +98,7 @@ Import `resolveOpenRouterModels` from `./ai/modelPolicy`.
 - [x] **Step 2: Paid features use paid policy**
 
 Apply `resolveOpenRouterModels({ policy: 'paid', ... })` to:
+
 - `POST /api/generate-recipes`
 - `POST /api/habit-coach/generate`
 - `POST /api/cycle-guide/generate`
@@ -98,6 +106,7 @@ Apply `resolveOpenRouterModels({ policy: 'paid', ... })` to:
 - [x] **Step 3: Legacy included features use free policy**
 
 Apply `resolveOpenRouterModels({ policy: 'free_included', ... })` to:
+
 - `POST /api/generate-cycle-report`
 - `POST /api/generate-habits-insight`
 - `POST /api/generate-calming-reassurance`
@@ -107,12 +116,14 @@ Expected: no legacy/free endpoint passes `OPENROUTER_PAID_MODEL` to OpenRouter.
 ### Task 3: Update Documentation
 
 **Files:**
+
 - Modify: `docs/FEATURE_MATRIX.md`
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] **Step 1: Update feature matrix**
 
 Document legacy routes as:
+
 - auth required.
 - 0 credits, included/free-for-now.
 - free model only, no paid fallback.
@@ -125,6 +136,7 @@ Record Phase 25 status and residual future work: adding paid pricing/persistence
 ### Task 4: Verify
 
 **Files:**
+
 - Verify: root project
 
 - [x] **Step 1: Run focused model policy test**

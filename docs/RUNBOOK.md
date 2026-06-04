@@ -81,7 +81,7 @@ Generate database type definitions directly from the remote Supabase project:
 - **Type Output Destination**: `supabase/types/database.types.ts`
 - **Commands**: `npm run generate:types` or `npm run db:types`
 
-*Note: This script (`scripts/generate-supabase-types.mjs`) is Windows-safe. It expects the `SUPABASE_PROJECT_REF` environment variable to be set. If the variable is missing, the script will print an error message and exit with code 1.*
+_Note: This script (`scripts/generate-supabase-types.mjs`) is Windows-safe. It expects the `SUPABASE_PROJECT_REF` environment variable to be set. If the variable is missing, the script will print an error message and exit with code 1._
 
 ---
 
@@ -114,7 +114,7 @@ npm run check
 npm run deploy
 ```
 
-*(Note: `npm run deploy` maps to `wrangler deploy backend/src/index.ts` in `package.json`).*
+_(Note: `npm run deploy` maps to `wrangler deploy backend/src/index.ts` in `package.json`)._
 
 After deploying, verify the minimum endpoint health:
 

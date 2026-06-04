@@ -33,6 +33,7 @@
 ### Task 1: Map AI Route Behavior
 
 **Files:**
+
 - Read: `backend/index.ts`
 - Read: `backend/rateLimit.ts`
 - Read: `backend/ai/credits.ts`
@@ -46,6 +47,7 @@
 ### Task 2: Map Mobile Entry Points
 
 **Files:**
+
 - Read: `mobile-app/components/habits/TodayRecipesModal.tsx`
 - Read: `mobile-app/app/(tabs)/habits.tsx`
 - Read: `mobile-app/components/calendar/CycleGuideModal.tsx`
@@ -61,6 +63,7 @@
 ### Task 3: Write the Feature Matrix
 
 **Files:**
+
 - Create: `docs/FEATURE_MATRIX.md`
 
 - [x] Document implemented cost-bearing AI features.
@@ -72,6 +75,7 @@
 ### Task 4: Update Audit Report
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] Add Phase 14 progress entry.

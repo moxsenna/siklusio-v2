@@ -27,6 +27,7 @@
 ### Task 1: Token Helper
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/supabaseAccess.ts`
 - Test: `mobile-app/src/lib/supabaseAccess.test.ts`
 
@@ -37,6 +38,7 @@
 ### Task 2: Adopt Helper In Auth/API
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/api.ts`
 - Modify: `mobile-app/src/context/AuthContext.tsx`
 - Modify: `mobile-app/app/auth.tsx`
@@ -49,6 +51,7 @@
 ### Task 3: Report And Verification
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] Add Phase 17 progress entry.

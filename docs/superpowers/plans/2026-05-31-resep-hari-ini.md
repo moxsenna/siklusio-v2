@@ -63,6 +63,7 @@
 ## Task 1: Recipe Generation Database Schema
 
 **Files:**
+
 - Create: `supabase/recipe_generations.sql`
 - Create: `supabase/migrations/20260531010400_recipe_generations.sql`
 
@@ -134,6 +135,7 @@ git commit -m "feat: add recipe generation table"
 ## Task 2: Backend Recipe Schema And Snapshot Helpers
 
 **Files:**
+
 - Modify: `backend/ai/schemas.ts`
 - Create: `backend/ai/recipeSummary.ts`
 - Modify: `backend/ai/helpers.test.ts`
@@ -188,8 +190,12 @@ test("validateRecipesGeneration accepts local Indonesian recipe payload", () => 
 
 test("validateRecipesGeneration rejects payload without exactly two recipes", () => {
   assert.throws(
-    () => validateRecipesGeneration({ ...validRecipePayload, recipes: [validRecipePayload.recipes[0]] }),
-    /exactly 2 recipes/
+    () =>
+      validateRecipesGeneration({
+        ...validRecipePayload,
+        recipes: [validRecipePayload.recipes[0]],
+      }),
+    /exactly 2 recipes/,
   );
 });
 
@@ -227,8 +233,7 @@ export function buildRecipeCycleSnapshot(body: any) {
   return {
     phase: body.phase || "unknown_phase",
     cycleDay: typeof body.cycleDay === "number" ? body.cycleDay : null,
-    daysToNextPeriod:
-      typeof body.daysToNextPeriod === "number" ? body.daysToNextPeriod : null,
+    daysToNextPeriod: typeof body.daysToNextPeriod === "number" ? body.daysToNextPeriod : null,
   };
 }
 ```
@@ -346,7 +351,11 @@ export function validateRecipesGeneration(value: unknown): RecipesGenerationResu
     assertString(recipe.cookingTime, "Recipe cooking time is required");
     assertString(recipe.phaseBenefit, "Recipe phase benefit is required");
     assertString(recipe.emoji, "Recipe emoji is required");
-    if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length < 3 || recipe.ingredients.length > 8) {
+    if (
+      !Array.isArray(recipe.ingredients) ||
+      recipe.ingredients.length < 3 ||
+      recipe.ingredients.length > 8
+    ) {
       throw new Error("Recipe ingredients must contain 3 to 8 items");
     }
     if (!Array.isArray(recipe.steps) || recipe.steps.length < 2 || recipe.steps.length > 6) {
@@ -379,6 +388,7 @@ git commit -m "feat: tighten recipe ai schema"
 ## Task 3: Backend Saved Recipe Endpoints
 
 **Files:**
+
 - Modify: `backend/index.ts`
 - Modify: `backend/ai/helpers.test.ts`
 
@@ -618,6 +628,7 @@ git commit -m "feat: save today recipe generations"
 ## Task 4: Mobile Recipe Types And Saved Mapper
 
 **Files:**
+
 - Create: `mobile-app/src/lib/todayRecipes.ts`
 - Create: `mobile-app/src/lib/todayRecipes.test.ts`
 
@@ -626,49 +637,49 @@ git commit -m "feat: save today recipe generations"
 Create `mobile-app/src/lib/todayRecipes.test.ts`:
 
 ```ts
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { mapApiTodayRecipeGeneration } from './todayRecipes';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mapApiTodayRecipeGeneration } from "./todayRecipes";
 
-test('mapApiTodayRecipeGeneration normalizes saved recipe response for UI', () => {
+test("mapApiTodayRecipeGeneration normalizes saved recipe response for UI", () => {
   const mapped = mapApiTodayRecipeGeneration({
-    id: 'generation-1',
-    generated_for_date: '2026-05-31',
-    phase: 'Luteal',
+    id: "generation-1",
+    generated_for_date: "2026-05-31",
+    phase: "Luteal",
     credit_cost: 15,
     result: {
-      phaseBenefit: 'Baik untuk fase luteal.',
-      groceries: [{ id: 1, name: 'Tempe', desc: 'Protein lokal.', emoji: 'soy' }],
+      phaseBenefit: "Baik untuk fase luteal.",
+      groceries: [{ id: 1, name: "Tempe", desc: "Protein lokal.", emoji: "soy" }],
       recipes: [
         {
           id: 1,
-          title: 'Tumis Tempe',
-          description: 'Cepat dan hangat.',
-          cookingTime: '15 menit',
-          ingredients: ['tempe', 'bawang putih', 'kecap'],
-          steps: ['Potong tempe.', 'Tumis semua bahan.'],
-          phaseBenefit: 'Protein membantu kenyang.',
-          emoji: 'pan',
+          title: "Tumis Tempe",
+          description: "Cepat dan hangat.",
+          cookingTime: "15 menit",
+          ingredients: ["tempe", "bawang putih", "kecap"],
+          steps: ["Potong tempe.", "Tumis semua bahan."],
+          phaseBenefit: "Protein membantu kenyang.",
+          emoji: "pan",
         },
         {
           id: 2,
-          title: 'Telur Wortel',
-          description: 'Lauk praktis.',
-          cookingTime: '10 menit',
-          ingredients: ['telur', 'wortel', 'daun bawang'],
-          steps: ['Kocok telur.', 'Masak hingga matang.'],
-          phaseBenefit: 'Praktis untuk energi.',
-          emoji: 'egg',
+          title: "Telur Wortel",
+          description: "Lauk praktis.",
+          cookingTime: "10 menit",
+          ingredients: ["telur", "wortel", "daun bawang"],
+          steps: ["Kocok telur.", "Masak hingga matang."],
+          phaseBenefit: "Praktis untuk energi.",
+          emoji: "egg",
         },
       ],
-      disclaimer: 'Panduan nutrisi umum.',
+      disclaimer: "Panduan nutrisi umum.",
     },
   });
 
-  assert.equal(mapped.id, 'generation-1');
-  assert.equal(mapped.generatedForDate, '2026-05-31');
+  assert.equal(mapped.id, "generation-1");
+  assert.equal(mapped.generatedForDate, "2026-05-31");
   assert.equal(mapped.result.recipes.length, 2);
-  assert.equal(mapped.result.groceries[0].name, 'Tempe');
+  assert.equal(mapped.result.groceries[0].name, "Tempe");
 });
 ```
 
@@ -719,41 +730,41 @@ export interface TodayRecipeGeneration {
 }
 
 function stringArray(value: unknown) {
-  return Array.isArray(value) ? value.map((item) => String(item || '')).filter(Boolean) : [];
+  return Array.isArray(value) ? value.map((item) => String(item || "")).filter(Boolean) : [];
 }
 
 export function mapApiTodayRecipes(value: any): TodayRecipesResult {
   return {
-    phaseBenefit: String(value?.phaseBenefit || ''),
+    phaseBenefit: String(value?.phaseBenefit || ""),
     groceries: Array.isArray(value?.groceries)
       ? value.groceries.map((item: any, index: number) => ({
           id: Number(item?.id || index + 1),
-          name: String(item?.name || ''),
-          desc: String(item?.desc || ''),
-          emoji: String(item?.emoji || 'basket'),
+          name: String(item?.name || ""),
+          desc: String(item?.desc || ""),
+          emoji: String(item?.emoji || "basket"),
         }))
       : [],
     recipes: Array.isArray(value?.recipes)
       ? value.recipes.map((item: any, index: number) => ({
           id: Number(item?.id || index + 1),
-          title: String(item?.title || ''),
-          description: String(item?.description || ''),
-          cookingTime: String(item?.cookingTime || ''),
+          title: String(item?.title || ""),
+          description: String(item?.description || ""),
+          cookingTime: String(item?.cookingTime || ""),
           ingredients: stringArray(item?.ingredients),
           steps: stringArray(item?.steps),
-          phaseBenefit: String(item?.phaseBenefit || ''),
-          emoji: String(item?.emoji || 'plate'),
+          phaseBenefit: String(item?.phaseBenefit || ""),
+          emoji: String(item?.emoji || "plate"),
         }))
       : [],
-    disclaimer: String(value?.disclaimer || ''),
+    disclaimer: String(value?.disclaimer || ""),
   };
 }
 
 export function mapApiTodayRecipeGeneration(row: any): TodayRecipeGeneration {
   return {
-    id: String(row?.id || ''),
-    generatedForDate: String(row?.generated_for_date || row?.generatedForDate || ''),
-    phase: String(row?.phase || ''),
+    id: String(row?.id || ""),
+    generatedForDate: String(row?.generated_for_date || row?.generatedForDate || ""),
+    phase: String(row?.phase || ""),
     creditCost: Number(row?.credit_cost || row?.creditCost || 0),
     result: mapApiTodayRecipes(row?.result || row),
   };
@@ -780,6 +791,7 @@ git commit -m "feat: add today recipe mapper"
 ## Task 5: Mobile Resep Hari Ini UI With Saved Recovery
 
 **Files:**
+
 - Create: `mobile-app/components/habits/TodayRecipesCard.tsx`
 - Create: `mobile-app/components/habits/TodayRecipesModal.tsx`
 - Modify: `mobile-app/app/(tabs)/habits.tsx`
@@ -789,9 +801,9 @@ git commit -m "feat: add today recipe mapper"
 Create `mobile-app/components/habits/TodayRecipesCard.tsx`:
 
 ```tsx
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export function TodayRecipesCard({ onOpen }: { onOpen: () => void }) {
   return (
@@ -799,23 +811,38 @@ export function TodayRecipesCard({ onOpen }: { onOpen: () => void }) {
       onPress={onOpen}
       activeOpacity={0.9}
       style={{
-        backgroundColor: '#ecfdf5',
+        backgroundColor: "#ecfdf5",
         borderRadius: 28,
         padding: 18,
         borderWidth: 1,
-        borderColor: '#bbf7d0',
-        flexDirection: 'row',
-        alignItems: 'center',
+        borderColor: "#bbf7d0",
+        flexDirection: "row",
+        alignItems: "center",
         gap: 14,
       }}
     >
-      <View style={{ width: 46, height: 46, borderRadius: 16, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          width: 46,
+          height: 46,
+          borderRadius: 16,
+          backgroundColor: "#dcfce7",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <FontAwesome name="cutlery" size={18} color="#16a34a" />
       </View>
       <View style={{ flex: 1, gap: 4 }}>
-        <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '800', textTransform: 'uppercase' }}>Resep Hari Ini</Text>
-        <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>2 resep sesuai fase siklus</Text>
-        <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18 }}>
+        <Text
+          style={{ fontSize: 11, color: "#16a34a", fontWeight: "800", textTransform: "uppercase" }}
+        >
+          Resep Hari Ini
+        </Text>
+        <Text style={{ fontSize: 16, color: "#111827", fontWeight: "800" }}>
+          2 resep sesuai fase siklus
+        </Text>
+        <Text style={{ fontSize: 12, color: "#475569", lineHeight: 18 }}>
           Menu sederhana dengan bahan lokal. Hasil hari ini tersimpan setelah dibuat.
         </Text>
       </View>
@@ -830,15 +857,15 @@ export function TodayRecipesCard({ onOpen }: { onOpen: () => void }) {
 Create `mobile-app/components/habits/TodayRecipesModal.tsx`:
 
 ```tsx
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { format } from 'date-fns';
-import { apiGetJson, apiPostJson } from '../../src/lib/api';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { format } from "date-fns";
+import { apiGetJson, apiPostJson } from "../../src/lib/api";
 import {
   mapApiTodayRecipeGeneration,
   type TodayRecipeGeneration,
-} from '../../src/lib/todayRecipes';
+} from "../../src/lib/todayRecipes";
 
 interface Props {
   visible: boolean;
@@ -849,26 +876,35 @@ interface Props {
   onClose: () => void;
 }
 
-export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextPeriod, nickname, onClose }: Props) {
+export function TodayRecipesModal({
+  visible,
+  currentPhase,
+  cycleDay,
+  daysToNextPeriod,
+  nickname,
+  onClose,
+}: Props) {
   const [generation, setGeneration] = useState<TodayRecipeGeneration | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const dateKey = format(new Date(), 'yyyy-MM-dd');
+  const dateKey = format(new Date(), "yyyy-MM-dd");
 
   useEffect(() => {
     if (!visible) return;
     let mounted = true;
     setFetching(true);
     setError(null);
-    apiGetJson<{ generation: any | null; result: unknown | null }>(`/api/recipes/today?date=${dateKey}`)
+    apiGetJson<{ generation: any | null; result: unknown | null }>(
+      `/api/recipes/today?date=${dateKey}`,
+    )
       .then((json) => {
         if (!mounted) return;
         setGeneration(json.generation ? mapApiTodayRecipeGeneration(json.generation) : null);
       })
       .catch((err: any) => {
-        if (mounted) setError(err.message || 'Gagal mengambil resep hari ini.');
+        if (mounted) setError(err.message || "Gagal mengambil resep hari ini.");
       })
       .finally(() => {
         if (mounted) setFetching(false);
@@ -882,17 +918,20 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
     setLoading(true);
     setError(null);
     try {
-      const json = await apiPostJson<{ generation: any; result: unknown; balance: number | null }>('/api/generate-recipes', {
-        generatedForDate: dateKey,
-        phase: currentPhase,
-        cycleDay,
-        daysToNextPeriod,
-        nickname,
-      });
+      const json = await apiPostJson<{ generation: any; result: unknown; balance: number | null }>(
+        "/api/generate-recipes",
+        {
+          generatedForDate: dateKey,
+          phase: currentPhase,
+          cycleDay,
+          daysToNextPeriod,
+          nickname,
+        },
+      );
       setGeneration(mapApiTodayRecipeGeneration(json.generation));
       setBalance(json.balance);
     } catch (err: any) {
-      setError(err.message || 'Gagal membuat resep hari ini.');
+      setError(err.message || "Gagal membuat resep hari ini.");
     } finally {
       setLoading(false);
     }
@@ -902,27 +941,55 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(15, 23, 42, 0.45)' }}>
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '88%', padding: 22 }}>
+      <View
+        style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15, 23, 42, 0.45)" }}
+      >
+        <View
+          style={{
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            maxHeight: "88%",
+            padding: 22,
+          }}
+        >
           <ScrollView contentContainerStyle={{ gap: 14, paddingBottom: 20 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
               <View style={{ flex: 1, paddingRight: 16 }}>
-                <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '800', textTransform: 'uppercase' }}>Resep Hari Ini</Text>
-                <Text style={{ fontSize: 20, fontWeight: '800', color: '#111827', marginTop: 4 }}>Menu sederhana untuk fase {currentPhase}</Text>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: "#16a34a",
+                    fontWeight: "800",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Resep Hari Ini
+                </Text>
+                <Text style={{ fontSize: 20, fontWeight: "800", color: "#111827", marginTop: 4 }}>
+                  Menu sederhana untuk fase {currentPhase}
+                </Text>
               </View>
               <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
                 <FontAwesome name="close" size={18} color="#64748b" />
               </TouchableOpacity>
             </View>
 
-            <Text style={{ fontSize: 13, color: '#475569', lineHeight: 20 }}>
-              AI membuat 2 resep dan daftar belanja kecil dengan bahan Indonesia yang mudah dicari. Biaya 15 kredit hanya saat membuat hasil baru.
+            <Text style={{ fontSize: 13, color: "#475569", lineHeight: 20 }}>
+              AI membuat 2 resep dan daftar belanja kecil dengan bahan Indonesia yang mudah dicari.
+              Biaya 15 kredit hanya saat membuat hasil baru.
             </Text>
 
             {fetching && (
-              <View style={{ paddingVertical: 18, alignItems: 'center', gap: 8 }}>
+              <View style={{ paddingVertical: 18, alignItems: "center", gap: 8 }}>
                 <ActivityIndicator color="#16a34a" />
-                <Text style={{ fontSize: 12, color: '#64748b' }}>Mengambil resep tersimpan...</Text>
+                <Text style={{ fontSize: 12, color: "#64748b" }}>Mengambil resep tersimpan...</Text>
               </View>
             )}
 
@@ -930,54 +997,111 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
               <TouchableOpacity
                 onPress={generate}
                 disabled={loading}
-                style={{ backgroundColor: '#16a34a', borderRadius: 16, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+                style={{
+                  backgroundColor: "#16a34a",
+                  borderRadius: 16,
+                  paddingVertical: 14,
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
               >
-                {loading ? <ActivityIndicator color="#fff" /> : <FontAwesome name="magic" size={13} color="#fff" />}
-                <Text style={{ color: '#fff', fontWeight: '800' }}>Buat resep - 15 kredit</Text>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <FontAwesome name="magic" size={13} color="#fff" />
+                )}
+                <Text style={{ color: "#fff", fontWeight: "800" }}>Buat resep - 15 kredit</Text>
               </TouchableOpacity>
             )}
 
             {error && (
-              <View style={{ backgroundColor: '#fef2f2', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fee2e2' }}>
-                <Text style={{ color: '#b91c1c', fontSize: 12, fontWeight: '700' }}>{error}</Text>
+              <View
+                style={{
+                  backgroundColor: "#fef2f2",
+                  borderRadius: 14,
+                  padding: 12,
+                  borderWidth: 1,
+                  borderColor: "#fee2e2",
+                }}
+              >
+                <Text style={{ color: "#b91c1c", fontSize: 12, fontWeight: "700" }}>{error}</Text>
               </View>
             )}
 
             {result && (
               <View style={{ gap: 14 }}>
-                <View style={{ backgroundColor: '#ecfdf5', borderRadius: 16, padding: 14 }}>
-                  <Text style={{ fontSize: 13, color: '#14532d', lineHeight: 20 }}>{result.phaseBenefit}</Text>
+                <View style={{ backgroundColor: "#ecfdf5", borderRadius: 16, padding: 14 }}>
+                  <Text style={{ fontSize: 13, color: "#14532d", lineHeight: 20 }}>
+                    {result.phaseBenefit}
+                  </Text>
                 </View>
 
                 <View style={{ gap: 8 }}>
-                  <Text style={{ fontSize: 12, color: '#111827', fontWeight: '800' }}>Daftar belanja kecil</Text>
+                  <Text style={{ fontSize: 12, color: "#111827", fontWeight: "800" }}>
+                    Daftar belanja kecil
+                  </Text>
                   {result.groceries.map((item) => (
-                    <Text key={item.id} style={{ fontSize: 13, color: '#475569', lineHeight: 19 }}>
+                    <Text key={item.id} style={{ fontSize: 13, color: "#475569", lineHeight: 19 }}>
                       - {item.name}: {item.desc}
                     </Text>
                   ))}
                 </View>
 
                 {result.recipes.map((recipe) => (
-                  <View key={recipe.id} style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 18, padding: 14, gap: 8 }}>
-                    <Text style={{ fontSize: 15, color: '#111827', fontWeight: '800' }}>{recipe.title}</Text>
-                    <Text style={{ fontSize: 12, color: '#16a34a', fontWeight: '700' }}>{recipe.cookingTime}</Text>
-                    <Text style={{ fontSize: 13, color: '#475569', lineHeight: 19 }}>{recipe.description}</Text>
-                    <Text style={{ fontSize: 12, color: '#111827', fontWeight: '800' }}>Bahan</Text>
+                  <View
+                    key={recipe.id}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "#e5e7eb",
+                      borderRadius: 18,
+                      padding: 14,
+                      gap: 8,
+                    }}
+                  >
+                    <Text style={{ fontSize: 15, color: "#111827", fontWeight: "800" }}>
+                      {recipe.title}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: "#16a34a", fontWeight: "700" }}>
+                      {recipe.cookingTime}
+                    </Text>
+                    <Text style={{ fontSize: 13, color: "#475569", lineHeight: 19 }}>
+                      {recipe.description}
+                    </Text>
+                    <Text style={{ fontSize: 12, color: "#111827", fontWeight: "800" }}>Bahan</Text>
                     {recipe.ingredients.map((item, index) => (
-                      <Text key={`${recipe.id}-ingredient-${index}`} style={{ fontSize: 12, color: '#64748b' }}>- {item}</Text>
+                      <Text
+                        key={`${recipe.id}-ingredient-${index}`}
+                        style={{ fontSize: 12, color: "#64748b" }}
+                      >
+                        - {item}
+                      </Text>
                     ))}
-                    <Text style={{ fontSize: 12, color: '#111827', fontWeight: '800' }}>Langkah</Text>
+                    <Text style={{ fontSize: 12, color: "#111827", fontWeight: "800" }}>
+                      Langkah
+                    </Text>
                     {recipe.steps.map((item, index) => (
-                      <Text key={`${recipe.id}-step-${index}`} style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>{index + 1}. {item}</Text>
+                      <Text
+                        key={`${recipe.id}-step-${index}`}
+                        style={{ fontSize: 12, color: "#64748b", lineHeight: 18 }}
+                      >
+                        {index + 1}. {item}
+                      </Text>
                     ))}
-                    <Text style={{ fontSize: 12, color: '#14532d', lineHeight: 18 }}>{recipe.phaseBenefit}</Text>
+                    <Text style={{ fontSize: 12, color: "#14532d", lineHeight: 18 }}>
+                      {recipe.phaseBenefit}
+                    </Text>
                   </View>
                 ))}
 
-                <Text style={{ fontSize: 11, color: '#94a3b8', lineHeight: 16 }}>{result.disclaimer}</Text>
-                <Text style={{ fontSize: 11, color: '#16a34a', fontWeight: '700' }}>
-                  {balance !== null ? `Sisa kredit AI: ${balance}` : 'Resep hari ini sudah tersimpan.'}
+                <Text style={{ fontSize: 11, color: "#94a3b8", lineHeight: 16 }}>
+                  {result.disclaimer}
+                </Text>
+                <Text style={{ fontSize: 11, color: "#16a34a", fontWeight: "700" }}>
+                  {balance !== null
+                    ? `Sisa kredit AI: ${balance}`
+                    : "Resep hari ini sudah tersimpan."}
                 </Text>
               </View>
             )}
@@ -994,14 +1118,21 @@ export function TodayRecipesModal({ visible, currentPhase, cycleDay, daysToNextP
 In `mobile-app/app/(tabs)/habits.tsx`, import:
 
 ```ts
-import { TodayRecipesCard } from '../../components/habits/TodayRecipesCard';
-import { TodayRecipesModal } from '../../components/habits/TodayRecipesModal';
+import { TodayRecipesCard } from "../../components/habits/TodayRecipesCard";
+import { TodayRecipesModal } from "../../components/habits/TodayRecipesModal";
 ```
 
 Destructure `cycleDay` and `daysToNextPeriod` from `useCycle()`:
 
 ```ts
-const { currentPhase, cycleDay, daysToNextPeriod, activityHistory, setActivityHistory, userNickname } = useCycle();
+const {
+  currentPhase,
+  cycleDay,
+  daysToNextPeriod,
+  activityHistory,
+  setActivityHistory,
+  userNickname,
+} = useCycle();
 ```
 
 Add state near other modal state:
@@ -1052,6 +1183,7 @@ git commit -m "feat: add today recipes ui"
 ## Task 6: Apply Migration And Verification
 
 **Files:**
+
 - No new files unless fixes are needed.
 
 - [ ] **Step 1: Push Supabase migration**

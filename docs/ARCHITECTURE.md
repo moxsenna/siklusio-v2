@@ -1,117 +1,111 @@
-# Siklusio Architecture Guide
+# Siklusio v2 Architecture Guide
 
-Last updated: 2026-06-04.
-Developer onboarding snapshot after Phase 31 backend decomposition and mobile features reorganization.
-
-This guide explains the current shape of Siklusio and its modular structure.
-
----
-
-## System Map
-
-| Area | Current Location | Responsibility |
-| --- | --- | --- |
-| Mobile/web app | `mobile-app/` | Expo Router app, native/web screens, user-facing AI flows, Supabase client access, analytics/dataLayer, local sync helpers |
-| Mobile Route Layer | `mobile-app/app/` | Expo Router route files serving as wrappers / entrypoints for screens |
-| Mobile Features | `mobile-app/src/features/` | Domain-specific feature implementations (calendar, community, habits, dashboard, admin) |
-| Mobile Shared | `mobile-app/src/shared/` | Shared UI components (avatar picker, date field, credit chip) and global libs |
-| Mobile Theme | `mobile-app/src/theme/` | Style configurations, color tokens, and theme hooks (e.g. `useColorScheme`) |
-| API Worker | `backend/` | Root of Hono backend containing config and thin compatibility entrypoint |
-| Backend Source | `backend/src/` | Hono app with entrypoint `backend/src/index.ts`, bootstrapped in `backend/src/app.ts`, modular controllers, routes, middlewares, and services |
-| Backend Helpers | `backend/src/ai/`, `backend/src/payments/`, `backend/src/storage/`, `backend/src/logging/`, `backend/src/schemas/` | Domain helpers for AI prompts/schemas/credits, topup packages, avatar image validation, log redaction, request validation |
-| Database | `supabase/migrations/` | Production schema source of truth for new database changes |
-| Database docs/types | `docs/DATABASE.md`, `supabase/types/database.types.ts` | Human database handoff and generated remote schema snapshot |
-| Landing | `landing/` | Static landing/checkout pages deployed through Cloudflare Pages/Git integration |
+Last updated: 2026-06-05  
+Last verified against codebase: 2026-06-05 (Developer onboarding snapshot after Phase 31 backend decomposition and mobile features reorganization)  
+Target Audience: Non-coder Founder & AI Coding Agents
 
 ---
 
-## Backend Folder Structure
+## 1. Executive Summary (For the Founder)
 
-The backend has been fully decomposed into a modular structure following the safe extraction plan.
-All primary source files now live under `backend/src/`.
+Siklusio v2 dibangun dengan arsitektur **Monorepo** (satu repositori untuk seluruh komponen sistem). Struktur ini memisahkan aplikasi menjadi tiga bagian utama yang bekerja bersama secara real-time:
 
-```text
-backend/
-  index.ts             # Thin compatibility wrapper exporting createApp() from src
-  wrangler.jsonc       # Worker configuration, main entrypoint pointed to backend/src/index.ts
-  src/
-    index.ts           # True entrypoint importing and executing createApp()
-    app.ts             # Bootstraps Hono app, registers middlewares, and mounts routes
-    env.ts             # Worker environment bindings type definition
-    middlewares/
-      auth.ts          # requireUser and requireAdmin authentication handlers
-      cors.ts          # dynamic trusted-origins CORS helper
-      rateLimit.ts     # wrapper around global rate limiting
-      errorHandler.ts  # global exception formatting and logging
-    controllers/
-      admin.controller.ts            # admin operations
-      ai.cycleGuide.controller.ts    # cycle guide AI generation controller
-      ai.habitCoach.controller.ts    # habit coach AI generation controller
-      ai.reassurance.controller.ts   # reassure AI endpoints controller
-      ai.recipes.controller.ts       # daily recipes generation controller
-      avatar.controller.ts           # upload avatar controller
-      checkout.controller.ts         # premium register and credit topup checkout controller
-      credits.controller.ts          # credit balance and ledger controller
-      webhook.mayar.controller.ts    # Mayar webhook callback controller (/api/payment/webhook)
-    routes/
-      admin.route.ts
-      ai.cycleGuide.route.ts
-      ai.habitCoach.route.ts
-      ai.reassurance.route.ts
-      ai.recipes.route.ts
-      avatar.route.ts
-      checkout.route.ts
-      credits.route.ts
-      webhook.mayar.route.ts
-    services/
-      supabaseAdmin.ts # Supabase client creator and auth user list helper
-      mayar.ts         # Mayar API link creation helper
-      metaCapi.ts      # formatE164Phone, hashData, and sendMetaCapiEvent CAPI helper
-      aiCreditLedger.ts# charge, grant, history, balance wrappers
-    schemas/
-      requestSchemas.ts# Zod schemas for AI request validations
-    ai/                # AI prompts, summaries, logic, and policy helpers (AI credit tracking ledger)
-    payments/          # payment catalogs and package descriptors
-    storage/           # avatar binary validation and sanitization
-    logging/           # logger output and PII scrubbing redaction
+1. **Frontend Landing Page (`landing/`)**: Halaman web publik tempat calon pengguna membaca informasi produk dan melakukan pembelian premium.
+2. **Mobile Application (`mobile-app/`)**: Aplikasi utama yang diinstal di ponsel pengguna (iOS/Android) untuk melacak siklus, kebiasaan (_habits_), berinteraksi di komunitas anonim, dan berkonsultasi dengan pendamping emosional berbasis AI.
+3. **Backend API Server (`backend/`)**: Otak pemroses yang berjalan cepat di server Cloudflare Workers. Bagian ini menangani perhitungan berat, verifikasi pembayaran melalui webhook `/api/payment/webhook`, pembatasan akses (_rate-limiting_), dan pemrosesan kecerdasan buatan (AI) secara aman tanpa membebani baterai ponsel pengguna.
+
+Semua komponen di atas dihubungkan secara terpusat oleh **Supabase** yang mengelola autentikasi pengguna dan database PostgreSQL secara aman menggunakan kebijakan Row Level Security (RLS).
+
+---
+
+## 2. System Flow Diagram (Mermaid)
+
+Diagram di bawah ini menggambarkan alur komunikasi antarkomponen saat pengguna mengakses aplikasi, melakukan transaksi, dan meminta analisis AI:
+
+```mermaid
+graph TD
+    %% Users & Frontend Layer
+    User((Pengguna)) -->|Akses Web| Landing[Landing Pages / landing/]
+    User -->|Gunakan App| MobileApp[Expo Mobile App / mobile-app/]
+
+    %% Entrypoints & Gateway
+    Landing -->|Pembayaran Premium / Topup| Mayar[Mayar Payment Gateway]
+    MobileApp -->|Direct Read/Write DB| SupabaseDB[(Supabase PostgreSQL)]
+    MobileApp -->|Request AI / Upload Avatar| HonoBackend[Hono API Server / Cloudflare Workers]
+
+    %% Hono Backend Pipelines
+    HonoBackend -->|1. Autentikasi JWT| SupabaseAuth[Supabase Auth Services]
+    HonoBackend -->|2. Validasi Input Zod| InputValidator[Zod Schema Validator]
+    HonoBackend -->|3. Kurangi Saldo Kredit| CreditLedger[AI Credit Ledger]
+    HonoBackend -->|4. Generate Response| OpenRouter[OpenRouter AI API]
+    HonoBackend -->|5. Simpan Hasil & Log| SupabaseDB
+
+    %% External & Webhook Pipelines
+    Mayar -->|Callback Webhook Sukses /api/payment/webhook| HonoBackend
+    HonoBackend -->|Kirim Sinyal Pemasaran| MetaCAPI[Meta Conversions API]
+    MobileApp -->|Simpan Gambar Kustom| ImgBB[ImgBB API]
+    HonoBackend -->|Validasi & Simpan File| R2Bucket[Cloudflare R2 Bucket]
 ```
 
 ---
 
-## Modular Backend Map
+## 3. Monorepo Boundary & Directory Map
 
-The Hono application handles modular routes and services. Under this decomposed structure:
-- `backend/index.ts` redirects to `backend/src/index.ts`.
-- Controllers handle HTTP request parsing, AI prompts delegation, and database orchestration.
-- Routes define route mounting and middleware chaining.
+Repositori Siklusio v2 didekomposisi secara ketat untuk menjaga kerapian kode dan mempermudah AI Agent melakukan modifikasi tanpa merusak fitur lainnya.
 
----
-
-## Backend Entrypoint
-
-- `wrangler.jsonc` points to `backend/src/index.ts`.
-- `backend/index.ts` is kept as a compatibility re-export.
-- Route behavior should remain byte-compatible unless an intentional product/API migration is approved.
-
----
-
-## Database Boundary
-
-New schema changes belong in `supabase/migrations/`. Root `supabase/*.sql` files are legacy/reference snippets,
-not the deploy path for new production changes. Read `docs/DATABASE.md` before any database work.
+| Direktori                      | Tanggung Jawab (Responsibility)                                     | Kontrak Batasan (Boundary Contract)                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`landing/`**                 | Landing Page statis & Form Checkout.                                | Berisi file HTML/CSS murni. Tidak boleh mengandung logika TypeScript backend atau dependensi Node berat.                                         |
+| **`mobile-app/app/`**          | Route Entrypoint untuk Expo Router.                                 | **Hanya** berfungsi sebagai berkas _wrapper_ navigasi tipis. Tidak boleh ada implementasi komponen visual atau logika bisnis yang rumit di sini. |
+| **`mobile-app/src/features/`** | Fitur Utama Mobile (Calendar, Habits, Community, Dashboard, Admin). | Tempat berkumpulnya komponen layar (_screens_), UI khusus, dan hooks pendukung fitur.                                                            |
+| **`mobile-app/src/shared/`**   | Komponen UI dan Utilitas global yang dipakai bersama ( reusable ).  | Menyediakan UI fundamental (avatar picker, date field, credit chip) dan fungsi pembantu umum.                                                    |
+| **`backend/index.ts`**         | Entrypoint compat wrapper.                                          | Melakukan export dari backend source.                                                                                                            |
+| **`backend/src/`**             | Sumber Utama Kode Server Hono.                                      | Seluruh endpoint, middleware, controller, dan schemas didefinisikan di sini. Entrypoint Wrangler diarahkan langsung ke `backend/src/index.ts`.   |
+| **`backend/src/routes/`**      | Layer Rute API.                                                     | Menangani mapping route untuk API Hono.                                                                                                          |
+| **`backend/src/services/`**    | Layer Layanan Bisnis.                                               | Layanan eksternal seperti integrasi Mayar dan Meta CAPI.                                                                                         |
+| **`supabase/migrations/`**     | Sumber Kebenaran Tunggal (_Source of Truth_) Skema Database.        | Seluruh perubahan DDL database wajib melalui file migrasi di folder ini. SQL di folder root hanyalah referensi legacy.                           |
 
 ---
 
-## Frontend Boundary
+## 4. Backend Request Execution Lifecycle
 
-Mobile/web code should call the backend through API utilities and through direct Supabase client access.
-- Route pages under `mobile-app/app/` are thin wrappers/entrypoints.
-- The true screens, sub-views, and custom components live under `mobile-app/src/features/` and `mobile-app/src/shared/`.
-- Direct Supabase client calls are strictly typed using the generated Types (`Database` schema imported from `supabase/types/database.types.ts`).
+Setiap permintaan (_request_) HTTP yang masuk ke backend Hono akan melewati rangkaian tahapan terstruktur berikut:
+
+```text
+HTTP Request (misal: POST /api/cycle-guide/generate)
+   │
+   ├──▶ 1. MIDDLEWARE: CORS (`cors.ts`)
+   │      Memvalidasi apakah origin request berasal dari domain tepercaya (app.siklusio.web.id).
+   │
+   ├──▶ 2. MIDDLEWARE: Rate Limit (`rateLimit.ts`)
+   │      Memastikan request IP/user ID tidak melebihi ambang batas keamanan yang ditentukan.
+   │
+   ├──▶ 3. ROUTE MATCHING (`routes/ai.cycleGuide.route.ts`)
+   │      Mengarahkan request ke Controller yang sesuai berdasarkan path dan method HTTP.
+   │
+   ├──▶ 4. CONTROLLER AUTH CHECK (`controllers/ai.cycleGuide.controller.ts`)
+   │      Memanggil `requireUser(c)` untuk memverifikasi JWT token dari header Authorization.
+   │
+   ├──▶ 5. CONTROLLER INPUT VALIDATION (`schemas/requestSchemas.ts`)
+   │      Menggunakan skema Zod untuk memvalidasi format data input (misal: `generatedForDate`).
+   │
+   ├──▶ 6. SERVICE CALL (`services/aiCreditLedger.ts`)
+   │      Memeriksa kecukupan saldo kredit AI user di database Supabase.
+   │
+   ├──▶ 7. EXTERNAL API CALL (`ai/openRouter.ts`)
+   │      Mengirim instruksi prompt terproteksi ke OpenRouter AI.
+   │
+   └──▶ 8. DATABASE TRANSACTION & RESPONSE
+          Memotong kredit, menyimpan hasil analisis ke database, dan mengembalikan JSON ke klien.
+```
 
 ---
 
-## Human Refactor Rule
+## 5. Hubungan Antar Modul Utama (Load-Bearing Abstractions)
 
-A backend decomposition PR should be boring: same routes, same tests, smaller files.
-If a route move also changes payment, credit, auth, or database behavior, split it into two PRs.
+Menurut analisis dependensi kode (_Graphify_), komponen-komponen berikut adalah pondasi dasar yang menopang logika Siklusio:
+
+- **`CycleContext` / `useCycle()`**: Menghitung dan menyebarkan status fase haid saat ini (Menstruasi, Folikular, Ovulasi, Luteal) ke seluruh layar aplikasi mobile.
+- **`AuthContext` / `useAuth()`**: Mengelola sesi masuk pengguna, sinkronisasi token, dan mendeteksi apakah pengguna berstatus admin atau member biasa.
+- **`SyncManager`**: Memastikan data log harian yang dicatat secara offline disinkronkan secara atomik ke database remote Supabase saat internet terhubung kembali.
+- **`dateUtils`**: Utilitas untuk manipulasi tanggal lokal yang seragam di frontend, mobile-app, dan backend guna menghindari bug pergeseran zona waktu (timezone shift).

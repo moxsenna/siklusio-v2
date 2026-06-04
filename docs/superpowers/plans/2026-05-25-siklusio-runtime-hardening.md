@@ -35,6 +35,7 @@
 ### Task 1: Add Mobile API Helper and Authenticated API Calls
 
 **Files:**
+
 - Create: `mobile-app/src/lib/api.ts`
 - Modify: `mobile-app/components/calendar/AiReportModal.tsx`
 - Modify: `mobile-app/components/habits/AiRecommendationSection.tsx`
@@ -45,20 +46,20 @@
 Create `mobile-app/src/lib/api.ts`:
 
 ```ts
-import Constants from 'expo-constants';
-import { supabase } from './supabase';
+import Constants from "expo-constants";
+import { supabase } from "./supabase";
 
 export function getApiBaseUrl(): string {
   const configured = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (configured && configured.trim().length > 0) {
-    return configured.replace(/\/+$/, '');
+    return configured.replace(/\/+$/, "");
   }
 
-  const debuggerHost = Constants.expoConfig?.hostUri || '';
-  const ip = debuggerHost.split(':')[0];
+  const debuggerHost = Constants.expoConfig?.hostUri || "";
+  const ip = debuggerHost.split(":")[0];
   if (ip) return `http://${ip}:3000`;
 
-  return 'http://localhost:3000';
+  return "http://localhost:3000";
 }
 
 export async function getAccessToken(): Promise<string | null> {
@@ -67,15 +68,12 @@ export async function getAccessToken(): Promise<string | null> {
   return data.session?.access_token ?? null;
 }
 
-export async function apiPostJson<TResponse>(
-  path: string,
-  body: unknown
-): Promise<TResponse> {
+export async function apiPostJson<TResponse>(path: string, body: unknown): Promise<TResponse> {
   const token = await getAccessToken();
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
@@ -109,13 +107,13 @@ export async function apiGetJson<TResponse>(path: string): Promise<TResponse> {
 In `mobile-app/components/calendar/AiReportModal.tsx`, remove `Constants` import and local `getApiBaseUrl`. Add:
 
 ```ts
-import { apiPostJson } from '../../src/lib/api';
+import { apiPostJson } from "../../src/lib/api";
 ```
 
 Replace the fetch block with:
 
 ```ts
-const data = await apiPostJson<any>('/api/generate-cycle-report', payload);
+const data = await apiPostJson<any>("/api/generate-cycle-report", payload);
 setReport(data);
 ```
 
@@ -124,13 +122,13 @@ setReport(data);
 In `mobile-app/components/habits/AiRecommendationSection.tsx`, remove `Constants` import and local `getApiBaseUrl`. Add:
 
 ```ts
-import { apiPostJson } from '../../src/lib/api';
+import { apiPostJson } from "../../src/lib/api";
 ```
 
 Replace the fetch block with:
 
 ```ts
-const json = await apiPostJson<AiInsightResult>('/api/generate-habits-insight', {
+const json = await apiPostJson<AiInsightResult>("/api/generate-habits-insight", {
   weeklyData,
   currentPhase,
   nickname,
@@ -143,13 +141,13 @@ setResult(json);
 In `mobile-app/app/admin.tsx`, remove `Constants` import and local `getApiBaseUrl`. Add:
 
 ```ts
-import { apiGetJson } from '../src/lib/api';
+import { apiGetJson } from "../src/lib/api";
 ```
 
 Replace the `/api/admin/users` fetch with:
 
 ```ts
-const data = await apiGetJson<{ users: AdminUser[] }>('/api/admin/users');
+const data = await apiGetJson<{ users: AdminUser[] }>("/api/admin/users");
 setUsers(data.users || []);
 ```
 
@@ -168,6 +166,7 @@ Expected: exit code `0`.
 ### Task 2: Protect Backend AI Endpoints
 
 **Files:**
+
 - Modify: `backend/index.ts`
 
 - [x] **Step 1: Add reusable Supabase admin client and auth helper**
@@ -180,7 +179,7 @@ const getSupabaseAdmin = () => {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing Supabase config');
+    throw new Error("Missing Supabase config");
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {
@@ -192,13 +191,11 @@ const getSupabaseAdmin = () => {
 };
 
 const requireUser = async (req: express.Request, res: express.Response) => {
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice('Bearer '.length)
-    : null;
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
 
   if (!token) {
-    res.status(401).json({ error: 'Missing access token' });
+    res.status(401).json({ error: "Missing access token" });
     return null;
   }
 
@@ -206,7 +203,7 @@ const requireUser = async (req: express.Request, res: express.Response) => {
   const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
 
   if (userErr || !userData?.user) {
-    res.status(401).json({ error: 'Invalid or expired session' });
+    res.status(401).json({ error: "Invalid or expired session" });
     return null;
   }
 
@@ -224,6 +221,7 @@ if (!auth) return;
 ```
 
 Apply this to:
+
 - `/api/generate-recipes`
 - `/api/generate-cycle-report`
 - `/api/generate-habits-insight`
@@ -255,6 +253,7 @@ Expected: esbuild exits `0` and writes `dist/server.cjs`.
 ### Task 3: Fix Community Read Security with Safe RPCs
 
 **Files:**
+
 - Modify: `supabase/community_avatar.sql`
 - Create: `supabase/community_comments_rpc.sql`
 - Create: `supabase/community_admin_rpc.sql`
@@ -469,14 +468,14 @@ GRANT EXECUTE ON FUNCTION public.admin_get_moderation_queue(TEXT) TO authenticat
 In `mobile-app/src/hooks/useCommunityFeed.ts`, replace the `community_comments.select('*')` and follow-up profile query inside `fetchComments` with:
 
 ```ts
-const { data: rows, error: cErr } = await supabase.rpc('get_post_comments', {
+const { data: rows, error: cErr } = await supabase.rpc("get_post_comments", {
   p_post_id: postId,
 });
 if (cErr) throw cErr;
 return ((rows || []) as any[]).map<CommentWithAuthor>((c) => ({
   id: c.id,
   post_id: c.post_id,
-  user_id: c.is_own ? currentUserId || '' : '',
+  user_id: c.is_own ? currentUserId || "" : "",
   content: c.content,
   is_anonymous: c.is_anonymous,
   is_hidden: c.is_hidden,
@@ -494,7 +493,7 @@ return ((rows || []) as any[]).map<CommentWithAuthor>((c) => ({
 In `mobile-app/app/admin.tsx`, replace direct `community_posts.select('*')`, `community_comments.select('*')`, and profile joins with:
 
 ```ts
-const { data: rows, error } = await supabase.rpc('admin_get_moderation_queue', {
+const { data: rows, error } = await supabase.rpc("admin_get_moderation_queue", {
   p_filter: modFilter,
 });
 if (error) throw error;
@@ -515,6 +514,7 @@ supabase/community_verify.sql
 ```
 
 Expected:
+
 - `SELECT * FROM public.get_community_feed(10, NULL);` returns rows or empty set without permission error.
 - `SELECT * FROM public.get_post_comments('<post_uuid>');` returns comments without exposing non-own `user_id`.
 - `SELECT * FROM public.admin_get_moderation_queue('pending');` returns rows only for an admin user.
@@ -527,6 +527,7 @@ Supabase SQL Editor execution still needs a connected Supabase session.
 ### Task 4: Fix Community Cooldown Timer
 
 **Files:**
+
 - Modify: `mobile-app/src/hooks/useCommunityFeed.ts`
 
 - [ ] **Step 1: Replace unused tick state**
@@ -570,6 +571,7 @@ npx.cmd expo start --web
 ```
 
 Expected:
+
 - After creating a post, `ComposerModal` button counts down from about `30s` to enabled.
 - After creating a comment, `CommentsModal` send button counts down from about `10s` to enabled.
 
@@ -578,6 +580,7 @@ Expected:
 ### Task 5: Protect Tab Routes and Fix Logout Flow
 
 **Files:**
+
 - Modify: `mobile-app/app/(tabs)/_layout.tsx`
 
 - [ ] **Step 1: Add auth/onboarding guard imports**
@@ -585,11 +588,11 @@ Expected:
 Add:
 
 ```ts
-import { ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { useAuth } from '../../src/context/AuthContext';
-import { useCycle } from '../../src/context/CycleContext';
+import { ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { useAuth } from "../../src/context/AuthContext";
+import { useCycle } from "../../src/context/CycleContext";
 ```
 
 If `View` is already imported from `react-native`, merge it with `ActivityIndicator`.
@@ -628,6 +631,7 @@ if (isLoading || !session || !isOnboardingCompleted) {
 Run app, log in, open dashboard, then log out from settings.
 
 Expected:
+
 - User returns to `/auth`.
 - Browser back or direct `/dashboard` redirects back to `/auth`.
 - Direct `/onboarding` still works only after a valid session.
@@ -637,6 +641,7 @@ Expected:
 ### Task 6: Replace Android `Alert.prompt` for Comment Reporting
 
 **Files:**
+
 - Modify: `mobile-app/components/community/CommentsModal.tsx`
 - Modify: `mobile-app/app/(tabs)/community.tsx`
 
@@ -699,6 +704,7 @@ Expected: exit code `0`.
 ### Task 7: Fix Root Tooling and Environment Template
 
 **Files:**
+
 - Modify: `tsconfig.json`
 - Modify: `package.json`
 - Modify: `.env.example`
@@ -775,6 +781,7 @@ Expected: both commands exit `0`.
 ### Task 8: Final Verification Pass
 
 **Files:**
+
 - No code changes unless verification exposes a new root cause.
 
 - [ ] **Step 1: Run backend verification**
@@ -798,6 +805,7 @@ npx.cmd expo export --platform web --output-dir .expo/audit-export
 ```
 
 Expected:
+
 - TypeScript exits `0`.
 - Expo export exits `0` and lists static routes.
 
@@ -817,6 +825,7 @@ npx.cmd expo start --web
 ```
 
 Expected:
+
 - Unauthenticated tab route redirects to `/auth`.
 - Login redirects through onboarding/dashboard correctly.
 - AI report request sends `Authorization: Bearer <token>`.

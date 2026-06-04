@@ -13,6 +13,7 @@
 ### Task 1: Handoff Docs Guardrail
 
 **Files:**
+
 - Create: `scripts/handoff-docs.test.js`
 
 - [x] **Step 1: Write failing test**
@@ -28,6 +29,7 @@ Expected RED: required docs do not exist yet and Phase 31 is not recorded in the
 ### Task 2: Architecture Handoff
 
 **Files:**
+
 - Create: `docs/ARCHITECTURE.md`
 
 - [x] **Step 1: Document current and target backend structure**
@@ -41,6 +43,7 @@ Human developers can see current backend/index.ts responsibilities, target route
 ### Task 3: Release Runbook
 
 **Files:**
+
 - Create: `docs/RUNBOOK.md`
 
 - [x] **Step 1: Document release/deploy order**
@@ -54,6 +57,7 @@ DB migrations, Worker deploy, GitHub/Pages deploy, and smoke tests are ordered s
 ### Task 4: Codebase Handoff
 
 **Files:**
+
 - Create: `docs/CODEBASE_HANDOFF.md`
 - Modify: `MERGED_AUDIT_REPORT.md`
 
@@ -68,6 +72,7 @@ Human developers know naming/language rules, important docs, what not to touch, 
 ### Task 5: Verification
 
 **Files:**
+
 - Modify: `scripts/handoff-docs.test.js`
 
 - [x] **Step 1: Run focused and full verification**

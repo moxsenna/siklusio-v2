@@ -28,16 +28,16 @@ Avoid mixing vague names such as `data`, `thing`, `temp`, `fix2`, or `newFlow` i
 
 ## Naming Conventions
 
-| Layer | Convention | Example |
-| --- | --- | --- |
-| TypeScript variables/functions | `camelCase` | `buildCycleGuideSnapshot` |
-| React components | `PascalCase` | `AiFallbackNotice` |
-| Types/interfaces | `PascalCase` | `AiFallbackInput` |
-| API routes | kebab-case path segments | `/api/cycle-guide/generate` |
-| Database tables/columns | `snake_case` | `ai_credit_balances`, `generated_for_date` |
-| Supabase migrations | CLI timestamp plus descriptive slug | `20260602174912_phase28_rls_function_grants.sql` |
-| Tests | colocated or same domain name | `backend/ai/modelPolicy.test.ts` |
-| Docs | uppercase topic for core handoff docs | `docs/RUNBOOK.md` |
+| Layer                          | Convention                            | Example                                          |
+| ------------------------------ | ------------------------------------- | ------------------------------------------------ |
+| TypeScript variables/functions | `camelCase`                           | `buildCycleGuideSnapshot`                        |
+| React components               | `PascalCase`                          | `AiFallbackNotice`                               |
+| Types/interfaces               | `PascalCase`                          | `AiFallbackInput`                                |
+| API routes                     | kebab-case path segments              | `/api/cycle-guide/generate`                      |
+| Database tables/columns        | `snake_case`                          | `ai_credit_balances`, `generated_for_date`       |
+| Supabase migrations            | CLI timestamp plus descriptive slug   | `20260602174912_phase28_rls_function_grants.sql` |
+| Tests                          | colocated or same domain name         | `backend/ai/modelPolicy.test.ts`                 |
+| Docs                           | uppercase topic for core handoff docs | `docs/RUNBOOK.md`                                |
 
 ## What Not To Touch Casually
 

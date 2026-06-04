@@ -13,6 +13,7 @@
 ### Task 1: Capture Production Grant Risk
 
 **Files:**
+
 - Read: `MERGED_AUDIT_REPORT.md`
 - Read: `docs/DATABASE.md`
 - Read: `supabase/*.sql`
@@ -30,6 +31,7 @@ Expected evidence: AI credit mutation functions must not remain executable by `a
 ### Task 2: Create Phase 28 Migration
 
 **Files:**
+
 - Create: `supabase/migrations/20260602174912_phase28_rls_function_grants.sql`
 - Test: `scripts/database-docs.test.js`
 
@@ -67,6 +69,7 @@ Expected: the test validates Phase 28 migration contains the critical revoke/gra
 ### Task 3: Apply And Verify Production
 
 **Files:**
+
 - Modify after apply: `docs/DATABASE.md`
 - Modify after apply: `MERGED_AUDIT_REPORT.md`
 

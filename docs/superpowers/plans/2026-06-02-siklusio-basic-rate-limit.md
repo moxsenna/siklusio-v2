@@ -24,6 +24,7 @@
 ### Task 1: Pure Fixed-Window Limiter
 
 **Files:**
+
 - Create: `backend/rateLimit.ts`
 - Test: `backend/rateLimit.test.ts`
 
@@ -66,6 +67,7 @@ Expected: PASS.
 ### Task 2: Route Matching and Middleware
 
 **Files:**
+
 - Modify: `backend/rateLimit.ts`
 - Test: `backend/rateLimit.test.ts`
 - Modify: `backend/index.ts`
@@ -118,6 +120,7 @@ Expected: PASS.
 ### Task 3: Route Regression Tests
 
 **Files:**
+
 - Modify: `backend/securityRoutes.test.ts`
 
 - [ ] **Step 1: Write failing route tests**
@@ -139,6 +142,7 @@ Expected: PASS with `Retry-After` header present on blocked requests.
 ### Task 4: Docs and Verification
 
 **Files:**
+
 - Modify: `.env.example`
 - Modify: `MERGED_AUDIT_REPORT.md`
 

@@ -39,6 +39,7 @@ This plan intentionally does not implement the pending_registrations password re
 ## Task 1: Require Auth for TWW Reassurance
 
 **Files:**
+
 - Create: `backend/securityRoutes.test.ts`
 - Modify: `backend/index.ts`
 
@@ -62,7 +63,7 @@ test("TWW calming reassurance requires an authenticated session before AI config
         userJournal: "Aku cemas menunggu hasil.",
       }),
     },
-    {}
+    {},
   );
 
   assert.equal(response.status, 401);
@@ -120,6 +121,7 @@ Expected: all tests pass.
 ## Task 2: Make Topup Packages Server-Owned
 
 **Files:**
+
 - Modify: `backend/securityRoutes.test.ts`
 - Modify: `backend/index.ts`
 - Modify: `mobile-app/components/common/CreditDetailModal.tsx`
@@ -173,7 +175,7 @@ test("topup checkout ignores client supplied price and credits", async () => {
           statusCode: 200,
           data: { link: "https://pay.example/topup", id: "mayar-topup-1" },
         }),
-        { status: 200, headers: { "content-type": "application/json" } }
+        { status: 200, headers: { "content-type": "application/json" } },
       )) as typeof fetch;
 
     const response = await app.request(
@@ -194,7 +196,7 @@ test("topup checkout ignores client supplied price and credits", async () => {
         MAYAR_API_KEY: "mayar-key",
         VITE_SUPABASE_URL: "https://example.supabase.co",
         SUPABASE_SERVICE_ROLE_KEY: "service-role",
-      }
+      },
     );
 
     assert.equal(response.status, 200);
@@ -274,8 +276,8 @@ const credits = selectedPackage.credits;
 In `mobile-app/components/common/CreditDetailModal.tsx`, change:
 
 ```ts
-const data = await apiPostJson<{ paymentUrl?: string; error?: string }>('/api/checkout/topup', {
-  packageId: pkg.id
+const data = await apiPostJson<{ paymentUrl?: string; error?: string }>("/api/checkout/topup", {
+  packageId: pkg.id,
 });
 ```
 
@@ -294,6 +296,7 @@ Expected: backend focused tests pass and mobile typecheck passes.
 ## Task 3: Make Mayar Webhook Fail Closed When Secret Is Missing
 
 **Files:**
+
 - Modify: `backend/securityRoutes.test.ts`
 - Modify: `backend/index.ts`
 - Modify: `.env.example`
@@ -311,7 +314,7 @@ test("payment webhook refuses to process when webhook token is not configured", 
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ event: "payment.success", email: "maya@example.com" }),
     },
-    {}
+    {},
   );
 
   assert.equal(response.status, 500);
@@ -329,7 +332,7 @@ test("payment webhook rejects invalid callback token", async () => {
       },
       body: JSON.stringify({ event: "payment.success", email: "maya@example.com" }),
     },
-    { MAYAR_WEBHOOK_TOKEN: "correct-token" }
+    { MAYAR_WEBHOOK_TOKEN: "correct-token" },
   );
 
   assert.equal(response.status, 401);
@@ -386,6 +389,7 @@ Expected: all focused tests pass.
 ## Task 4: Verification and Report Update
 
 **Files:**
+
 - Optional modify: `MERGED_AUDIT_REPORT.md`
 
 - [ ] **Step 1: Run backend tests**

@@ -13,6 +13,7 @@
 ### Task 1: Dimension Guard
 
 **Files:**
+
 - Modify: `backend/storage/avatarImage.ts`
 - Modify: `backend/storage/avatarImage.test.ts`
 - Modify: `backend/index.ts`
@@ -41,6 +42,7 @@ Images over 2048x2048 or with unreadable dimensions return HTTP 400.
 ### Task 2: Metadata Stripping
 
 **Files:**
+
 - Modify: `backend/storage/avatarImage.ts`
 - Modify: `backend/storage/avatarImage.test.ts`
 
@@ -61,6 +63,7 @@ WebP EXIF/ICCP/XMP chunks are removed.
 ### Task 3: Policy Handoff
 
 **Files:**
+
 - Create: `docs/AVATAR_POLICY.md`
 - Modify: `MERGED_AUDIT_REPORT.md`
 

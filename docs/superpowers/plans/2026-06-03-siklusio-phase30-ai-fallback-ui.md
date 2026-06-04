@@ -13,6 +13,7 @@
 ### Task 1: AI Fallback Copy Helper
 
 **Files:**
+
 - Create: `mobile-app/src/lib/aiFallback.ts`
 - Create: `mobile-app/src/lib/aiFallback.test.ts`
 
@@ -40,6 +41,7 @@ empty/raw server errors map to calm generic AI fallback copy.
 ### Task 2: Reusable Notice Component
 
 **Files:**
+
 - Create: `mobile-app/components/common/AiFallbackNotice.tsx`
 
 - [x] **Step 1: Implement reusable notice**
@@ -54,6 +56,7 @@ Styling is inline React Native so it works in modal, sheet, and web render paths
 ### Task 3: Wire Main AI Surfaces
 
 **Files:**
+
 - Modify: `mobile-app/components/habits/TodayRecipesModal.tsx`
 - Modify: `mobile-app/components/habits/HabitCoachSheet.tsx`
 - Modify: `mobile-app/components/habits/AiRecommendationSection.tsx`
@@ -74,6 +77,7 @@ No new backend behavior or credit charging policy is introduced.
 ### Task 4: Verify And Document
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] **Step 1: Run focused and full verification**

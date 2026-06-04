@@ -13,6 +13,7 @@
 ### Task 1: Add Testable Reminder Domain Logic
 
 **Files:**
+
 - Create: `mobile-app/src/lib/dailyReminder.test.ts`
 - Create: `mobile-app/src/lib/dailyReminder.ts`
 
@@ -21,7 +22,12 @@
 Create `dailyReminder.test.ts` with tests for:
 
 ```ts
-buildDailyReminderContent({ userNickname: 'Naya', currentPhase: 'Ovulasi', cycleDay: 14, daysToNextPeriod: 14 })
+buildDailyReminderContent({
+  userNickname: "Naya",
+  currentPhase: "Ovulasi",
+  cycleDay: 14,
+  daysToNextPeriod: 14,
+});
 ```
 
 Expected body contains the nickname, phase, cycle day, and ovulation copy.
@@ -33,6 +39,7 @@ enableDailyReminder(...)
 ```
 
 Expected behavior:
+
 - permission denied returns `permission-denied` and does not schedule.
 - granted permission cancels any previous schedule id, schedules a daily reminder at 08:00, stores enabled state, and stores the new schedule id.
 - disable cancels the stored schedule id, stores enabled false, and removes the stored schedule id.
@@ -52,8 +59,8 @@ Expected: FAIL because `dailyReminder.ts` does not exist yet.
 Create `dailyReminder.ts` with:
 
 ```ts
-export const DAILY_REMINDER_ENABLED_KEY = 'hs_daily_reminder_enabled';
-export const DAILY_REMINDER_NOTIFICATION_ID_KEY = 'hs_daily_reminder_notification_id';
+export const DAILY_REMINDER_ENABLED_KEY = "hs_daily_reminder_enabled";
+export const DAILY_REMINDER_NOTIFICATION_ID_KEY = "hs_daily_reminder_notification_id";
 export const DAILY_REMINDER_HOUR = 8;
 export const DAILY_REMINDER_MINUTE = 0;
 ```
@@ -73,6 +80,7 @@ Expected: PASS.
 ### Task 2: Add Expo Notifications Adapter
 
 **Files:**
+
 - Modify: `mobile-app/package.json`
 - Modify: `mobile-app/package-lock.json`
 - Create: `mobile-app/src/lib/expoDailyReminderNotifications.ts`
@@ -91,6 +99,7 @@ Expected: package added at the SDK 54-compatible version.
 - [x] **Step 2: Create Expo adapter**
 
 Create an adapter that:
+
 - returns `unsupported` on web.
 - sets Android notification channel `daily-reminders`.
 - requests notification permission.
@@ -104,6 +113,7 @@ In `_layout.tsx`, import and call the adapter's configuration function once so f
 ### Task 3: Wire Settings Toggle To Real Scheduling
 
 **Files:**
+
 - Modify: `mobile-app/app/(tabs)/settings.tsx`
 
 - [x] **Step 1: Initialize reminder state from storage**
@@ -113,11 +123,13 @@ Set `dailyReminder` initial state using `readDailyReminderEnabled(storage)`, def
 - [x] **Step 2: Make toggle async**
 
 When enabling:
+
 - call `enableDailyReminder(...)`.
 - show success only if scheduling succeeds.
 - show permission/web/error copy if scheduling fails.
 
 When disabling:
+
 - call `disableDailyReminder(...)`.
 - show disabled copy after cancel is attempted.
 
@@ -128,6 +140,7 @@ Replace overpromising text with copy that says notifications are scheduled at 08
 ### Task 4: Verify
 
 **Files:**
+
 - Verify: root project
 
 - [x] **Step 1: Run focused test**

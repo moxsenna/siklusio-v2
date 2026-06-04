@@ -13,6 +13,7 @@
 ### Task 1: Record Database CLI Workflow
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `scripts/database-docs.test.js`
 
@@ -32,6 +33,7 @@ Add root package scripts:
 - [x] **Step 2: Add guardrail test**
 
 Create `scripts/database-docs.test.js` to assert:
+
 - `docs/DATABASE.md` exists.
 - `supabase/README.md` exists.
 - `supabase/types/database.types.ts` exists.
@@ -41,6 +43,7 @@ Create `scripts/database-docs.test.js` to assert:
 ### Task 2: Generate Supabase Types
 
 **Files:**
+
 - Create: `supabase/types/database.types.ts`
 
 - [x] **Step 1: Verify CLI command support**
@@ -71,6 +74,7 @@ Because `supabase migration list --linked` shows three local migrations are not 
 ### Task 3: Document Database Source Of Truth
 
 **Files:**
+
 - Create: `docs/DATABASE.md`
 - Create: `supabase/README.md`
 - Modify: `MERGED_AUDIT_REPORT.md`
@@ -78,6 +82,7 @@ Because `supabase migration list --linked` shows three local migrations are not 
 - [x] **Step 1: Write `docs/DATABASE.md`**
 
 Document:
+
 - source-of-truth rule.
 - current migration list status.
 - root SQL legacy/reference status.
@@ -88,6 +93,7 @@ Document:
 - [x] **Step 2: Write `supabase/README.md`**
 
 Document the folder contract:
+
 - `migrations/` canonical for production changes.
 - `types/database.types.ts` generated, do not edit by hand.
 - root SQL files are legacy/manual references.
@@ -100,6 +106,7 @@ Record Phase 27 status, pending migration caveat, generated types path, and rema
 ### Task 4: Verify
 
 **Files:**
+
 - Verify: root project
 
 - [x] **Step 1: Run focused guardrail test**

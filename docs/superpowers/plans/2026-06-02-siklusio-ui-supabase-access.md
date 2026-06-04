@@ -29,6 +29,7 @@
 ### Task 1: Authenticated Supabase Status Helper
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/supabaseAccess.ts`
 - Test: `mobile-app/src/lib/supabaseAccess.test.ts`
 
@@ -40,6 +41,7 @@
 ### Task 2: Adopt Helper In UI/Hooks
 
 **Files:**
+
 - Modify: `mobile-app/src/hooks/useUserAvatar.ts`
 - Modify: `mobile-app/src/hooks/useCommunityFeed.ts`
 - Modify: `mobile-app/app/admin.tsx`
@@ -54,6 +56,7 @@
 ### Task 3: Report And Verification
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] Add Phase 18 progress entry.

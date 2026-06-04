@@ -90,6 +90,7 @@
 ### Task 1: Add Mobile Habit Coach Flow Helpers
 
 **Files:**
+
 - Create: `mobile-app/src/lib/habitCoachFlow.ts`
 - Create: `mobile-app/src/lib/habitCoachFlow.test.ts`
 
@@ -98,34 +99,34 @@
 Create `mobile-app/src/lib/habitCoachFlow.test.ts`:
 
 ```ts
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import test from "node:test";
+import assert from "node:assert/strict";
 import {
   buildSevenDayPlanWindow,
   getPlanDateOffsetBounds,
   isFuturePlanDate,
   getPlanDayNumber,
-} from './habitCoachFlow';
-import type { HabitCoachPlan } from './habitCoachTypes';
+} from "./habitCoachFlow";
+import type { HabitCoachPlan } from "./habitCoachTypes";
 
 const plan: HabitCoachPlan = {
-  id: 'plan-1',
-  weekStart: '2026-05-31',
-  weekEnd: '2026-06-06',
-  mode: 'initial',
-  status: 'active',
-  userGoal: 'energi stabil',
-  coachSummary: 'Mulai dari target kecil yang realistis.',
+  id: "plan-1",
+  weekStart: "2026-05-31",
+  weekEnd: "2026-06-06",
+  mode: "initial",
+  status: "active",
+  userGoal: "energi stabil",
+  coachSummary: "Mulai dari target kecil yang realistis.",
   creditCost: 50,
   days: Array.from({ length: 7 }, (_, index) => ({
     dateKey: [
-      '2026-05-31',
-      '2026-06-01',
-      '2026-06-02',
-      '2026-06-03',
-      '2026-06-04',
-      '2026-06-05',
-      '2026-06-06',
+      "2026-05-31",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04",
+      "2026-06-05",
+      "2026-06-06",
     ][index],
     dayIndex: index + 1,
     focus: `Fokus ${index + 1}`,
@@ -133,32 +134,32 @@ const plan: HabitCoachPlan = {
   })),
 };
 
-test('buildSevenDayPlanWindow starts today and includes 7 dates', () => {
+test("buildSevenDayPlanWindow starts today and includes 7 dates", () => {
   const window = buildSevenDayPlanWindow(new Date(2026, 4, 31));
-  assert.equal(window.weekStart, '2026-05-31');
-  assert.equal(window.weekEnd, '2026-06-06');
+  assert.equal(window.weekStart, "2026-05-31");
+  assert.equal(window.weekEnd, "2026-06-06");
   assert.deepEqual(window.dateKeys, [
-    '2026-05-31',
-    '2026-06-01',
-    '2026-06-02',
-    '2026-06-03',
-    '2026-06-04',
-    '2026-06-05',
-    '2026-06-06',
+    "2026-05-31",
+    "2026-06-01",
+    "2026-06-02",
+    "2026-06-03",
+    "2026-06-04",
+    "2026-06-05",
+    "2026-06-06",
   ]);
 });
 
-test('getPlanDateOffsetBounds lets user preview future plan days only', () => {
-  assert.deepEqual(getPlanDateOffsetBounds(plan, '2026-05-31'), {
+test("getPlanDateOffsetBounds lets user preview future plan days only", () => {
+  assert.deepEqual(getPlanDateOffsetBounds(plan, "2026-05-31"), {
     minOffset: 0,
     maxOffset: 6,
   });
 });
 
-test('future plan days are read-only', () => {
-  assert.equal(isFuturePlanDate('2026-06-01', '2026-05-31'), true);
-  assert.equal(isFuturePlanDate('2026-05-31', '2026-05-31'), false);
-  assert.equal(getPlanDayNumber(plan, '2026-06-02'), 3);
+test("future plan days are read-only", () => {
+  assert.equal(isFuturePlanDate("2026-06-01", "2026-05-31"), true);
+  assert.equal(isFuturePlanDate("2026-05-31", "2026-05-31"), false);
+  assert.equal(getPlanDayNumber(plan, "2026-06-02"), 3);
 });
 ```
 
@@ -177,8 +178,8 @@ Expected: fail because `mobile-app/src/lib/habitCoachFlow.ts` does not exist.
 Create `mobile-app/src/lib/habitCoachFlow.ts`:
 
 ```ts
-import { addDays, differenceInCalendarDays, format, startOfDay } from 'date-fns';
-import type { HabitCoachPlan } from './habitCoachTypes';
+import { addDays, differenceInCalendarDays, format, startOfDay } from "date-fns";
+import type { HabitCoachPlan } from "./habitCoachTypes";
 
 export interface SevenDayPlanWindow {
   weekStart: string;
@@ -189,7 +190,7 @@ export interface SevenDayPlanWindow {
 export function buildSevenDayPlanWindow(today: Date): SevenDayPlanWindow {
   const start = startOfDay(today);
   const dateKeys = Array.from({ length: 7 }, (_, index) =>
-    format(addDays(start, index), 'yyyy-MM-dd')
+    format(addDays(start, index), "yyyy-MM-dd"),
   );
 
   return {
@@ -201,7 +202,7 @@ export function buildSevenDayPlanWindow(today: Date): SevenDayPlanWindow {
 
 export function getPlanDateOffsetBounds(
   plan: HabitCoachPlan | null,
-  todayDateKey: string
+  todayDateKey: string,
 ): { minOffset: number; maxOffset: number } {
   if (!plan) {
     return { minOffset: 0, maxOffset: 0 };
@@ -212,8 +213,14 @@ export function getPlanDateOffsetBounds(
   const last = planDates[planDates.length - 1] || todayDateKey;
 
   return {
-    minOffset: Math.min(0, differenceInCalendarDays(new Date(`${first}T00:00:00`), new Date(`${todayDateKey}T00:00:00`))),
-    maxOffset: Math.max(0, differenceInCalendarDays(new Date(`${last}T00:00:00`), new Date(`${todayDateKey}T00:00:00`))),
+    minOffset: Math.min(
+      0,
+      differenceInCalendarDays(new Date(`${first}T00:00:00`), new Date(`${todayDateKey}T00:00:00`)),
+    ),
+    maxOffset: Math.max(
+      0,
+      differenceInCalendarDays(new Date(`${last}T00:00:00`), new Date(`${todayDateKey}T00:00:00`)),
+    ),
   };
 }
 
@@ -248,6 +255,7 @@ git commit -m "test: add habit coach date flow helpers"
 ### Task 2: Add Cycle Snapshots for the 7-Day Plan
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/habitCoachFlow.ts`
 - Modify: `mobile-app/src/lib/habitCoachFlow.test.ts`
 - Modify: `mobile-app/src/lib/habitCoachTypes.ts`
@@ -257,33 +265,30 @@ git commit -m "test: add habit coach date flow helpers"
 Append to `mobile-app/src/lib/habitCoachFlow.test.ts`:
 
 ```ts
-import { buildHabitCoachCycleDays } from './habitCoachFlow';
+import { buildHabitCoachCycleDays } from "./habitCoachFlow";
 
-test('buildHabitCoachCycleDays captures phase per generated date', () => {
-  const result = buildHabitCoachCycleDays(
-    ['2026-05-31', '2026-06-01'],
-    (date) => ({
-      phase: date.getDate() === 31 ? 'Luteal' : 'Menstrual',
-      displayPhase: date.getDate() === 31 ? 'Normal' : 'Menstruasi',
-      cycleDay: date.getDate() === 31 ? 28 : 1,
-      isManualPeriod: date.getDate() !== 31,
-    })
-  );
+test("buildHabitCoachCycleDays captures phase per generated date", () => {
+  const result = buildHabitCoachCycleDays(["2026-05-31", "2026-06-01"], (date) => ({
+    phase: date.getDate() === 31 ? "Luteal" : "Menstrual",
+    displayPhase: date.getDate() === 31 ? "Normal" : "Menstruasi",
+    cycleDay: date.getDate() === 31 ? 28 : 1,
+    isManualPeriod: date.getDate() !== 31,
+  }));
 
   assert.deepEqual(result, [
     {
-      dateKey: '2026-05-31',
+      dateKey: "2026-05-31",
       dayIndex: 1,
-      phase: 'Luteal',
-      displayPhase: 'Normal',
+      phase: "Luteal",
+      displayPhase: "Normal",
       cycleDay: 28,
       isManualPeriod: false,
     },
     {
-      dateKey: '2026-06-01',
+      dateKey: "2026-06-01",
       dayIndex: 2,
-      phase: 'Menstrual',
-      displayPhase: 'Menstruasi',
+      phase: "Menstrual",
+      displayPhase: "Menstruasi",
       cycleDay: 1,
       isManualPeriod: true,
     },
@@ -321,7 +326,7 @@ export interface HabitCoachCycleDay {
 Append to `mobile-app/src/lib/habitCoachFlow.ts`:
 
 ```ts
-import type { HabitCoachCycleDay } from './habitCoachTypes';
+import type { HabitCoachCycleDay } from "./habitCoachTypes";
 
 export function buildHabitCoachCycleDays(
   dateKeys: string[],
@@ -330,7 +335,7 @@ export function buildHabitCoachCycleDays(
     displayPhase: string;
     cycleDay: number;
     isManualPeriod: boolean;
-  }
+  },
 ): HabitCoachCycleDay[] {
   return dateKeys.map((dateKey, index) => {
     const info = getDayInfo(new Date(`${dateKey}T00:00:00`));
@@ -349,7 +354,7 @@ export function buildHabitCoachCycleDays(
 If the file already imports from `habitCoachTypes`, merge the import into one line:
 
 ```ts
-import type { HabitCoachCycleDay, HabitCoachPlan } from './habitCoachTypes';
+import type { HabitCoachCycleDay, HabitCoachPlan } from "./habitCoachTypes";
 ```
 
 - [ ] **Step 5: Run helper tests**
@@ -374,6 +379,7 @@ git commit -m "feat: capture habit coach cycle days"
 ### Task 3: Backend Replacement Mode and Conflict Metadata
 
 **Files:**
+
 - Modify: `backend/ai/habitCoachWindow.ts`
 - Modify: `backend/ai/habitCoachApi.test.ts`
 - Modify: `backend/index.ts`
@@ -424,46 +430,49 @@ import { isDateKey, isValidHabitCoachWindow, shouldReplaceActivePlan } from "./a
 In `/api/habit-coach/generate`, replace the existing overlap query block with:
 
 ```ts
-    const replaceActivePlan = shouldReplaceActivePlan(body.replaceActivePlan);
+const replaceActivePlan = shouldReplaceActivePlan(body.replaceActivePlan);
 
-    const { data: overlappingPlans, error: existingError } = await auth.supabaseAdmin
-      .from("habit_coach_plans")
-      .select("id, week_start, week_end")
-      .eq("user_id", auth.user.id)
-      .eq("status", "active")
-      .lte("week_start", body.weekEnd)
-      .gte("week_end", body.weekStart);
+const { data: overlappingPlans, error: existingError } = await auth.supabaseAdmin
+  .from("habit_coach_plans")
+  .select("id, week_start, week_end")
+  .eq("user_id", auth.user.id)
+  .eq("status", "active")
+  .lte("week_start", body.weekEnd)
+  .gte("week_end", body.weekStart);
 
-    if (existingError) throw existingError;
+if (existingError) throw existingError;
 
-    if (overlappingPlans && overlappingPlans.length > 0 && !replaceActivePlan) {
-      const latestEnd = overlappingPlans
-        .map((plan: any) => String(plan.week_end))
-        .sort()
-        .at(-1);
+if (overlappingPlans && overlappingPlans.length > 0 && !replaceActivePlan) {
+  const latestEnd = overlappingPlans
+    .map((plan: any) => String(plan.week_end))
+    .sort()
+    .at(-1);
 
-      return c.json({
-        error: "Kamu masih punya rencana habit aktif.",
-        code: "ACTIVE_PLAN_OVERLAP",
-        planId: overlappingPlans[0].id,
-        activeUntil: latestEnd,
-        message: `Kamu masih punya plan aktif sampai ${latestEnd}. Kalau lanjut, plan hari ini sampai 7 hari ke depan akan dibuat ulang.`,
-      }, 409);
-    }
+  return c.json(
+    {
+      error: "Kamu masih punya rencana habit aktif.",
+      code: "ACTIVE_PLAN_OVERLAP",
+      planId: overlappingPlans[0].id,
+      activeUntil: latestEnd,
+      message: `Kamu masih punya plan aktif sampai ${latestEnd}. Kalau lanjut, plan hari ini sampai 7 hari ke depan akan dibuat ulang.`,
+    },
+    409,
+  );
+}
 ```
 
 After `insertDaysError` check and before charging credits, add:
 
 ```ts
-    if (overlappingPlans && overlappingPlans.length > 0 && replaceActivePlan) {
-      const overlapIds = overlappingPlans.map((plan: any) => plan.id);
-      const { error: archiveError } = await auth.supabaseAdmin
-        .from("habit_coach_plans")
-        .update({ status: "archived" })
-        .in("id", overlapIds);
+if (overlappingPlans && overlappingPlans.length > 0 && replaceActivePlan) {
+  const overlapIds = overlappingPlans.map((plan: any) => plan.id);
+  const { error: archiveError } = await auth.supabaseAdmin
+    .from("habit_coach_plans")
+    .update({ status: "archived" })
+    .in("id", overlapIds);
 
-      if (archiveError) throw archiveError;
-    }
+  if (archiveError) throw archiveError;
+}
 ```
 
 - [ ] **Step 5: Run backend test and typecheck**
@@ -489,6 +498,7 @@ git commit -m "feat: support replacing active habit plans"
 ### Task 4: Add Foundation Tasks with Phase-Specific Daily Action
 
 **Files:**
+
 - Create: `backend/ai/habitCoachFoundation.ts`
 - Modify: `backend/ai/helpers.test.ts`
 - Modify: `backend/index.ts`
@@ -502,12 +512,8 @@ import { buildHabitCoachDayTasks } from "./habitCoachFoundation";
 
 test("buildHabitCoachDayTasks prepends hydration and phase-specific foundation tasks", () => {
   const tasks = buildHabitCoachDayTasks(
-    [
-    makeTask("personal-1"),
-    makeTask("personal-2"),
-    makeTask("personal-3"),
-    ],
-    { phase: "Luteal", displayPhase: "Normal", cycleDay: 24 }
+    [makeTask("personal-1"), makeTask("personal-2"), makeTask("personal-3")],
+    { phase: "Luteal", displayPhase: "Normal", cycleDay: 24 },
   );
 
   assert.equal(tasks.length, 5);
@@ -521,7 +527,7 @@ test("buildHabitCoachDayTasks prepends hydration and phase-specific foundation t
 test("buildHabitCoachDayTasks uses menstrual-friendly foundation action", () => {
   const tasks = buildHabitCoachDayTasks(
     [makeTask("personal-1"), makeTask("personal-2"), makeTask("personal-3")],
-    { phase: "Menstrual", displayPhase: "Menstruasi", cycleDay: 1 }
+    { phase: "Menstrual", displayPhase: "Menstruasi", cycleDay: 1 },
   );
 
   assert.equal(tasks[1].id, "foundation-menstrual-warmth");
@@ -531,7 +537,7 @@ test("buildHabitCoachDayTasks uses menstrual-friendly foundation action", () => 
 test("buildHabitCoachDayTasks uses ovulation-friendly foundation action", () => {
   const tasks = buildHabitCoachDayTasks(
     [makeTask("personal-1"), makeTask("personal-2"), makeTask("personal-3")],
-    { phase: "Ovulasi", displayPhase: "Masa Subur", cycleDay: 14 }
+    { phase: "Ovulasi", displayPhase: "Masa Subur", cycleDay: 14 },
   );
 
   assert.equal(tasks[1].id, "foundation-ovulation-walk");
@@ -539,31 +545,31 @@ test("buildHabitCoachDayTasks uses ovulation-friendly foundation action", () => 
 });
 
 test("buildHabitCoachDayTasks avoids duplicate foundation-like AI tasks", () => {
-  const tasks = buildHabitCoachDayTasks([
-    {
-      id: "water-copy",
-      text: "Minum air putih 2 liter",
-      emoji: "water",
-      category: "hydration",
-      reason: "Duplikat foundation.",
-    },
-    {
-      id: "movement-copy",
-      text: "Jalan santai 5 menit",
-      emoji: "walk",
-      category: "movement",
-      reason: "Duplikat foundation.",
-    },
-    makeTask("personal-1"),
-    makeTask("personal-2"),
-    makeTask("personal-3"),
-  ], { phase: "Ovulasi", displayPhase: "Masa Subur", cycleDay: 14 });
+  const tasks = buildHabitCoachDayTasks(
+    [
+      {
+        id: "water-copy",
+        text: "Minum air putih 2 liter",
+        emoji: "water",
+        category: "hydration",
+        reason: "Duplikat foundation.",
+      },
+      {
+        id: "movement-copy",
+        text: "Jalan santai 5 menit",
+        emoji: "walk",
+        category: "movement",
+        reason: "Duplikat foundation.",
+      },
+      makeTask("personal-1"),
+      makeTask("personal-2"),
+      makeTask("personal-3"),
+    ],
+    { phase: "Ovulasi", displayPhase: "Masa Subur", cycleDay: 14 },
+  );
 
   assert.equal(tasks.length, 5);
-  assert.equal(
-    tasks.filter((task) => task.category === "hydration").length,
-    1
-  );
+  assert.equal(tasks.filter((task) => task.category === "hydration").length, 1);
 });
 ```
 
@@ -604,7 +610,9 @@ export const habitCoachHydrationTask: HabitCoachGeneratedTask = {
   reason: "Hidrasi membantu energi, lendir serviks, dan pemulihan tubuh tetap stabil.",
 };
 
-export function buildPhaseFoundationTask(context: HabitCoachFoundationContext): HabitCoachGeneratedTask {
+export function buildPhaseFoundationTask(
+  context: HabitCoachFoundationContext,
+): HabitCoachGeneratedTask {
   if (context.phase === "Menstrual") {
     return {
       id: "foundation-menstrual-warmth",
@@ -646,7 +654,7 @@ export function buildPhaseFoundationTask(context: HabitCoachFoundationContext): 
 
 export function buildHabitCoachDayTasks(
   tasks: HabitCoachGeneratedTask[],
-  context: HabitCoachFoundationContext
+  context: HabitCoachFoundationContext,
 ) {
   const phaseFoundationTask = buildPhaseFoundationTask(context);
   const uniqueAiTasks = tasks.filter((task) => !isFoundationDuplicate(task, phaseFoundationTask));
@@ -664,26 +672,27 @@ export const habitCoachFoundationTasks: HabitCoachGeneratedTask[] = [
     emoji: "water",
     category: "hydration",
     reason: "Hidrasi membantu energi, lendir serviks, dan pemulihan tubuh tetap stabil.",
-  }
-]
+  },
+];
 ```
 
 function isFoundationDuplicate(
-  task: HabitCoachGeneratedTask,
-  phaseFoundationTask: HabitCoachGeneratedTask
+task: HabitCoachGeneratedTask,
+phaseFoundationTask: HabitCoachGeneratedTask
 ) {
-  const text = task.text.toLowerCase();
-  return (
-    text.includes("2 liter") ||
-    text.includes("air putih") ||
-    text === phaseFoundationTask.text.toLowerCase() ||
-    text.includes("jalan santai") ||
-    text.includes("kompres hangat") ||
-    text.includes("stretching") ||
-    text.includes("peregangan")
-  );
+const text = task.text.toLowerCase();
+return (
+text.includes("2 liter") ||
+text.includes("air putih") ||
+text === phaseFoundationTask.text.toLowerCase() ||
+text.includes("jalan santai") ||
+text.includes("kompres hangat") ||
+text.includes("stretching") ||
+text.includes("peregangan")
+);
 }
-```
+
+````
 
 - [ ] **Step 4: Insert foundation tasks before saving plan days**
 
@@ -691,7 +700,7 @@ Modify `backend/index.ts` imports:
 
 ```ts
 import { buildHabitCoachDayTasks } from "./ai/habitCoachFoundation";
-```
+````
 
 Replace:
 
@@ -727,6 +736,7 @@ git commit -m "feat: add fixed daily habit foundations"
 ### Task 5: Enforce 3-5 Personalized AI Tasks and Make the Prompt Phase-Aware
 
 **Files:**
+
 - Modify: `backend/ai/schemas.ts`
 - Modify: `backend/ai/helpers.test.ts`
 - Modify: `backend/ai/prompts.ts`
@@ -744,7 +754,7 @@ test("validateHabitCoachPlan requires at least three AI-generated tasks per day"
 
   assert.throws(
     () => validateHabitCoachPlan(plan),
-    /Each habit coach day must contain 3 to 5 personalized tasks/
+    /Each habit coach day must contain 3 to 5 personalized tasks/,
   );
 });
 
@@ -761,7 +771,7 @@ test("validateHabitCoachPlan rejects more than five AI-generated tasks per day",
 
   assert.throws(
     () => validateHabitCoachPlan(plan),
-    /Each habit coach day must contain 3 to 5 personalized tasks/
+    /Each habit coach day must contain 3 to 5 personalized tasks/,
   );
 });
 ```
@@ -788,9 +798,9 @@ maxItems: 5,
 Modify runtime validation:
 
 ```ts
-    if (day.tasks.length < 3 || day.tasks.length > 5) {
-      throw new Error("Each habit coach day must contain 3 to 5 personalized tasks");
-    }
+if (day.tasks.length < 3 || day.tasks.length > 5) {
+  throw new Error("Each habit coach day must contain 3 to 5 personalized tasks");
+}
 ```
 
 - [ ] **Step 4: Run schema tests to verify pass**
@@ -831,12 +841,12 @@ Modify `buildHabitCoachMessages` test in `backend/ai/habitCoachApi.test.ts` so t
 Add assertions:
 
 ```ts
-  assert.equal(userPayload.cycleDays[0].phase, "Luteal");
-  assert.match(userPayload.rules.join(" "), /fase setiap tanggal/i);
-  assert.match(userPayload.rules.join(" "), /3 sampai 5/i);
-  assert.match(userPayload.rules.join(" "), /task wajib hidrasi/i);
-  assert.match(userPayload.rules.join(" "), /task wajib kedua/i);
-  assert.match(userPayload.rules.join(" "), /alasan singkat/i);
+assert.equal(userPayload.cycleDays[0].phase, "Luteal");
+assert.match(userPayload.rules.join(" "), /fase setiap tanggal/i);
+assert.match(userPayload.rules.join(" "), /3 sampai 5/i);
+assert.match(userPayload.rules.join(" "), /task wajib hidrasi/i);
+assert.match(userPayload.rules.join(" "), /task wajib kedua/i);
+assert.match(userPayload.rules.join(" "), /alasan singkat/i);
 ```
 
 - [ ] **Step 6: Run prompt test to verify failure**
@@ -934,6 +944,7 @@ git commit -m "feat: make habit coach phase aware"
 ### Task 6: Rework Generate Logic on Mobile
 
 **Files:**
+
 - Modify: `mobile-app/app/(tabs)/habits.tsx`
 
 - [ ] **Step 1: Import new helpers**
@@ -947,7 +958,7 @@ import {
   getPlanDateOffsetBounds,
   getPlanDayNumber,
   isFuturePlanDate,
-} from '../../src/lib/habitCoachFlow';
+} from "../../src/lib/habitCoachFlow";
 ```
 
 - [ ] **Step 2: Change viewed date calculation to support future offsets**
@@ -955,20 +966,20 @@ import {
 Replace:
 
 ```ts
-  const viewedDate = useMemo(() => {
-    return subDays(new Date(), Math.abs(viewedDateOffset));
-  }, [viewedDateOffset]);
+const viewedDate = useMemo(() => {
+  return subDays(new Date(), Math.abs(viewedDateOffset));
+}, [viewedDateOffset]);
 ```
 
 with:
 
 ```ts
-  const viewedDate = useMemo(() => {
-    const today = new Date();
-    return viewedDateOffset >= 0
-      ? addDays(today, viewedDateOffset)
-      : subDays(today, Math.abs(viewedDateOffset));
-  }, [viewedDateOffset]);
+const viewedDate = useMemo(() => {
+  const today = new Date();
+  return viewedDateOffset >= 0
+    ? addDays(today, viewedDateOffset)
+    : subDays(today, Math.abs(viewedDateOffset));
+}, [viewedDateOffset]);
 ```
 
 - [ ] **Step 3: Add date state helpers**
@@ -976,15 +987,15 @@ with:
 After `todayPlanFocus`, add:
 
 ```ts
-  const planDayNumber = useMemo(
-    () => getPlanDayNumber(habitCoachPlan, dateKey),
-    [habitCoachPlan, dateKey]
-  );
-  const dateOffsetBounds = useMemo(
-    () => getPlanDateOffsetBounds(habitCoachPlan, todayDateKey),
-    [habitCoachPlan, todayDateKey]
-  );
-  const isViewingFuturePlanDate = isFuturePlanDate(dateKey, todayDateKey);
+const planDayNumber = useMemo(
+  () => getPlanDayNumber(habitCoachPlan, dateKey),
+  [habitCoachPlan, dateKey],
+);
+const dateOffsetBounds = useMemo(
+  () => getPlanDateOffsetBounds(habitCoachPlan, todayDateKey),
+  [habitCoachPlan, todayDateKey],
+);
+const isViewingFuturePlanDate = isFuturePlanDate(dateKey, todayDateKey);
 ```
 
 - [ ] **Step 4: Update navigation guards**
@@ -992,21 +1003,21 @@ After `todayPlanFocus`, add:
 Replace `handlePrevDay` and `handleNextDay` with:
 
 ```ts
-  const handlePrevDay = () => {
-    if (viewedDateOffset > dateOffsetBounds.minOffset) {
-      startTransition(() => {
-        setViewedDateOffset(prev => prev - 1);
-      });
-    }
-  };
+const handlePrevDay = () => {
+  if (viewedDateOffset > dateOffsetBounds.minOffset) {
+    startTransition(() => {
+      setViewedDateOffset((prev) => prev - 1);
+    });
+  }
+};
 
-  const handleNextDay = () => {
-    if (viewedDateOffset < dateOffsetBounds.maxOffset) {
-      startTransition(() => {
-        setViewedDateOffset(prev => prev + 1);
-      });
-    }
-  };
+const handleNextDay = () => {
+  if (viewedDateOffset < dateOffsetBounds.maxOffset) {
+    startTransition(() => {
+      setViewedDateOffset((prev) => prev + 1);
+    });
+  }
+};
 ```
 
 - [ ] **Step 5: Generate from today every time**
@@ -1014,11 +1025,11 @@ Replace `handlePrevDay` and `handleNextDay` with:
 Inside `handleGenerateCoachPlan`, replace week window calculation with:
 
 ```ts
-      const planWindow = buildSevenDayPlanWindow(new Date());
-      const cycleDays = buildHabitCoachCycleDays(planWindow.dateKeys, getDayInfo);
-      const previousSummary = habitCoachPlan
-        ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
-        : null;
+const planWindow = buildSevenDayPlanWindow(new Date());
+const cycleDays = buildHabitCoachCycleDays(planWindow.dateKeys, getDayInfo);
+const previousSummary = habitCoachPlan
+  ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
+  : null;
 ```
 
 In request body, replace `weekStart`, `weekEnd`, `dateKeys`, and `cycleSnapshot` with:
@@ -1060,7 +1071,9 @@ disabled={isViewingFuturePlanDate}
 Change status label:
 
 ```tsx
-{task.done ? 'Selesai ✓' : isViewingFuturePlanDate ? 'Bisa diceklis nanti' : 'Yuk Bisa!'}
+{
+  task.done ? "Selesai ✓" : isViewingFuturePlanDate ? "Bisa diceklis nanti" : "Yuk Bisa!";
+}
 ```
 
 - [ ] **Step 7: Show empty state when no plan covers selected date**
@@ -1068,25 +1081,27 @@ Change status label:
 Before checklist card, add:
 
 ```tsx
-            {!habitCoachPlan && (
-              <View className="bg-surface rounded-[28px] p-6 border border-outline-variant mb-6">
-                <Text className="text-base font-extrabold text-on-background mb-2">
-                  Belum ada plan habit untuk hari ini
-                </Text>
-                <Text className="text-sm text-on-surface-variant leading-6 mb-4">
-                  Target harian akan kosong sampai kamu membuat plan 7 hari dari Habit Coach.
-                </Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    setCoachError(null);
-                    setCoachOpen(true);
-                  }}
-                  className="py-3 px-4 rounded-2xl bg-primary items-center"
-                >
-                  <Text className="text-white font-bold">Buat plan 7 hari</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+{
+  !habitCoachPlan && (
+    <View className="bg-surface rounded-[28px] p-6 border border-outline-variant mb-6">
+      <Text className="text-base font-extrabold text-on-background mb-2">
+        Belum ada plan habit untuk hari ini
+      </Text>
+      <Text className="text-sm text-on-surface-variant leading-6 mb-4">
+        Target harian akan kosong sampai kamu membuat plan 7 hari dari Habit Coach.
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setCoachError(null);
+          setCoachOpen(true);
+        }}
+        className="py-3 px-4 rounded-2xl bg-primary items-center"
+      >
+        <Text className="text-white font-bold">Buat plan 7 hari</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 ```
 
 Wrap progress and checklist cards so they render only when `habitCoachPlan || tasks.length > 0`.
@@ -1113,6 +1128,7 @@ git commit -m "feat: generate habit plans from today"
 ### Task 7: Redesign Habit Coach Sheet into Guided Discussion
 
 **Files:**
+
 - Modify: `mobile-app/components/habits/HabitCoachSheet.tsx`
 - Modify: `mobile-app/src/lib/habitCoachTypes.ts`
 
@@ -1141,63 +1157,63 @@ Replace `initialQuestions` and `renewalQuestions` with:
 ```ts
 const coachSteps = [
   {
-    id: 'goal',
-    eyebrow: 'Langkah 1 dari 4',
-    question: 'Apa yang paling ingin kamu bantu minggu ini?',
-    helper: 'Pilih satu fokus utama agar coach tidak membuat plan yang terlalu ramai.',
-    placeholder: 'Tulis fokusmu sendiri...',
+    id: "goal",
+    eyebrow: "Langkah 1 dari 4",
+    question: "Apa yang paling ingin kamu bantu minggu ini?",
+    helper: "Pilih satu fokus utama agar coach tidak membuat plan yang terlalu ramai.",
+    placeholder: "Tulis fokusmu sendiri...",
     options: [
-      'Energi lebih stabil',
-      'Promil lebih konsisten',
-      'Pikiran lebih tenang',
-      'Tidur lebih rapi',
-      'Nutrisi lebih teratur',
-      'Isi sendiri...',
+      "Energi lebih stabil",
+      "Promil lebih konsisten",
+      "Pikiran lebih tenang",
+      "Tidur lebih rapi",
+      "Nutrisi lebih teratur",
+      "Isi sendiri...",
     ],
   },
   {
-    id: 'condition',
-    eyebrow: 'Langkah 2 dari 4',
-    question: 'Kondisi yang paling terasa akhir-akhir ini?',
-    helper: 'Ini membantu coach memilih habit yang lembut dan realistis.',
-    placeholder: 'Ceritakan kondisi tubuh atau moodmu...',
+    id: "condition",
+    eyebrow: "Langkah 2 dari 4",
+    question: "Kondisi yang paling terasa akhir-akhir ini?",
+    helper: "Ini membantu coach memilih habit yang lembut dan realistis.",
+    placeholder: "Ceritakan kondisi tubuh atau moodmu...",
     options: [
-      'Badan cepat lelah',
-      'Mood naik turun',
-      'Cemas menunggu hasil',
-      'Nyeri atau tidak nyaman',
-      'Jadwal sedang padat',
-      'Isi sendiri...',
+      "Badan cepat lelah",
+      "Mood naik turun",
+      "Cemas menunggu hasil",
+      "Nyeri atau tidak nyaman",
+      "Jadwal sedang padat",
+      "Isi sendiri...",
     ],
   },
   {
-    id: 'constraint',
-    eyebrow: 'Langkah 3 dari 4',
-    question: 'Apa yang perlu coach hindari?',
-    helper: 'Batasan ini akan dipakai agar task tidak terasa memaksa.',
-    placeholder: 'Tulis batasanmu sendiri...',
+    id: "constraint",
+    eyebrow: "Langkah 3 dari 4",
+    question: "Apa yang perlu coach hindari?",
+    helper: "Batasan ini akan dipakai agar task tidak terasa memaksa.",
+    placeholder: "Tulis batasanmu sendiri...",
     options: [
-      'Olahraga berat',
-      'Makanan ribet atau mahal',
-      'Aktivitas malam',
-      'Task yang terlalu banyak',
-      'Tidak ada batasan khusus',
-      'Isi sendiri...',
+      "Olahraga berat",
+      "Makanan ribet atau mahal",
+      "Aktivitas malam",
+      "Task yang terlalu banyak",
+      "Tidak ada batasan khusus",
+      "Isi sendiri...",
     ],
   },
   {
-    id: 'time',
-    eyebrow: 'Langkah 4 dari 4',
-    question: 'Kapan waktu paling realistis?',
-    helper: 'Coach akan membuat habit kecil yang cocok dengan ritmemu.',
-    placeholder: 'Contoh: sore setelah ashar',
+    id: "time",
+    eyebrow: "Langkah 4 dari 4",
+    question: "Kapan waktu paling realistis?",
+    helper: "Coach akan membuat habit kecil yang cocok dengan ritmemu.",
+    placeholder: "Contoh: sore setelah ashar",
     options: [
-      'Pagi hari',
-      'Siang hari',
-      'Sore hari',
-      'Malam sebelum tidur',
-      'Fleksibel',
-      'Isi sendiri...',
+      "Pagi hari",
+      "Siang hari",
+      "Sore hari",
+      "Malam sebelum tidur",
+      "Fleksibel",
+      "Isi sendiri...",
     ],
   },
 ];
@@ -1208,30 +1224,30 @@ const coachSteps = [
 Inside component:
 
 ```ts
-  const [stepIndex, setStepIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
-  const [reviewing, setReviewing] = useState(false);
+const [stepIndex, setStepIndex] = useState(0);
+const [answers, setAnswers] = useState<Record<string, string>>({});
+const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
+const [reviewing, setReviewing] = useState(false);
 
-  const currentStep = coachSteps[stepIndex];
-  const currentAnswer = (answers[currentStep.id] || '').trim();
-  const canGoNext = currentAnswer.length >= 3;
-  const canSubmit = coachSteps.every((item) => (answers[item.id] || '').trim().length >= 3);
+const currentStep = coachSteps[stepIndex];
+const currentAnswer = (answers[currentStep.id] || "").trim();
+const canGoNext = currentAnswer.length >= 3;
+const canSubmit = coachSteps.every((item) => (answers[item.id] || "").trim().length >= 3);
 ```
 
 - [ ] **Step 4: Update submit**
 
 ```ts
-  const submit = (replaceActivePlan = false) => {
-    onGenerate(
-      coachSteps.map((item) => ({
-        id: item.id,
-        question: item.question,
-        answer: (answers[item.id] || '').trim(),
-      })),
-      { replaceActivePlan }
-    );
-  };
+const submit = (replaceActivePlan = false) => {
+  onGenerate(
+    coachSteps.map((item) => ({
+      id: item.id,
+      question: item.question,
+      answer: (answers[item.id] || "").trim(),
+    })),
+    { replaceActivePlan },
+  );
+};
 ```
 
 - [ ] **Step 5: Render one step at a time**
@@ -1241,46 +1257,48 @@ Replace the `questions.map(...)` block with rendering for `currentStep`. Keep th
 Add footer buttons:
 
 ```tsx
-            {!reviewing ? (
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (stepIndex === 0) onClose();
-                    else setStepIndex((value) => value - 1);
-                  }}
-                  style={{
-                    flex: 1,
-                    borderRadius: 16,
-                    paddingVertical: 14,
-                    alignItems: 'center',
-                    borderWidth: 1,
-                    borderColor: '#e2e8f0',
-                  }}
-                >
-                  <Text style={{ color: '#475569', fontWeight: '800' }}>
-                    {stepIndex === 0 ? 'Batal' : 'Kembali'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (stepIndex === coachSteps.length - 1) setReviewing(true);
-                    else setStepIndex((value) => value + 1);
-                  }}
-                  disabled={!canGoNext}
-                  style={{
-                    flex: 1,
-                    borderRadius: 16,
-                    paddingVertical: 14,
-                    alignItems: 'center',
-                    backgroundColor: canGoNext ? '#be185d' : '#cbd5e1',
-                  }}
-                >
-                  <Text style={{ color: '#fff', fontWeight: '800' }}>
-                    {stepIndex === coachSteps.length - 1 ? 'Review' : 'Lanjut'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
+{
+  !reviewing ? (
+    <View style={{ flexDirection: "row", gap: 10 }}>
+      <TouchableOpacity
+        onPress={() => {
+          if (stepIndex === 0) onClose();
+          else setStepIndex((value) => value - 1);
+        }}
+        style={{
+          flex: 1,
+          borderRadius: 16,
+          paddingVertical: 14,
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
+        }}
+      >
+        <Text style={{ color: "#475569", fontWeight: "800" }}>
+          {stepIndex === 0 ? "Batal" : "Kembali"}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          if (stepIndex === coachSteps.length - 1) setReviewing(true);
+          else setStepIndex((value) => value + 1);
+        }}
+        disabled={!canGoNext}
+        style={{
+          flex: 1,
+          borderRadius: 16,
+          paddingVertical: 14,
+          alignItems: "center",
+          backgroundColor: canGoNext ? "#be185d" : "#cbd5e1",
+        }}
+      >
+        <Text style={{ color: "#fff", fontWeight: "800" }}>
+          {stepIndex === coachSteps.length - 1 ? "Review" : "Lanjut"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  ) : null;
+}
 ```
 
 - [ ] **Step 6: Render review and replacement warning**
@@ -1288,48 +1306,70 @@ Add footer buttons:
 When `reviewing` is true, render:
 
 ```tsx
-            {reviewing && (
-              <View style={{ gap: 12 }}>
-                {coachSteps.map((item) => (
-                  <View key={item.id} style={{ backgroundColor: '#f8fafc', borderRadius: 14, padding: 12 }}>
-                    <Text style={{ fontSize: 10, color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>
-                      {item.question}
-                    </Text>
-                    <Text style={{ fontSize: 13, color: '#111827', fontWeight: '700', marginTop: 4 }}>
-                      {answers[item.id]}
-                    </Text>
-                  </View>
-                ))}
+{
+  reviewing && (
+    <View style={{ gap: 12 }}>
+      {coachSteps.map((item) => (
+        <View key={item.id} style={{ backgroundColor: "#f8fafc", borderRadius: 14, padding: 12 }}>
+          <Text
+            style={{
+              fontSize: 10,
+              color: "#64748b",
+              fontWeight: "800",
+              textTransform: "uppercase",
+            }}
+          >
+            {item.question}
+          </Text>
+          <Text style={{ fontSize: 13, color: "#111827", fontWeight: "700", marginTop: 4 }}>
+            {answers[item.id]}
+          </Text>
+        </View>
+      ))}
 
-                {needsReplaceConfirmation && activePlanUntil && (
-                  <View style={{ backgroundColor: '#fff7ed', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#fed7aa' }}>
-                    <Text style={{ color: '#9a3412', fontSize: 12, fontWeight: '800', lineHeight: 18 }}>
-                      Kamu masih punya plan aktif sampai {activePlanUntil}. Kalau lanjut, plan hari ini sampai 7 hari ke depan akan dibuat ulang.
-                    </Text>
-                  </View>
-                )}
+      {needsReplaceConfirmation && activePlanUntil && (
+        <View
+          style={{
+            backgroundColor: "#fff7ed",
+            borderRadius: 14,
+            padding: 12,
+            borderWidth: 1,
+            borderColor: "#fed7aa",
+          }}
+        >
+          <Text style={{ color: "#9a3412", fontSize: 12, fontWeight: "800", lineHeight: 18 }}>
+            Kamu masih punya plan aktif sampai {activePlanUntil}. Kalau lanjut, plan hari ini sampai
+            7 hari ke depan akan dibuat ulang.
+          </Text>
+        </View>
+      )}
 
-                <TouchableOpacity
-                  onPress={() => submit(Boolean(needsReplaceConfirmation))}
-                  disabled={!canSubmit || loading}
-                  activeOpacity={0.85}
-                  style={{
-                    backgroundColor: canSubmit ? '#be185d' : '#cbd5e1',
-                    borderRadius: 16,
-                    paddingVertical: 14,
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    gap: 8,
-                  }}
-                >
-                  {loading ? <ActivityIndicator color="#fff" /> : <FontAwesome name="check" size={13} color="#fff" />}
-                  <Text style={{ color: '#fff', fontWeight: '800' }}>
-                    {needsReplaceConfirmation ? 'Buat Ulang Plan' : `Gunakan ${creditCost} kredit`}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
+      <TouchableOpacity
+        onPress={() => submit(Boolean(needsReplaceConfirmation))}
+        disabled={!canSubmit || loading}
+        activeOpacity={0.85}
+        style={{
+          backgroundColor: canSubmit ? "#be185d" : "#cbd5e1",
+          borderRadius: 16,
+          paddingVertical: 14,
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 8,
+        }}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <FontAwesome name="check" size={13} color="#fff" />
+        )}
+        <Text style={{ color: "#fff", fontWeight: "800" }}>
+          {needsReplaceConfirmation ? "Buat Ulang Plan" : `Gunakan ${creditCost} kredit`}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 ```
 
 - [ ] **Step 7: Run typecheck**
@@ -1354,6 +1394,7 @@ git commit -m "feat: improve habit coach discussion flow"
 ### Task 8: Wire Replacement Warning End-to-End
 
 **Files:**
+
 - Modify: `mobile-app/app/(tabs)/habits.tsx`
 - Modify: `mobile-app/src/lib/api.ts` if typed error metadata is needed
 
@@ -1362,8 +1403,8 @@ git commit -m "feat: improve habit coach discussion flow"
 Inside `HabitsScreen` state:
 
 ```ts
-  const [activePlanUntil, setActivePlanUntil] = useState<string | null>(null);
-  const [needsReplaceConfirmation, setNeedsReplaceConfirmation] = useState(false);
+const [activePlanUntil, setActivePlanUntil] = useState<string | null>(null);
+const [needsReplaceConfirmation, setNeedsReplaceConfirmation] = useState(false);
 ```
 
 - [ ] **Step 2: Update handler signature**
@@ -1396,39 +1437,39 @@ In request body:
 In `catch`, before `const message`:
 
 ```ts
-      if (error?.message?.includes('plan aktif') || error?.message?.includes('ACTIVE_PLAN_OVERLAP')) {
-        setNeedsReplaceConfirmation(true);
-        setActivePlanUntil(habitCoachPlan?.weekEnd || null);
-        setCoachOpen(true);
-        setCoachError(null);
-        return;
-      }
+if (error?.message?.includes("plan aktif") || error?.message?.includes("ACTIVE_PLAN_OVERLAP")) {
+  setNeedsReplaceConfirmation(true);
+  setActivePlanUntil(habitCoachPlan?.weekEnd || null);
+  setCoachOpen(true);
+  setCoachError(null);
+  return;
+}
 ```
 
 If `apiPostJson` does not expose structured metadata, change `mobile-app/src/lib/api.ts` error throwing to:
 
 ```ts
-    const error = new Error(json?.error || `Server error (${res.status})`) as Error & {
-      status?: number;
-      code?: string;
-      payload?: any;
-    };
-    error.status = res.status;
-    error.code = json?.code;
-    error.payload = json;
-    throw error;
+const error = new Error(json?.error || `Server error (${res.status})`) as Error & {
+  status?: number;
+  code?: string;
+  payload?: any;
+};
+error.status = res.status;
+error.code = json?.code;
+error.payload = json;
+throw error;
 ```
 
 Then use:
 
 ```ts
-      if (error?.status === 409 && error?.code === 'ACTIVE_PLAN_OVERLAP') {
-        setNeedsReplaceConfirmation(true);
-        setActivePlanUntil(error.payload?.activeUntil || habitCoachPlan?.weekEnd || null);
-        setCoachOpen(true);
-        setCoachError(null);
-        return;
-      }
+if (error?.status === 409 && error?.code === "ACTIVE_PLAN_OVERLAP") {
+  setNeedsReplaceConfirmation(true);
+  setActivePlanUntil(error.payload?.activeUntil || habitCoachPlan?.weekEnd || null);
+  setCoachOpen(true);
+  setCoachError(null);
+  return;
+}
 ```
 
 - [ ] **Step 5: Reset warning on close and success**
@@ -1436,22 +1477,22 @@ Then use:
 When opening fresh:
 
 ```ts
-                  setNeedsReplaceConfirmation(false);
-                  setActivePlanUntil(null);
+setNeedsReplaceConfirmation(false);
+setActivePlanUntil(null);
 ```
 
 After successful generation:
 
 ```ts
-      setNeedsReplaceConfirmation(false);
-      setActivePlanUntil(null);
+setNeedsReplaceConfirmation(false);
+setActivePlanUntil(null);
 ```
 
 - [ ] **Step 6: Pass props to `HabitCoachSheet`**
 
 ```tsx
-        activePlanUntil={activePlanUntil}
-        needsReplaceConfirmation={needsReplaceConfirmation}
+activePlanUntil = { activePlanUntil };
+needsReplaceConfirmation = { needsReplaceConfirmation };
 ```
 
 - [ ] **Step 7: Run tests and typecheck**
@@ -1477,6 +1518,7 @@ git commit -m "feat: confirm habit plan replacement"
 ### Task 9: Show Task Reasons and Future Preview UI
 
 **Files:**
+
 - Modify: `mobile-app/app/(tabs)/habits.tsx`
 - Modify: `mobile-app/components/habits/HabitCoachCard.tsx`
 
@@ -1491,11 +1533,11 @@ Update props:
 Render under the focus card:
 
 ```tsx
-          {currentPlanDay && (
-            <Text style={{ fontSize: 12, color: '#64748b' }}>
-              Hari {currentPlanDay} dari 7
-            </Text>
-          )}
+{
+  currentPlanDay && (
+    <Text style={{ fontSize: 12, color: "#64748b" }}>Hari {currentPlanDay} dari 7</Text>
+  );
+}
 ```
 
 - [ ] **Step 2: Pass day number**
@@ -1511,11 +1553,11 @@ In `HabitsScreen`:
 Inside each task card, after task text:
 
 ```tsx
-                        {task.reason ? (
-                          <Text className="text-xs text-on-surface-variant leading-5 mt-1">
-                            {task.reason}
-                          </Text>
-                        ) : null}
+{
+  task.reason ? (
+    <Text className="text-xs text-on-surface-variant leading-5 mt-1">{task.reason}</Text>
+  ) : null;
+}
 ```
 
 - [ ] **Step 4: Future preview header**
@@ -1523,13 +1565,16 @@ Inside each task card, after task text:
 Above checklist title:
 
 ```tsx
-              {isViewingFuturePlanDate && (
-                <View className="bg-pink-50 border border-pink-100 rounded-2xl p-3 mb-4">
-                  <Text className="text-xs text-pink-700 font-bold leading-5">
-                    Ini preview plan untuk tanggal mendatang. Kamu bisa melihat targetnya sekarang, tapi ceklis baru aktif saat tanggalnya tiba.
-                  </Text>
-                </View>
-              )}
+{
+  isViewingFuturePlanDate && (
+    <View className="bg-pink-50 border border-pink-100 rounded-2xl p-3 mb-4">
+      <Text className="text-xs text-pink-700 font-bold leading-5">
+        Ini preview plan untuk tanggal mendatang. Kamu bisa melihat targetnya sekarang, tapi ceklis
+        baru aktif saat tanggalnya tiba.
+      </Text>
+    </View>
+  );
+}
 ```
 
 - [ ] **Step 5: Run PWA build**
@@ -1554,6 +1599,7 @@ git commit -m "feat: polish habit coach preview UI"
 ### Task 10: Final Verification, Deploy Backend, Push PWA
 
 **Files:**
+
 - Verify all changed files.
 
 - [ ] **Step 1: Run full targeted tests**

@@ -38,26 +38,26 @@ The free-included legacy pattern is:
 
 The credit ledger records:
 
-| Field | Meaning |
-| --- | --- |
-| `amount` | Negative for feature usage, positive for grants/topups |
-| `feature` | Product-level feature key, such as `recipes_today` |
-| `reason` | Human-readable subtype, such as phase, mode, or guide level |
-| `reference_id` | Saved feature row id or payment/topup id |
-| `metadata` | Model, usage, generated date, or payment metadata |
+| Field          | Meaning                                                     |
+| -------------- | ----------------------------------------------------------- |
+| `amount`       | Negative for feature usage, positive for grants/topups      |
+| `feature`      | Product-level feature key, such as `recipes_today`          |
+| `reason`       | Human-readable subtype, such as phase, mode, or guide level |
+| `reference_id` | Saved feature row id or payment/topup id                    |
+| `metadata`     | Model, usage, generated date, or payment metadata           |
 
 ## AI Feature Matrix
 
-| Feature | Mobile entry point | Backend route | Auth | Credit policy | Persistence | Rate limit group | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Resep Hari Ini | `TodayRecipesModal` from Habits tab | `GET /api/recipes/today`, `POST /api/generate-recipes` | Required | 15 credits on new generation; reopening saved result costs 0 | `recipe_generations`, `status = pending_charge -> active` | `ai` for POST only | Active, documented |
-| Habit Coach 7-day plan | `HabitCoachSheet` from Habits tab | `GET /api/habit-coach/current`, `POST /api/habit-coach/generate` | Required | 50 credits initial, 60 credits renewal | `habit_coach_plans`, `habit_coach_plan_days`, `status = pending_charge -> active` | `ai` for POST only | Active, documented |
-| Panduan Siklus | `CycleGuideModal` from Calendar tab | `GET /api/cycle-guide/today`, `POST /api/cycle-guide/generate` | Required | 40 credits on new guide | `cycle_guides`, `status = pending_charge -> active` | `ai` for POST only | Active, documented |
-| Analisis Siklus AI | `AiReportModal` | `POST /api/generate-cycle-report` | Required | 0 credits; included/free-for-now; free models only | None, response lives in component state | `ai` | Free-included, no paid fallback |
-| Insight Habit AI | `AiRecommendationSection` | `POST /api/generate-habits-insight` | Required | 0 credits; included/free-for-now; free models only | None, response lives in component state | `ai` | Free-included, no paid fallback |
-| TWW Reassurance | `TwwSanctuaryModal` | `POST /api/generate-calming-reassurance` | Required after Phase 1 | 0 credits; included/free-for-now; free models only | None, response lives in component state | `ai` | Free-included, no paid fallback |
-| AI credit balance | `HeaderCreditChip`, `CreditDetailModal`, Habits tab | `GET /api/ai/credits`, `GET /api/ai/credits/history` | Required | Reads balance/history only | `ai_credit_balances`, `ai_credit_ledger` | None, GET only | Active |
-| AI credit topup | `CreditDetailModal` | `POST /api/checkout/topup`, `POST /api/payment/webhook` | Checkout required; webhook token required | Server-owned package grants 300, 1000, 2500, or 6000 credits after paid webhook | `ai_credit_topups`, `ai_credit_ledger` via `process_paid_ai_credit_topup` | `checkout`, `webhook` | Active, hardened locally |
+| Feature                | Mobile entry point                                  | Backend route                                                    | Auth                                      | Credit policy                                                                   | Persistence                                                                       | Rate limit group      | Status                          |
+| ---------------------- | --------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------- | ------------------------------- |
+| Resep Hari Ini         | `TodayRecipesModal` from Habits tab                 | `GET /api/recipes/today`, `POST /api/generate-recipes`           | Required                                  | 15 credits on new generation; reopening saved result costs 0                    | `recipe_generations`, `status = pending_charge -> active`                         | `ai` for POST only    | Active, documented              |
+| Habit Coach 7-day plan | `HabitCoachSheet` from Habits tab                   | `GET /api/habit-coach/current`, `POST /api/habit-coach/generate` | Required                                  | 50 credits initial, 60 credits renewal                                          | `habit_coach_plans`, `habit_coach_plan_days`, `status = pending_charge -> active` | `ai` for POST only    | Active, documented              |
+| Panduan Siklus         | `CycleGuideModal` from Calendar tab                 | `GET /api/cycle-guide/today`, `POST /api/cycle-guide/generate`   | Required                                  | 40 credits on new guide                                                         | `cycle_guides`, `status = pending_charge -> active`                               | `ai` for POST only    | Active, documented              |
+| Analisis Siklus AI     | `AiReportModal`                                     | `POST /api/generate-cycle-report`                                | Required                                  | 0 credits; included/free-for-now; free models only                              | None, response lives in component state                                           | `ai`                  | Free-included, no paid fallback |
+| Insight Habit AI       | `AiRecommendationSection`                           | `POST /api/generate-habits-insight`                              | Required                                  | 0 credits; included/free-for-now; free models only                              | None, response lives in component state                                           | `ai`                  | Free-included, no paid fallback |
+| TWW Reassurance        | `TwwSanctuaryModal`                                 | `POST /api/generate-calming-reassurance`                         | Required after Phase 1                    | 0 credits; included/free-for-now; free models only                              | None, response lives in component state                                           | `ai`                  | Free-included, no paid fallback |
+| AI credit balance      | `HeaderCreditChip`, `CreditDetailModal`, Habits tab | `GET /api/ai/credits`, `GET /api/ai/credits/history`             | Required                                  | Reads balance/history only                                                      | `ai_credit_balances`, `ai_credit_ledger`                                          | None, GET only        | Active                          |
+| AI credit topup        | `CreditDetailModal`                                 | `POST /api/checkout/topup`, `POST /api/payment/webhook`          | Checkout required; webhook token required | Server-owned package grants 300, 1000, 2500, or 6000 credits after paid webhook | `ai_credit_topups`, `ai_credit_ledger` via `process_paid_ai_credit_topup`         | `checkout`, `webhook` | Active, hardened locally        |
 
 ## Cost-Bearing Features
 
@@ -135,11 +135,11 @@ Known follow-up:
 
 The following routes are authenticated and rate-limited. After Phase 25, they are explicitly `free_included` and cannot use the paid OpenRouter fallback model. They still do not debit AI credits, store generated results, or expose a detailed cost label in UI.
 
-| Feature | Route | Current behavior | Main risk | Recommended decision |
-| --- | --- | --- | --- | --- |
-| Analisis Siklus AI | `POST /api/generate-cycle-report` | Calls OpenRouter free models only and returns validated JSON only | No saved report history or replay protection | Keep free-included, or make paid only after adding persistence |
-| Insight Habit AI | `POST /api/generate-habits-insight` | Calls OpenRouter free models only and returns validated JSON only | Cost/product overlap with Habit Coach remains | Prefer merging into Habit Coach, or price separately with persistence |
-| TWW Reassurance | `POST /api/generate-calming-reassurance` | Calls OpenRouter free models only and returns validated JSON only | Sensitive journal text has no saved consent/audit metadata | Keep free-included with low quota, or persist minimal metadata before pricing |
+| Feature            | Route                                    | Current behavior                                                  | Main risk                                                  | Recommended decision                                                          |
+| ------------------ | ---------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Analisis Siklus AI | `POST /api/generate-cycle-report`        | Calls OpenRouter free models only and returns validated JSON only | No saved report history or replay protection               | Keep free-included, or make paid only after adding persistence                |
+| Insight Habit AI   | `POST /api/generate-habits-insight`      | Calls OpenRouter free models only and returns validated JSON only | Cost/product overlap with Habit Coach remains              | Prefer merging into Habit Coach, or price separately with persistence         |
+| TWW Reassurance    | `POST /api/generate-calming-reassurance` | Calls OpenRouter free models only and returns validated JSON only | Sensitive journal text has no saved consent/audit metadata | Keep free-included with low quota, or persist minimal metadata before pricing |
 
 Recommended default for long-term development:
 
@@ -152,12 +152,12 @@ Recommended default for long-term development:
 
 The server-owned catalog is in `backend/payments/topupPackages.ts`.
 
-| Package id | Display name | Credits | Price |
-| --- | --- | --- | --- |
-| `coba_dulu` | Coba Dulu | 300 | Rp9.900 |
-| `teman_mingguan` | Teman Mingguan | 1000 | Rp24.900 |
-| `sahabat_siklus` | Sahabat Siklus | 2500 | Rp49.000 |
-| `bekal_tenang` | Bekal Tenang | 6000 | Rp99.000 |
+| Package id       | Display name   | Credits | Price    |
+| ---------------- | -------------- | ------- | -------- |
+| `coba_dulu`      | Coba Dulu      | 300     | Rp9.900  |
+| `teman_mingguan` | Teman Mingguan | 1000    | Rp24.900 |
+| `sahabat_siklus` | Sahabat Siklus | 2500    | Rp49.000 |
+| `bekal_tenang`   | Bekal Tenang   | 6000    | Rp99.000 |
 
 Current hardened behavior:
 
@@ -173,11 +173,11 @@ Current hardened behavior:
 
 Implemented in `backend/rateLimit.ts`.
 
-| Group | Routes | Default |
-| --- | --- | --- |
-| `ai` | `POST /api/generate-recipes`, `POST /api/generate-cycle-report`, `POST /api/generate-habits-insight`, `POST /api/generate-calming-reassurance`, `POST /api/habit-coach/generate`, `POST /api/cycle-guide/generate` | 20 requests / 60 seconds |
-| `checkout` | `POST /api/checkout/register`, `POST /api/checkout/topup` | 10 requests / 300 seconds |
-| `webhook` | `POST /api/payment/webhook` | 120 requests / 60 seconds |
+| Group      | Routes                                                                                                                                                                                                             | Default                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------- |
+| `ai`       | `POST /api/generate-recipes`, `POST /api/generate-cycle-report`, `POST /api/generate-habits-insight`, `POST /api/generate-calming-reassurance`, `POST /api/habit-coach/generate`, `POST /api/cycle-guide/generate` | 20 requests / 60 seconds  |
+| `checkout` | `POST /api/checkout/register`, `POST /api/checkout/topup`                                                                                                                                                          | 10 requests / 300 seconds |
+| `webhook`  | `POST /api/payment/webhook`                                                                                                                                                                                        | 120 requests / 60 seconds |
 
 Environment overrides:
 

@@ -13,6 +13,7 @@
 ### Task 1: Add Analytics Payload Tests
 
 **Files:**
+
 - Create: `mobile-app/src/lib/analytics.test.ts`
 
 - [x] **Step 1: Write failing tests**
@@ -20,39 +21,39 @@
 Add tests for pure helpers that do not need a browser or native runtime:
 
 ```ts
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import test from "node:test";
+import assert from "node:assert/strict";
 import {
   buildAnalyticsEventPayload,
   buildAnalyticsScreenViewPayload,
   buildAnalyticsUserPayload,
   normalizeAnalyticsEventName,
-} from './analytics';
+} from "./analytics";
 
-test('normalizeAnalyticsEventName trims, lowercases, and replaces spaces', () => {
-  assert.equal(normalizeAnalyticsEventName(' Habit Completed '), 'habit_completed');
+test("normalizeAnalyticsEventName trims, lowercases, and replaces spaces", () => {
+  assert.equal(normalizeAnalyticsEventName(" Habit Completed "), "habit_completed");
 });
 
-test('buildAnalyticsEventPayload keeps sanitized event name and metadata', () => {
-  assert.deepEqual(buildAnalyticsEventPayload('Symptom Logged', { symptom_type: 'cramp' }), {
-    event: 'symptom_logged',
-    symptom_type: 'cramp',
+test("buildAnalyticsEventPayload keeps sanitized event name and metadata", () => {
+  assert.deepEqual(buildAnalyticsEventPayload("Symptom Logged", { symptom_type: "cramp" }), {
+    event: "symptom_logged",
+    symptom_type: "cramp",
   });
 });
 
-test('buildAnalyticsScreenViewPayload defaults screen class for GTM', () => {
-  assert.deepEqual(buildAnalyticsScreenViewPayload('/(tabs)/calendar'), {
-    event: 'screen_view',
-    screen_name: '/(tabs)/calendar',
-    screen_class: 'ReactNavigation',
+test("buildAnalyticsScreenViewPayload defaults screen class for GTM", () => {
+  assert.deepEqual(buildAnalyticsScreenViewPayload("/(tabs)/calendar"), {
+    event: "screen_view",
+    screen_name: "/(tabs)/calendar",
+    screen_class: "ReactNavigation",
   });
 });
 
-test('buildAnalyticsUserPayload keeps existing GTM userId key and safe properties', () => {
-  assert.deepEqual(buildAnalyticsUserPayload('user-1', { access_status: 'active' }), {
-    event: 'user_properties_set',
-    userId: 'user-1',
-    access_status: 'active',
+test("buildAnalyticsUserPayload keeps existing GTM userId key and safe properties", () => {
+  assert.deepEqual(buildAnalyticsUserPayload("user-1", { access_status: "active" }), {
+    event: "user_properties_set",
+    userId: "user-1",
+    access_status: "active",
   });
 });
 ```
@@ -70,6 +71,7 @@ Expected: FAIL because the helper exports do not exist yet.
 ### Task 2: Refactor Analytics Manager To GTM Web-Only
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/analytics.ts`
 
 - [x] **Step 1: Remove Firebase dynamic require**
@@ -83,13 +85,20 @@ Export:
 ```ts
 export function normalizeAnalyticsEventName(eventName: string): string;
 export function buildAnalyticsEventPayload(eventName: string, params?: EventParams): EventParams;
-export function buildAnalyticsScreenViewPayload(screenName: string, screenClass?: string): EventParams;
-export function buildAnalyticsUserPayload(userId: string | null, properties?: EventParams): EventParams;
+export function buildAnalyticsScreenViewPayload(
+  screenName: string,
+  screenClass?: string,
+): EventParams;
+export function buildAnalyticsUserPayload(
+  userId: string | null,
+  properties?: EventParams,
+): EventParams;
 ```
 
 - [x] **Step 3: Route web pushes through dataLayer only**
 
 Implement a private `pushToDataLayer(payload: EventParams)` that:
+
 - returns immediately when `Platform.OS !== 'web'`.
 - returns immediately when `globalThis.window` is unavailable.
 - creates `window.dataLayer` if missing.
@@ -108,12 +117,14 @@ Expected: PASS.
 ### Task 3: Update Documentation
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 - Modify: `docs/FEATURE_MATRIX.md` only if analytics policy needs a cross-feature note.
 
 - [x] **Step 1: Update merged audit report**
 
 Record Phase 26 status:
+
 - GTM web remains active via `mobile-app/app/+html.tsx`.
 - Firebase native dynamic require removed.
 - Native analytics is safe no-op until future dev-client/Firebase implementation.
@@ -122,6 +133,7 @@ Record Phase 26 status:
 ### Task 4: Verify
 
 **Files:**
+
 - Verify: root project
 
 - [x] **Step 1: Run focused analytics test**

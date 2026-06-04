@@ -13,6 +13,7 @@
 ### Task 1: Rename Empty Activity History Initializer
 
 **Files:**
+
 - Modify: `mobile-app/src/context/CycleContext.tsx`
 
 - [x] **Step 1: Rename the misleading function**
@@ -40,13 +41,19 @@ Expected: the initializer name explains that it returns an empty persisted histo
 Change:
 
 ```ts
-const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', generateMockHistory);
+const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>(
+  "hs_v3_activityHistory",
+  generateMockHistory,
+);
 ```
 
 To:
 
 ```ts
-const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>('hs_v3_activityHistory', createEmptyActivityHistory);
+const [activityHistory, setActivityHistory] = usePersistentState<Record<string, DailyRecord>>(
+  "hs_v3_activityHistory",
+  createEmptyActivityHistory,
+);
 ```
 
 Expected: no runtime behavior changes; only naming becomes clearer.
@@ -54,6 +61,7 @@ Expected: no runtime behavior changes; only naming becomes clearer.
 ### Task 2: Verify The Rename
 
 **Files:**
+
 - Verify: `mobile-app/src/context/CycleContext.tsx`
 
 - [x] **Step 1: Search for the old name**

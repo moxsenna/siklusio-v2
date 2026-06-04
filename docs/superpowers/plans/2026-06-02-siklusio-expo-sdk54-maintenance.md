@@ -13,6 +13,7 @@
 ### Task 1: Diagnose Expo SDK 54 Dependency Health
 
 **Files:**
+
 - Inspect: `mobile-app/package.json`
 - Inspect: `mobile-app/package-lock.json`
 - Inspect: `mobile-app/app.json`
@@ -46,6 +47,7 @@ Expected before remediation: 17/18 checks pass, with one failed dependency versi
 ### Task 2: Patch SDK-Compatible Package Versions
 
 **Files:**
+
 - Modify: `mobile-app/package.json`
 - Modify: `mobile-app/package-lock.json`
 
@@ -80,6 +82,7 @@ Expected: `expo-constants`, `expo-av`, and `expo-font` are still actively used a
 ### Task 3: Verify Expo Health And App Checks
 
 **Files:**
+
 - Verify: `mobile-app/`
 - Verify: root project
 

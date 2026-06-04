@@ -27,6 +27,7 @@
 ### Task 1: Supabase Access Helper
 
 **Files:**
+
 - Create: `mobile-app/src/lib/supabaseAccess.ts`
 - Test: `mobile-app/src/lib/supabaseAccess.test.ts`
 
@@ -38,6 +39,7 @@
 ### Task 2: Sync Readiness Guard
 
 **Files:**
+
 - Create: `mobile-app/src/lib/syncGuards.ts`
 - Test: `mobile-app/src/lib/syncGuards.test.ts`
 
@@ -48,6 +50,7 @@
 ### Task 3: Wire Critical Sync Code
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/SyncManager.ts`
 - Modify: `mobile-app/src/context/CycleContext.tsx`
 
@@ -58,6 +61,7 @@
 ### Task 4: Report And Verification
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] Add Phase 16 progress entry.

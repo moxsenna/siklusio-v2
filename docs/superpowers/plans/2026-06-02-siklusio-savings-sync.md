@@ -25,6 +25,7 @@
 ### Task 1: Savings Sync Helper
 
 **Files:**
+
 - Create: `mobile-app/src/lib/savingsSync.ts`
 - Test: `mobile-app/src/lib/savingsSync.test.ts`
 
@@ -36,6 +37,7 @@
 ### Task 2: SyncManager Savings Method
 
 **Files:**
+
 - Modify: `mobile-app/src/lib/SyncManager.ts`
 
 - [x] Add `SavingsSyncPayload` and `SavingsSyncResult`.
@@ -47,6 +49,7 @@
 ### Task 3: CycleContext Wiring
 
 **Files:**
+
 - Modify: `mobile-app/src/context/CycleContext.tsx`
 
 - [x] Load `target_saving = 0` and `current_saving = 0` from cloud instead of ignoring falsey values.
@@ -57,6 +60,7 @@
 ### Task 4: Report And Verification
 
 **Files:**
+
 - Modify: `MERGED_AUDIT_REPORT.md`
 
 - [x] Add Phase 15 progress entry.

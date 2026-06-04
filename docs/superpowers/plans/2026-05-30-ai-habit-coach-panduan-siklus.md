@@ -96,6 +96,7 @@ Do not let Panduan Siklus generate, regenerate, or edit checklist habits. Its CT
 ## Task 1: Database Credit Foundation
 
 **Files:**
+
 - Create: `supabase/ai_credits.sql`
 
 - [ ] **Step 1: Create the SQL migration**
@@ -270,6 +271,7 @@ git commit -m "feat: add ai credit ledger"
 ## Task 2: Habit Coach Schema
 
 **Files:**
+
 - Create: `supabase/habit_coach.sql`
 
 - [ ] **Step 1: Create the SQL migration**
@@ -348,6 +350,7 @@ git commit -m "feat: add habit coach plan tables"
 ## Task 3: Panduan Siklus Schema
 
 **Files:**
+
 - Create: `supabase/cycle_guides.sql`
 
 - [ ] **Step 1: Create the SQL migration**
@@ -401,6 +404,7 @@ git commit -m "feat: add cycle guide history"
 ## Task 4: Mobile Habit Coach Types And Summaries
 
 **Files:**
+
 - Create: `mobile-app/src/lib/habitCoachTypes.ts`
 - Create: `mobile-app/src/lib/habitCoachPlan.ts`
 - Test: `mobile-app/src/lib/habitCoachPlan.test.ts`
@@ -411,73 +415,73 @@ git commit -m "feat: add cycle guide history"
 Create `mobile-app/src/lib/habitCoachPlan.test.ts`:
 
 ```ts
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { format } from 'date-fns';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { format } from "date-fns";
 import {
   getLocalWeekStart,
   summarizeHabitPlanCompletion,
   getPlanTasksForDate,
-} from './habitCoachPlan';
-import type { HabitCoachPlan } from './habitCoachTypes';
-import type { DailyRecord } from './cycleUtils';
+} from "./habitCoachPlan";
+import type { HabitCoachPlan } from "./habitCoachTypes";
+import type { DailyRecord } from "./cycleUtils";
 
 const plan: HabitCoachPlan = {
-  id: 'plan-1',
-  weekStart: '2026-05-25',
-  weekEnd: '2026-05-31',
-  mode: 'initial',
-  status: 'active',
-  userGoal: 'promil aktif',
-  coachSummary: 'Fokus ringan dan konsisten.',
+  id: "plan-1",
+  weekStart: "2026-05-25",
+  weekEnd: "2026-05-31",
+  mode: "initial",
+  status: "active",
+  userGoal: "promil aktif",
+  coachSummary: "Fokus ringan dan konsisten.",
   creditCost: 50,
   days: [
     {
-      dateKey: '2026-05-25',
+      dateKey: "2026-05-25",
       dayIndex: 1,
-      focus: 'hidrasi',
+      focus: "hidrasi",
       tasks: [
         {
-          id: 'water-1',
-          text: 'Minum air 6 gelas',
-          emoji: 'water',
-          category: 'hydration',
-          reason: 'Menjaga energi.',
+          id: "water-1",
+          text: "Minum air 6 gelas",
+          emoji: "water",
+          category: "hydration",
+          reason: "Menjaga energi.",
         },
       ],
     },
   ],
 };
 
-test('getLocalWeekStart returns Monday for a date in the same week', () => {
-  assert.equal(format(getLocalWeekStart(new Date(2026, 4, 30)), 'yyyy-MM-dd'), '2026-05-25');
+test("getLocalWeekStart returns Monday for a date in the same week", () => {
+  assert.equal(format(getLocalWeekStart(new Date(2026, 4, 30)), "yyyy-MM-dd"), "2026-05-25");
 });
 
-test('getPlanTasksForDate maps coach tasks into daily checklist tasks', () => {
-  const tasks = getPlanTasksForDate(plan, '2026-05-25');
+test("getPlanTasksForDate maps coach tasks into daily checklist tasks", () => {
+  const tasks = getPlanTasksForDate(plan, "2026-05-25");
   assert.equal(tasks.length, 1);
-  assert.equal(tasks[0].text, 'Minum air 6 gelas');
-  assert.equal(tasks[0].coachPlanId, 'plan-1');
-  assert.equal(tasks[0].category, 'hydration');
+  assert.equal(tasks[0].text, "Minum air 6 gelas");
+  assert.equal(tasks[0].coachPlanId, "plan-1");
+  assert.equal(tasks[0].category, "hydration");
 });
 
-test('summarizeHabitPlanCompletion counts completed coach tasks only', () => {
+test("summarizeHabitPlanCompletion counts completed coach tasks only", () => {
   const history: Record<string, DailyRecord> = {
-    '2026-05-25': {
-      symptoms: ['fatigue'],
+    "2026-05-25": {
+      symptoms: ["fatigue"],
       tasks: [
         {
           id: 1,
-          text: 'Minum air 6 gelas',
-          emoji: 'water',
+          text: "Minum air 6 gelas",
+          emoji: "water",
           done: true,
-          coachPlanId: 'plan-1',
-          category: 'hydration',
+          coachPlanId: "plan-1",
+          category: "hydration",
         },
         {
           id: 2,
-          text: 'Fallback task',
-          emoji: 'star',
+          text: "Fallback task",
+          emoji: "star",
           done: true,
         },
       ],
@@ -488,7 +492,7 @@ test('summarizeHabitPlanCompletion counts completed coach tasks only', () => {
   assert.equal(summary.totalTasks, 1);
   assert.equal(summary.completedTasks, 1);
   assert.equal(summary.completionRate, 100);
-  assert.deepEqual(summary.symptoms, ['fatigue']);
+  assert.deepEqual(summary.symptoms, ["fatigue"]);
 });
 ```
 
@@ -506,15 +510,15 @@ Create `mobile-app/src/lib/habitCoachTypes.ts`:
 
 ```ts
 export type HabitCategory =
-  | 'hydration'
-  | 'nutrition'
-  | 'movement'
-  | 'rest'
-  | 'emotional'
-  | 'promil'
-  | 'partner';
+  | "hydration"
+  | "nutrition"
+  | "movement"
+  | "rest"
+  | "emotional"
+  | "promil"
+  | "partner";
 
-export type HabitCoachMode = 'initial' | 'renewal';
+export type HabitCoachMode = "initial" | "renewal";
 
 export interface CoachQuestionAnswer {
   id: string;
@@ -542,7 +546,7 @@ export interface HabitCoachPlan {
   weekStart: string;
   weekEnd: string;
   mode: HabitCoachMode;
-  status: 'pending_charge' | 'active' | 'completed' | 'archived';
+  status: "pending_charge" | "active" | "completed" | "archived";
   userGoal: string;
   coachSummary: string;
   creditCost: number;
@@ -581,13 +585,9 @@ export interface Task {
 Create `mobile-app/src/lib/habitCoachPlan.ts`:
 
 ```ts
-import { addDays, format, startOfDay, subDays } from 'date-fns';
-import type { DailyRecord, Task } from './cycleUtils';
-import type {
-  HabitCategory,
-  HabitCoachCompletionSummary,
-  HabitCoachPlan,
-} from './habitCoachTypes';
+import { addDays, format, startOfDay, subDays } from "date-fns";
+import type { DailyRecord, Task } from "./cycleUtils";
+import type { HabitCategory, HabitCoachCompletionSummary, HabitCoachPlan } from "./habitCoachTypes";
 
 export function getLocalWeekStart(date: Date) {
   const day = startOfDay(date);
@@ -620,11 +620,9 @@ export function getPlanTasksForDate(plan: HabitCoachPlan | null, dateKey: string
 
 export function summarizeHabitPlanCompletion(
   plan: HabitCoachPlan,
-  activityHistory: Record<string, DailyRecord>
+  activityHistory: Record<string, DailyRecord>,
 ): HabitCoachCompletionSummary {
-  const plannedTaskIds = new Set(
-    plan.days.flatMap((day) => day.tasks.map((task) => task.id))
-  );
+  const plannedTaskIds = new Set(plan.days.flatMap((day) => day.tasks.map((task) => task.id)));
   const missedCategories = new Set<HabitCategory>();
   const symptoms = new Set<string>();
   let totalTasks = 0;
@@ -637,7 +635,7 @@ export function summarizeHabitPlanCompletion(
     for (const plannedTask of day.tasks) {
       totalTasks += 1;
       const actual = actualTasks.find(
-        (task) => task.coachPlanId === plan.id && task.coachTaskId === plannedTask.id
+        (task) => task.coachPlanId === plan.id && task.coachTaskId === plannedTask.id,
       );
       if (actual?.done) {
         completedTasks += 1;
@@ -682,6 +680,7 @@ git commit -m "feat: add habit coach plan helpers"
 ## Task 5: Mobile Panduan Siklus Deterministic Summary
 
 **Files:**
+
 - Create: `mobile-app/src/lib/cycleGuideSummary.ts`
 - Test: `mobile-app/src/lib/cycleGuideSummary.test.ts`
 
@@ -690,63 +689,63 @@ git commit -m "feat: add habit coach plan helpers"
 Create `mobile-app/src/lib/cycleGuideSummary.test.ts`:
 
 ```ts
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { buildCycleGuidePreview } from './cycleGuideSummary';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildCycleGuidePreview } from "./cycleGuideSummary";
 
-test('returns starter level for new users with no manual period history', () => {
+test("returns starter level for new users with no manual period history", () => {
   const preview = buildCycleGuidePreview({
-    currentPhase: 'Folikular',
+    currentPhase: "Folikular",
     cycleDay: 7,
     daysToNextPeriod: 21,
-    cycleConfidence: 'low',
-    periodConfidence: 'low',
+    cycleConfidence: "low",
+    periodConfidence: "low",
     hasManualLogs: false,
     activityHistory: {},
     activeHabitPlanSummary: null,
   });
 
-  assert.equal(preview.level, 'starter');
+  assert.equal(preview.level, "starter");
   assert.match(preview.title, /Panduan awal/);
   assert.equal(preview.canShowPersonalPatterns, false);
 });
 
-test('returns active level when user has recent activity but low cycle confidence', () => {
+test("returns active level when user has recent activity but low cycle confidence", () => {
   const preview = buildCycleGuidePreview({
-    currentPhase: 'Luteal',
+    currentPhase: "Luteal",
     cycleDay: 22,
     daysToNextPeriod: 6,
-    cycleConfidence: 'low',
-    periodConfidence: 'medium',
+    cycleConfidence: "low",
+    periodConfidence: "medium",
     hasManualLogs: true,
     activityHistory: {
-      '2026-05-01': { symptoms: ['fatigue'], tasks: [] },
-      '2026-05-02': { symptoms: [], tasks: [] },
+      "2026-05-01": { symptoms: ["fatigue"], tasks: [] },
+      "2026-05-02": { symptoms: [], tasks: [] },
     },
     activeHabitPlanSummary: { completionRate: 80 },
   });
 
-  assert.equal(preview.level, 'active');
+  assert.equal(preview.level, "active");
   assert.equal(preview.canShowPersonalPatterns, false);
 });
 
-test('returns personal level when confidence and logs are enough', () => {
+test("returns personal level when confidence and logs are enough", () => {
   const preview = buildCycleGuidePreview({
-    currentPhase: 'Ovulasi',
+    currentPhase: "Ovulasi",
     cycleDay: 14,
     daysToNextPeriod: 14,
-    cycleConfidence: 'high',
-    periodConfidence: 'high',
+    cycleConfidence: "high",
+    periodConfidence: "high",
     hasManualLogs: true,
     activityHistory: {
-      '2026-05-01': { symptoms: ['cramps'], tasks: [] },
-      '2026-05-02': { symptoms: ['fatigue'], tasks: [] },
-      '2026-05-03': { symptoms: [], tasks: [] },
+      "2026-05-01": { symptoms: ["cramps"], tasks: [] },
+      "2026-05-02": { symptoms: ["fatigue"], tasks: [] },
+      "2026-05-03": { symptoms: [], tasks: [] },
     },
     activeHabitPlanSummary: { completionRate: 67 },
   });
 
-  assert.equal(preview.level, 'personal');
+  assert.equal(preview.level, "personal");
   assert.equal(preview.canShowPersonalPatterns, true);
 });
 ```
@@ -764,10 +763,10 @@ Expected: FAIL because `cycleGuideSummary` does not exist.
 Create `mobile-app/src/lib/cycleGuideSummary.ts`:
 
 ```ts
-import type { CyclePhase, DailyRecord } from './cycleUtils';
-import type { PredictionConfidence } from './cyclePrediction';
+import type { CyclePhase, DailyRecord } from "./cycleUtils";
+import type { PredictionConfidence } from "./cyclePrediction";
 
-export type CycleGuideLevel = 'starter' | 'active' | 'personal';
+export type CycleGuideLevel = "starter" | "active" | "personal";
 
 interface BuildCycleGuidePreviewInput {
   currentPhase: CyclePhase;
@@ -790,55 +789,59 @@ export interface CycleGuidePreview {
 }
 
 const phaseCopy: Record<CyclePhase, string> = {
-  Menstrual: 'tubuh sedang memulai ulang siklus dan biasanya butuh ritme yang lebih lembut',
-  Folikular: 'energi biasanya mulai naik dan tubuh bersiap menuju masa subur',
-  Ovulasi: 'masa subur sedang menjadi fokus utama',
-  Luteal: 'tubuh masuk fase menunggu dan sensitivitas emosi bisa meningkat',
+  Menstrual: "tubuh sedang memulai ulang siklus dan biasanya butuh ritme yang lebih lembut",
+  Folikular: "energi biasanya mulai naik dan tubuh bersiap menuju masa subur",
+  Ovulasi: "masa subur sedang menjadi fokus utama",
+  Luteal: "tubuh masuk fase menunggu dan sensitivitas emosi bisa meningkat",
 };
 
 function countRecentActivity(activityHistory: Record<string, DailyRecord>) {
   return Object.values(activityHistory).filter((record) => {
-    return Boolean(record.isPeriod) || (record.symptoms || []).length > 0 || (record.tasks || []).length > 0;
+    return (
+      Boolean(record.isPeriod) ||
+      (record.symptoms || []).length > 0 ||
+      (record.tasks || []).length > 0
+    );
   }).length;
 }
 
 function confidenceLabel(confidence: PredictionConfidence) {
-  if (confidence === 'high') return 'Pola cukup stabil';
-  if (confidence === 'medium') return 'Mulai personal';
-  return 'Butuh catatan lagi';
+  if (confidence === "high") return "Pola cukup stabil";
+  if (confidence === "medium") return "Mulai personal";
+  return "Butuh catatan lagi";
 }
 
 export function buildCycleGuidePreview(input: BuildCycleGuidePreviewInput): CycleGuidePreview {
   const recentActivityCount = countRecentActivity(input.activityHistory);
   const level: CycleGuideLevel =
-    input.hasManualLogs && input.cycleConfidence !== 'low' && recentActivityCount >= 3
-      ? 'personal'
+    input.hasManualLogs && input.cycleConfidence !== "low" && recentActivityCount >= 3
+      ? "personal"
       : recentActivityCount > 0 || input.hasManualLogs
-        ? 'active'
-        : 'starter';
+        ? "active"
+        : "starter";
 
   const title =
-    level === 'starter'
-      ? 'Panduan awal siklusmu'
-      : level === 'active'
-        ? 'Panduan minggu ini'
-        : 'Insight personal siklusmu';
+    level === "starter"
+      ? "Panduan awal siklusmu"
+      : level === "active"
+        ? "Panduan minggu ini"
+        : "Insight personal siklusmu";
 
   const suggestedHabitFocus =
-    input.currentPhase === 'Ovulasi'
-      ? 'promil dan energi'
-      : input.currentPhase === 'Menstrual'
-        ? 'istirahat dan hidrasi'
-        : input.currentPhase === 'Luteal'
-          ? 'emosi, tidur, dan ketenangan'
-          : 'nutrisi dan konsistensi ringan';
+    input.currentPhase === "Ovulasi"
+      ? "promil dan energi"
+      : input.currentPhase === "Menstrual"
+        ? "istirahat dan hidrasi"
+        : input.currentPhase === "Luteal"
+          ? "emosi, tidur, dan ketenangan"
+          : "nutrisi dan konsistensi ringan";
 
   return {
     level,
     title,
     summary: `Hari ke-${input.cycleDay}. Saat ini ${phaseCopy[input.currentPhase]}. Perkiraan haid berikutnya sekitar ${input.daysToNextPeriod} hari lagi.`,
     confidenceLabel: confidenceLabel(input.cycleConfidence),
-    canShowPersonalPatterns: level === 'personal',
+    canShowPersonalPatterns: level === "personal",
     suggestedHabitFocus,
   };
 }
@@ -864,6 +867,7 @@ git commit -m "feat: add cycle guide preview logic"
 ## Task 6: Backend AI And Credit Helpers
 
 **Files:**
+
 - Create: `backend/ai/openRouter.ts`
 - Create: `backend/ai/schemas.ts`
 - Create: `backend/ai/credits.ts`
@@ -874,12 +878,12 @@ git commit -m "feat: add cycle guide preview logic"
 
 Create `backend/ai/openRouter.ts`:
 
-```ts
+````ts
 export interface OpenRouterChatOptions {
   apiKey: string;
   model: string;
   fallbackModels?: string[];
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
   responseSchemaName: string;
   responseSchema: Record<string, unknown>;
   maxCompletionTokens?: number;
@@ -896,19 +900,23 @@ export interface OpenRouterJsonResult<T> {
 }
 
 function stripJsonFence(value: string) {
-  return value.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+  return value
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
 }
 
 export async function callOpenRouterJson<T>(
-  options: OpenRouterChatOptions
+  options: OpenRouterChatOptions,
 ): Promise<OpenRouterJsonResult<T>> {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
     headers: {
       Authorization: `Bearer ${options.apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://app.siklusio.web.id',
-      'X-Title': 'Siklusio',
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://app.siklusio.web.id",
+      "X-Title": "Siklusio",
     },
     body: JSON.stringify({
       model: options.model,
@@ -917,7 +925,7 @@ export async function callOpenRouterJson<T>(
       temperature: 0.4,
       max_completion_tokens: options.maxCompletionTokens ?? 1800,
       response_format: {
-        type: 'json_schema',
+        type: "json_schema",
         json_schema: {
           name: options.responseSchemaName,
           strict: true,
@@ -933,8 +941,8 @@ export async function callOpenRouterJson<T>(
   }
 
   const content = json?.choices?.[0]?.message?.content;
-  if (!content || typeof content !== 'string') {
-    throw new Error('OpenRouter returned empty content');
+  if (!content || typeof content !== "string") {
+    throw new Error("OpenRouter returned empty content");
   }
 
   return {
@@ -943,7 +951,7 @@ export async function callOpenRouterJson<T>(
     usage: json.usage,
   };
 }
-```
+````
 
 - [ ] **Step 2: Add runtime validators and schemas**
 
@@ -951,39 +959,47 @@ Create `backend/ai/schemas.ts`:
 
 ```ts
 export const habitCoachPlanSchema = {
-  type: 'object',
+  type: "object",
   additionalProperties: false,
-  required: ['coachSummary', 'days'],
+  required: ["coachSummary", "days"],
   properties: {
-    coachSummary: { type: 'string' },
+    coachSummary: { type: "string" },
     days: {
-      type: 'array',
+      type: "array",
       minItems: 7,
       maxItems: 7,
       items: {
-        type: 'object',
+        type: "object",
         additionalProperties: false,
-        required: ['dayIndex', 'focus', 'tasks'],
+        required: ["dayIndex", "focus", "tasks"],
         properties: {
-          dayIndex: { type: 'number' },
-          focus: { type: 'string' },
+          dayIndex: { type: "number" },
+          focus: { type: "string" },
           tasks: {
-            type: 'array',
+            type: "array",
             minItems: 3,
             maxItems: 5,
             items: {
-              type: 'object',
+              type: "object",
               additionalProperties: false,
-              required: ['id', 'text', 'emoji', 'category', 'reason'],
+              required: ["id", "text", "emoji", "category", "reason"],
               properties: {
-                id: { type: 'string' },
-                text: { type: 'string' },
-                emoji: { type: 'string' },
+                id: { type: "string" },
+                text: { type: "string" },
+                emoji: { type: "string" },
                 category: {
-                  type: 'string',
-                  enum: ['hydration', 'nutrition', 'movement', 'rest', 'emotional', 'promil', 'partner'],
+                  type: "string",
+                  enum: [
+                    "hydration",
+                    "nutrition",
+                    "movement",
+                    "rest",
+                    "emotional",
+                    "promil",
+                    "partner",
+                  ],
                 },
-                reason: { type: 'string' },
+                reason: { type: "string" },
               },
             },
           },
@@ -994,29 +1010,36 @@ export const habitCoachPlanSchema = {
 };
 
 export const cycleGuideSchema = {
-  type: 'object',
+  type: "object",
   additionalProperties: false,
-  required: ['summary', 'bodySignals', 'importantDates', 'focusThisWeek', 'habitCoachBridge', 'disclaimer'],
+  required: [
+    "summary",
+    "bodySignals",
+    "importantDates",
+    "focusThisWeek",
+    "habitCoachBridge",
+    "disclaimer",
+  ],
   properties: {
-    summary: { type: 'string' },
-    bodySignals: { type: 'array', minItems: 2, maxItems: 4, items: { type: 'string' } },
-    importantDates: { type: 'array', minItems: 1, maxItems: 4, items: { type: 'string' } },
-    focusThisWeek: { type: 'string' },
-    habitCoachBridge: { type: 'string' },
-    disclaimer: { type: 'string' },
+    summary: { type: "string" },
+    bodySignals: { type: "array", minItems: 2, maxItems: 4, items: { type: "string" } },
+    importantDates: { type: "array", minItems: 1, maxItems: 4, items: { type: "string" } },
+    focusThisWeek: { type: "string" },
+    habitCoachBridge: { type: "string" },
+    disclaimer: { type: "string" },
   },
 };
 
 export function validateHabitCoachPlan(value: any) {
-  if (!value || typeof value.coachSummary !== 'string' || !Array.isArray(value.days)) {
-    throw new Error('Invalid habit coach plan payload');
+  if (!value || typeof value.coachSummary !== "string" || !Array.isArray(value.days)) {
+    throw new Error("Invalid habit coach plan payload");
   }
   if (value.days.length !== 7) {
-    throw new Error('Habit coach plan must contain exactly 7 days');
+    throw new Error("Habit coach plan must contain exactly 7 days");
   }
   for (const day of value.days) {
     if (!Array.isArray(day.tasks) || day.tasks.length < 3 || day.tasks.length > 5) {
-      throw new Error('Each habit coach day must contain 3 to 5 tasks');
+      throw new Error("Each habit coach day must contain 3 to 5 tasks");
     }
   }
   return value as {
@@ -1030,8 +1053,8 @@ export function validateHabitCoachPlan(value: any) {
 }
 
 export function validateCycleGuide(value: any) {
-  if (!value || typeof value.summary !== 'string' || !Array.isArray(value.bodySignals)) {
-    throw new Error('Invalid cycle guide payload');
+  if (!value || typeof value.summary !== "string" || !Array.isArray(value.bodySignals)) {
+    throw new Error("Invalid cycle guide payload");
   }
   return value as {
     summary: string;
@@ -1050,11 +1073,11 @@ Create `backend/ai/credits.ts`:
 
 ```ts
 export async function getAiCreditBalance(supabaseAdmin: any, userId: string) {
-  await supabaseAdmin.rpc('ensure_ai_credit_balance', { p_user_id: userId });
+  await supabaseAdmin.rpc("ensure_ai_credit_balance", { p_user_id: userId });
   const { data, error } = await supabaseAdmin
-    .from('ai_credit_balances')
-    .select('balance')
-    .eq('user_id', userId)
+    .from("ai_credit_balances")
+    .select("balance")
+    .eq("user_id", userId)
     .maybeSingle();
 
   if (error) throw error;
@@ -1070,7 +1093,7 @@ export async function chargeAiCredits(params: {
   referenceId: string;
   metadata?: Record<string, unknown>;
 }) {
-  const { data, error } = await params.supabaseAdmin.rpc('charge_ai_credits', {
+  const { data, error } = await params.supabaseAdmin.rpc("charge_ai_credits", {
     p_user_id: params.userId,
     p_amount: params.amount,
     p_feature: params.feature,
@@ -1139,6 +1162,7 @@ git commit -m "feat: add openrouter ai helpers"
 ## Task 7: Backend Habit Coach Endpoints
 
 **Files:**
+
 - Create: `backend/ai/prompts.ts`
 - Create: `backend/ai/habitSummary.ts`
 - Modify: `backend/index.ts`
@@ -1150,19 +1174,19 @@ Create `backend/ai/prompts.ts`:
 ```ts
 export function buildHabitCoachMessages(input: {
   nickname: string;
-  mode: 'initial' | 'renewal';
+  mode: "initial" | "renewal";
   answers: Array<{ question: string; answer: string }>;
   cycleSnapshot: Record<string, unknown>;
   previousSummary: Record<string, unknown>;
 }) {
   return [
     {
-      role: 'system' as const,
+      role: "system" as const,
       content:
-        'Kamu adalah Habit Coach promil Siklusio. Buat rencana habit 7 hari yang realistis, hangat, praktis, dan aman. Jangan memberi diagnosis medis, jangan menjanjikan hamil, dan jangan menyuruh tindakan berisiko. Output wajib JSON valid sesuai schema.',
+        "Kamu adalah Habit Coach promil Siklusio. Buat rencana habit 7 hari yang realistis, hangat, praktis, dan aman. Jangan memberi diagnosis medis, jangan menjanjikan hamil, dan jangan menyuruh tindakan berisiko. Output wajib JSON valid sesuai schema.",
     },
     {
-      role: 'user' as const,
+      role: "user" as const,
       content: JSON.stringify({
         nickname: input.nickname,
         mode: input.mode,
@@ -1170,11 +1194,11 @@ export function buildHabitCoachMessages(input: {
         cycleSnapshot: input.cycleSnapshot,
         previousSummary: input.previousSummary,
         rules: [
-          'Setiap hari berisi 3 sampai 5 habit kecil.',
-          'Gunakan bahan dan aktivitas yang realistis untuk pengguna Indonesia.',
-          'Tulis dalam Bahasa Indonesia dengan kata kamu, bukan Anda.',
-          'Habit harus bisa diceklis, spesifik, dan selesai kurang dari 10 menit kecuali user memilih tantangan tinggi.',
-          'Jangan membuat plan yang sama persis setiap hari.',
+          "Setiap hari berisi 3 sampai 5 habit kecil.",
+          "Gunakan bahan dan aktivitas yang realistis untuk pengguna Indonesia.",
+          "Tulis dalam Bahasa Indonesia dengan kata kamu, bukan Anda.",
+          "Habit harus bisa diceklis, spesifik, dan selesai kurang dari 10 menit kecuali user memilih tantangan tinggi.",
+          "Jangan membuat plan yang sama persis setiap hari.",
         ],
       }),
     },
@@ -1183,24 +1207,24 @@ export function buildHabitCoachMessages(input: {
 
 export function buildCycleGuideMessages(input: {
   nickname: string;
-  guideLevel: 'starter' | 'active' | 'personal';
+  guideLevel: "starter" | "active" | "personal";
   cycleSnapshot: Record<string, unknown>;
   habitSnapshot: Record<string, unknown>;
 }) {
   return [
     {
-      role: 'system' as const,
+      role: "system" as const,
       content:
-        'Kamu adalah Panduan Siklus Siklusio. Jelaskan kondisi siklus dan tanggal penting. Jangan membuat checklist habit baru. Jika perlu aksi, arahkan ke Habit Coach. Jangan memberi diagnosis medis atau janji kehamilan. Output wajib JSON valid sesuai schema.',
+        "Kamu adalah Panduan Siklus Siklusio. Jelaskan kondisi siklus dan tanggal penting. Jangan membuat checklist habit baru. Jika perlu aksi, arahkan ke Habit Coach. Jangan memberi diagnosis medis atau janji kehamilan. Output wajib JSON valid sesuai schema.",
     },
     {
-      role: 'user' as const,
+      role: "user" as const,
       content: JSON.stringify({
         nickname: input.nickname,
         guideLevel: input.guideLevel,
         cycleSnapshot: input.cycleSnapshot,
         habitSnapshot: input.habitSnapshot,
-        tone: 'hangat, jelas, singkat, tidak menggurui',
+        tone: "hangat, jelas, singkat, tidak menggurui",
       }),
     },
   ];
@@ -1248,34 +1272,34 @@ export function summarizeActivityHistory(activityHistory: Record<string, any>) {
 Add imports:
 
 ```ts
-import { callOpenRouterJson } from './ai/openRouter';
-import { chargeAiCredits, getAiCreditBalance } from './ai/credits';
-import { buildHabitCoachMessages } from './ai/prompts';
-import { habitCoachPlanSchema, validateHabitCoachPlan } from './ai/schemas';
-import { summarizeActivityHistory } from './ai/habitSummary';
+import { callOpenRouterJson } from "./ai/openRouter";
+import { chargeAiCredits, getAiCreditBalance } from "./ai/credits";
+import { buildHabitCoachMessages } from "./ai/prompts";
+import { habitCoachPlanSchema, validateHabitCoachPlan } from "./ai/schemas";
+import { summarizeActivityHistory } from "./ai/habitSummary";
 ```
 
 Add routes before admin endpoints:
 
 ```ts
-app.get('/api/ai/credits', async (c) => {
+app.get("/api/ai/credits", async (c) => {
   const auth = await requireUser(c);
-  if (!auth) return c.json({ error: 'Missing or invalid session' }, 401);
+  if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
   const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
   return c.json({ balance });
 });
 
-app.get('/api/habit-coach/current', async (c) => {
+app.get("/api/habit-coach/current", async (c) => {
   const auth = await requireUser(c);
-  if (!auth) return c.json({ error: 'Missing or invalid session' }, 401);
+  if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
   const { data: plan, error } = await auth.supabaseAdmin
-    .from('habit_coach_plans')
-    .select('*, habit_coach_plan_days(*)')
-    .eq('user_id', auth.user.id)
-    .eq('status', 'active')
-    .order('week_start', { ascending: false })
+    .from("habit_coach_plans")
+    .select("*, habit_coach_plan_days(*)")
+    .eq("user_id", auth.user.id)
+    .eq("status", "active")
+    .order("week_start", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -1283,17 +1307,17 @@ app.get('/api/habit-coach/current', async (c) => {
   return c.json({ plan });
 });
 
-app.post('/api/habit-coach/generate', async (c) => {
+app.post("/api/habit-coach/generate", async (c) => {
   try {
     const auth = await requireUser(c);
-    if (!auth) return c.json({ error: 'Missing or invalid session' }, 401);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
     const body = await c.req.json();
-    const mode = body.mode === 'renewal' ? 'renewal' : 'initial';
-    const creditCost = mode === 'renewal' ? 60 : 50;
+    const mode = body.mode === "renewal" ? "renewal" : "initial";
+    const creditCost = mode === "renewal" ? 60 : 50;
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
     if (balance < creditCost) {
-      return c.json({ error: 'Saldo kredit AI tidak cukup.', balance, required: creditCost }, 402);
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
     }
 
     const cycleSnapshot = body.cycleSnapshot || {};
@@ -1304,16 +1328,16 @@ app.post('/api/habit-coach/generate', async (c) => {
 
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
-      model: c.env.OPENROUTER_FREE_MODEL || 'qwen/qwen3-next-80b-a3b-instruct:free',
-      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || 'openai/gpt-5-nano'],
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
       messages: buildHabitCoachMessages({
-        nickname: body.nickname || '',
+        nickname: body.nickname || "",
         mode,
         answers: body.answers || [],
         cycleSnapshot,
         previousSummary,
       }),
-      responseSchemaName: 'habit_coach_plan',
+      responseSchemaName: "habit_coach_plan",
       responseSchema: habitCoachPlanSchema,
       maxCompletionTokens: 2200,
     });
@@ -1321,14 +1345,14 @@ app.post('/api/habit-coach/generate', async (c) => {
     const result = validateHabitCoachPlan(ai.data);
 
     const { data: savedPlan, error: insertPlanError } = await auth.supabaseAdmin
-      .from('habit_coach_plans')
+      .from("habit_coach_plans")
       .insert({
         user_id: auth.user.id,
         week_start: body.weekStart,
         week_end: body.weekEnd,
         mode,
-        status: 'pending_charge',
-        user_goal: body.userGoal || 'habit sehat',
+        status: "pending_charge",
+        user_goal: body.userGoal || "habit sehat",
         user_constraints: { answers: body.answers || [] },
         cycle_snapshot: cycleSnapshot,
         previous_summary: previousSummary,
@@ -1350,7 +1374,7 @@ app.post('/api/habit-coach/generate', async (c) => {
     }));
 
     const { error: insertDaysError } = await auth.supabaseAdmin
-      .from('habit_coach_plan_days')
+      .from("habit_coach_plan_days")
       .insert(days);
 
     if (insertDaysError) throw insertDaysError;
@@ -1359,16 +1383,16 @@ app.post('/api/habit-coach/generate', async (c) => {
       supabaseAdmin: auth.supabaseAdmin,
       userId: auth.user.id,
       amount: creditCost,
-      feature: 'habit_coach',
+      feature: "habit_coach",
       reason: mode,
       referenceId: savedPlan.id,
       metadata: { model: ai.model, usage: ai.usage || null },
     });
 
     const { data: activatedPlan, error: activateError } = await auth.supabaseAdmin
-      .from('habit_coach_plans')
-      .update({ status: 'active' })
-      .eq('id', savedPlan.id)
+      .from("habit_coach_plans")
+      .update({ status: "active" })
+      .eq("id", savedPlan.id)
       .select()
       .single();
 
@@ -1379,8 +1403,8 @@ app.post('/api/habit-coach/generate', async (c) => {
       balance: balanceAfter,
     });
   } catch (error: any) {
-    console.error('[habit-coach/generate]', error.stack || error);
-    return c.json({ error: error.message || 'Gagal membuat rencana habit.' }, 500);
+    console.error("[habit-coach/generate]", error.stack || error);
+    return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);
   }
 });
 ```
@@ -1405,6 +1429,7 @@ git commit -m "feat: add habit coach api"
 ## Task 8: Habit Coach UI
 
 **Files:**
+
 - Create: `mobile-app/components/habits/HabitCoachCard.tsx`
 - Create: `mobile-app/components/habits/HabitCoachSheet.tsx`
 - Create: `mobile-app/components/habits/HabitPlanWeekView.tsx`
@@ -1416,9 +1441,9 @@ git commit -m "feat: add habit coach api"
 Create `mobile-app/components/habits/HabitCoachCard.tsx`:
 
 ```tsx
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import type { HabitCoachPlan } from '../../src/lib/habitCoachTypes';
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import type { HabitCoachPlan } from "../../src/lib/habitCoachTypes";
 
 interface Props {
   plan: HabitCoachPlan | null;
@@ -1430,30 +1455,55 @@ export function HabitCoachCard({ plan, creditBalance, onOpenCoach }: Props) {
   const hasPlan = Boolean(plan);
 
   return (
-    <View style={{ backgroundColor: '#eef2ff', borderRadius: 24, padding: 18, borderWidth: 1, borderColor: '#dbeafe', gap: 12 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+    <View
+      style={{
+        backgroundColor: "#eef2ff",
+        borderRadius: 24,
+        padding: 18,
+        borderWidth: 1,
+        borderColor: "#dbeafe",
+        gap: 12,
+      }}
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 12, color: '#4f46e5', fontWeight: '800', textTransform: 'uppercase' }}>
+          <Text
+            style={{
+              fontSize: 12,
+              color: "#4f46e5",
+              fontWeight: "800",
+              textTransform: "uppercase",
+            }}
+          >
             Coach Habit
           </Text>
-          <Text style={{ fontSize: 18, color: '#1e1b4b', fontWeight: '800', marginTop: 4 }}>
-            {hasPlan ? 'Rencana 7 harimu aktif' : 'Buat rencana 7 hari'}
+          <Text style={{ fontSize: 18, color: "#1e1b4b", fontWeight: "800", marginTop: 4 }}>
+            {hasPlan ? "Rencana 7 harimu aktif" : "Buat rencana 7 hari"}
           </Text>
-          <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18, marginTop: 4 }}>
-            {hasPlan ? plan!.coachSummary : 'Jawab beberapa pertanyaan singkat, lalu coach membuat habit kecil yang bisa kamu ceklis setiap hari.'}
+          <Text style={{ fontSize: 12, color: "#475569", lineHeight: 18, marginTop: 4 }}>
+            {hasPlan
+              ? plan!.coachSummary
+              : "Jawab beberapa pertanyaan singkat, lalu coach membuat habit kecil yang bisa kamu ceklis setiap hari."}
           </Text>
         </View>
-        <Text style={{ fontSize: 11, color: '#64748b', fontWeight: '700' }}>
-          {creditBalance == null ? '' : `${creditBalance} kredit`}
+        <Text style={{ fontSize: 11, color: "#64748b", fontWeight: "700" }}>
+          {creditBalance == null ? "" : `${creditBalance} kredit`}
         </Text>
       </View>
 
       <TouchableOpacity
         onPress={onOpenCoach}
-        style={{ backgroundColor: '#4f46e5', borderRadius: 16, paddingVertical: 13, alignItems: 'center' }}
+        style={{
+          backgroundColor: "#4f46e5",
+          borderRadius: 16,
+          paddingVertical: 13,
+          alignItems: "center",
+        }}
       >
-        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' }}>
-          {hasPlan ? 'Review Rencana' : 'Mulai Coach'}
+        <Text
+          style={{ color: "#fff", fontSize: 12, fontWeight: "800", textTransform: "uppercase" }}
+        >
+          {hasPlan ? "Review Rencana" : "Mulai Coach"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -1466,20 +1516,36 @@ export function HabitCoachCard({ plan, creditBalance, onOpenCoach }: Props) {
 Create `mobile-app/components/habits/HabitCoachSheet.tsx`:
 
 ```tsx
-import React, { useState } from 'react';
-import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import type { CoachQuestionAnswer, HabitCoachPlan } from '../../src/lib/habitCoachTypes';
+import React, { useState } from "react";
+import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import type { CoachQuestionAnswer, HabitCoachPlan } from "../../src/lib/habitCoachTypes";
 
 const questions = [
-  { id: 'goal', question: 'Minggu ini kamu mau fokus ke apa?', placeholder: 'Contoh: promil aktif, tidur lebih rapi, lebih tenang saat TWW' },
-  { id: 'time', question: 'Waktu realistis per hari berapa menit?', placeholder: 'Contoh: 5-10 menit' },
-  { id: 'constraint', question: 'Ada kendala yang perlu coach tahu?', placeholder: 'Contoh: kerja padat, gampang lelah, kram, susah tidur' },
-  { id: 'intensity', question: 'Mau target ringan, sedang, atau menantang?', placeholder: 'Contoh: ringan dulu' },
+  {
+    id: "goal",
+    question: "Minggu ini kamu mau fokus ke apa?",
+    placeholder: "Contoh: promil aktif, tidur lebih rapi, lebih tenang saat TWW",
+  },
+  {
+    id: "time",
+    question: "Waktu realistis per hari berapa menit?",
+    placeholder: "Contoh: 5-10 menit",
+  },
+  {
+    id: "constraint",
+    question: "Ada kendala yang perlu coach tahu?",
+    placeholder: "Contoh: kerja padat, gampang lelah, kram, susah tidur",
+  },
+  {
+    id: "intensity",
+    question: "Mau target ringan, sedang, atau menantang?",
+    placeholder: "Contoh: ringan dulu",
+  },
 ];
 
 interface Props {
   visible: boolean;
-  mode: 'initial' | 'renewal';
+  mode: "initial" | "renewal";
   loading: boolean;
   error: string | null;
   onClose: () => void;
@@ -1493,26 +1559,43 @@ export function HabitCoachSheet({ visible, mode, loading, error, onClose, onGene
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 22, gap: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#111827' }}>
-            {mode === 'renewal' ? 'Review dan buat plan baru' : 'Diskusi singkat dengan coach'}
+      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" }}>
+        <View
+          style={{
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            padding: 22,
+            gap: 16,
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "800", color: "#111827" }}>
+            {mode === "renewal" ? "Review dan buat plan baru" : "Diskusi singkat dengan coach"}
           </Text>
 
           {questions.map((item) => (
             <View key={item.id} style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '800', color: '#4f46e5' }}>{item.question}</Text>
+              <Text style={{ fontSize: 12, fontWeight: "800", color: "#4f46e5" }}>
+                {item.question}
+              </Text>
               <TextInput
-                value={answers[item.id] || ''}
+                value={answers[item.id] || ""}
                 onChangeText={(value) => setAnswers((prev) => ({ ...prev, [item.id]: value }))}
                 placeholder={item.placeholder}
                 placeholderTextColor="#94a3b8"
-                style={{ borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 14, padding: 12, fontSize: 13, color: '#111827' }}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#e2e8f0",
+                  borderRadius: 14,
+                  padding: 12,
+                  fontSize: 13,
+                  color: "#111827",
+                }}
               />
             </View>
           ))}
 
-          {error && <Text style={{ color: '#dc2626', fontSize: 12 }}>{error}</Text>}
+          {error && <Text style={{ color: "#dc2626", fontSize: 12 }}>{error}</Text>}
 
           <TouchableOpacity
             disabled={!canSubmit || loading}
@@ -1522,12 +1605,23 @@ export function HabitCoachSheet({ visible, mode, loading, error, onClose, onGene
                   id: item.id,
                   question: item.question,
                   answer: answers[item.id].trim(),
-                }))
+                })),
               )
             }
-            style={{ backgroundColor: canSubmit ? '#4f46e5' : '#cbd5e1', borderRadius: 16, paddingVertical: 14, alignItems: 'center' }}
+            style={{
+              backgroundColor: canSubmit ? "#4f46e5" : "#cbd5e1",
+              borderRadius: 16,
+              paddingVertical: 14,
+              alignItems: "center",
+            }}
           >
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '800' }}>Gunakan {mode === 'renewal' ? 60 : 50} kredit</Text>}
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={{ color: "#fff", fontWeight: "800" }}>
+                Gunakan {mode === "renewal" ? 60 : 50} kredit
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -1541,19 +1635,30 @@ export function HabitCoachSheet({ visible, mode, loading, error, onClose, onGene
 Create `mobile-app/components/habits/HabitPlanWeekView.tsx`:
 
 ```tsx
-import React from 'react';
-import { Text, View } from 'react-native';
-import type { HabitCoachPlan } from '../../src/lib/habitCoachTypes';
+import React from "react";
+import { Text, View } from "react-native";
+import type { HabitCoachPlan } from "../../src/lib/habitCoachTypes";
 
 export function HabitPlanWeekView({ plan }: { plan: HabitCoachPlan }) {
   return (
-    <View style={{ backgroundColor: '#fff', borderRadius: 24, padding: 18, borderWidth: 1, borderColor: '#e5e7eb', gap: 12 }}>
-      <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>Rencana 7 Hari</Text>
+    <View
+      style={{
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        padding: 18,
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+        gap: 12,
+      }}
+    >
+      <Text style={{ fontSize: 14, fontWeight: "800", color: "#111827" }}>Rencana 7 Hari</Text>
       {plan.days.map((day) => (
         <View key={day.dateKey} style={{ gap: 4 }}>
-          <Text style={{ fontSize: 12, fontWeight: '800', color: '#4f46e5' }}>Hari {day.dayIndex}: {day.focus}</Text>
+          <Text style={{ fontSize: 12, fontWeight: "800", color: "#4f46e5" }}>
+            Hari {day.dayIndex}: {day.focus}
+          </Text>
           {day.tasks.map((task) => (
-            <Text key={task.id} style={{ fontSize: 12, color: '#475569', lineHeight: 18 }}>
+            <Text key={task.id} style={{ fontSize: 12, color: "#475569", lineHeight: 18 }}>
               - {task.text}
             </Text>
           ))}
@@ -1595,26 +1700,30 @@ const handleGenerateCoachPlan = async (answers: CoachQuestionAnswer[]) => {
   try {
     const weekStart = getLocalWeekStart(viewedDate);
     const weekEnd = getLocalWeekEnd(viewedDate);
-    const dateKeys = Array.from({ length: 7 }, (_, index) => format(addDays(weekStart, index), 'yyyy-MM-dd'));
+    const dateKeys = Array.from({ length: 7 }, (_, index) =>
+      format(addDays(weekStart, index), "yyyy-MM-dd"),
+    );
 
-    const json = await apiPostJson<{ plan: any; balance: number }>('/api/habit-coach/generate', {
-      mode: habitCoachPlan ? 'renewal' : 'initial',
+    const json = await apiPostJson<{ plan: any; balance: number }>("/api/habit-coach/generate", {
+      mode: habitCoachPlan ? "renewal" : "initial",
       answers,
       nickname: userNickname,
-      userGoal: answers.find((answer) => answer.id === 'goal')?.answer || 'habit sehat',
-      weekStart: format(weekStart, 'yyyy-MM-dd'),
-      weekEnd: format(weekEnd, 'yyyy-MM-dd'),
+      userGoal: answers.find((answer) => answer.id === "goal")?.answer || "habit sehat",
+      weekStart: format(weekStart, "yyyy-MM-dd"),
+      weekEnd: format(weekEnd, "yyyy-MM-dd"),
       dateKeys,
       activityHistory,
       cycleSnapshot: { currentPhase },
-      previousSummary: habitCoachPlan ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory) : null,
+      previousSummary: habitCoachPlan
+        ? summarizeHabitPlanCompletion(habitCoachPlan, activityHistory)
+        : null,
     });
 
     setHabitCoachPlan(mapApiHabitPlan(json.plan));
     setAiCreditBalance(json.balance);
     setCoachOpen(false);
   } catch (error: any) {
-    setCoachError(error.message || 'Gagal membuat rencana habit.');
+    setCoachError(error.message || "Gagal membuat rencana habit.");
   } finally {
     setCoachLoading(false);
   }
@@ -1661,6 +1770,7 @@ git commit -m "feat: add ai habit coach flow"
 ## Task 9: Backend Panduan Siklus Endpoint
 
 **Files:**
+
 - Create: `backend/ai/cycleGuideSummary.ts`
 - Modify: `backend/index.ts`
 
@@ -1690,23 +1800,23 @@ export function buildCycleGuideSnapshot(body: any) {
 In `backend/index.ts`, add imports:
 
 ```ts
-import { buildCycleGuideMessages } from './ai/prompts';
-import { cycleGuideSchema, validateCycleGuide } from './ai/schemas';
-import { buildCycleGuideSnapshot } from './ai/cycleGuideSummary';
+import { buildCycleGuideMessages } from "./ai/prompts";
+import { cycleGuideSchema, validateCycleGuide } from "./ai/schemas";
+import { buildCycleGuideSnapshot } from "./ai/cycleGuideSummary";
 ```
 
 Add route:
 
 ```ts
-app.post('/api/cycle-guide/generate', async (c) => {
+app.post("/api/cycle-guide/generate", async (c) => {
   try {
     const auth = await requireUser(c);
-    if (!auth) return c.json({ error: 'Missing or invalid session' }, 401);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
     const creditCost = 40;
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
     if (balance < creditCost) {
-      return c.json({ error: 'Saldo kredit AI tidak cukup.', balance, required: creditCost }, 402);
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
     }
 
     const body = await c.req.json();
@@ -1715,15 +1825,15 @@ app.post('/api/cycle-guide/generate', async (c) => {
 
     const ai = await callOpenRouterJson<any>({
       apiKey: c.env.OPENROUTER_API_KEY,
-      model: c.env.OPENROUTER_FREE_MODEL || 'qwen/qwen3-next-80b-a3b-instruct:free',
-      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || 'openai/gpt-5-nano'],
+      model: c.env.OPENROUTER_FREE_MODEL || "qwen/qwen3-next-80b-a3b-instruct:free",
+      fallbackModels: [c.env.OPENROUTER_PAID_MODEL || "openai/gpt-5-nano"],
       messages: buildCycleGuideMessages({
-        nickname: body.nickname || '',
-        guideLevel: body.guideLevel || 'starter',
+        nickname: body.nickname || "",
+        guideLevel: body.guideLevel || "starter",
         cycleSnapshot,
         habitSnapshot,
       }),
-      responseSchemaName: 'cycle_guide',
+      responseSchemaName: "cycle_guide",
       responseSchema: cycleGuideSchema,
       maxCompletionTokens: 1200,
     });
@@ -1731,15 +1841,15 @@ app.post('/api/cycle-guide/generate', async (c) => {
     const result = validateCycleGuide(ai.data);
 
     const { data: saved, error: saveError } = await auth.supabaseAdmin
-      .from('cycle_guides')
+      .from("cycle_guides")
       .insert({
         user_id: auth.user.id,
         generated_for_date: body.generatedForDate,
-        guide_level: body.guideLevel || 'starter',
+        guide_level: body.guideLevel || "starter",
         cycle_snapshot: cycleSnapshot,
         habit_snapshot: habitSnapshot,
         result,
-        status: 'pending_charge',
+        status: "pending_charge",
         ai_model: ai.model,
         credit_cost: creditCost,
       })
@@ -1752,16 +1862,16 @@ app.post('/api/cycle-guide/generate', async (c) => {
       supabaseAdmin: auth.supabaseAdmin,
       userId: auth.user.id,
       amount: creditCost,
-      feature: 'cycle_guide',
-      reason: body.guideLevel || 'starter',
+      feature: "cycle_guide",
+      reason: body.guideLevel || "starter",
       referenceId: saved.id,
       metadata: { model: ai.model, usage: ai.usage || null },
     });
 
     const { data: activatedGuide, error: activateError } = await auth.supabaseAdmin
-      .from('cycle_guides')
-      .update({ status: 'active' })
-      .eq('id', saved.id)
+      .from("cycle_guides")
+      .update({ status: "active" })
+      .eq("id", saved.id)
       .select()
       .single();
 
@@ -1769,8 +1879,8 @@ app.post('/api/cycle-guide/generate', async (c) => {
 
     return c.json({ guide: activatedGuide, result, balance: balanceAfter });
   } catch (error: any) {
-    console.error('[cycle-guide/generate]', error.stack || error);
-    return c.json({ error: error.message || 'Gagal membuat panduan siklus.' }, 500);
+    console.error("[cycle-guide/generate]", error.stack || error);
+    return c.json({ error: error.message || "Gagal membuat panduan siklus." }, 500);
   }
 });
 ```
@@ -1795,6 +1905,7 @@ git commit -m "feat: add cycle guide api"
 ## Task 10: Panduan Siklus UI
 
 **Files:**
+
 - Create: `mobile-app/components/calendar/CycleGuideCard.tsx`
 - Create: `mobile-app/components/calendar/CycleGuideModal.tsx`
 - Modify: `mobile-app/app/(tabs)/calendar.tsx`
@@ -1805,9 +1916,9 @@ git commit -m "feat: add cycle guide api"
 Create `mobile-app/components/calendar/CycleGuideCard.tsx`:
 
 ```tsx
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import type { CycleGuidePreview } from '../../src/lib/cycleGuideSummary';
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import type { CycleGuidePreview } from "../../src/lib/cycleGuideSummary";
 
 interface Props {
   preview: CycleGuidePreview;
@@ -1819,14 +1930,24 @@ export function CycleGuideCard({ preview, onOpen }: Props) {
     <TouchableOpacity
       onPress={onOpen}
       activeOpacity={0.9}
-      style={{ marginTop: 24, backgroundColor: '#fdf2f8', borderWidth: 1, borderColor: '#fbcfe8', borderRadius: 28, padding: 18, gap: 8 }}
+      style={{
+        marginTop: 24,
+        backgroundColor: "#fdf2f8",
+        borderWidth: 1,
+        borderColor: "#fbcfe8",
+        borderRadius: 28,
+        padding: 18,
+        gap: 8,
+      }}
     >
-      <Text style={{ fontSize: 11, color: '#db2777', fontWeight: '800', textTransform: 'uppercase' }}>
+      <Text
+        style={{ fontSize: 11, color: "#db2777", fontWeight: "800", textTransform: "uppercase" }}
+      >
         Panduan Siklus
       </Text>
-      <Text style={{ fontSize: 17, color: '#1f2937', fontWeight: '800' }}>{preview.title}</Text>
-      <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18 }}>{preview.summary}</Text>
-      <Text style={{ fontSize: 11, color: '#db2777', fontWeight: '700' }}>
+      <Text style={{ fontSize: 17, color: "#1f2937", fontWeight: "800" }}>{preview.title}</Text>
+      <Text style={{ fontSize: 12, color: "#475569", lineHeight: 18 }}>{preview.summary}</Text>
+      <Text style={{ fontSize: 11, color: "#db2777", fontWeight: "700" }}>
         Akurasi: {preview.confidenceLabel}
       </Text>
     </TouchableOpacity>
@@ -1839,10 +1960,10 @@ export function CycleGuideCard({ preview, onOpen }: Props) {
 Create `mobile-app/components/calendar/CycleGuideModal.tsx`:
 
 ```tsx
-import React, { useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { apiPostJson } from '../../src/lib/api';
-import type { CycleGuidePreview } from '../../src/lib/cycleGuideSummary';
+import React, { useState } from "react";
+import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { apiPostJson } from "../../src/lib/api";
+import type { CycleGuidePreview } from "../../src/lib/cycleGuideSummary";
 
 interface Props {
   visible: boolean;
@@ -1861,10 +1982,10 @@ export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabi
     setLoading(true);
     setError(null);
     try {
-      const json = await apiPostJson<any>('/api/cycle-guide/generate', payload);
+      const json = await apiPostJson<any>("/api/cycle-guide/generate", payload);
       setResult(json.result);
     } catch (err: any) {
-      setError(err.message || 'Gagal membuat panduan personal.');
+      setError(err.message || "Gagal membuat panduan personal.");
     } finally {
       setLoading(false);
     }
@@ -1872,34 +1993,89 @@ export function CycleGuideModal({ visible, preview, payload, onClose, onOpenHabi
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '86%', padding: 22 }}>
+      <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" }}>
+        <View
+          style={{
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            maxHeight: "86%",
+            padding: 22,
+          }}
+        >
           <ScrollView contentContainerStyle={{ gap: 14, paddingBottom: 20 }}>
-            <Text style={{ fontSize: 12, color: '#db2777', fontWeight: '800', textTransform: 'uppercase' }}>Panduan Siklus</Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: '#111827' }}>{preview.title}</Text>
-            <Text style={{ fontSize: 13, color: '#475569', lineHeight: 20 }}>{preview.summary}</Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: "#db2777",
+                fontWeight: "800",
+                textTransform: "uppercase",
+              }}
+            >
+              Panduan Siklus
+            </Text>
+            <Text style={{ fontSize: 20, fontWeight: "800", color: "#111827" }}>
+              {preview.title}
+            </Text>
+            <Text style={{ fontSize: 13, color: "#475569", lineHeight: 20 }}>
+              {preview.summary}
+            </Text>
 
             {!result && (
-              <TouchableOpacity onPress={generate} disabled={loading} style={{ backgroundColor: '#db2777', borderRadius: 16, paddingVertical: 14, alignItems: 'center' }}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '800' }}>Buat panduan personal - 40 kredit</Text>}
+              <TouchableOpacity
+                onPress={generate}
+                disabled={loading}
+                style={{
+                  backgroundColor: "#db2777",
+                  borderRadius: 16,
+                  paddingVertical: 14,
+                  alignItems: "center",
+                }}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={{ color: "#fff", fontWeight: "800" }}>
+                    Buat panduan personal - 40 kredit
+                  </Text>
+                )}
               </TouchableOpacity>
             )}
 
-            {error && <Text style={{ color: '#dc2626', fontSize: 12 }}>{error}</Text>}
+            {error && <Text style={{ color: "#dc2626", fontSize: 12 }}>{error}</Text>}
 
             {result && (
               <View style={{ gap: 12 }}>
-                <Text style={{ fontSize: 14, color: '#111827', lineHeight: 21 }}>{result.summary}</Text>
+                <Text style={{ fontSize: 14, color: "#111827", lineHeight: 21 }}>
+                  {result.summary}
+                </Text>
                 {result.bodySignals?.map((item: string, index: number) => (
-                  <Text key={index} style={{ fontSize: 13, color: '#475569', lineHeight: 20 }}>- {item}</Text>
+                  <Text key={index} style={{ fontSize: 13, color: "#475569", lineHeight: 20 }}>
+                    - {item}
+                  </Text>
                 ))}
-                <Text style={{ fontSize: 13, color: '#111827', fontWeight: '800' }}>{result.focusThisWeek}</Text>
-                <Text style={{ fontSize: 12, color: '#64748b', lineHeight: 18 }}>{result.disclaimer}</Text>
+                <Text style={{ fontSize: 13, color: "#111827", fontWeight: "800" }}>
+                  {result.focusThisWeek}
+                </Text>
+                <Text style={{ fontSize: 12, color: "#64748b", lineHeight: 18 }}>
+                  {result.disclaimer}
+                </Text>
               </View>
             )}
 
-            <TouchableOpacity onPress={onOpenHabitCoach} style={{ borderWidth: 1, borderColor: '#db2777', borderRadius: 16, paddingVertical: 13, alignItems: 'center' }}>
-              <Text style={{ color: '#db2777', fontWeight: '800' }}>Sesuaikan habit minggu ini</Text>
+            <TouchableOpacity
+              onPress={onOpenHabitCoach}
+              style={{
+                borderWidth: 1,
+                borderColor: "#db2777",
+                borderRadius: 16,
+                paddingVertical: 13,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#db2777", fontWeight: "800" }}>
+                Sesuaikan habit minggu ini
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -1934,17 +2110,17 @@ Payload for AI:
 
 ```ts
 const cycleGuidePayload = {
-  generatedForDate: format(new Date(), 'yyyy-MM-dd'),
+  generatedForDate: format(new Date(), "yyyy-MM-dd"),
   guideLevel: preview.level,
   currentPhase,
   cycleDay,
   daysToNextPeriod,
   fertileWindow: {
-    start: fertileWindowStart ? format(fertileWindowStart, 'yyyy-MM-dd') : '',
-    end: fertileWindowEnd ? format(fertileWindowEnd, 'yyyy-MM-dd') : '',
+    start: fertileWindowStart ? format(fertileWindowStart, "yyyy-MM-dd") : "",
+    end: fertileWindowEnd ? format(fertileWindowEnd, "yyyy-MM-dd") : "",
   },
-  ovulationDate: ovulationDate ? format(ovulationDate, 'yyyy-MM-dd') : '',
-  nextPeriodDate: nextPeriodDate ? format(nextPeriodDate, 'yyyy-MM-dd') : '',
+  ovulationDate: ovulationDate ? format(ovulationDate, "yyyy-MM-dd") : "",
+  nextPeriodDate: nextPeriodDate ? format(nextPeriodDate, "yyyy-MM-dd") : "",
   cycleConfidence,
   periodConfidence,
   lastPredictionDeltaDays,
@@ -1989,6 +2165,7 @@ git commit -m "feat: add panduan siklus flow"
 ## Task 11: Credit Grants For Premium Buyers
 
 **Files:**
+
 - Modify: `backend/index.ts`
 
 - [ ] **Step 1: Grant 500 credits after premium registration succeeds**
@@ -1996,13 +2173,13 @@ git commit -m "feat: add panduan siklus flow"
 In the free-bypass and paid webhook success flows, after the Supabase user exists and profile exists, call:
 
 ```ts
-await supabaseAdmin.rpc('grant_ai_credits', {
+await supabaseAdmin.rpc("grant_ai_credits", {
   p_user_id: userId,
   p_amount: 500,
-  p_feature: 'premium_bonus',
-  p_reason: 'premium_initial_bonus',
+  p_feature: "premium_bonus",
+  p_reason: "premium_initial_bonus",
   p_reference_id: session?.id || null,
-  p_metadata: { source: 'premium_lifetime' },
+  p_metadata: { source: "premium_lifetime" },
 });
 ```
 
@@ -2017,21 +2194,21 @@ Before granting, query the ledger:
 
 ```ts
 const { data: existingBonus } = await supabaseAdmin
-  .from('ai_credit_ledger')
-  .select('id')
-  .eq('user_id', userId)
-  .eq('feature', 'premium_bonus')
-  .eq('reason', 'premium_initial_bonus')
+  .from("ai_credit_ledger")
+  .select("id")
+  .eq("user_id", userId)
+  .eq("feature", "premium_bonus")
+  .eq("reason", "premium_initial_bonus")
   .maybeSingle();
 
 if (!existingBonus) {
-  await supabaseAdmin.rpc('grant_ai_credits', {
+  await supabaseAdmin.rpc("grant_ai_credits", {
     p_user_id: userId,
     p_amount: 500,
-    p_feature: 'premium_bonus',
-    p_reason: 'premium_initial_bonus',
+    p_feature: "premium_bonus",
+    p_reason: "premium_initial_bonus",
     p_reference_id: session?.id || null,
-    p_metadata: { source: 'premium_lifetime' },
+    p_metadata: { source: "premium_lifetime" },
   });
 }
 ```
@@ -2056,6 +2233,7 @@ git commit -m "feat: grant premium ai credit bonus"
 ## Task 12: Full Verification
 
 **Files:**
+
 - No new files unless fixes are needed.
 
 - [ ] **Step 1: Run focused logic tests**

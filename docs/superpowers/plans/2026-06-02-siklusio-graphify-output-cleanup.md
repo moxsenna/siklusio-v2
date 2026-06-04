@@ -15,6 +15,7 @@
 ### Task 1: Confirm Generated Output Scope
 
 **Files:**
+
 - Inspect: `graphify-out/`
 - Inspect: `mobile-app/graphify-out/`
 - Inspect: `mobile-app/assets/sounds/tww_meditation.mp3`
@@ -44,6 +45,7 @@ Expected: runtime mapping references the four mapped ambience files and does not
 ### Task 2: Historical Cleanup Attempt, Do Not Re-Execute
 
 **Files:**
+
 - Historical only: `graphify-out/`
 - Historical only: `mobile-app/graphify-out/`
 - Historical only: `.gitignore`
@@ -85,6 +87,7 @@ Expected: future `/graphify` runs do not reintroduce generated output into norma
 ### Task 3: Update Human Handoff Documentation
 
 **Files:**
+
 - Modify: `ARCHITECTURE.md`
 - Modify: `MERGED_AUDIT_REPORT.md`
 
@@ -110,6 +113,7 @@ Expected: the long-term audit report explains what changed and why.
 ### Task 4: Verify Cleanup
 
 **Files:**
+
 - Verify: root project
 
 - [x] **Step 1: Run root check**

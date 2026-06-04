@@ -291,6 +291,7 @@ export type Database = {
           id: string
           mayar_link: string | null
           mayar_transaction_id: string | null
+          meta_attribution: Json | null
           name: string
           paid_at: string | null
           status: string
@@ -305,6 +306,7 @@ export type Database = {
           id?: string
           mayar_link?: string | null
           mayar_transaction_id?: string | null
+          meta_attribution?: Json | null
           name: string
           paid_at?: string | null
           status?: string
@@ -319,6 +321,7 @@ export type Database = {
           id?: string
           mayar_link?: string | null
           mayar_transaction_id?: string | null
+          meta_attribution?: Json | null
           name?: string
           paid_at?: string | null
           status?: string
@@ -811,6 +814,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string
+          key: string
+          reset_at: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          key: string
+          reset_at: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          key?: string
+          reset_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recipe_generations: {
         Row: {
           ai_model: string
@@ -919,6 +946,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: number
+      }
+      check_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number }
+        Returns: Json
       }
       create_affiliate_with_coupon: {
         Args: {

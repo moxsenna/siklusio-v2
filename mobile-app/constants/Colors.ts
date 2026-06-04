@@ -1,4 +1,6 @@
-const tintColorLight = '#ec4899';
+import { colors } from '@/src/theme/tokens';
+
+const tintColorLight = colors.pink500;
 const tintColorDark = '#fff';
 
 export default {

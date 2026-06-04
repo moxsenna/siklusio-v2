@@ -12,6 +12,7 @@ import {
 } from '../../src/lib/communityTypes';
 import { resolveAvatarSource } from '../../src/lib/avatars';
 import { PostReactionState } from '../../src/hooks/useCommunityFeed';
+import { colors } from '@/src/theme/tokens';
 
 interface PostCardProps {
   post: CommunityFeedItem;
@@ -125,7 +126,7 @@ export function PostCard({
                   justifyContent: 'center',
                 }}
               >
-                <FontAwesome name="user" size={16} color="#ec4899" />
+                <FontAwesome name="user" size={16} color={colors.pink500} />
               </View>
             );
           })()
@@ -197,7 +198,7 @@ export function PostCard({
                 borderRadius: 16,
                 backgroundColor: mine ? '#fce7f3' : '#f8fafc',
                 borderWidth: 1,
-                borderColor: mine ? '#ec4899' : '#f1e6eb',
+                borderColor: mine ? colors.pink500 : '#f1e6eb',
               }}
             >
               <Text style={{ fontSize: 14 }}>{REACTION_EMOJI[rx]}</Text>
@@ -205,7 +206,7 @@ export function PostCard({
                 style={{
                   fontSize: 12,
                   fontWeight: 'bold',
-                  color: mine ? '#ec4899' : '#64748b',
+                  color: mine ? colors.pink500 : colors.slate600,
                 }}
               >
                 {count}

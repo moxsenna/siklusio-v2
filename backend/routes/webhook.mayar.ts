@@ -26,7 +26,6 @@ router.post("/api/payment/webhook", async (c) => {
     let body: any = {};
     try {
       const rawText = await c.req.text();
-      logInfo("--> Webhook raw body:", rawText.slice(0, 500));
       if (rawText && rawText.trim()) {
         body = JSON.parse(rawText);
       }
@@ -37,8 +36,6 @@ router.post("/api/payment/webhook", async (c) => {
 
     // Handle Mayar test/ping webhook (empty body or no event data)
     const event = body.event || body.type || "";
-    logInfo("--> Webhook event type:", event);
-    logInfo("--> Webhook body:", JSON.stringify(body).slice(0, 1000));
 
     // For test pings or non-purchase events, acknowledge immediately
     if (!body.data && !body.email && !body.customer) {
@@ -56,11 +53,6 @@ router.post("/api/payment/webhook", async (c) => {
       body.data?.transactions?.[0]?.email ||
       "";
 
-    if (!email) {
-      logWarn("--> Webhook ignored: No email found in payload");
-      return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
-    }
-
     // Extract Mayar transaction ID for idempotency
     const mayarTransactionId =
       body.data?.id ||
@@ -68,6 +60,19 @@ router.post("/api/payment/webhook", async (c) => {
       body.data?.transaction_id ||
       body.id ||
       null;
+
+    if (c.env.DEBUG_WEBHOOK_LOGS === "true") {
+      logInfo("Webhook body metadata", {
+        event,
+        hasEmail: Boolean(email),
+        transactionId: mayarTransactionId ? "[present]" : "[missing]",
+      });
+    }
+
+    if (!email) {
+      logWarn("--> Webhook ignored: No email found in payload");
+      return c.json({ status: "ok", message: "Webhook received but no email found" }, 200);
+    }
 
     // Only process purchase/payment success events for account creation
     // Skip reminders, tracking, and other non-payment events
@@ -138,7 +143,7 @@ router.post("/api/payment/webhook", async (c) => {
     }
 
     // Fetch the pending registration details
-    logInfo("--> Querying pending registration for email:", email);
+    logInfo("--> Querying pending registration");
     const { data: pending, error: pendingErr } = await supabaseAdmin
       .from("pending_registrations")
       .select("*")
@@ -151,7 +156,7 @@ router.post("/api/payment/webhook", async (c) => {
     }
 
     if (!pending) {
-      logInfo("--> Webhook skipped: No pending registration found for email:", email);
+      logInfo("--> Webhook skipped: No pending registration found");
       return c.json({ status: "ok", message: "No pending registration found" }, 200);
     }
 
@@ -260,7 +265,7 @@ router.post("/api/payment/webhook", async (c) => {
     }
 
     // Delete the pending registration record (cleanup)
-    logInfo("--> Deleting pending registration record for email:", email);
+    logInfo("--> Deleting pending registration record");
     await supabaseAdmin
       .from("pending_registrations")
       .delete()

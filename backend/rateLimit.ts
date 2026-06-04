@@ -1,3 +1,5 @@
+import { getSupabaseAdmin } from "./services/supabaseAdmin";
+
 type Clock = () => number;
 
 export interface RateLimitRule {
@@ -159,6 +161,19 @@ const hashIdentity = (value: string): string => {
   return (hash >>> 0).toString(36);
 };
 
+const getUserIdFromToken = (token: string): string | null => {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const jsonStr = atob(payloadBase64);
+    const payload = JSON.parse(jsonStr);
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
+};
+
 const getClientIp = (c: any): string => {
   const forwardedFor = c.req.header("x-forwarded-for") || "";
   const firstForwardedIp = forwardedFor.split(",")[0]?.trim();
@@ -173,10 +188,24 @@ const getClientIp = (c: any): string => {
 const getClientIdentity = (c: any): string => {
   const authHeader = c.req.header("authorization") || "";
   if (authHeader.startsWith("Bearer ")) {
-    return `auth:${hashIdentity(authHeader.slice("Bearer ".length))}`;
+    const token = authHeader.slice("Bearer ".length);
+    const userId = getUserIdFromToken(token);
+    if (userId) {
+      return `auth:${userId}`;
+    }
+    return `auth:${hashIdentity(token)}`;
   }
 
   return `ip:${getClientIp(c)}`;
+};
+
+const getHourBucket = (): string => {
+  const d = new Date();
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}-${hh}`;
 };
 
 const sharedLimiter = createMemoryRateLimiter();
@@ -191,8 +220,55 @@ export const createRateLimitMiddleware =
       return next();
     }
 
-    const key = `${rule.name}:${getClientIdentity(c)}`;
-    const result = limiter.check(key, rule);
+    const identity = getClientIdentity(c);
+    let key = `${rule.name}:${identity}`;
+
+    // Apply strict composite rate limit key for authenticated AI endpoints
+    if (rule.name === "ai" && identity.startsWith("auth:")) {
+      const userId = identity.slice("auth:".length);
+      const feature = pathname.split("/").pop() || "unknown";
+      const hourBucket = getHourBucket();
+      key = `ai:${userId}:${feature}:${hourBucket}`;
+    }
+
+    let result: RateLimitResult;
+    let fallbackToMemory = false;
+
+    const supabaseUrl = c.env?.VITE_SUPABASE_URL;
+    const serviceRoleKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && serviceRoleKey) {
+      try {
+        const supabaseAdmin = getSupabaseAdmin(c);
+        const { data: dbResult, error: dbErr } = await supabaseAdmin.rpc("check_rate_limit", {
+          p_key: key,
+          p_max: rule.max,
+          p_window_seconds: Math.ceil(rule.windowMs / 1000),
+        });
+
+        if (dbErr || !dbResult) {
+          console.error("DB Rate Limiter error, falling back to memory:", dbErr);
+          fallbackToMemory = true;
+        } else {
+          result = {
+            allowed: dbResult.allowed,
+            remaining: dbResult.remaining,
+            resetAt: dbResult.reset_at * 1000,
+            retryAfterSeconds: dbResult.retry_after_seconds,
+          };
+        }
+      } catch (err) {
+        console.error("DB Rate Limiter exception, falling back to memory:", err);
+        fallbackToMemory = true;
+      }
+    } else {
+      fallbackToMemory = true;
+    }
+
+    if (fallbackToMemory) {
+      result = limiter.check(key, rule);
+    }
+
     const resetSeconds = Math.ceil(result.resetAt / 1000);
 
     c.header("X-RateLimit-Limit", String(rule.max));

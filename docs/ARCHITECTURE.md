@@ -1,7 +1,7 @@
 # Siklusio Architecture Guide
 
 Last updated: 2026-06-04.
-Handoff snapshot after backend decomposition.
+Phase 31 handoff snapshot after backend decomposition.
 
 This guide explains the current shape of Siklusio and its modular structure.
 

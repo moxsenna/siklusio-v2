@@ -17,4 +17,5 @@ export interface Env {
   META_TEST_EVENT_CODE?: string;
   META_TEST_MODE_SECRET?: string;
   ALLOWED_ORIGINS?: string;
+  DEBUG_WEBHOOK_LOGS?: string;
 }

@@ -34,9 +34,11 @@ const safeStorage = {
   },
 };
 
+import type { Database } from "../../../supabase/types/database.types";
+
 export const supabase =
   supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey, {
+    ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
         auth: {
           storage: safeStorage,
           autoRefreshToken: true,

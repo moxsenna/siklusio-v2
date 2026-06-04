@@ -5,8 +5,11 @@
   "type": "module",
   "description": "Hono API server (OpenRouter + Supabase admin) for Siklusio. Mobile app lives in mobile-app/.",
   "scripts": {
-    "dev": "wrangler dev backend/index.ts --port 3000",
-    "deploy": "wrangler deploy backend/index.ts",
+    "generate:types": "node scripts/generate-supabase-types.mjs",
+    "dev": "wrangler dev backend/src/index.ts --port 3000",
+    "dev:backend": "wrangler dev backend/src/index.ts",
+    "deploy": "wrangler deploy backend/src/index.ts",
+    "deploy:backend": "wrangler deploy backend/src/index.ts",
     "clean": "rm -rf dist",
     "lint": "npm run typecheck:backend",
     "typecheck:backend": "tsc --noEmit",
@@ -15,7 +18,7 @@
     "check": "npm run typecheck:backend && npm run typecheck:mobile && npm test",
     "db:migrations:list": "supabase migration list --linked",
     "db:push:dry-run": "supabase db push --dry-run",
-    "db:types": "supabase gen types --linked --lang=typescript --schema public > supabase/types/database.types.ts",
+    "db:types": "npm run generate:types",
     "db:lint": "supabase db lint --linked --schema public --fail-on error",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\""

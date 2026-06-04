@@ -11,14 +11,14 @@ import {
   Alert,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useAuth } from "../../src/context/AuthContext";
-import { useCommunityFeed } from "../../src/hooks/useCommunityFeed";
-import { PostCard } from "../../components/community/PostCard";
-import { ComposerModal } from "../../components/community/ComposerModal";
-import { CommentsModal } from "../../components/community/CommentsModal";
-import { ReportModal } from "../../components/community/ReportModal";
-import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
-import { analytics } from "../../src/lib/analytics";
+import { useAuth } from "@/src/context/AuthContext";
+import { useCommunityFeed } from "@/src/hooks/useCommunityFeed";
+import { PostCard } from "@/src/features/community/PostCard";
+import { ComposerModal } from "@/src/features/community/ComposerModal";
+import { CommentsModal } from "@/src/features/community/CommentsModal";
+import { ReportModal } from "@/src/features/community/ReportModal";
+import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
+import { analytics } from "@/src/lib/analytics";
 
 export default function CommunityScreen() {
   const { user } = useAuth();

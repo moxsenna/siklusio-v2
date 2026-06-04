@@ -18,7 +18,7 @@ import { supabase } from "../src/lib/supabase";
 import { REACTION_EMOJI } from "../src/lib/communityTypes";
 import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from "../src/lib/api";
 import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
-import AdminAffiliatePanel from "../components/admin/AdminAffiliatePanel";
+import AdminAffiliatePanel from "@/src/features/admin/AdminAffiliatePanel";
 
 // Replicate old types
 interface AdminUser {

@@ -2,20 +2,20 @@ import React, { useState, useMemo } from "react";
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useCycle } from "../../src/context/CycleContext";
-import { analytics } from "../../src/lib/analytics";
-import { useTodayKey } from "../../src/hooks/useTodayKey";
-import { parseLocalDate } from "../../src/lib/dateUtils";
+import { useCycle } from "@/src/context/CycleContext";
+import { analytics } from "@/src/lib/analytics";
+import { useTodayKey } from "@/src/hooks/useTodayKey";
+import { parseLocalDate } from "@/src/lib/dateUtils";
 
-import { CycleCard } from "../../components/dashboard/CycleCard";
-import { AffirmationCard } from "../../components/dashboard/AffirmationCard";
-import { SavingsCard } from "../../components/dashboard/SavingsCard";
-import { ActionCard } from "../../components/dashboard/ActionCard";
-import { MessageModal } from "../../components/dashboard/MessageModal";
-import { TwwActionCard } from "../../components/dashboard/TwwActionCard";
-import { TwwSanctuaryModal } from "../../components/dashboard/TwwSanctuaryModal";
-import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
-import { HeaderCreditChip } from "../../components/common/HeaderCreditChip";
+import { CycleCard } from "@/src/features/dashboard/CycleCard";
+import { AffirmationCard } from "@/src/features/dashboard/AffirmationCard";
+import { SavingsCard } from "@/src/features/dashboard/SavingsCard";
+import { ActionCard } from "@/src/features/dashboard/ActionCard";
+import { MessageModal } from "@/src/features/dashboard/MessageModal";
+import { TwwActionCard } from "@/src/features/dashboard/TwwActionCard";
+import { TwwSanctuaryModal } from "@/src/features/dashboard/TwwSanctuaryModal";
+import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
+import { HeaderCreditChip } from "@/src/shared/components/HeaderCreditChip";
 
 export default function DashboardScreen() {
   const router = useRouter();

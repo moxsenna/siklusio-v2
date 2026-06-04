@@ -5,8 +5,8 @@ import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Colors from "@/constants/Colors";
-import { useColorScheme } from "@/components/useColorScheme";
-import { useAuth } from "../../src/context/AuthContext";
+import { useColorScheme } from "@/src/theme/useColorScheme";
+import { useAuth } from "@/src/context/AuthContext";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];

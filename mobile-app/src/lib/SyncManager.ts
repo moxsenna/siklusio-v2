@@ -15,6 +15,7 @@ import {
   type SavingsSyncPayload,
 } from "./savingsSync";
 import { getSupabaseClientStatus } from "./supabaseAccess";
+import type { Json } from "../../../supabase/types/database.types";
 
 export interface CycleSyncPayload {
   last_period_date: string;
@@ -193,9 +194,14 @@ export const SyncManager = {
       }
 
       if (rowsToPush.length > 0) {
+        // Convert tasks to Json-compatible structures
+        const rowsToPushJson = rowsToPush.map((row) => ({
+          ...row,
+          tasks: row.tasks ? (row.tasks.map((t) => ({ ...t })) as unknown as Json) : null,
+        }));
         const { error: upsertError } = await client
           .from("activity_history")
-          .upsert(rowsToPush, { onConflict: "user_id,date_key" });
+          .upsert(rowsToPushJson, { onConflict: "user_id,date_key" });
 
         if (upsertError) {
           return { action: "error", data: mergedHistory, error: upsertError };

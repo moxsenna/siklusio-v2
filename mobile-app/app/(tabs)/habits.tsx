@@ -9,34 +9,34 @@ import {
   Platform,
 } from "react-native";
 import { addDays, differenceInDays, format, startOfDay } from "date-fns";
-import { useCycle } from "../../src/context/CycleContext";
-import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
-import { analytics } from "../../src/lib/analytics";
-import { useTodayKey } from "../../src/hooks/useTodayKey";
-import { stampDailyRecord } from "../../src/lib/activityHistorySync";
-import { ApiError, apiGetJson, apiPostJson } from "../../src/lib/api";
-import { parseLocalDate } from "../../src/lib/dateUtils";
+import { useCycle } from "@/src/context/CycleContext";
+import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
+import { analytics } from "@/src/lib/analytics";
+import { useTodayKey } from "@/src/hooks/useTodayKey";
+import { stampDailyRecord } from "@/src/lib/activityHistorySync";
+import { ApiError, apiGetJson, apiPostJson } from "@/src/lib/api";
+import { parseLocalDate } from "@/src/lib/dateUtils";
 import {
   getPlanTasksForDate,
   mergeCoachTasksWithSavedState,
   mapApiHabitPlan,
   summarizeHabitPlanCompletion,
-} from "../../src/lib/habitCoachPlan";
+} from "@/src/lib/habitCoachPlan";
 import {
   buildHabitCoachCycleDays,
   buildSevenDayPlanWindow,
   getPlanDateOffsetBounds,
   getPlanDayNumber,
   isFuturePlanDate,
-} from "../../src/lib/habitCoachFlow";
-import type { CoachQuestionAnswer, HabitCoachPlan } from "../../src/lib/habitCoachTypes";
+} from "@/src/lib/habitCoachFlow";
+import type { CoachQuestionAnswer, HabitCoachPlan } from "@/src/lib/habitCoachTypes";
 
-import { AiRecommendationSection } from "../../components/habits/AiRecommendationSection";
-import { HabitCoachCard } from "../../components/habits/HabitCoachCard";
-import { HabitCoachSheet } from "../../components/habits/HabitCoachSheet";
-import { HistoryView } from "../../components/habits/HistoryView";
-import { TodayRecipesCard } from "../../components/habits/TodayRecipesCard";
-import { TodayRecipesModal } from "../../components/habits/TodayRecipesModal";
+import { AiRecommendationSection } from "@/src/features/habits/AiRecommendationSection";
+import { HabitCoachCard } from "@/src/features/habits/HabitCoachCard";
+import { HabitCoachSheet } from "@/src/features/habits/HabitCoachSheet";
+import { HistoryView } from "@/src/features/habits/HistoryView";
+import { TodayRecipesCard } from "@/src/features/habits/TodayRecipesCard";
+import { TodayRecipesModal } from "@/src/features/habits/TodayRecipesModal";
 
 // Error boundary wrapper untuk HistoryView yang crash di native
 class HistoryErrorBoundary extends React.Component<

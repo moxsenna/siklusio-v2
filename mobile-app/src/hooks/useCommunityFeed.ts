@@ -74,7 +74,7 @@ export interface UseCommunityFeed {
   reactions: Record<string, PostReactionState>;
   loading: boolean;
   refreshing: boolean;
-  error: string | null;
+  error: string | null | undefined;
   hasMore: boolean;
   /** Cooldown sisa (detik) sampai bisa post baru. 0 = boleh post. */
   postCooldownLeft: number;
@@ -164,7 +164,7 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
 
       const { data, error: feedErr } = await status.client.rpc("get_community_feed", {
         page_size: PAGE_SIZE,
-        before,
+        before: before ?? undefined,
       });
       if (feedErr) throw feedErr;
       const rows = (data || []) as CommunityFeedItem[];

@@ -13,7 +13,7 @@ import { useCycle } from "../src/context/CycleContext";
 import { useAuth } from "../src/context/AuthContext";
 import { supabase } from "../src/lib/supabase";
 import { format } from "date-fns";
-import { DatePickerField } from "../components/common/DatePickerField";
+import { DatePickerField } from "@/src/shared/components/DatePickerField";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { storage } from "../src/lib/storage";
 import { stampDailyRecord } from "../src/lib/activityHistorySync";

@@ -13,24 +13,24 @@ import {
   Animated,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useCycle } from "../../src/context/CycleContext";
-import { useAuth } from "../../src/context/AuthContext";
+import { useCycle } from "@/src/context/CycleContext";
+import { useAuth } from "@/src/context/AuthContext";
 import { format } from "date-fns";
 import { router, useLocalSearchParams } from "expo-router";
-import { supabase } from "../../src/lib/supabase";
-import { AvatarPicker } from "../../components/common/AvatarPicker";
-import { useUserAvatar } from "../../src/hooks/useUserAvatar";
-import { storage } from "../../src/lib/storage";
-import { stampDailyRecord } from "../../src/lib/activityHistorySync";
-import { getAuthenticatedSupabaseClientStatus } from "../../src/lib/supabaseAccess";
+import { supabase } from "@/src/lib/supabase";
+import { AvatarPicker } from "@/src/shared/components/AvatarPicker";
+import { useUserAvatar } from "@/src/hooks/useUserAvatar";
+import { storage } from "@/src/lib/storage";
+import { stampDailyRecord } from "@/src/lib/activityHistorySync";
+import { getAuthenticatedSupabaseClientStatus } from "@/src/lib/supabaseAccess";
 import {
   DAILY_REMINDER_HOUR,
   DAILY_REMINDER_MINUTE,
   disableDailyReminder,
   enableDailyReminder,
   readDailyReminderEnabled,
-} from "../../src/lib/dailyReminder";
-import { expoDailyReminderNotifications } from "../../src/lib/expoDailyReminderNotifications";
+} from "@/src/lib/dailyReminder";
+import { expoDailyReminderNotifications } from "@/src/lib/expoDailyReminderNotifications";
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();

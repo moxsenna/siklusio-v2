@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { format } from "date-fns";
-import { CalendarGrid } from "../../components/calendar/CalendarGrid";
-import { CycleGuideCard } from "../../components/calendar/CycleGuideCard";
-import { CycleGuideModal } from "../../components/calendar/CycleGuideModal";
-import { HeaderProfileButton } from "../../components/common/HeaderProfileButton";
-import { useCycle } from "../../src/context/CycleContext";
-import { useTodayKey } from "../../src/hooks/useTodayKey";
-import { stampDailyRecord } from "../../src/lib/activityHistorySync";
-import { buildCycleGuidePreview } from "../../src/lib/cycleGuideSummary";
+import { CalendarGrid } from "@/src/features/calendar/CalendarGrid";
+import { CycleGuideCard } from "@/src/features/calendar/CycleGuideCard";
+import { CycleGuideModal } from "@/src/features/calendar/CycleGuideModal";
+import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
+import { useCycle } from "@/src/context/CycleContext";
+import { useTodayKey } from "@/src/hooks/useTodayKey";
+import { stampDailyRecord } from "@/src/lib/activityHistorySync";
+import { buildCycleGuidePreview } from "@/src/lib/cycleGuideSummary";
 
 export default function CalendarScreen() {
   const router = useRouter();

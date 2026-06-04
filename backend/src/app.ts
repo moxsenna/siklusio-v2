@@ -1,19 +1,19 @@
 import { Hono } from "hono";
 import { type Env } from "./env";
-import { corsMiddleware } from "./middleware/cors";
-import { createRateLimitMiddleware } from "./middleware/rateLimit";
-import { errorHandler } from "./middleware/errorHandler";
+import { corsMiddleware } from "./middlewares/cors";
+import { createRateLimitMiddleware } from "./middlewares/rateLimit";
+import { errorHandler } from "./middlewares/errorHandler";
 
 // Import routers
-import recipesRouter from "./routes/ai.recipes";
-import cycleGuideRouter from "./routes/ai.cycleGuide";
-import habitCoachRouter from "./routes/ai.habitCoach";
-import reassuranceRouter from "./routes/ai.reassurance";
-import creditsRouter from "./routes/credits";
-import checkoutRouter from "./routes/checkout";
-import webhookMayarRouter from "./routes/webhook.mayar";
-import adminRouter from "./routes/admin";
-import avatarRouter from "./routes/avatar";
+import recipesRouter from "./routes/ai.recipes.route";
+import cycleGuideRouter from "./routes/ai.cycleGuide.route";
+import habitCoachRouter from "./routes/ai.habitCoach.route";
+import reassuranceRouter from "./routes/ai.reassurance.route";
+import creditsRouter from "./routes/credits.route";
+import checkoutRouter from "./routes/checkout.route";
+import webhookMayarRouter from "./routes/webhook.mayar.route";
+import adminRouter from "./routes/admin.route";
+import avatarRouter from "./routes/avatar.route";
 
 export const createApp = () => {
   const app = new Hono<{ Bindings: Env }>();

@@ -1,6 +1,6 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { resolveTopupPackage } from "../payments/topupPackages";
 import { createMayarPaymentLink } from "../services/mayar";
@@ -8,10 +8,8 @@ import { hashData, formatE164Phone } from "../services/metaCapi";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logError } from "../logging/redaction";
 
-const router = new Hono<{ Bindings: Env }>();
-
-// Endpoint for topup AI Credits
-router.post("/api/checkout/topup", async (c) => {
+// POST /api/checkout/topup
+export const checkoutTopup = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/checkout/topup");
   try {
     const auth = await requireUser(c);
@@ -33,7 +31,6 @@ router.post("/api/checkout/topup", async (c) => {
     const credits = selectedPackage.credits;
     const { supabaseAdmin, user } = auth;
 
-    // Get user details
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("name, whatsapp_number")
@@ -55,7 +52,6 @@ router.post("/api/checkout/topup", async (c) => {
       customerName: name,
     });
 
-    // Create ai_credit_topups record
     const { error: insertErr } = await supabaseAdmin.from("ai_credit_topups").insert({
       user_id: user.id,
       mayar_link: paymentUrl,
@@ -75,10 +71,10 @@ router.post("/api/checkout/topup", async (c) => {
     console.error("<-- Checkout topup error:", error.stack || error);
     return c.json({ error: "Terjadi kesalahan internal pada server topup." }, 500);
   }
-});
+};
 
-// Endpoint for pre-checkout registration + Mayar dynamic payment
-router.post("/api/checkout/register", async (c) => {
+// POST /api/checkout/register
+export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
   logInfo("--> [BACKEND] Received request /api/checkout/register");
   try {
     const {
@@ -99,7 +95,6 @@ router.post("/api/checkout/register", async (c) => {
       return c.json({ error: "Semua formulir pendaftaran wajib diisi." }, 400);
     }
 
-    // Validate dynamic test_event_code with production guardrails
     let validatedTestEventCode: string | undefined = undefined;
     if (test_event_code) {
       const secret = c.env.META_TEST_MODE_SECRET;
@@ -108,7 +103,6 @@ router.post("/api/checkout/register", async (c) => {
           validatedTestEventCode = test_event_code;
         }
       } else {
-        // No secret configured, allow dynamic code on both production and local/dev
         validatedTestEventCode = test_event_code;
       }
     }
@@ -118,7 +112,6 @@ router.post("/api/checkout/register", async (c) => {
     const hashedEmail = await hashData(email);
     const hashedPhone = await hashData(formatE164Phone(whatsapp));
 
-    // Validate Mayar API key is configured
     const mayarKey = c.env.MAYAR_API_KEY;
     if (!mayarKey) {
       logError("MAYAR_API_KEY secret is not configured");
@@ -127,7 +120,6 @@ router.post("/api/checkout/register", async (c) => {
 
     const supabaseAdmin = getSupabaseAdmin(c);
 
-    // Check if email already registered in Supabase
     logInfo("--> Checking existing auth users...");
     const { data: authUserList, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
     if (authErr) {
@@ -144,7 +136,6 @@ router.post("/api/checkout/register", async (c) => {
       );
     }
 
-    // Determine final price based on coupon
     let finalAmount = 37000;
 
     if (couponCode) {
@@ -178,13 +169,10 @@ router.post("/api/checkout/register", async (c) => {
       }
     }
 
-    // Safety check: Mayar minimum is 10k, unless it's completely free
     if (finalAmount > 0 && finalAmount < 10000) {
       finalAmount = 10000;
     }
 
-    // If Free / 100% discount, bypass Mayar and create user directly
-    // Resolve affiliate code if provided
     const normalizedAffiliateCode = affiliateCode ? affiliateCode.trim().toUpperCase() : null;
     let validatedAffiliateCode: string | null = null;
     if (normalizedAffiliateCode) {
@@ -198,7 +186,6 @@ router.post("/api/checkout/register", async (c) => {
       logInfo(`--> Affiliate code '${normalizedAffiliateCode}' validated: ${!!aff}`);
     }
 
-    // Prepare Meta Conversions API attribution object
     const metaAttribution: any = {
       lead_event_id: lead_event_id || null,
       fbp: fbp || null,
@@ -215,18 +202,12 @@ router.post("/api/checkout/register", async (c) => {
     if (finalAmount === 0) {
       logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
 
-      // Create user directly
       const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
         email: email.toLowerCase(),
         password: password,
         email_confirm: true,
-        user_metadata: {
-          name: name,
-          whatsapp: whatsapp,
-        },
-        app_metadata: {
-          siklusio_access_status: "active",
-        },
+        user_metadata: { name, whatsapp },
+        app_metadata: { siklusio_access_status: "active" },
       });
 
       if (signupErr) {
@@ -234,7 +215,6 @@ router.post("/api/checkout/register", async (c) => {
         return c.json({ error: "Gagal membuat akun: " + signupErr.message }, 500);
       }
 
-      // Create checkout_session for free bypass [FIX-2]
       const { data: session } = await supabaseAdmin
         .from("checkout_sessions")
         .insert({
@@ -250,7 +230,6 @@ router.post("/api/checkout/register", async (c) => {
         .select()
         .single();
 
-      // Record affiliate conversion for free orders [FIX-5]
       if (validatedAffiliateCode && session) {
         const { data: aff } = await supabaseAdmin
           .from("affiliates")
@@ -259,10 +238,9 @@ router.post("/api/checkout/register", async (c) => {
           .maybeSingle();
 
         if (aff) {
-          // [FIX-5] Default: no commission for free orders unless explicitly allowed
           let commissionAmount = 0;
           if (aff.allow_zero_order_commission) {
-            commissionAmount = aff.commission_type === "nominal" ? Number(aff.commission_value) : 0; // percentage of 0 is always 0
+            commissionAmount = aff.commission_type === "nominal" ? Number(aff.commission_value) : 0;
           }
 
           await supabaseAdmin.from("affiliate_conversions").insert({
@@ -273,7 +251,7 @@ router.post("/api/checkout/register", async (c) => {
             buyer_whatsapp: whatsapp,
             amount_paid: 0,
             commission_amount: commissionAmount,
-            mayar_transaction_id: null, // free bypass has no Mayar tx
+            mayar_transaction_id: null,
           });
           logInfo(
             `--> Affiliate conversion recorded (free bypass, commission: ${commissionAmount})`,
@@ -293,19 +271,13 @@ router.post("/api/checkout/register", async (c) => {
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
     }
 
-    // Create the Supabase Auth user immediately in auth, but mark with app_metadata
     logInfo("--> Creating Supabase Auth user immediately as pending...");
     const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.createUser({
       email: email.toLowerCase(),
       password: password,
       email_confirm: true,
-      user_metadata: {
-        name: name,
-        whatsapp: whatsapp,
-      },
-      app_metadata: {
-        siklusio_access_status: "pending_payment",
-      },
+      user_metadata: { name, whatsapp },
+      app_metadata: { siklusio_access_status: "pending_payment" },
     });
 
     if (signupErr) {
@@ -315,7 +287,6 @@ router.post("/api/checkout/register", async (c) => {
 
     const userId = authData.user.id;
 
-    // Normal paid flow: Save pending registration & call Mayar (without plaintext password)
     logInfo("--> Inserting pending registration...");
     const { error: insertErr } = await supabaseAdmin.from("pending_registrations").upsert(
       {
@@ -335,7 +306,6 @@ router.post("/api/checkout/register", async (c) => {
       return c.json({ error: "Gagal menyimpan pendaftaran tertunda. Silakan coba kembali." }, 500);
     }
 
-    // Create dynamic payment via Mayar API
     logInfo("--> Calling Mayar API to create payment link...");
     let paymentUrl = "";
     let mayarTxId = "";
@@ -359,7 +329,6 @@ router.post("/api/checkout/register", async (c) => {
       return c.json({ error: "Gagal membuat link pembayaran. Hubungi admin." }, 500);
     }
 
-    // Create checkout_session for paid flow [FIX-2]
     const { error: sessionErr } = await supabaseAdmin.from("checkout_sessions").insert({
       email: email.toLowerCase(),
       name,
@@ -385,12 +354,10 @@ router.post("/api/checkout/register", async (c) => {
     logError("<-- Checkout register error:", error.stack || error);
     return c.json({ error: "Terjadi kesalahan internal pada server pendaftaran." }, 500);
   }
-});
+};
 
-// ============================================================
-// Affiliate Public Endpoint – validate referral code
-// ============================================================
-router.get("/api/affiliate/validate", async (c) => {
+// GET /api/affiliate/validate
+export const validateAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/affiliate/validate");
   try {
     const code = (c.req.query("code") || "").trim().toUpperCase();
@@ -406,7 +373,6 @@ router.get("/api/affiliate/validate", async (c) => {
 
     if (!affiliate) return c.json({ valid: false });
 
-    // Check if matching coupon exists for discount label
     const { data: coupon } = await supabaseAdmin
       .from("coupons")
       .select("discount_type, discount_value")
@@ -427,18 +393,16 @@ router.get("/api/affiliate/validate", async (c) => {
     console.error("Affiliate validate error:", error);
     return c.json({ valid: false });
   }
-});
+};
 
-// GET /api/affiliate/me – Get affiliate profile for logged-in user
-router.get("/api/affiliate/me", async (c) => {
+// GET /api/affiliate/me
+export const getAffiliateMe = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/affiliate/me");
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
     const { supabaseAdmin, user } = auth;
-
-    // Find affiliate by user email
     const { data: affiliate } = await supabaseAdmin
       .from("affiliates")
       .select("*")
@@ -449,10 +413,10 @@ router.get("/api/affiliate/me", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// POST /api/affiliate/register – Self-register as affiliate
-router.post("/api/affiliate/register", async (c) => {
+// POST /api/affiliate/register
+export const registerAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] POST /api/affiliate/register");
   try {
     const auth = await requireUser(c);
@@ -466,7 +430,6 @@ router.post("/api/affiliate/register", async (c) => {
     }
     const safeCode = code.trim().toUpperCase().replace(/\s/g, "");
 
-    // Get user profile details
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("name, whatsapp_number")
@@ -476,20 +439,19 @@ router.post("/api/affiliate/register", async (c) => {
     const name = profile?.name || user.email?.split("@")[0] || "User";
     const whatsapp = profile?.whatsapp_number || "-";
 
-    // Use transactional RPC to also create coupon 10%
     const { data, error } = await supabaseAdmin.rpc("create_affiliate_with_coupon", {
       p_name: name,
       p_email: user.email,
       p_whatsapp: whatsapp,
       p_code: safeCode,
       p_commission_type: "percentage",
-      p_commission_value: 40, // 40% default user commission
+      p_commission_value: 40,
       p_bank_name: bank_name || null,
       p_account_number: account_number || null,
       p_account_holder: account_holder || null,
-      p_auto_coupon: false, // disabled 10% discount auto coupon
+      p_auto_coupon: false,
       p_coupon_discount_type: "percentage",
-      p_coupon_discount_value: 0, // no default coupon discount for buyer
+      p_coupon_discount_value: 0,
     });
 
     if (error) {
@@ -502,18 +464,16 @@ router.post("/api/affiliate/register", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// GET /api/affiliate/me/conversions – List user's conversions
-router.get("/api/affiliate/me/conversions", async (c) => {
+// GET /api/affiliate/me/conversions
+export const getAffiliateConversions = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/affiliate/me/conversions");
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
     const { supabaseAdmin, user } = auth;
-
-    // Find affiliate ID first
     const { data: affiliate } = await supabaseAdmin
       .from("affiliates")
       .select("id")
@@ -535,10 +495,10 @@ router.get("/api/affiliate/me/conversions", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// PATCH /api/affiliate/me/bank – Update user's bank info
-router.patch("/api/affiliate/me/bank", async (c) => {
+// PATCH /api/affiliate/me/bank
+export const updateAffiliateBank = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] PATCH /api/affiliate/me/bank");
   try {
     const auth = await requireUser(c);
@@ -549,11 +509,7 @@ router.patch("/api/affiliate/me/bank", async (c) => {
 
     const { error } = await supabaseAdmin
       .from("affiliates")
-      .update({
-        bank_name,
-        account_number,
-        account_holder,
-      })
+      .update({ bank_name, account_number, account_holder })
       .eq("email", user.email);
 
     if (error) throw error;
@@ -561,6 +517,4 @@ router.patch("/api/affiliate/me/bank", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
-
-export default router;
+};

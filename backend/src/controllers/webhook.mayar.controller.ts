@@ -1,12 +1,11 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logWarn, logError } from "../logging/redaction";
 
-const router = new Hono<{ Bindings: Env }>();
-
-router.post("/api/payment/webhook", async (c) => {
+// POST /api/payment/webhook
+export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
   logInfo("--> [BACKEND] Received Mayar webhook notification");
   try {
     // Verify webhook token from Mayar (X-Callback-Token header)
@@ -72,7 +71,6 @@ router.post("/api/payment/webhook", async (c) => {
     }
 
     // Only process purchase/payment success events for account creation
-    // Skip reminders, tracking, and other non-payment events
     const isPurchaseEvent =
       event === "payment.success" ||
       event === "payment" ||
@@ -117,7 +115,7 @@ router.post("/api/payment/webhook", async (c) => {
           `--> Processing successful topup via atomic RPC for user: ${topup.user_id}, credits: ${topup.credits_amount}`,
         );
 
-        // Atomically process top-up (Phase 8 RPC)
+        // Atomically process top-up
         const { data: rpcResult, error: rpcErr } = await supabaseAdmin.rpc(
           "process_paid_ai_credit_topup",
           {
@@ -130,7 +128,7 @@ router.post("/api/payment/webhook", async (c) => {
           return c.json({ error: "Failed to process topup atomically" }, 500);
         }
 
-        const balanceAfter = rpcResult?.balance || 0;
+        const balanceAfter = (rpcResult as any)?.balance || 0;
 
         logInfo(`<-- Topup processed successfully! New balance: ${balanceAfter}`);
         return c.json({ status: "ok", message: "Topup successful", balance: balanceAfter }, 200);
@@ -169,7 +167,7 @@ router.post("/api/payment/webhook", async (c) => {
       return c.json({ status: "ok", message: "No pending registration found" }, 200);
     }
 
-    // Activate existing pending auth user instead of creating one from a password
+    // Activate existing pending auth user
     logInfo("--> Activating existing pending Supabase Auth user:", pending.user_id);
     const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.updateUserById(
       pending.user_id,
@@ -206,7 +204,6 @@ router.post("/api/payment/webhook", async (c) => {
     if (affiliateCode) {
       logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
 
-      // Find the matching checkout session
       const { data: session } = await supabaseAdmin
         .from("checkout_sessions")
         .select("*")
@@ -217,7 +214,6 @@ router.post("/api/payment/webhook", async (c) => {
         .limit(1)
         .maybeSingle();
 
-      // Look up affiliate details
       const { data: affiliate } = await supabaseAdmin
         .from("affiliates")
         .select("id, commission_type, commission_value, allow_zero_order_commission")
@@ -228,10 +224,8 @@ router.post("/api/payment/webhook", async (c) => {
       if (affiliate) {
         const amountPaid = session?.final_amount || body.data?.amount || 0;
 
-        // Calculate commission
         let commissionAmount = 0;
         if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
-          // No commission for free orders by default
           commissionAmount = 0;
         } else if (affiliate.commission_type === "percentage") {
           commissionAmount = Math.floor(
@@ -241,7 +235,6 @@ router.post("/api/payment/webhook", async (c) => {
           commissionAmount = Number(affiliate.commission_value);
         }
 
-        // Insert conversion with idempotency key
         const { error: convErr } = await supabaseAdmin.from("affiliate_conversions").insert({
           affiliate_id: affiliate.id,
           checkout_session_id: session?.id || null,
@@ -266,7 +259,6 @@ router.post("/api/payment/webhook", async (c) => {
         }
       }
 
-      // Update checkout_session status to paid
       if (session) {
         await supabaseAdmin
           .from("checkout_sessions")
@@ -285,12 +277,10 @@ router.post("/api/payment/webhook", async (c) => {
     logError("<-- Webhook handler exception:", error.stack || error);
     return c.json({ error: "Internal server error processing webhook" }, 500);
   }
-});
+};
 
-// Also support GET for webhook URL verification
-router.get("/api/payment/webhook", (c) => {
+// GET /api/payment/webhook — URL verification
+export const verifyWebhookEndpoint = (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Webhook URL verification (GET)");
   return c.json({ status: "ok", message: "Webhook endpoint is active" }, 200);
-});
-
-export default router;
+};

@@ -1,6 +1,6 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import { isDateKey } from "../ai/habitCoachWindow";
 import { validateRecipesGeneration, recipesGenerationSchema } from "../schemas/requestSchemas";
 import { buildRecipeCycleSnapshot } from "../ai/recipeSummary";
@@ -9,9 +9,8 @@ import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
 import { aiSafetyEnvelope } from "../ai/safety";
 
-const router = new Hono<{ Bindings: Env }>();
-
-router.get("/api/recipes/today", async (c) => {
+// GET /api/recipes/today
+export const getTodayRecipes = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
@@ -48,9 +47,10 @@ router.get("/api/recipes/today", async (c) => {
     console.error("[recipes/today]", error.stack || error);
     return c.json({ error: error.message || "Gagal mengambil resep hari ini." }, 500);
   }
-});
+};
 
-router.post("/api/generate-recipes", async (c) => {
+// POST /api/generate-recipes
+export const generateRecipes = async (c: any) => {
   console.log("--> [BACKEND] Received request /api/generate-recipes");
   try {
     const body = await c.req.json();
@@ -130,7 +130,9 @@ PENTING:
       responseSchema: recipesGenerationSchema,
     });
 
-    const result = aiSafetyEnvelope(validateRecipesGeneration(ai.data));
+    const result = aiSafetyEnvelope(
+      validateRecipesGeneration(ai.data),
+    ) as unknown as import("../../../supabase/types/database.types").Json;
 
     const { data: savedGeneration, error: saveError } = await auth.supabaseAdmin
       .from("recipe_generations")
@@ -186,6 +188,4 @@ PENTING:
       500,
     );
   }
-});
-
-export default router;
+};

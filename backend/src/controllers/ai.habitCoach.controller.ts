@@ -1,6 +1,6 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import { getAiCreditBalance, chargeAiCredits } from "../services/aiCreditLedger";
 import {
   isDateKey,
@@ -18,8 +18,6 @@ import { buildHabitCoachMessages } from "../ai/prompts";
 import { validateHabitCoachPlan, habitCoachPlanSchema } from "../schemas/requestSchemas";
 import { type HabitCoachCycleDay } from "../ai/habitCoachFoundation";
 import { aiSafetyEnvelope, containsForbiddenWords } from "../ai/safety";
-
-const router = new Hono<{ Bindings: Env }>();
 
 const normalizeHabitCoachCycleDays = (
   value: unknown,
@@ -57,7 +55,8 @@ const normalizeHabitCoachCycleDays = (
   });
 };
 
-router.get("/api/habit-coach/current", async (c) => {
+// GET /api/habit-coach/current
+export const getCurrentHabitPlan = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
@@ -89,9 +88,10 @@ router.get("/api/habit-coach/current", async (c) => {
     console.error("[habit-coach/current]", error.stack || error);
     return c.json({ error: error.message || "Gagal mengambil rencana habit." }, 500);
   }
-});
+};
 
-router.post("/api/habit-coach/generate", async (c) => {
+// POST /api/habit-coach/generate
+export const generateHabitPlan = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
@@ -222,6 +222,4 @@ router.post("/api/habit-coach/generate", async (c) => {
     console.error("[habit-coach/generate]", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);
   }
-});
-
-export default router;
+};

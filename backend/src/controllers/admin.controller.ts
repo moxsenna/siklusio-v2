@@ -1,12 +1,10 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser, requireAdmin } from "../middleware/auth";
+import { requireUser, requireAdmin } from "../middlewares/auth";
 import { listAllAuthUsers } from "../services/supabaseAdmin";
 
-const router = new Hono<{ Bindings: Env }>();
-
-// API Route for Admin to fetch all profiles
-router.get("/api/admin/users", async (c) => {
+// GET /api/admin/users
+export const getAdminUsers = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/admin/users");
   try {
     const auth = await requireUser(c);
@@ -54,10 +52,10 @@ router.get("/api/admin/users", async (c) => {
     console.error(error);
     return c.json({ error: error.message || "Failed to fetch users" }, 500);
   }
-});
+};
 
-// API Route for Admin to manage coupons
-router.get("/api/admin/coupons", async (c) => {
+// GET /api/admin/coupons
+export const getAdminCoupons = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request GET /api/admin/coupons");
   try {
     const auth = await requireUser(c);
@@ -81,9 +79,10 @@ router.get("/api/admin/coupons", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-router.post("/api/admin/coupons", async (c) => {
+// POST /api/admin/coupons
+export const createAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request POST /api/admin/coupons");
   try {
     const auth = await requireUser(c);
@@ -117,9 +116,10 @@ router.post("/api/admin/coupons", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-router.patch("/api/admin/coupons/:id", async (c) => {
+// PATCH /api/admin/coupons/:id
+export const updateAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing session" }, 401);
@@ -140,9 +140,10 @@ router.patch("/api/admin/coupons/:id", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-router.delete("/api/admin/coupons/:id", async (c) => {
+// DELETE /api/admin/coupons/:id
+export const deleteAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing session" }, 401);
@@ -161,12 +162,10 @@ router.delete("/api/admin/coupons/:id", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// Affiliate Admin Endpoints
-
-// GET /api/admin/affiliates — List all affiliates
-router.get("/api/admin/affiliates", async (c) => {
+// GET /api/admin/affiliates
+export const getAdminAffiliates = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates");
   try {
     const admin = await requireAdmin(c);
@@ -181,10 +180,10 @@ router.get("/api/admin/affiliates", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// POST /api/admin/affiliates — Create affiliate (via RPC for transactional coupon)
-router.post("/api/admin/affiliates", async (c) => {
+// POST /api/admin/affiliates
+export const createAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] POST /api/admin/affiliates");
   try {
     const admin = await requireAdmin(c);
@@ -251,10 +250,10 @@ router.post("/api/admin/affiliates", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// PATCH /api/admin/affiliates/:id — Update affiliate
-router.patch("/api/admin/affiliates/:id", async (c) => {
+// PATCH /api/admin/affiliates/:id
+export const updateAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/:id");
   try {
     const admin = await requireAdmin(c);
@@ -281,16 +280,19 @@ router.patch("/api/admin/affiliates/:id", async (c) => {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];
     }
 
-    const { error } = await admin.supabaseAdmin.from("affiliates").update(safeUpdates).eq("id", id);
+    const { error } = await admin.supabaseAdmin
+      .from("affiliates")
+      .update(safeUpdates as any)
+      .eq("id", id);
     if (error) throw error;
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// DELETE /api/admin/affiliates/:id — Delete affiliate
-router.delete("/api/admin/affiliates/:id", async (c) => {
+// DELETE /api/admin/affiliates/:id
+export const deleteAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] DELETE /api/admin/affiliates/:id");
   try {
     const admin = await requireAdmin(c);
@@ -303,10 +305,10 @@ router.delete("/api/admin/affiliates/:id", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// GET /api/admin/affiliates/conversions — List all conversions
-router.get("/api/admin/affiliates/conversions", async (c) => {
+// GET /api/admin/affiliates/conversions
+export const getAdminAffiliateConversions = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates/conversions");
   try {
     const admin = await requireAdmin(c);
@@ -323,10 +325,10 @@ router.get("/api/admin/affiliates/conversions", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
+};
 
-// PATCH /api/admin/affiliates/conversions/:id/payout — Mark conversion as paid
-router.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
+// PATCH /api/admin/affiliates/conversions/:id/payout
+export const payoutAdminAffiliateConversion = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/conversions/:id/payout");
   try {
     const admin = await requireAdmin(c);
@@ -350,6 +352,4 @@ router.patch("/api/admin/affiliates/conversions/:id/payout", async (c) => {
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
-});
-
-export default router;
+};

@@ -1,6 +1,6 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
 import { logInfo, logError } from "../logging/redaction";
@@ -14,10 +14,8 @@ import {
 } from "../schemas/requestSchemas";
 import { aiSafetyEnvelope } from "../ai/safety";
 
-const router = new Hono<{ Bindings: Env }>();
-
-// API Route for generating AI cycle report (OpenRouter AI)
-router.post("/api/generate-cycle-report", async (c) => {
+// POST /api/generate-cycle-report
+export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
     const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } =
@@ -77,10 +75,10 @@ router.post("/api/generate-cycle-report", async (c) => {
       500,
     );
   }
-});
+};
 
-// API Route for generating AI habits insight based on 7-day data (OpenRouter AI)
-router.post("/api/generate-habits-insight", async (c) => {
+// POST /api/generate-habits-insight
+export const generateHabitsInsight = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-habits-insight");
   try {
     const { weeklyData, currentPhase, nickname } = await c.req.json();
@@ -142,10 +140,10 @@ router.post("/api/generate-habits-insight", async (c) => {
       500,
     );
   }
-});
+};
 
-// API Route for generating Calming Reassurance in Luteal/TWW phase
-router.post("/api/generate-calming-reassurance", async (c) => {
+// POST /api/generate-calming-reassurance
+export const generateCalmingReassurance = async (c: Context<{ Bindings: Env }>) => {
   logInfo("--> [BACKEND] Received request /api/generate-calming-reassurance");
   try {
     const auth = await requireUser(c);
@@ -209,6 +207,4 @@ router.post("/api/generate-calming-reassurance", async (c) => {
       500,
     );
   }
-});
-
-export default router;
+};

@@ -1,7 +1,7 @@
 // Rate limiting middleware using Supabase RPC or memory fallback.
 // This file handles rate limit rules, memory store backups, identity hashing, and database lookups.
 
-import { getSupabaseAdmin } from "./services/supabaseAdmin";
+import { getSupabaseAdmin } from "../services/supabaseAdmin";
 
 type Clock = () => number;
 
@@ -271,11 +271,12 @@ export const createRateLimitMiddleware =
           console.error("DB Rate Limiter error, falling back to memory:", dbErr);
           fallbackToMemory = true;
         } else {
+          const res = dbResult as any;
           result = {
-            allowed: dbResult.allowed,
-            remaining: dbResult.remaining,
-            resetAt: dbResult.reset_at * 1000,
-            retryAfterSeconds: dbResult.retry_after_seconds,
+            allowed: res.allowed,
+            remaining: res.remaining,
+            resetAt: res.reset_at * 1000,
+            retryAfterSeconds: res.retry_after_seconds,
           };
         }
       } catch (err) {

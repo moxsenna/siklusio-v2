@@ -1,6 +1,6 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import { getAiCreditBalance, chargeAiCredits } from "../services/aiCreditLedger";
 import { buildCycleGuideSnapshot } from "../ai/cycleGuideSummary";
 import { resolveOpenRouterModels } from "../ai/modelPolicy";
@@ -9,9 +9,8 @@ import { buildCycleGuideMessages } from "../ai/prompts";
 import { validateCycleGuide, cycleGuideSchema } from "../schemas/requestSchemas";
 import { aiSafetyEnvelope } from "../ai/safety";
 
-const router = new Hono<{ Bindings: Env }>();
-
-router.post("/api/cycle-guide/generate", async (c) => {
+// POST /api/cycle-guide/generate
+export const generateCycleGuide = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
@@ -72,7 +71,9 @@ router.post("/api/cycle-guide/generate", async (c) => {
       maxCompletionTokens: 1200,
     });
 
-    const result = aiSafetyEnvelope(validateCycleGuide(ai.data));
+    const result = aiSafetyEnvelope(
+      validateCycleGuide(ai.data),
+    ) as unknown as import("../../../supabase/types/database.types").Json;
 
     const { data: saved, error: saveError } = await auth.supabaseAdmin
       .from("cycle_guides")
@@ -116,9 +117,10 @@ router.post("/api/cycle-guide/generate", async (c) => {
     console.error("[cycle-guide/generate]", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat panduan siklus." }, 500);
   }
-});
+};
 
-router.get("/api/cycle-guide/today", async (c) => {
+// GET /api/cycle-guide/today
+export const getTodayCycleGuide = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
@@ -139,13 +141,13 @@ router.get("/api/cycle-guide/today", async (c) => {
 
     if (error) throw error;
     if (guide && guide.result) {
-      guide.result = aiSafetyEnvelope(guide.result);
+      guide.result = aiSafetyEnvelope(
+        guide.result as any,
+      ) as unknown as import("../../../supabase/types/database.types").Json;
     }
     return c.json({ guide });
   } catch (error: any) {
     console.error("[cycle-guide/today]", error.stack || error);
     return c.json({ error: error.message || "Gagal mengambil panduan siklus." }, 500);
   }
-});
-
-export default router;
+};

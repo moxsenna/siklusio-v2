@@ -1,18 +1,16 @@
-import { Hono } from "hono";
+import { Context } from "hono";
 import { Buffer } from "node:buffer";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { type Env } from "../env";
-import { requireUser } from "../middleware/auth";
+import { requireUser } from "../middlewares/auth";
 import {
   detectAvatarImage,
   isAvatarImageWithinPolicy,
   sanitizeAvatarImage,
 } from "../storage/avatarImage";
 
-const router = new Hono<{ Bindings: Env }>();
-
-// API Route for Avatar Upload to Cloudflare R2
-router.post("/api/upload-avatar", async (c) => {
+// POST /api/upload-avatar
+export const uploadAvatar = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/upload-avatar");
   try {
     const auth = await requireUser(c);
@@ -98,6 +96,4 @@ router.post("/api/upload-avatar", async (c) => {
       500,
     );
   }
-});
-
-export default router;
+};

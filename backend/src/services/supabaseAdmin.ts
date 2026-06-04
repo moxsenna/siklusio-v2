@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../../supabase/types/database.types";
 import { type Context } from "hono";
 import { type Env } from "../env";
 
@@ -12,7 +13,7 @@ export const getSupabaseAdmin = (c: Context<{ Bindings: Env }>) => {
     );
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -20,7 +21,7 @@ export const getSupabaseAdmin = (c: Context<{ Bindings: Env }>) => {
   });
 };
 
-export const listAllAuthUsers = async (supabaseAdmin: any) => {
+export const listAllAuthUsers = async (supabaseAdmin: ReturnType<typeof getSupabaseAdmin>) => {
   const perPage = 1000;
   const users: any[] = [];
 

@@ -888,6 +888,56 @@ export type Database = {
           },
         ];
       };
+      tww_sanctuary_letters: {
+        Row: {
+          ai_model: string;
+          created_at: string;
+          credit_cost: number;
+          generated_for_date: string;
+          id: string;
+          journal_hash: string | null;
+          journal_preview: string | null;
+          result: Json;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          ai_model: string;
+          created_at?: string;
+          credit_cost?: number;
+          generated_for_date: string;
+          id?: string;
+          journal_hash?: string | null;
+          journal_preview?: string | null;
+          result: Json;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          ai_model?: string;
+          created_at?: string;
+          credit_cost?: number;
+          generated_for_date?: string;
+          id?: string;
+          journal_hash?: string | null;
+          journal_preview?: string | null;
+          result?: Json;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tww_sanctuary_letters_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

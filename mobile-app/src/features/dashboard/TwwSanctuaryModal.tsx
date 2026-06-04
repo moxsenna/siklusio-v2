@@ -11,7 +11,8 @@ import {
   Modal,
 } from "react-native";
 import { useCycle } from "@/src/context/CycleContext";
-import { apiPostJson } from "@/src/lib/api";
+import { apiPostJson, apiGetJson } from "@/src/lib/api";
+import { useTodayKey } from "@/src/hooks/useTodayKey";
 import {
   getTwwLetterSections,
   getTwwTitle,
@@ -26,9 +27,33 @@ import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import { extractAiFallbackInput, type AiFallbackInput } from "@/src/lib/aiFallback";
 import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
 
+// ---------------------------------------------------------------------------
+// Server response shapes
+// ---------------------------------------------------------------------------
+
+interface TwwTodayResponse {
+  letter: { id: string; result: TwwSanctuaryResult } | null;
+}
+
+interface TwwGenerateResponse {
+  cached: boolean;
+  charged: boolean;
+  letter: { id: string; result: TwwSanctuaryResult };
+  result: TwwSanctuaryResult;
+  balance: number;
+}
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
 interface TwwSanctuaryModalProps {
   onClose: () => void;
 }
+
+// ---------------------------------------------------------------------------
+// RevealedTwwSection (unchanged)
+// ---------------------------------------------------------------------------
 
 function RevealedTwwSection({
   section,
@@ -87,7 +112,7 @@ function RevealedTwwSection({
         className="bg-white rounded-2xl p-5 border border-purple-100 flex-row gap-4 items-start"
       >
         <View className="w-11 h-11 rounded-2xl bg-purple-100 items-center justify-center shrink-0">
-          <Text className="text-xl">ðŸŒ¬ï¸</Text>
+          <Text className="text-xl">🌬️</Text>
         </View>
         <View className="flex-1">
           <Text className="text-sm font-extrabold text-purple-900 mb-1">
@@ -132,18 +157,26 @@ function RevealedTwwSection({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Main modal
+// ---------------------------------------------------------------------------
+
 export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
   const { userNickname } = useCycle();
+  const todayKey = useTodayKey();
 
+  // ── State ────────────────────────────────────────────────────────────────
   const [journal, setJournal] = useState("");
   const [reassurance, setReassurance] = useState<TwwSanctuaryResult | null>(null);
   const [loading, setLoading] = useState(false);
+  /** True while doing the initial server fetch for today's cached letter */
+  const [loadingToday, setLoadingToday] = useState(true);
   const [error, setError] = useState<AiFallbackInput | null>(null);
   const [visibleSectionCount, setVisibleSectionCount] = useState(0);
   const [selectedMood, setSelectedMood] = useState<TwwMusicMood>("deep_meditation");
   const isInitialMount = useRef(true);
 
-  // Animation and Audio
+  // ── Audio & Animation ────────────────────────────────────────────────────
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState<"tarik" | "tahan" | "hembus" | "idle">("idle");
   const [countdown, setCountdown] = useState(4);
@@ -152,11 +185,37 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
   const scrollRef = useRef<ScrollView | null>(null);
   const revealTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const autoScrollInterruptedRef = useRef(false);
+
   const letterSections = useMemo(
     () => (reassurance ? getTwwLetterSections(reassurance) : []),
     [reassurance],
   );
 
+  // ── Fetch today's cached letter on mount ─────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    const fetchToday = async () => {
+      try {
+        const res = await apiGetJson<TwwTodayResponse>(
+          `/api/tww-sanctuary/today?date=${todayKey}`,
+        );
+        if (!cancelled && res.letter?.result) {
+          // Already have a letter for today — show it immediately
+          setReassurance(res.letter.result);
+        }
+      } catch {
+        // Network error or 401 — silently fail and show journal form
+      } finally {
+        if (!cancelled) setLoadingToday(false);
+      }
+    };
+    fetchToday();
+    return () => {
+      cancelled = true;
+    };
+  }, [todayKey]);
+
+  // ── Audio helpers ────────────────────────────────────────────────────────
   const loadAudio = async (mood: TwwMusicMood, autoPlayAfterLoad = false) => {
     try {
       if (soundRef.current) {
@@ -183,7 +242,6 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     };
   }, []);
 
-  // Load new audio dynamically when selectedMood changes
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -192,6 +250,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     loadAudio(selectedMood, isBreathing);
   }, [selectedMood]);
 
+  // ── Section reveal animation ─────────────────────────────────────────────
   useEffect(() => {
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
@@ -226,7 +285,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     };
   }, [reassurance, letterSections.length]);
 
-  // Drive animation and countdown second-by-second, perfectly synced
+  // ── Breathing exercise ───────────────────────────────────────────────────
   useEffect(() => {
     let intervalId: any;
     let timeoutId: any;
@@ -315,21 +374,19 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     }
   };
 
+  // ── Submit journal to generate new letter ────────────────────────────────
   const submitJournal = async () => {
     if (!journal.trim()) return;
     setLoading(true);
     setError(null);
     try {
-      const payload = {
+      const data = await apiPostJson<TwwGenerateResponse>("/api/generate-calming-reassurance", {
         nickname: userNickname,
         userJournal: journal,
-      };
-
-      const data = await apiPostJson<TwwSanctuaryResult>(
-        "/api/generate-calming-reassurance",
-        payload,
-      );
-      setReassurance(data);
+        generatedForDate: todayKey,
+      });
+      // Works for both cached:true (idempotent) and charged:true (new)
+      setReassurance(data.result);
     } catch (err: any) {
       setError(
         extractAiFallbackInput(err, "Terjadi kesalahan menghubungi server lokal", "TWW Sanctuary"),
@@ -339,6 +396,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     }
   };
 
+  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <Modal visible={true} transparent={true} animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/60">
@@ -407,7 +465,6 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
 
               {isBreathing ? (
                 <View className="items-center mt-4 w-full px-4">
-                  {/* Large animated instructions text */}
                   <View className="h-10 items-center justify-center mb-4">
                     {breathPhase === "tarik" && (
                       <Text className="text-purple-900 text-base font-extrabold tracking-wide text-center">
@@ -426,7 +483,6 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
                     )}
                   </View>
 
-                  {/* Pills representing the three phases */}
                   <View className="flex-row items-center justify-center w-full gap-2">
                     <View
                       className={`px-3 py-1.5 rounded-full border items-center justify-center ${
@@ -537,8 +593,13 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
               </View>
             </View>
 
-            {/* Journal Section */}
-            {!reassurance && !loading && (
+            {/* Initial server load spinner */}
+            {loadingToday && !reassurance && (
+              <SiklusioLoading variant="modal" title="Memuat Surat Tenang hari ini..." />
+            )}
+
+            {/* Journal form — only shown when no cached letter exists */}
+            {!loadingToday && !reassurance && !loading && (
               <View className="bg-white p-5 rounded-[24px] shadow-sm border border-purple-100">
                 <Text className="text-xs font-bold uppercase tracking-widest text-purple-800 mb-3">
                   Jurnal Emosi
@@ -580,10 +641,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
             )}
 
             {loading && (
-              <SiklusioLoading
-                variant="modal"
-                title="Mendengarkan curahan hatimu..."
-              />
+              <SiklusioLoading variant="modal" title="Mendengarkan curahan hatimu..." />
             )}
 
             {reassurance && !loading && (

@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { type Env } from "../env";
 import { requireUser } from "../middlewares/auth";
+import { getAiCreditBalance, chargeAiCredits } from "../services/aiCreditLedger";
 import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
 import { logInfo, logError } from "../logging/redaction";
@@ -14,7 +15,49 @@ import {
 } from "../schemas/requestSchemas";
 import { aiSafetyEnvelope } from "../ai/safety";
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns today's date string (YYYY-MM-DD) in WIB (UTC+7).
+ */
+function getTodayWib(): string {
+  const now = new Date();
+  // UTC+7 offset in ms
+  const wibOffset = 7 * 60 * 60 * 1000;
+  const wibDate = new Date(now.getTime() + wibOffset);
+  return wibDate.toISOString().slice(0, 10);
+}
+
+/**
+ * Validates that the client-supplied generatedForDate is within ±1 day
+ * of today in WIB. Returns false if the date is invalid or out of range.
+ */
+function isDateValidForToday(clientDate: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clientDate)) return false;
+  const todayWib = getTodayWib();
+  const today = new Date(todayWib + "T00:00:00Z");
+  const client = new Date(clientDate + "T00:00:00Z");
+  const diffDays = Math.abs((client.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays <= 1;
+}
+
+/**
+ * SHA-256 hex digest of a string.
+ * Uses the Web Crypto API available in Cloudflare Workers.
+ */
+async function sha256Hex(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// ---------------------------------------------------------------------------
 // POST /api/generate-cycle-report
+// ---------------------------------------------------------------------------
 export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
@@ -77,7 +120,9 @@ export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
   }
 };
 
+// ---------------------------------------------------------------------------
 // POST /api/generate-habits-insight
+// ---------------------------------------------------------------------------
 export const generateHabitsInsight = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-habits-insight");
   try {
@@ -142,22 +187,151 @@ export const generateHabitsInsight = async (c: Context<{ Bindings: Env }>) => {
   }
 };
 
-// POST /api/generate-calming-reassurance
-export const generateCalmingReassurance = async (c: Context<{ Bindings: Env }>) => {
-  logInfo("--> [BACKEND] Received request /api/generate-calming-reassurance");
+// ---------------------------------------------------------------------------
+// GET /api/tww-sanctuary/today
+// ---------------------------------------------------------------------------
+export const getTodayReassurance = async (c: Context<{ Bindings: Env }>) => {
   try {
     const auth = await requireUser(c);
-    if (!auth) {
-      return c.json({ error: "Missing or invalid session" }, 401);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const date = c.req.query("date");
+    if (!date) {
+      return c.json({ error: "Parameter date diperlukan (YYYY-MM-DD)." }, 400);
     }
 
-    const { nickname, userJournal } = await c.req.json();
+    const { data: letter, error } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", date)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (letter && letter.result) {
+      letter.result = aiSafetyEnvelope(
+        letter.result as any,
+      ) as unknown as import("../../../supabase/types/database.types").Json;
+    }
+
+    return c.json({ letter: letter ?? null });
+  } catch (error: any) {
+    logError("[tww-sanctuary/today]", error.stack || error);
+    return c.json({ error: error.message || "Gagal mengambil Surat Tenang." }, 500);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// POST /api/generate-calming-reassurance
+// ---------------------------------------------------------------------------
+export const generateCalmingReassurance = async (c: Context<{ Bindings: Env }>) => {
+  logInfo("--> [BACKEND] Received request /api/generate-calming-reassurance");
+
+  const creditCost = 25;
+
+  try {
+    const auth = await requireUser(c);
+    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
+
+    const body = await c.req.json();
+    const { nickname, userJournal, generatedForDate } = body;
+
+    // ── 1. Validate generatedForDate ──────────────────────────────────────
+    if (typeof generatedForDate !== "string" || !isDateValidForToday(generatedForDate)) {
+      return c.json(
+        {
+          error:
+            "Tanggal tidak valid. generatedForDate harus tanggal hari ini (YYYY-MM-DD, WIB ±1 hari).",
+        },
+        400,
+      );
+    }
+
+    // ── 2. Check for existing ACTIVE letter today ─────────────────────────
+    const { data: existingActive, error: existingActiveError } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .select("id, result, credit_cost")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", generatedForDate)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (existingActiveError) throw existingActiveError;
+
+    if (existingActive) {
+      logInfo("[tww-sanctuary] Returning cached letter for today.");
+      const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+      return c.json({
+        cached: true,
+        charged: false,
+        letter: existingActive,
+        result: aiSafetyEnvelope(existingActive.result as any),
+        balance,
+      });
+    }
+
+    // ── 3. Check for stuck pending_charge row ─────────────────────────────
+    const { data: existingPending, error: existingPendingError } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .select("id, created_at")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", generatedForDate)
+      .eq("status", "pending_charge")
+      .maybeSingle();
+
+    if (existingPendingError) throw existingPendingError;
+
+    if (existingPending) {
+      const ageMs = Date.now() - new Date(existingPending.created_at).getTime();
+      if (ageMs < 5 * 60 * 1000) {
+        // < 5 minutes — still in progress
+        return c.json({ error: "Surat Tenang sedang dalam proses. Coba lagi sebentar." }, 400);
+      }
+      // Stuck > 5 minutes — mark failed so we can proceed
+      logError("[tww-sanctuary] Marking stuck pending row as failed:", existingPending.id);
+      await auth.supabaseAdmin
+        .from("tww_sanctuary_letters")
+        .update({ status: "failed", updated_at: new Date().toISOString() })
+        .eq("id", existingPending.id);
+    }
+
+    // ── 4. Check for existing FAILED row (already consumed today's slot) ──
+    // If a failed row exists and is NOT the stuck one we just handled,
+    // we upsert a new row by removing the unique conflict via delete first.
+    // Actually with UNIQUE(user_id, generated_for_date) we can have only ONE row
+    // per day. After marking pending→failed above (or if a previous failed exists),
+    // we need to delete it so we can insert a fresh one.
+    const { data: existingFailed } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .select("id")
+      .eq("user_id", auth.user.id)
+      .eq("generated_for_date", generatedForDate)
+      .eq("status", "failed")
+      .maybeSingle();
+
+    if (existingFailed) {
+      await auth.supabaseAdmin
+        .from("tww_sanctuary_letters")
+        .delete()
+        .eq("id", existingFailed.id);
+    }
+
+    // ── 5. Credit balance check ───────────────────────────────────────────
+    const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
+    if (balance < creditCost) {
+      return c.json(
+        { error: "Saldo kredit AI tidak cukup.", balance, required: creditCost },
+        402,
+      );
+    }
+
+    // ── 6. Call OpenRouter AI ─────────────────────────────────────────────
     const apiKey = c.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
-    }
+    if (!apiKey) return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
 
-    logInfo("--> [BACKEND] Calling OpenRouter API...");
+    logInfo("--> [BACKEND] Calling OpenRouter for TWW Sanctuary...");
     const modelSelection = resolveOpenRouterModels({
       policy: "free_included",
       freeModel: c.env.OPENROUTER_FREE_MODEL,
@@ -194,11 +368,84 @@ export const generateCalmingReassurance = async (c: Context<{ Bindings: Env }>) 
       responseSchema: calmingReassuranceSchema,
     });
 
-    logInfo("--> [BACKEND] Received OpenRouter response.");
-    const result = aiSafetyEnvelope(validateCalmingReassurance(ai.data));
-    return c.json(result);
+    logInfo("--> [BACKEND] Received OpenRouter response for TWW Sanctuary.");
+    const result = aiSafetyEnvelope(
+      validateCalmingReassurance(ai.data),
+    ) as unknown as import("../../../supabase/types/database.types").Json;
+
+    // ── 7. Compute privacy-safe journal fields ────────────────────────────
+    const journalText = typeof userJournal === "string" ? userJournal.trim() : "";
+    const journalHash = journalText ? await sha256Hex(journalText) : null;
+    const journalPreview = journalText ? journalText.slice(0, 240) : null;
+
+    // ── 8. Insert pending row ─────────────────────────────────────────────
+    const { data: savedLetter, error: saveError } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .insert({
+        user_id: auth.user.id,
+        generated_for_date: generatedForDate,
+        journal_hash: journalHash,
+        journal_preview: journalPreview,
+        result,
+        status: "pending_charge",
+        ai_model: ai.model,
+        credit_cost: creditCost,
+      })
+      .select()
+      .single();
+
+    if (saveError) throw saveError;
+
+    // ── 9. Charge credits (atomic via RPC) ────────────────────────────────
+    let balanceAfter: number;
+    try {
+      balanceAfter = await chargeAiCredits({
+        supabaseAdmin: auth.supabaseAdmin,
+        userId: auth.user.id,
+        amount: creditCost,
+        feature: "tww_sanctuary",
+        reason: "surat_tenang",
+        referenceId: savedLetter.id,
+        metadata: { model: ai.model, usage: ai.usage || null },
+      });
+    } catch (chargeError: any) {
+      // Charge failed → mark row failed so the unique slot is freed on next retry
+      logError("[tww-sanctuary] Charge failed, marking row failed:", chargeError.message);
+      await auth.supabaseAdmin
+        .from("tww_sanctuary_letters")
+        .update({ status: "failed", updated_at: new Date().toISOString() })
+        .eq("id", savedLetter.id);
+      throw chargeError;
+    }
+
+    // ── 10. Activate row ──────────────────────────────────────────────────
+    const { data: activatedLetter, error: activateError } = await auth.supabaseAdmin
+      .from("tww_sanctuary_letters")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("id", savedLetter.id)
+      .select()
+      .single();
+
+    if (activateError) {
+      // CRITICAL: credits already charged but activation failed.
+      // Row stays pending_charge; manual recovery needed.
+      logError(
+        "[tww-sanctuary] CRITICAL: activation failed after charge. Letter ID:",
+        savedLetter.id,
+        activateError,
+      );
+      // Still return success to user — they paid, give them the result.
+    }
+
+    return c.json({
+      cached: false,
+      charged: true,
+      letter: activatedLetter ?? savedLetter,
+      result,
+      balance: balanceAfter,
+    });
   } catch (error: any) {
-    logError("<-- [BACKEND] OpenRouter API Error / Exception:", error.stack || error);
+    logError("<-- [BACKEND] TWW Sanctuary Error:", error.stack || error);
     return c.json(
       {
         error:

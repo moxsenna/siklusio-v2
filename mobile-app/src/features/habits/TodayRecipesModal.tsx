@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
+import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import { apiGetJson, apiPostJson } from "@/src/lib/api";
@@ -170,9 +170,10 @@ export function TodayRecipesModal({
             </View>
 
             {(fetching || loading) && (
-              <View style={{ paddingVertical: 14, alignItems: "center" }}>
-                <SiklusioLottieLoader text="Mencari resep sehat untukmu..." size={140} />
-              </View>
+              <SiklusioLoading
+                variant="modal"
+                title="Mencari resep sehat untukmu..."
+              />
             )}
 
             {!result && !fetching && (

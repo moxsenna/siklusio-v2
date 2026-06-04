@@ -1,0 +1,18 @@
+// Generated from the actual PNG logo centerline, then simplified.
+// Coordinate system matches the original asset ratio: viewBox 0 0 512 512.
+// Use these paths as an overlay on top of the real logo PNG.
+
+export const SIKLUSIO_TRACE_VIEWBOX = "0 0 512 512";
+
+export const SIKLUSIO_MAIN_LOOP_PATH = `M 154.7 215.6 L 149.4 182.0 L 150.5 171.5 L 158.9 151.5 L 174.6 136.8 L 195.6 129.5 L 213.5 129.5 L 228.2 133.7 L 236.6 137.9 L 246.0 146.3 L 256.5 149.4 L 266.0 146.3 L 273.3 138.9 L 282.8 133.7 L 298.5 129.5 L 315.3 129.5 L 325.8 131.6 L 342.6 141.0 L 355.2 155.7 L 359.4 167.3 L 359.4 195.6 L 353.1 210.3 L 337.4 229.2 L 216.6 344.7 L 194.6 363.6 L 168.3 378.3 L 154.7 382.5 L 142.1 384.6 L 120.0 384.6 L 108.5 382.5 L 85.4 373.1 L 72.8 363.6 L 61.2 351.0 L 48.6 327.9 L 45.5 315.3 L 45.5 285.9 L 48.6 273.3 L 59.1 253.4 L 74.9 236.6 L 86.4 228.2 L 99.0 221.9 L 115.8 217.7 L 153.6 216.6 Z`;
+export const SIKLUSIO_CENTER_TAIL_PATH = `M 155.7 216.6 L 176.7 231.3 L 228.2 280.7 L 227.1 291.2`;
+export const SIKLUSIO_RIGHT_LOOP_PATH = `M 389.9 211.4 L 394.1 217.7 L 419.3 225.0 L 437.1 236.6 L 452.9 254.4 L 462.3 273.3 L 465.5 289.1 L 464.4 321.6 L 459.2 336.3 L 444.5 358.4 L 427.7 372.0 L 403.5 382.5 L 392.0 384.6 L 368.9 384.6 L 356.3 382.5 L 340.5 377.3 L 317.4 363.6 L 283.8 333.2 L 283.8 326.9`;
+
+export const SIKUSIO_PATH_LENGTHS = {
+  main: 928.1,
+  centerTail: 107.5,
+  right: 381.4,
+};
+
+// Also export with correct spelling just in case
+export const SIKLUSIO_PATH_LENGTHS = SIKUSIO_PATH_LENGTHS;

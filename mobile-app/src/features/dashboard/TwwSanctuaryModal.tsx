@@ -24,7 +24,7 @@ import { Audio } from "expo-av";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import { extractAiFallbackInput, type AiFallbackInput } from "@/src/lib/aiFallback";
-import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
+import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
 
 interface TwwSanctuaryModalProps {
   onClose: () => void;
@@ -580,12 +580,10 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
             )}
 
             {loading && (
-              <View className="items-center justify-center py-[24px]">
-                <SiklusioLottieLoader
-                  text="Mendengarkan curahan hatimu..."
-                  size={160}
-                />
-              </View>
+              <SiklusioLoading
+                variant="modal"
+                title="Mendengarkan curahan hatimu..."
+              />
             )}
 
             {reassurance && !loading && (

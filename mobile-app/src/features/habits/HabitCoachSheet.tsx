@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
+import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
 import type { CoachQuestionAnswer, HabitCoachMode } from "@/src/lib/habitCoachTypes";
@@ -396,9 +396,10 @@ export function HabitCoachSheet({
             )}
 
             {loading ? (
-              <View style={{ paddingVertical: 32, alignItems: "center" }}>
-                <SiklusioLottieLoader text="Menyusun plan 7 hari terbaikmu..." size={160} />
-              </View>
+              <SiklusioLoading
+                variant="modal"
+                title="Menyusun plan 7 hari terbaikmu..."
+              />
             ) : isReviewStep ? (
               renderReview()
             ) : (

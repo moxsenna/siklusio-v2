@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Platform, Alert } from "react-native";
-import { SiklusioLottieLoader } from "../../components/loading/SiklusioLottieLoader";
+import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
 import { format, subDays } from "date-fns";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
@@ -152,7 +152,7 @@ export function AiRecommendationSection({ currentPhase, activityHistory, nicknam
           justifyContent: "center",
         }}
       >
-        <SiklusioLottieLoader text="Menganalisis data 7 hari..." size={150} />
+        <SiklusioLoading variant="ai" title="Menganalisis data 7 hari..." />
         <Text style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 4 }}>
           AI sedang membaca pola aktivitas dan gejala kamu
         </Text>

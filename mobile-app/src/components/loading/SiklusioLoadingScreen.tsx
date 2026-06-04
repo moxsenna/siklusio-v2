@@ -1,30 +1,38 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { SiklusioLottieLoader } from "./SiklusioLottieLoader";
+import { StyleSheet, Text, View } from "react-native";
+import { SiklusioExactLogoTraceLoader } from "./SiklusioExactLogoTraceLoader";
 
 export function SiklusioLoadingScreen() {
   return (
-    <View style={styles.container}>
-      <SiklusioLottieLoader />
-      <Text style={styles.subtitle}>Promil lebih terarah, hati lebih tenang.</Text>
+    <View style={styles.screen}>
+      <SiklusioExactLogoTraceLoader size={250} />
+      <Text style={styles.title}>Siklusio</Text>
+      <Text style={styles.subtitle}>Menyiapkan ruang tenang Bunda...</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: "#fdf2f8",
     alignItems: "center",
     justifyContent: "center",
-    padding: 24,
+    paddingHorizontal: 24,
+    backgroundColor: "#fdf2f8",
+  },
+  title: {
+    marginTop: 8,
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#0f172a",
+    letterSpacing: 0.2,
   },
   subtitle: {
-    marginTop: 16,
-    fontSize: 14,
-    color: "#db2777",
-    fontWeight: "600",
+    marginTop: 6,
+    fontSize: 13,
+    fontWeight: "500",
+    lineHeight: 20,
+    color: "#475569",
     textAlign: "center",
-    opacity: 0.8,
   },
 });

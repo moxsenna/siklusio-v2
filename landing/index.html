@@ -63,6 +63,7 @@
     .hero-content{flex:1;max-width:560px}
     .hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);font-size:13px;font-weight:600;color:var(--pink);margin-bottom:22px}
     .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:blink 1.8s infinite}
+    .ref-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:16px;background:rgba(236,72,153,.06);border:1px solid rgba(236,72,153,.15);font-size:13px;font-weight:600;color:var(--pink);margin-top:12px}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
     .hero h1{font-size:54px;font-weight:900;line-height:1.08;margin-bottom:20px;letter-spacing:-2px}
     .hero-sub{font-size:17px;line-height:1.75;color:var(--text-muted);margin-bottom:32px}
@@ -738,6 +739,7 @@
       <a href="#pricing" class="btn-hero">🌟 Aktivasi Premium Sekarang</a>
       <a href="#fitur" class="btn-ghost">Lihat Fitur ↓</a>
     </div>
+    <div id="hero-ref-badge" class="ref-badge" style="display: none;"></div>
     <div class="hero-stats">
       <div><div class="stat-num">1x</div><div class="stat-label">Bayar Saja</div></div>
       <div><div class="stat-num">AI</div><div class="stat-label">Panduan Personal</div></div>
@@ -1248,6 +1250,7 @@
         <li class="pitem"><span class="chk pk">✓</span><strong>Bebas iklan pihak ketiga</strong> agar pengalaman lebih privat dan nyaman</li>
       </ul>
       <a href="checkout.html" class="btn-prem">🌟 Aktivasi Premium Seumur Hidup</a>
+      <div id="pricing-ref-badge" class="ref-badge" style="display: none; margin: 12px auto 0 auto; justify-content: center;"></div>
       <div class="bonus-box">
         <div class="bonus-ico">🎁</div>
         <div class="bonus-txt"><strong>BONUS EKSKLUSIF:</strong> Sticker Pack WA "Pejuang Garis Dua" — lucu, hangat &amp; penuh semangat untuk ikhtiar bersama suami!</div>
@@ -1469,11 +1472,24 @@
     }
 
     const finalRef = localStorage.getItem('siklusio_ref_code');
-    if (finalRef) {
+    const normalizedRef = finalRef ? finalRef.trim().toUpperCase() : '';
+    if (normalizedRef) {
+      // Display referral badges
+      const heroBadge = document.getElementById('hero-ref-badge');
+      const pricingBadge = document.getElementById('pricing-ref-badge');
+      if (heroBadge) {
+        heroBadge.textContent = '🌸 Direkomendasikan oleh ' + normalizedRef;
+        heroBadge.style.display = 'inline-flex';
+      }
+      if (pricingBadge) {
+        pricingBadge.textContent = '🌸 Direkomendasikan oleh ' + normalizedRef;
+        pricingBadge.style.display = 'inline-flex';
+      }
+
       document.querySelectorAll('a[href*="checkout.html"]').forEach(link => {
         try {
           const url = new URL(link.href, window.location.href);
-          url.searchParams.set('ref', finalRef);
+          url.searchParams.set('ref', normalizedRef);
           link.href = url.pathname + url.search + url.hash;
         } catch(e) {}
       });

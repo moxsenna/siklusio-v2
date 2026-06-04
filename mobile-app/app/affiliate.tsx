@@ -94,26 +94,36 @@ export default function AffiliatePage() {
     }
   };
 
-  const getAffiliateLink = () => {
+  const getLandingLink = () => {
+    if (!affiliate?.code) return "";
+    return `https://siklusio.web.id/?ref=${affiliate.code}`;
+  };
+
+  const getCheckoutLink = () => {
     if (!affiliate?.code) return "";
     return `https://siklusio.web.id/checkout.html?ref=${affiliate.code}`;
   };
 
-  const copyLink = async () => {
-    const link = getAffiliateLink();
-
-    if (!link) {
+  const copyLink = async (type: "landing" | "checkout") => {
+    const codeVal = affiliate?.code || "";
+    if (!codeVal) {
       Alert.alert("Belum tersedia", "Kode referal Bunda belum tersedia.");
       return;
     }
+
+    const link =
+      type === "landing"
+        ? `https://siklusio.web.id/?ref=${codeVal}`
+        : `https://siklusio.web.id/checkout.html?ref=${codeVal}`;
+    const label = type === "landing" ? "Link Promosi Lengkap" : "Link Checkout Langsung";
 
     try {
       await Clipboard.setStringAsync(link);
 
       if (Platform.OS === "web") {
-        window.alert("Link affiliate berhasil disalin!");
+        window.alert(`${label} berhasil disalin!`);
       } else {
-        Alert.alert("Tersalin", "Link affiliate berhasil disalin ke clipboard.");
+        Alert.alert("Tersalin", `${label} berhasil disalin ke clipboard.`);
       }
     } catch {
       Alert.alert(
@@ -368,7 +378,7 @@ export default function AffiliatePage() {
                     {affiliate.code}
                   </Text>
                   <TouchableOpacity
-                    onPress={copyLink}
+                    onPress={() => copyLink("landing")}
                     style={{ backgroundColor: "#fef2f2", padding: 8, borderRadius: 8 }}
                   >
                     <FontAwesome name="copy" size={16} color="#ec4899" />
@@ -379,51 +389,100 @@ export default function AffiliatePage() {
                 >
                   Bagikan link otomatis:
                 </Text>
-                <Text
-                  selectable
-                  style={{
-                    marginTop: 8,
-                    color: "#ec4899",
-                    fontSize: 13,
-                    lineHeight: 20,
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  {getAffiliateLink()}
-                </Text>
 
-                <TouchableOpacity
-                  onPress={copyLink}
-                  activeOpacity={0.85}
-                  style={{
-                    marginTop: 14,
-                    backgroundColor: "#ec4899",
-                    borderRadius: 14,
-                    paddingVertical: 14,
-                    paddingHorizontal: 18,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    shadowColor: "#ec4899",
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 14,
-                    elevation: 3,
-                  }}
-                >
-                  <FontAwesome name="copy" size={16} color="#ffffff" />
-                  <Text
-                    style={{
-                      color: "#ffffff",
-                      fontSize: 14,
-                      fontWeight: "700",
-                    }}
-                  >
-                    Copy Link Affiliate
-                  </Text>
-                </TouchableOpacity>
+                <View style={{ width: "100%", marginTop: 12, gap: 16 }}>
+                  {/* Link Promosi Lengkap */}
+                  <View style={{ gap: 6 }}>
+                    <TouchableOpacity
+                      onPress={() => copyLink("landing")}
+                      disabled={!affiliate?.code}
+                      activeOpacity={0.85}
+                      style={{
+                        backgroundColor: affiliate?.code ? "#ec4899" : "#cbd5e1",
+                        borderRadius: 14,
+                        paddingVertical: 14,
+                        paddingHorizontal: 18,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        shadowColor: "#ec4899",
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: affiliate?.code ? 0.15 : 0,
+                        shadowRadius: 8,
+                        elevation: affiliate?.code ? 2 : 0,
+                      }}
+                    >
+                      <FontAwesome name="copy" size={16} color="#ffffff" />
+                      <Text
+                        style={{
+                          color: "#ffffff",
+                          fontSize: 14,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Salin Link Promosi Lengkap
+                      </Text>
+                    </TouchableOpacity>
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        color: "#64748b",
+                        textAlign: "center",
+                        paddingHorizontal: 8,
+                        lineHeight: 16,
+                      }}
+                    >
+                      Cocok untuk Story, bio, grup WhatsApp, atau teman yang belum tahu Siklusio.
+                    </Text>
+                  </View>
+
+                  {/* Link Checkout Langsung */}
+                  <View style={{ gap: 6 }}>
+                    <TouchableOpacity
+                      onPress={() => copyLink("checkout")}
+                      disabled={!affiliate?.code}
+                      activeOpacity={0.85}
+                      style={{
+                        backgroundColor: affiliate?.code ? "#7c3aed" : "#cbd5e1",
+                        borderRadius: 14,
+                        paddingVertical: 14,
+                        paddingHorizontal: 18,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        shadowColor: "#7c3aed",
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: affiliate?.code ? 0.15 : 0,
+                        shadowRadius: 8,
+                        elevation: affiliate?.code ? 2 : 0,
+                      }}
+                    >
+                      <FontAwesome name="copy" size={16} color="#ffffff" />
+                      <Text
+                        style={{
+                          color: "#ffffff",
+                          fontSize: 14,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Salin Link Checkout Langsung
+                      </Text>
+                    </TouchableOpacity>
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        color: "#64748b",
+                        textAlign: "center",
+                        paddingHorizontal: 8,
+                        lineHeight: 16,
+                      }}
+                    >
+                      Cocok untuk teman yang sudah siap daftar atau sudah tanya harga.
+                    </Text>
+                  </View>
+                </View>
               </View>
 
               <View style={{ padding: 24 }}>

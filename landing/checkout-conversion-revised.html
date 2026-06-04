@@ -285,6 +285,9 @@
             <div class="price-label">Total aktivasi hari ini</div>
             <div class="price-value">Rp 37.000</div>
             <p class="price-meta">Sekali bayar untuk akses penuh. Tidak ada langganan bulanan.</p>
+            <div id="summaryReferralConfirm" style="display:none; font-size:12px; color:#0f766e; font-weight:bold; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(236,72,153,.15);">
+              Rekomendasi dari <span id="summaryReferralCode" style="font-weight:900;text-transform:uppercase;"></span> sudah aktif.
+            </div>
           </div>
 
           <ul class="benefit-list">
@@ -404,6 +407,14 @@
             inputCoupon.value = storedRef;
           }
           console.log('--> Referral validated:', storedRef, data.discountLabel);
+
+          const summaryConfirmEl = document.getElementById('summaryReferralConfirm');
+          const summaryCodeEl = document.getElementById('summaryReferralCode');
+          if (summaryConfirmEl && summaryCodeEl) {
+            const displayName = data.displayName || data.name || storedRef.toUpperCase();
+            summaryCodeEl.textContent = displayName;
+            summaryConfirmEl.style.display = 'block';
+          }
 
           window.dataLayer.push({
             event: 'referral_validated',

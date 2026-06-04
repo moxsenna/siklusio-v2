@@ -312,19 +312,13 @@ export const generateCalmingReassurance = async (c: Context<{ Bindings: Env }>) 
       .maybeSingle();
 
     if (existingFailed) {
-      await auth.supabaseAdmin
-        .from("tww_sanctuary_letters")
-        .delete()
-        .eq("id", existingFailed.id);
+      await auth.supabaseAdmin.from("tww_sanctuary_letters").delete().eq("id", existingFailed.id);
     }
 
     // ── 5. Credit balance check ───────────────────────────────────────────
     const balance = await getAiCreditBalance(auth.supabaseAdmin, auth.user.id);
     if (balance < creditCost) {
-      return c.json(
-        { error: "Saldo kredit AI tidak cukup.", balance, required: creditCost },
-        402,
-      );
+      return c.json({ error: "Saldo kredit AI tidak cukup.", balance, required: creditCost }, 402);
     }
 
     // ── 6. Call OpenRouter AI ─────────────────────────────────────────────

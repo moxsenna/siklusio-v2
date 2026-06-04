@@ -118,7 +118,7 @@ export default function AffiliatePage() {
     } catch {
       Alert.alert(
         "Gagal menyalin",
-        "Link belum bisa disalin otomatis. Bunda bisa salin manual dari teks link."
+        "Link belum bisa disalin otomatis. Bunda bisa salin manual dari teks link.",
       );
     }
   };

@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  Animated,
-  Easing,
-  Image,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Animated, Easing, Image, StyleSheet, View } from "react-native";
 
 export function LoginLogoAnimation() {
   const scale = useRef(new Animated.Value(0.94)).current;
@@ -61,7 +55,7 @@ export function LoginLogoAnimation() {
             useNativeDriver: true,
           }),
         ]),
-      ])
+      ]),
     );
 
     const rotateAnimation = Animated.loop(
@@ -78,7 +72,7 @@ export function LoginLogoAnimation() {
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     const glowAnimation = Animated.loop(
@@ -109,7 +103,7 @@ export function LoginLogoAnimation() {
             useNativeDriver: true,
           }),
         ]),
-      ])
+      ]),
     );
 
     const shimmerAnimation = Animated.loop(
@@ -126,7 +120,7 @@ export function LoginLogoAnimation() {
           duration: 0,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     breathingAnimation.start();
@@ -164,11 +158,7 @@ export function LoginLogoAnimation() {
           styles.logoContainer,
           {
             opacity,
-            transform: [
-              { translateY },
-              { scale },
-              { rotate: rotateInterpolate },
-            ],
+            transform: [{ translateY }, { scale }, { rotate: rotateInterpolate }],
           },
         ]}
       >
@@ -183,10 +173,7 @@ export function LoginLogoAnimation() {
           style={[
             styles.shimmer,
             {
-              transform: [
-                { translateX: shimmerX },
-                { rotate: "18deg" },
-              ],
+              transform: [{ translateX: shimmerX }, { rotate: "18deg" }],
             },
           ]}
         />

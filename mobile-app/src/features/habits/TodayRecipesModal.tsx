@@ -170,10 +170,7 @@ export function TodayRecipesModal({
             </View>
 
             {(fetching || loading) && (
-              <SiklusioLoading
-                variant="modal"
-                title="Mencari resep sehat untukmu..."
-              />
+              <SiklusioLoading variant="modal" title="Mencari resep sehat untukmu..." />
             )}
 
             {!result && !fetching && (

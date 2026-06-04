@@ -1,18 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import {
-  Animated,
-  Easing,
-  Image,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from "react-native";
-import Svg, {
-  Defs,
-  LinearGradient,
-  Path,
-  Stop,
-} from "react-native-svg";
+import { Animated, Easing, Image, StyleSheet, View, ViewStyle } from "react-native";
+import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import {
   SIKLUSIO_CENTER_TAIL_PATH,
   SIKLUSIO_MAIN_LOOP_PATH,
@@ -105,7 +93,7 @@ export function SiklusioExactLogoTraceLoader({
           }),
         ]),
         Animated.delay(160),
-      ])
+      ]),
     );
 
     const breathing = Animated.loop(
@@ -122,7 +110,7 @@ export function SiklusioExactLogoTraceLoader({
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     tracing.start();
@@ -145,18 +133,11 @@ export function SiklusioExactLogoTraceLoader({
         },
       ],
     }),
-    [pulse]
+    [pulse],
   );
 
   return (
-    <Animated.View
-      style={[
-        styles.root,
-        { width: size, height: size },
-        animatedStyle,
-        style,
-      ]}
-    >
+    <Animated.View style={[styles.root, { width: size, height: size }, animatedStyle, style]}>
       {/* The real PNG keeps the logo shape exact. Do not replace this with a hand-drawn vector approximation. */}
       <Image
         source={require("../../../assets/images/logo-siklusio-bg.png")}
@@ -172,7 +153,14 @@ export function SiklusioExactLogoTraceLoader({
         style={StyleSheet.absoluteFill}
       >
         <Defs>
-          <LinearGradient id="siklusioTraceGradient" x1="40" y1="256" x2="472" y2="256" gradientUnits="userSpaceOnUse">
+          <LinearGradient
+            id="siklusioTraceGradient"
+            x1="40"
+            y1="256"
+            x2="472"
+            y2="256"
+            gradientUnits="userSpaceOnUse"
+          >
             <Stop offset="0" stopColor="#ec4899" stopOpacity="1" />
             <Stop offset="0.48" stopColor="#9333ea" stopOpacity="1" />
             <Stop offset="1" stopColor="#14b8a6" stopOpacity="1" />

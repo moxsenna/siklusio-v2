@@ -196,9 +196,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
     let cancelled = false;
     const fetchToday = async () => {
       try {
-        const res = await apiGetJson<TwwTodayResponse>(
-          `/api/tww-sanctuary/today?date=${todayKey}`,
-        );
+        const res = await apiGetJson<TwwTodayResponse>(`/api/tww-sanctuary/today?date=${todayKey}`);
         if (!cancelled && res.letter?.result) {
           // Already have a letter for today — show it immediately
           setReassurance(res.letter.result);
@@ -640,9 +638,7 @@ export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
               </View>
             )}
 
-            {loading && (
-              <SiklusioLoading variant="modal" title="Mendengarkan curahan hatimu..." />
-            )}
+            {loading && <SiklusioLoading variant="modal" title="Mendengarkan curahan hatimu..." />}
 
             {reassurance && !loading && (
               <View className="gap-4 pb-6">

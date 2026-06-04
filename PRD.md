@@ -3,7 +3,7 @@
 Status: Draft v1  
 Last updated: 2026-05-28  
 Product area: Menstrual cycle tracking, promil support, AI insight, community  
-Primary market: Indonesia  
+Primary market: Indonesia
 
 ## 0. Working Assumptions
 
@@ -208,46 +208,46 @@ Success criteria:
 
 ### P0 Requirements
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-001 | Auth dan profile pengguna | Pengguna dapat register/login, data profile tersimpan, dan sesi digunakan untuk akses fitur personal. |
-| FR-002 | Onboarding personal | Pengguna mengisi nama panggilan, tanggal lahir, jumlah anak, HPHT, panjang siklus, lama haid, nama/panggilan/nomor suami. Data tersimpan lokal dan tersinkron ke Supabase saat sesi tersedia. |
-| FR-003 | Cycle engine | Sistem menghitung hari siklus, fase menstruasi/folikular/ovulasi/luteal, masa subur, dan prediksi haid berikutnya berdasarkan HPHT, panjang siklus, panjang haid, dan log haid manual. |
-| FR-004 | Dashboard personal | Dashboard menampilkan sapaan, tanggal, kartu siklus, fase hari ini, afirmasi, savings tracker, dan action card yang berubah sesuai fase serta progres harian. |
-| FR-005 | Dynamic action card | Jika checklist rendah, CTA mengarah ke Habits. Jika masa subur/ovulasi, CTA membuka template suami. Jika menstruasi, CTA mengarah ke nutrisi/kebiasaan. Jika luteal, CTA membuka TWW Sanctuary. |
-| FR-006 | Daily habits | Pengguna dapat melihat checklist harian sesuai fase, mencentang task, melihat persentase progres, dan membuka riwayat. |
-| FR-007 | Symptom tracking | Pengguna dapat menandai gejala harian seperti kram, sakit kepala, kelelahan, dan mood swing. |
-| FR-008 | Calendar tracking | Pengguna dapat melihat kalender siklus, memilih tanggal, melihat fase, menandai atau menghapus log haid manual, dan membuka AI cycle report. |
-| FR-009 | AI habits insight | AI menganalisis data aktivitas dan gejala 7 hari terakhir untuk menghasilkan ringkasan, analisis gejala, tips, dan motivasi. |
-| FR-010 | AI cycle report | AI memberi wawasan siklus yang dipersonalisasi berdasarkan posisi siklus dan data pengguna. |
-| FR-011 | TWW Sanctuary | Pengguna fase luteal dapat membuka breathing exercise, audio relaksasi, jurnal emosi, dan calming reassurance dari AI. |
-| FR-012 | Husband message templates | Sistem menyediakan template pesan WhatsApp berdasarkan fase siklus dan data panggilan suami, lalu membuka WhatsApp dengan teks terisi. |
-| FR-013 | Community feed | Pengguna dapat melihat post komunitas dengan pagination, membuat post, memberi reaksi, membuka komentar, dan refresh feed. |
-| FR-014 | Anonymous posting | Post dan komentar memiliki opsi anonim. Identitas asli tidak tampil di feed ketika anonim aktif, tetapi user_id tetap tersimpan untuk moderasi. |
-| FR-015 | Community safety | Sistem mendukung report reason preset/custom, rate limit post/komentar, auto-hide threshold, dan moderation queue. |
-| FR-016 | Admin moderation | Admin dapat melihat user, export CSV, melihat laporan, memilih pertahankan/sembunyikan konten, dan reset avatar tidak pantas. |
-| FR-017 | Privacy and RLS | Semua data personal dilindungi RLS, service role hanya di backend, dan direct SELECT ke kolom sensitif komunitas dibatasi untuk user biasa. |
-| FR-018 | Error handling lokal | Error API, rate limit, dan validasi input ditampilkan dengan pesan Indonesia yang jelas dan tidak menyalahkan pengguna. |
+| ID     | Requirement               | Acceptance Criteria                                                                                                                                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-001 | Auth dan profile pengguna | Pengguna dapat register/login, data profile tersimpan, dan sesi digunakan untuk akses fitur personal.                                                                                           |
+| FR-002 | Onboarding personal       | Pengguna mengisi nama panggilan, tanggal lahir, jumlah anak, HPHT, panjang siklus, lama haid, nama/panggilan/nomor suami. Data tersimpan lokal dan tersinkron ke Supabase saat sesi tersedia.   |
+| FR-003 | Cycle engine              | Sistem menghitung hari siklus, fase menstruasi/folikular/ovulasi/luteal, masa subur, dan prediksi haid berikutnya berdasarkan HPHT, panjang siklus, panjang haid, dan log haid manual.          |
+| FR-004 | Dashboard personal        | Dashboard menampilkan sapaan, tanggal, kartu siklus, fase hari ini, afirmasi, savings tracker, dan action card yang berubah sesuai fase serta progres harian.                                   |
+| FR-005 | Dynamic action card       | Jika checklist rendah, CTA mengarah ke Habits. Jika masa subur/ovulasi, CTA membuka template suami. Jika menstruasi, CTA mengarah ke nutrisi/kebiasaan. Jika luteal, CTA membuka TWW Sanctuary. |
+| FR-006 | Daily habits              | Pengguna dapat melihat checklist harian sesuai fase, mencentang task, melihat persentase progres, dan membuka riwayat.                                                                          |
+| FR-007 | Symptom tracking          | Pengguna dapat menandai gejala harian seperti kram, sakit kepala, kelelahan, dan mood swing.                                                                                                    |
+| FR-008 | Calendar tracking         | Pengguna dapat melihat kalender siklus, memilih tanggal, melihat fase, menandai atau menghapus log haid manual, dan membuka AI cycle report.                                                    |
+| FR-009 | AI habits insight         | AI menganalisis data aktivitas dan gejala 7 hari terakhir untuk menghasilkan ringkasan, analisis gejala, tips, dan motivasi.                                                                    |
+| FR-010 | AI cycle report           | AI memberi wawasan siklus yang dipersonalisasi berdasarkan posisi siklus dan data pengguna.                                                                                                     |
+| FR-011 | TWW Sanctuary             | Pengguna fase luteal dapat membuka breathing exercise, audio relaksasi, jurnal emosi, dan calming reassurance dari AI.                                                                          |
+| FR-012 | Husband message templates | Sistem menyediakan template pesan WhatsApp berdasarkan fase siklus dan data panggilan suami, lalu membuka WhatsApp dengan teks terisi.                                                          |
+| FR-013 | Community feed            | Pengguna dapat melihat post komunitas dengan pagination, membuat post, memberi reaksi, membuka komentar, dan refresh feed.                                                                      |
+| FR-014 | Anonymous posting         | Post dan komentar memiliki opsi anonim. Identitas asli tidak tampil di feed ketika anonim aktif, tetapi user_id tetap tersimpan untuk moderasi.                                                 |
+| FR-015 | Community safety          | Sistem mendukung report reason preset/custom, rate limit post/komentar, auto-hide threshold, dan moderation queue.                                                                              |
+| FR-016 | Admin moderation          | Admin dapat melihat user, export CSV, melihat laporan, memilih pertahankan/sembunyikan konten, dan reset avatar tidak pantas.                                                                   |
+| FR-017 | Privacy and RLS           | Semua data personal dilindungi RLS, service role hanya di backend, dan direct SELECT ke kolom sensitif komunitas dibatasi untuk user biasa.                                                     |
+| FR-018 | Error handling lokal      | Error API, rate limit, dan validasi input ditampilkan dengan pesan Indonesia yang jelas dan tidak menyalahkan pengguna.                                                                         |
 
 ### P1 Requirements
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-101 | Savings tracker | Pengguna dapat melihat target/tabungan persiapan kehamilan dan status kontribusi. |
-| FR-102 | Avatar system | Pengguna dapat memilih avatar preset atau upload custom avatar melalui backend/R2. Avatar tidak tampil saat anonim aktif. |
-| FR-103 | Notification settings | Pengguna dapat mengatur notifikasi fase siklus, ovulasi, dan nutrisi. |
-| FR-104 | History analytics | Pengguna dapat melihat histori 7/14/30 hari untuk kebiasaan dan gejala, dengan fallback aman jika chart gagal. |
-| FR-105 | Checkout and premium access | Landing/checkout menjelaskan value premium, pembayaran satu kali, dan akses setelah registrasi. |
-| FR-106 | Content safety for AI | Prompt dan response AI harus menghindari diagnosis, janji hamil, dosis obat, atau instruksi klinis berisiko. |
+| ID     | Requirement                 | Acceptance Criteria                                                                                                       |
+| ------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| FR-101 | Savings tracker             | Pengguna dapat melihat target/tabungan persiapan kehamilan dan status kontribusi.                                         |
+| FR-102 | Avatar system               | Pengguna dapat memilih avatar preset atau upload custom avatar melalui backend/R2. Avatar tidak tampil saat anonim aktif. |
+| FR-103 | Notification settings       | Pengguna dapat mengatur notifikasi fase siklus, ovulasi, dan nutrisi.                                                     |
+| FR-104 | History analytics           | Pengguna dapat melihat histori 7/14/30 hari untuk kebiasaan dan gejala, dengan fallback aman jika chart gagal.            |
+| FR-105 | Checkout and premium access | Landing/checkout menjelaskan value premium, pembayaran satu kali, dan akses setelah registrasi.                           |
+| FR-106 | Content safety for AI       | Prompt dan response AI harus menghindari diagnosis, janji hamil, dosis obat, atau instruksi klinis berisiko.              |
 
 ### P2 Requirements
 
-| ID | Requirement | Acceptance Criteria |
-| --- | --- | --- |
-| FR-201 | Partner mode | Suami dapat menerima ringkasan fase dan reminder lembut tanpa melihat data sensitif penuh. |
-| FR-202 | OPK/BBT tracking | Pengguna dapat mencatat hasil ovulation test atau suhu basal untuk meningkatkan akurasi fertile window. |
-| FR-203 | Expert content library | Artikel edukasi promil terkurasi dari dokter/ahli dengan disclaimer medis. |
-| FR-204 | Doctor consultation handoff | Pengguna mendapat panduan kapan perlu konsultasi dokter, tanpa menggantikan diagnosis. |
+| ID     | Requirement                 | Acceptance Criteria                                                                                     |
+| ------ | --------------------------- | ------------------------------------------------------------------------------------------------------- |
+| FR-201 | Partner mode                | Suami dapat menerima ringkasan fase dan reminder lembut tanpa melihat data sensitif penuh.              |
+| FR-202 | OPK/BBT tracking            | Pengguna dapat mencatat hasil ovulation test atau suhu basal untuk meningkatkan akurasi fertile window. |
+| FR-203 | Expert content library      | Artikel edukasi promil terkurasi dari dokter/ahli dengan disclaimer medis.                              |
+| FR-204 | Doctor consultation handoff | Pengguna mendapat panduan kapan perlu konsultasi dokter, tanpa menggantikan diagnosis.                  |
 
 ## 9. UX and Content Requirements
 
@@ -378,15 +378,15 @@ MVP is considered complete when users can:
 
 ## 14. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Users interpret AI as medical diagnosis | High | Add AI prompt guardrails, disclaimer, and unsafe-advice filters. |
-| Fertility prediction feels inaccurate for irregular cycles | High | Be transparent that prediction is estimate, allow manual period logs, consider OPK/BBT post-MVP. |
-| Community anonymity abused | High | Keep user_id for moderation, enforce rate limits, reports, admin actions, and auto-hide threshold. |
-| Sensitive data privacy concerns | High | Avoid third-party ads, minimize AI input data, enforce RLS and column-level restrictions. |
-| Tone feels too emotional or too medical | Medium | Maintain warm but grounded copy; avoid exaggerated claims. |
-| Husband message feature feels awkward | Medium | Provide multiple tone options later: romantic, gentle, direct, playful. |
-| Premium one-time model underfunds AI costs | Medium | Track AI usage cost per user and consider fair usage limits. |
+| Risk                                                       | Impact | Mitigation                                                                                         |
+| ---------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
+| Users interpret AI as medical diagnosis                    | High   | Add AI prompt guardrails, disclaimer, and unsafe-advice filters.                                   |
+| Fertility prediction feels inaccurate for irregular cycles | High   | Be transparent that prediction is estimate, allow manual period logs, consider OPK/BBT post-MVP.   |
+| Community anonymity abused                                 | High   | Keep user_id for moderation, enforce rate limits, reports, admin actions, and auto-hide threshold. |
+| Sensitive data privacy concerns                            | High   | Avoid third-party ads, minimize AI input data, enforce RLS and column-level restrictions.          |
+| Tone feels too emotional or too medical                    | Medium | Maintain warm but grounded copy; avoid exaggerated claims.                                         |
+| Husband message feature feels awkward                      | Medium | Provide multiple tone options later: romantic, gentle, direct, playful.                            |
+| Premium one-time model underfunds AI costs                 | Medium | Track AI usage cost per user and consider fair usage limits.                                       |
 
 ## 15. Open Questions
 

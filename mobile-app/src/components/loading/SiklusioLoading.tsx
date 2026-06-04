@@ -7,18 +7,13 @@ type SiklusioLoadingProps = {
   title?: string;
 };
 
-export function SiklusioLoading({
-  variant = "inline",
-  title,
-}: SiklusioLoadingProps) {
+export function SiklusioLoading({ variant = "inline", title }: SiklusioLoadingProps) {
   if (variant === "fullscreen") {
     return (
       <View style={styles.fullscreen}>
         <SiklusioExactLogoTraceLoader size={220} />
         <Text style={styles.fullscreenTitle}>Siklusio</Text>
-        <Text style={styles.fullscreenSubtitle}>
-          {title || "Menyiapkan ruang tenang Bunda..."}
-        </Text>
+        <Text style={styles.fullscreenSubtitle}>{title || "Menyiapkan ruang tenang Bunda..."}</Text>
       </View>
     );
   }
@@ -27,9 +22,7 @@ export function SiklusioLoading({
     return (
       <View style={styles.aiContainer}>
         <SiklusioExactLogoTraceLoader size={160} />
-        <Text style={styles.aiText}>
-          {title || "AI sedang menyusun panduan Bunda..."}
-        </Text>
+        <Text style={styles.aiText}>{title || "AI sedang menyusun panduan Bunda..."}</Text>
       </View>
     );
   }
@@ -38,9 +31,7 @@ export function SiklusioLoading({
     return (
       <View style={styles.modalContainer}>
         <SiklusioExactLogoTraceLoader size={140} />
-        <Text style={styles.modalText}>
-          {title || "Sebentar ya, Bunda..."}
-        </Text>
+        <Text style={styles.modalText}>{title || "Sebentar ya, Bunda..."}</Text>
       </View>
     );
   }

@@ -123,12 +123,7 @@ export function AiReportModal({ onClose }: AiReportModalProps) {
             </View>
           )}
 
-          {loading && (
-            <SiklusioLoading
-              variant="modal"
-              title="Menghitung Wawasan..."
-            />
-          )}
+          {loading && <SiklusioLoading variant="modal" title="Menghitung Wawasan..." />}
 
           {report && !loading && (
             <View className="gap-6 pb-6">

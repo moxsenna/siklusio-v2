@@ -396,10 +396,7 @@ export function HabitCoachSheet({
             )}
 
             {loading ? (
-              <SiklusioLoading
-                variant="modal"
-                title="Menyusun plan 7 hari terbaikmu..."
-              />
+              <SiklusioLoading variant="modal" title="Menyusun plan 7 hari terbaikmu..." />
             ) : isReviewStep ? (
               renderReview()
             ) : (

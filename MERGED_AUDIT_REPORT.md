@@ -3,7 +3,7 @@
 Laporan gabungan audit Siklusio dari Kiro AI dan Codex
 
 Tanggal merge: 2026-06-01
-Workspace: D:\Coding\remix_-siklusio
+Workspace: D:\Coding\remix\_-siklusio
 Branch saat merge: codex/resep-hari-ini-impl
 Commit HEAD saat audit: e08f4b2ef1b9ce2b49dad64ed04a209ad71d684d
 
@@ -75,20 +75,20 @@ Prioritas tertinggi setelah merge:
 
 ### Sudah tervalidasi oleh Codex
 
-| Area | Status |
-| --- | --- |
-| Root npm run lint | PASS setelah Phase 2 guardrail |
-| Mobile typecheck | PASS |
-| Unit tests manual | PASS, 36 test files lewat `npm run check` setelah Phase 31 |
-| Wrangler Worker dry-run | PASS, upload 1501.57 KiB / gzip 297.31 KiB |
-| Cloudflare Worker deployment | PASS, production Worker deploy versi `b579af19-a453-4183-adbe-de80217ac8a7` setelah Phase 29 |
-| Cloudflare Pages siklusio-landing | Production source `341aaf5` aktif |
-| Cloudflare Pages siklusio-v2 | Production source `341aaf5` aktif |
-| Supabase db push dry-run | PASS, remote database up to date setelah Phase 28 apply |
-| Root npm audit --omit=dev | PASS |
-| Mobile npm audit --omit=dev | FAIL, 15 moderate vulnerabilities; fix otomatis butuh breaking upgrade ke `expo@56.0.8` |
-| expo-doctor | PASS, 18/18 checks setelah Phase 23 |
-| Live smoke test API/landing/app | PASS, HTTP 200 |
+| Area                              | Status                                                                                       |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Root npm run lint                 | PASS setelah Phase 2 guardrail                                                               |
+| Mobile typecheck                  | PASS                                                                                         |
+| Unit tests manual                 | PASS, 36 test files lewat `npm run check` setelah Phase 31                                   |
+| Wrangler Worker dry-run           | PASS, upload 1501.57 KiB / gzip 297.31 KiB                                                   |
+| Cloudflare Worker deployment      | PASS, production Worker deploy versi `b579af19-a453-4183-adbe-de80217ac8a7` setelah Phase 29 |
+| Cloudflare Pages siklusio-landing | Production source `341aaf5` aktif                                                            |
+| Cloudflare Pages siklusio-v2      | Production source `341aaf5` aktif                                                            |
+| Supabase db push dry-run          | PASS, remote database up to date setelah Phase 28 apply                                      |
+| Root npm audit --omit=dev         | PASS                                                                                         |
+| Mobile npm audit --omit=dev       | FAIL, 15 moderate vulnerabilities; fix otomatis butuh breaking upgrade ke `expo@56.0.8`      |
+| expo-doctor                       | PASS, 18/18 checks setelah Phase 23                                                          |
+| Live smoke test API/landing/app   | PASS, HTTP 200                                                                               |
 
 ### Status deploy / commit
 
@@ -114,68 +114,68 @@ Daftar fase lanjutan yang sifatnya optional/product lane, bukan sisa audit utama
 
 ### Disepakati oleh kedua audit
 
-| Temuan | Keputusan merge | Prioritas |
-| --- | --- | --- |
-| /api/generate-calming-reassurance tidak require auth | Valid | P0 |
-| last_period_date NOT NULL DEFAULT CURRENT_DATE berbahaya untuk onboarding/akurasi medis | Valid | P1 |
-| backend/index.ts terlalu besar | Valid | P2 |
-| CORS global terlalu permisif | Valid | P2 |
-| modal.tsx masih placeholder Expo | Valid | P3 |
-| Firebase Analytics require package yang tidak terinstall | Selesai lokal Phase 26: strategi dipilih GTM web-only, native no-op sampai Firebase native/dev-client dibuat sengaja | P2/P3 |
-| Ada file legacy/recovery/debug | Valid | P3 |
-| graphify-out berisi generated output | Superseded: user menandai folder ini penting, jangan disentuh tanpa approval eksplisit | P3 |
-| .env/docs/env naming tidak konsisten | Valid | P1 |
-| CycleContext terlalu banyak tanggung jawab | Valid | P2 |
+| Temuan                                                                                  | Keputusan merge                                                                                                      | Prioritas |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------- |
+| /api/generate-calming-reassurance tidak require auth                                    | Valid                                                                                                                | P0        |
+| last_period_date NOT NULL DEFAULT CURRENT_DATE berbahaya untuk onboarding/akurasi medis | Valid                                                                                                                | P1        |
+| backend/index.ts terlalu besar                                                          | Valid                                                                                                                | P2        |
+| CORS global terlalu permisif                                                            | Valid                                                                                                                | P2        |
+| modal.tsx masih placeholder Expo                                                        | Valid                                                                                                                | P3        |
+| Firebase Analytics require package yang tidak terinstall                                | Selesai lokal Phase 26: strategi dipilih GTM web-only, native no-op sampai Firebase native/dev-client dibuat sengaja | P2/P3     |
+| Ada file legacy/recovery/debug                                                          | Valid                                                                                                                | P3        |
+| graphify-out berisi generated output                                                    | Superseded: user menandai folder ini penting, jangan disentuh tanpa approval eksplisit                               | P3        |
+| .env/docs/env naming tidak konsisten                                                    | Valid                                                                                                                | P1        |
+| CycleContext terlalu banyak tanggung jawab                                              | Valid                                                                                                                | P2        |
 
 ### Temuan Codex yang ditambahkan ke backlog final
 
-| Temuan | Alasan masuk backlog | Prioritas |
-| --- | --- | --- |
-| pending_registrations menyimpan password plaintext | Risiko security tertinggi di audit ini | P0 |
-| /api/checkout/topup mempercayai price/credits dari client | Risiko revenue dan biaya AI | P0 |
-| webhook fail-open jika MAYAR_WEBHOOK_TOKEN kosong | Berbahaya untuk staging/env baru | P0/P1 |
-| topup grant credit tidak atomic | Risiko double grant saat retry/race | P1 |
-| checkout_session insert tidak dicek sebelum return paymentUrl | Payment flow bisa kehilangan audit/idempotency | P1 |
-| root lint/typecheck gagal | CI tidak bisa dipercaya | P1 |
-| GitHub Actions deploy landing salah project-name | Pipeline repo broken walau Cloudflare Git integration deploy | P1 |
-| root SQL dan migrations tidak jadi satu sumber kebenaran | Selesai sebagian Phase 27: workflow/docs/types sudah rapi; baseline/squash legacy root SQL masih future cleanup sebelum deploy besar | P1 |
-| avatar upload tidak validasi MIME/magic bytes | Abuse storage/moderation risk | P1/P2 |
-| savings tracker hanya local | Feature sync tidak lengkap | P2 |
-| reminder harian hanya toggle/Alert | Feature UI belum benar-benar berfungsi | P2 |
-| date key harian bisa stale setelah midnight | Bug UX/data harian | P2 |
-| backend logs mengandung PII/payment detail | Privacy/observability risk | P2 |
-| mobile API base fallback localhost jika env production kosong | Deploy footgun | P2 |
-| mobile dependency/expo-doctor issues | SDK 54 patch mismatch selesai lokal; npm audit residual butuh upgrade lane terpisah | P2 |
+| Temuan                                                        | Alasan masuk backlog                                                                                                                 | Prioritas |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| pending_registrations menyimpan password plaintext            | Risiko security tertinggi di audit ini                                                                                               | P0        |
+| /api/checkout/topup mempercayai price/credits dari client     | Risiko revenue dan biaya AI                                                                                                          | P0        |
+| webhook fail-open jika MAYAR_WEBHOOK_TOKEN kosong             | Berbahaya untuk staging/env baru                                                                                                     | P0/P1     |
+| topup grant credit tidak atomic                               | Risiko double grant saat retry/race                                                                                                  | P1        |
+| checkout_session insert tidak dicek sebelum return paymentUrl | Payment flow bisa kehilangan audit/idempotency                                                                                       | P1        |
+| root lint/typecheck gagal                                     | CI tidak bisa dipercaya                                                                                                              | P1        |
+| GitHub Actions deploy landing salah project-name              | Pipeline repo broken walau Cloudflare Git integration deploy                                                                         | P1        |
+| root SQL dan migrations tidak jadi satu sumber kebenaran      | Selesai sebagian Phase 27: workflow/docs/types sudah rapi; baseline/squash legacy root SQL masih future cleanup sebelum deploy besar | P1        |
+| avatar upload tidak validasi MIME/magic bytes                 | Abuse storage/moderation risk                                                                                                        | P1/P2     |
+| savings tracker hanya local                                   | Feature sync tidak lengkap                                                                                                           | P2        |
+| reminder harian hanya toggle/Alert                            | Feature UI belum benar-benar berfungsi                                                                                               | P2        |
+| date key harian bisa stale setelah midnight                   | Bug UX/data harian                                                                                                                   | P2        |
+| backend logs mengandung PII/payment detail                    | Privacy/observability risk                                                                                                           | P2        |
+| mobile API base fallback localhost jika env production kosong | Deploy footgun                                                                                                                       | P2        |
+| mobile dependency/expo-doctor issues                          | SDK 54 patch mismatch selesai lokal; npm audit residual butuh upgrade lane terpisah                                                  | P2        |
 
 ### Temuan Kiro yang diterima setelah validasi tambahan
 
-| Temuan | Status merge | Prioritas |
-| --- | --- | --- |
-| storage.setItem fire-and-forget ke AsyncStorage | Valid, kemungkinan trade-off sengaja tetapi perlu dokumentasi/helper async | P3 |
-| generateMockHistory selalu return {} | Valid cleanup naming | P3 |
-| analytics.setUser tidak terlihat dipanggil setelah login | Valid | P2 |
-| tww_meditation.mp3 tidak dipakai | Valid, file dihapus manual dan mapping memakai 4 audio lain | P3 |
-| Colors.ts masih template Expo biru | Valid, brand mismatch | P3 |
-| useClientOnlyValue dan beberapa template Expo cleanup | Valid jika tidak terpakai | P3 |
-| community_verify.sql adalah diagnostic, bukan migration | Valid | P3 |
-| activity_history_sync_hardening.sql naming tidak konsisten | Valid minor | P3 |
-| Supabase client nullable perlu pola yang lebih tegas | Valid sebagai maintainability/UX improvement | P2/P3 |
-| Error boundary lokal untuk komponen AI belum ada | Valid improvement | P3 |
+| Temuan                                                     | Status merge                                                               | Prioritas |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------- | --------- |
+| storage.setItem fire-and-forget ke AsyncStorage            | Valid, kemungkinan trade-off sengaja tetapi perlu dokumentasi/helper async | P3        |
+| generateMockHistory selalu return {}                       | Valid cleanup naming                                                       | P3        |
+| analytics.setUser tidak terlihat dipanggil setelah login   | Valid                                                                      | P2        |
+| tww_meditation.mp3 tidak dipakai                           | Valid, file dihapus manual dan mapping memakai 4 audio lain                | P3        |
+| Colors.ts masih template Expo biru                         | Valid, brand mismatch                                                      | P3        |
+| useClientOnlyValue dan beberapa template Expo cleanup      | Valid jika tidak terpakai                                                  | P3        |
+| community_verify.sql adalah diagnostic, bukan migration    | Valid                                                                      | P3        |
+| activity_history_sync_hardening.sql naming tidak konsisten | Valid minor                                                                | P3        |
+| Supabase client nullable perlu pola yang lebih tegas       | Valid sebagai maintainability/UX improvement                               | P2/P3     |
+| Error boundary lokal untuk komponen AI belum ada           | Valid improvement                                                          | P3        |
 
 ### Temuan Kiro yang dikoreksi atau diturunkan
 
-| Temuan Kiro | Hasil validasi merge | Keputusan |
-| --- | --- | --- |
-| ai_credit_topups tidak ada di schema/migration | Tidak akurat untuk state sekarang. File supabase/migrations/20260531112800_ai_credit_topups.sql ada dan Supabase dry-run up to date. | Ganti menjadi: root SQL/migrations membingungkan, plus topup punya bug security client-controlled package |
-| Topup Kredit AI broken karena DB table/webhook/UI tidak ada | Tidak akurat untuk state sekarang. UI, endpoint, migration, dan webhook branch ada. | Ganti menjadi: fitur ada tetapi perlu hardening price validation dan idempotency |
-| GEMINI_API_KEY ada di backend Env dan .env.example | Tidak akurat untuk backend/index.ts dan .env.example saat ini. Jika Cloudflare masih menyimpan secret GEMINI_API_KEY, itu external secret cleanup terpisah dan bukan blocker codebase. | Ganti menjadi cleanup secret/dokumen legacy |
-| mobile-app/dist committed | Tidak terlihat tracked oleh git; status menunjukkan ignored. | Tidak masuk sebagai masalah tracked, tetap boleh cleanup lokal |
-| mobile-app/.expo/audit-export committed | Tidak terlihat tracked oleh git; .expo ignored. | Tidak masuk sebagai masalah tracked |
-| scratch/ committed | Tidak terlihat tracked oleh git; scratch ignored. | Tetap boleh cleanup lokal, bukan repo tracked issue |
-| tips-suami.html tidak terhubung | Tidak akurat. MessageModal membangun link ke https://siklusio.web.id/tips-suami.html. | Tidak masuk cleanup |
-| affiliate route tidak punya entry point UI | Tidak akurat. Settings memiliki router.push('/affiliate'), HeaderProfileButton juga navigasi ke /affiliate. | Turunkan menjadi perlu QA UX, bukan broken route |
-| cycleInsightCopy tidak dipakai | Tidak akurat. Dipakai di mobile-app/components/dashboard/CycleCard.tsx. | Tidak masuk cleanup |
-| GTM Container ID tidak dikonfigurasi di +html.tsx | Tidak akurat. mobile-app/app/+html.tsx memuat GTM-PX5J3XBM. | Tetap cek analytics.setUser, bukan GTM base |
+| Temuan Kiro                                                 | Hasil validasi merge                                                                                                                                                                   | Keputusan                                                                                                 |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| ai_credit_topups tidak ada di schema/migration              | Tidak akurat untuk state sekarang. File supabase/migrations/20260531112800_ai_credit_topups.sql ada dan Supabase dry-run up to date.                                                   | Ganti menjadi: root SQL/migrations membingungkan, plus topup punya bug security client-controlled package |
+| Topup Kredit AI broken karena DB table/webhook/UI tidak ada | Tidak akurat untuk state sekarang. UI, endpoint, migration, dan webhook branch ada.                                                                                                    | Ganti menjadi: fitur ada tetapi perlu hardening price validation dan idempotency                          |
+| GEMINI_API_KEY ada di backend Env dan .env.example          | Tidak akurat untuk backend/index.ts dan .env.example saat ini. Jika Cloudflare masih menyimpan secret GEMINI_API_KEY, itu external secret cleanup terpisah dan bukan blocker codebase. | Ganti menjadi cleanup secret/dokumen legacy                                                               |
+| mobile-app/dist committed                                   | Tidak terlihat tracked oleh git; status menunjukkan ignored.                                                                                                                           | Tidak masuk sebagai masalah tracked, tetap boleh cleanup lokal                                            |
+| mobile-app/.expo/audit-export committed                     | Tidak terlihat tracked oleh git; .expo ignored.                                                                                                                                        | Tidak masuk sebagai masalah tracked                                                                       |
+| scratch/ committed                                          | Tidak terlihat tracked oleh git; scratch ignored.                                                                                                                                      | Tetap boleh cleanup lokal, bukan repo tracked issue                                                       |
+| tips-suami.html tidak terhubung                             | Tidak akurat. MessageModal membangun link ke https://siklusio.web.id/tips-suami.html.                                                                                                  | Tidak masuk cleanup                                                                                       |
+| affiliate route tidak punya entry point UI                  | Tidak akurat. Settings memiliki router.push('/affiliate'), HeaderProfileButton juga navigasi ke /affiliate.                                                                            | Turunkan menjadi perlu QA UX, bukan broken route                                                          |
+| cycleInsightCopy tidak dipakai                              | Tidak akurat. Dipakai di mobile-app/components/dashboard/CycleCard.tsx.                                                                                                                | Tidak masuk cleanup                                                                                       |
+| GTM Container ID tidak dikonfigurasi di +html.tsx           | Tidak akurat. mobile-app/app/+html.tsx memuat GTM-PX5J3XBM.                                                                                                                            | Tetap cek analytics.setUser, bukan GTM base                                                               |
 
 ## Backlog final berdasarkan prioritas
 
@@ -358,7 +358,7 @@ Lokasi:
 
 Masalah:
 
-- npm run lint gagal karena root tsconfig masih menunjuk alias @/* ke ./frontend/src/*.
+- npm run lint gagal karena root tsconfig masih menunjuk alias @/_ ke ./frontend/src/_.
 
 Solusi:
 
@@ -386,8 +386,8 @@ Solusi:
 
 Lokasi:
 
-- supabase/*.sql
-- supabase/migrations/*
+- supabase/\*.sql
+- supabase/migrations/\*
 
 Masalah:
 
@@ -474,7 +474,7 @@ Lokasi:
 - mobile-app/app/(tabs)/settings.tsx
 - mobile-app/src/lib/dailyReminder.ts
 - mobile-app/src/lib/expoDailyReminderNotifications.ts
-- mobile-app/app/_layout.tsx
+- mobile-app/app/\_layout.tsx
 
 Masalah:
 
@@ -756,8 +756,8 @@ Kandidat:
 - mobile-app/components/StyledText.tsx
 - mobile-app/components/Themed.tsx jika hanya modal yang memakai
 - mobile-app/components/ExternalLink.tsx jika hanya EditScreenInfo yang memakai
-- mobile-app/components/useClientOnlyValue.*
-- mobile-app/components/__tests__/StyledText-test.js
+- mobile-app/components/useClientOnlyValue.\*
+- mobile-app/components/**tests**/StyledText-test.js
 
 Catatan:
 

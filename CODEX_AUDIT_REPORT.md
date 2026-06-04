@@ -3,7 +3,7 @@
 Audit independen Codex untuk Siklusio
 
 Tanggal audit: 2026-06-01
-Workspace: D:\Coding\remix_-siklusio
+Workspace: D:\Coding\remix\_-siklusio
 Branch saat audit: codex/resep-hari-ini-impl
 Commit HEAD: e08f4b2ef1b9ce2b49dad64ed04a209ad71d684d
 Commit message: feat: add saved today recipes flow
@@ -22,7 +22,7 @@ Namun area yang paling perlu diamankan sebelum pengembangan panjang adalah payme
 4. User baru bisa dianggap sudah onboarding karena last_period_date default CURRENT_DATE.
 5. Root lint/typecheck gagal karena konfigurasi tsconfig root masih menunjuk ke frontend lama.
 6. Workflow GitHub deploy landing memakai project Cloudflare Pages yang tidak ada.
-7. Banyak SQL produksi berada di root supabase/*.sql, bukan migrations, sehingga histori schema sulit dilacak manusia.
+7. Banyak SQL produksi berada di root supabase/\*.sql, bukan migrations, sehingga histori schema sulit dilacak manusia.
 8. Backend utama sudah terlalu besar dan bercampur domain, sehingga biaya onboarding developer manusia akan makin mahal.
 
 ## Status deploy dan fitur yang belum deploy
@@ -59,21 +59,21 @@ Artinya workflow repo ini stale/broken walaupun Cloudflare Git integration tampa
 
 ## Hasil verifikasi teknis
 
-| Pemeriksaan | Status | Catatan |
-| --- | --- | --- |
-| npm run lint di root | FAIL | tsc --noEmit gagal karena root tsconfig masih mengarah alias @/* ke ./frontend/src/* dan ikut compile mobile-app |
-| npx tsc --noEmit di mobile-app | PASS | Typecheck mobile lewat tsconfig mobile berhasil |
-| Unit tests manual | PASS | 67 test lulus dari backend dan mobile-app |
-| npx wrangler deploy --dry-run | PASS | Bundle Worker sukses, upload estimate 1489.86 KiB raw / 293.69 KiB gzip |
-| npx wrangler whoami | PASS | Login Cloudflare akun moxsenna@gmail.com |
-| wrangler secret list | PASS | MAYAR_WEBHOOK_TOKEN, MAYAR_API_KEY, OPENROUTER_API_KEY, Supabase, dan R2 secrets ada di Worker |
-| wrangler pages deployment list | PASS | siklusio-landing dan siklusio-v2 punya production deployment source e08f4b2 |
-| wrangler pages deployment list --project-name siklusio | FAIL | Project tidak ada, mengonfirmasi workflow lama salah target |
-| npm audit --omit=dev root | PASS | 0 vulnerabilities |
-| npm audit --omit=dev mobile-app | FAIL | 14 moderate vulnerabilities transitive dari Expo/Metro stack |
-| npx expo-doctor | FAIL | 1/18 check gagal karena versi expo, expo-font, expo-router sedikit tidak sesuai SDK 54 |
-| npm run build:web mobile-app | PASS | Expo web export berhasil |
-| npx supabase db push --dry-run | PASS | Remote DB dianggap up to date terhadap folder migrations |
+| Pemeriksaan                                            | Status | Catatan                                                                                                          |
+| ------------------------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------- |
+| npm run lint di root                                   | FAIL   | tsc --noEmit gagal karena root tsconfig masih mengarah alias @/_ ke ./frontend/src/_ dan ikut compile mobile-app |
+| npx tsc --noEmit di mobile-app                         | PASS   | Typecheck mobile lewat tsconfig mobile berhasil                                                                  |
+| Unit tests manual                                      | PASS   | 67 test lulus dari backend dan mobile-app                                                                        |
+| npx wrangler deploy --dry-run                          | PASS   | Bundle Worker sukses, upload estimate 1489.86 KiB raw / 293.69 KiB gzip                                          |
+| npx wrangler whoami                                    | PASS   | Login Cloudflare akun moxsenna@gmail.com                                                                         |
+| wrangler secret list                                   | PASS   | MAYAR_WEBHOOK_TOKEN, MAYAR_API_KEY, OPENROUTER_API_KEY, Supabase, dan R2 secrets ada di Worker                   |
+| wrangler pages deployment list                         | PASS   | siklusio-landing dan siklusio-v2 punya production deployment source e08f4b2                                      |
+| wrangler pages deployment list --project-name siklusio | FAIL   | Project tidak ada, mengonfirmasi workflow lama salah target                                                      |
+| npm audit --omit=dev root                              | PASS   | 0 vulnerabilities                                                                                                |
+| npm audit --omit=dev mobile-app                        | FAIL   | 14 moderate vulnerabilities transitive dari Expo/Metro stack                                                     |
+| npx expo-doctor                                        | FAIL   | 1/18 check gagal karena versi expo, expo-font, expo-router sedikit tidak sesuai SDK 54                           |
+| npm run build:web mobile-app                           | PASS   | Expo web export berhasil                                                                                         |
+| npx supabase db push --dry-run                         | PASS   | Remote DB dianggap up to date terhadap folder migrations                                                         |
 
 ## Temuan critical
 
@@ -240,8 +240,8 @@ Saran fix:
 Lokasi:
 
 - package.json:11 npm run lint menjalankan tsc --noEmit.
-- tsconfig.json:18-21 alias @/* masih menunjuk ./frontend/src/*.
-- mobile-app/tsconfig.json:5-9 alias mobile yang benar adalah ./*.
+- tsconfig.json:18-21 alias @/_ masih menunjuk ./frontend/src/_.
+- mobile-app/tsconfig.json:5-9 alias mobile yang benar adalah ./\*.
 
 Dampak:
 
@@ -287,7 +287,7 @@ Saran fix:
 
 Lokasi:
 
-- supabase/*.sql berisi banyak schema/feature.
+- supabase/\*.sql berisi banyak schema/feature.
 - supabase/migrations hanya berisi 6 migration AI credit/habit/cycle/recipe/topup.
 
 Dampak:
@@ -329,7 +329,7 @@ Saran fix:
 
 Lokasi:
 
-- backend/index.ts:52-53 app.use("*", cors()).
+- backend/index.ts:52-53 app.use("\*", cors()).
 
 Dampak:
 
@@ -513,7 +513,7 @@ Saran fix:
 
 Lokasi:
 
-- mobile-app/app/_layout.tsx:87 mendaftarkan modal.
+- mobile-app/app/\_layout.tsx:87 mendaftarkan modal.
 - mobile-app/app/modal.tsx:1-18 masih template Expo.
 - mobile-app/components/EditScreenInfo.tsx masih komponen template.
 
@@ -578,7 +578,7 @@ Saran:
 
 Lokasi:
 
-- .env.example:13-19 masih memakai VITE_SUPABASE_* dan menyebut Express.
+- .env.example:13-19 masih memakai VITE*SUPABASE*\* dan menyebut Express.
 - Tidak ada EXPO_PUBLIC_SUPABASE_URL.
 - Tidak ada EXPO_PUBLIC_SUPABASE_ANON_KEY.
 - Tidak ada EXPO_PUBLIC_API_BASE_URL.
@@ -771,14 +771,14 @@ Aturan:
 
 Buat docs/FEATURE_MATRIX.md:
 
-| Feature | Endpoint | Auth | Credit cost | Persisted | Rate limit | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| Today Recipes | /api/generate-recipes | required | yes | yes | planned | active |
-| Habit Coach | /api/habit-coach/generate | required | yes | yes | planned | active |
-| Cycle Guide | /api/cycle-guide/generate | required | yes | yes | planned | active |
-| TWW Reassurance | /api/generate-calming-reassurance | should be required | decide | no | missing | risk |
-| Cycle Report | /api/generate-cycle-report | required | decide | no | missing | legacy |
-| Habits Insight | /api/generate-habits-insight | required | decide | no | missing | legacy |
+| Feature         | Endpoint                          | Auth               | Credit cost | Persisted | Rate limit | Status |
+| --------------- | --------------------------------- | ------------------ | ----------- | --------- | ---------- | ------ |
+| Today Recipes   | /api/generate-recipes             | required           | yes         | yes       | planned    | active |
+| Habit Coach     | /api/habit-coach/generate         | required           | yes         | yes       | planned    | active |
+| Cycle Guide     | /api/cycle-guide/generate         | required           | yes         | yes       | planned    | active |
+| TWW Reassurance | /api/generate-calming-reassurance | should be required | decide      | no        | missing    | risk   |
+| Cycle Report    | /api/generate-cycle-report        | required           | decide      | no        | missing    | legacy |
+| Habits Insight  | /api/generate-habits-insight      | required           | decide      | no        | missing    | legacy |
 
 Matrix ini akan menyelamatkan developer berikutnya dari "fitur ini gratis atau lupa debit credit?".
 

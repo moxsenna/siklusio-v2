@@ -7,6 +7,7 @@ import { buildRecipeCycleSnapshot } from "../ai/recipeSummary";
 import { getAiCreditBalance, chargeAiCredits } from "../services/aiCreditLedger";
 import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
+import { aiSafetyEnvelope } from "../ai/safety";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -34,12 +35,12 @@ router.get("/api/recipes/today", async (c) => {
       return c.json({ generation: null, result: null });
     }
 
-    let result: unknown = generation.result;
+    let result: any = generation.result;
     try {
-      result = validateRecipesGeneration(generation.result);
+      result = aiSafetyEnvelope(validateRecipesGeneration(generation.result));
     } catch {
       // Keep backward compatibility for older saved payloads.
-      result = generation.result;
+      result = aiSafetyEnvelope(generation.result as any);
     }
 
     return c.json({ generation, result });
@@ -129,7 +130,7 @@ PENTING:
       responseSchema: recipesGenerationSchema,
     });
 
-    const result = validateRecipesGeneration(ai.data);
+    const result = aiSafetyEnvelope(validateRecipesGeneration(ai.data));
 
     const { data: savedGeneration, error: saveError } = await auth.supabaseAdmin
       .from("recipe_generations")

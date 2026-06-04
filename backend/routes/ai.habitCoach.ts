@@ -10,6 +10,7 @@ import { callOpenRouterJson } from "../ai/openRouter";
 import { buildHabitCoachMessages } from "../ai/prompts";
 import { validateHabitCoachPlan, habitCoachPlanSchema } from "../schemas/requestSchemas";
 import { type HabitCoachCycleDay } from "../ai/habitCoachFoundation";
+import { aiSafetyEnvelope, containsForbiddenWords } from "../ai/safety";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -78,7 +79,7 @@ router.get("/api/habit-coach/current", async (c) => {
       .maybeSingle();
 
     if (error) throw error;
-    return c.json({ plan });
+    return c.json(aiSafetyEnvelope({ plan }));
   } catch (error: any) {
     console.error("[habit-coach/current]", error.stack || error);
     return c.json({ error: error.message || "Gagal mengambil rencana habit." }, 500);
@@ -166,6 +167,9 @@ router.post("/api/habit-coach/generate", async (c) => {
     });
 
     const result = validateHabitCoachPlan(ai.data);
+    if (containsForbiddenWords(result)) {
+      throw new Error("Safety validation failed: AI response contains forbidden medical claims or phrases.");
+    }
 
     const { plan, balance: balanceAfter } = await saveHabitCoachPlanWithCharge({
       supabaseAdmin: auth.supabaseAdmin,
@@ -201,10 +205,10 @@ router.post("/api/habit-coach/generate", async (c) => {
         }),
     });
 
-    return c.json({
+    return c.json(aiSafetyEnvelope({
       plan,
       balance: balanceAfter,
-    });
+    }));
   } catch (error: any) {
     console.error("[habit-coach/generate]", error.stack || error);
     return c.json({ error: error.message || "Gagal membuat rencana habit." }, 500);

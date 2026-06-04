@@ -7,6 +7,7 @@ import { resolveOpenRouterModels } from "../ai/modelPolicy";
 import { callOpenRouterJson } from "../ai/openRouter";
 import { buildCycleGuideMessages } from "../ai/prompts";
 import { validateCycleGuide, cycleGuideSchema } from "../schemas/requestSchemas";
+import { aiSafetyEnvelope } from "../ai/safety";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -39,7 +40,7 @@ router.post("/api/cycle-guide/generate", async (c) => {
       return c.json({
         error: "Panduan siklus untuk hari ini sudah dibuat.",
         guideId: existingActive.id,
-        result: existingActive.result,
+        result: aiSafetyEnvelope(existingActive.result as any),
       }, 409);
     }
 
@@ -70,7 +71,7 @@ router.post("/api/cycle-guide/generate", async (c) => {
       maxCompletionTokens: 1200,
     });
 
-    const result = validateCycleGuide(ai.data);
+    const result = aiSafetyEnvelope(validateCycleGuide(ai.data));
 
     const { data: saved, error: saveError } = await auth.supabaseAdmin
       .from("cycle_guides")
@@ -136,6 +137,9 @@ router.get("/api/cycle-guide/today", async (c) => {
       .maybeSingle();
 
     if (error) throw error;
+    if (guide && guide.result) {
+      guide.result = aiSafetyEnvelope(guide.result);
+    }
     return c.json({ guide });
   } catch (error: any) {
     console.error("[cycle-guide/today]", error.stack || error);

@@ -12,6 +12,7 @@ import {
   habitsInsightSchema,
   calmingReassuranceSchema,
 } from "../schemas/requestSchemas";
+import { aiSafetyEnvelope } from "../ai/safety";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -65,7 +66,7 @@ router.post("/api/generate-cycle-report", async (c) => {
     });
 
     console.log("--> [BACKEND] Received OpenRouter response.");
-    const result = validateCycleReport(ai.data);
+    const result = aiSafetyEnvelope(validateCycleReport(ai.data));
     return c.json(result);
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
@@ -127,7 +128,7 @@ router.post("/api/generate-habits-insight", async (c) => {
     });
 
     console.log("--> [BACKEND] Received OpenRouter response.");
-    const result = validateHabitsInsight(ai.data);
+    const result = aiSafetyEnvelope(validateHabitsInsight(ai.data));
     return c.json(result);
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
@@ -189,7 +190,7 @@ router.post("/api/generate-calming-reassurance", async (c) => {
     });
 
     logInfo("--> [BACKEND] Received OpenRouter response.");
-    const result = validateCalmingReassurance(ai.data);
+    const result = aiSafetyEnvelope(validateCalmingReassurance(ai.data));
     return c.json(result);
   } catch (error: any) {
     logError("<-- [BACKEND] OpenRouter API Error / Exception:", error.stack || error);

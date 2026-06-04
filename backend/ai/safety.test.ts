@@ -35,6 +35,14 @@ test("containsForbiddenWords flags unsafe medical claims", () => {
   
   // Safe input check
   assert.equal(containsForbiddenWords({ text: "Konsumsi bayam merah untuk zat besi harian." }), false);
+
+  // Contextual word check (allowed without action triggers)
+  assert.equal(containsForbiddenWords({ text: "Siklusio tidak memberikan dosis obat." }), false);
+  assert.equal(containsForbiddenWords({ text: "Ini adalah obat hormon penting." }), false);
+
+  // Contextual word check (blocked with action triggers)
+  assert.equal(containsForbiddenWords({ text: "Silakan konsumsi obat hormon Anda." }), true);
+  assert.equal(containsForbiddenWords({ text: "Atur sendiri dosis penggunaan obat." }), true);
 });
 
 test("aiSafetyEnvelope throws error on unsafe inputs", () => {
@@ -46,3 +54,26 @@ test("aiSafetyEnvelope throws error on unsafe inputs", () => {
     aiSafetyEnvelope(unsafeResult);
   }, /Safety validation failed/);
 });
+
+test("aiSafetyEnvelope successfully strips existing envelope fields before re-wrapping", () => {
+  const resultWithEnvelope = {
+    summary: "Siklus kamu berjalan normal minggu ini.",
+    disclaimer: "Old disclaimer text",
+    safetyFlags: {
+      noDiagnosis: false,
+      noPregnancyGuarantee: false,
+      extraFlag: true,
+    },
+  };
+
+  const reEnveloped = aiSafetyEnvelope(resultWithEnvelope as any);
+
+  assert.equal(reEnveloped.summary, resultWithEnvelope.summary);
+  assert.equal(reEnveloped.disclaimer, MEDICAL_DISCLAIMER);
+  assert.deepEqual(reEnveloped.safetyFlags, {
+    noDiagnosis: true,
+    noPregnancyGuarantee: true,
+  });
+  assert.equal((reEnveloped.safetyFlags as any).extraFlag, undefined);
+});
+

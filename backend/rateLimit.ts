@@ -266,6 +266,13 @@ export const createRateLimitMiddleware =
     }
 
     if (fallbackToMemory) {
+      const fallbackMode = c.env?.RATE_LIMIT_FALLBACK_MODE || "memory";
+      if (fallbackMode === "fail_closed" && (rule.name === "ai" || rule.name === "checkout")) {
+        console.error(`Rate limiting DB failed in fail_closed mode for rule: ${rule.name}. Rejecting request.`);
+        return c.json({
+          error: "Layanan pembatasan akses tidak tersedia. Coba lagi sebentar lagi.",
+        }, 503);
+      }
       result = limiter.check(key, rule);
     }
 

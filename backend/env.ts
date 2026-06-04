@@ -18,4 +18,5 @@ export interface Env {
   META_TEST_MODE_SECRET?: string;
   ALLOWED_ORIGINS?: string;
   DEBUG_WEBHOOK_LOGS?: string;
+  RATE_LIMIT_FALLBACK_MODE?: string;
 }

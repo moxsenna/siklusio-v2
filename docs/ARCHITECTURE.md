@@ -1,97 +1,62 @@
-﻿# Siklusio Architecture Guide
+# Siklusio Architecture Guide
 
-Last updated: 2026-06-03.
-Phase 31 handoff snapshot.
+Last updated: 2026-06-04.
+Handoff snapshot after backend decomposition.
 
-This guide explains the current shape of Siklusio and the target structure for the next human-led refactor. It is intentionally practical: where code lives today, what each area owns, and how to split the backend without changing behavior.
+This guide explains the current shape of Siklusio and its modular structure.
 
 ## System Map
 
 | Area | Current location | Responsibility |
 | --- | --- | --- |
 | Mobile/web app | `mobile-app/` | Expo Router app, native/web screens, user-facing AI flows, Supabase client access, analytics/dataLayer, local sync helpers |
-| API Worker | `backend/index.ts` | Hono app, CORS/rate limit, auth checks, AI routes, checkout, Mayar webhook, affiliate/admin routes, avatar upload |
-| Backend helpers | `backend/ai/`, `backend/payments/`, `backend/storage/`, `backend/logging/` | Extracted domain helpers for AI prompts/schemas/credits, topup packages, avatar image validation, log redaction |
+| API Worker | `backend/` | Hono app with entrypoint `backend/index.ts`, app configuration `backend/app.ts`, modular routes under `backend/routes/`, middlewares under `backend/middleware/`, and services under `backend/services/` |
+| Backend helpers | `backend/ai/`, `backend/payments/`, `backend/storage/`, `backend/logging/`, `backend/schemas/` | Extracted domain helpers for AI prompts/schemas/credits, topup packages, avatar image validation, log redaction, request validation |
 | Database | `supabase/migrations/` | Production schema source of truth for new database changes |
 | Database docs/types | `docs/DATABASE.md`, `supabase/types/database.types.ts` | Human database handoff and generated remote schema snapshot |
 | Landing | `landing/` | Static landing/checkout pages deployed through Cloudflare Pages/Git integration |
 | Audit docs | `MERGED_AUDIT_REPORT.md`, `docs/superpowers/plans/` | Phase history, evidence, and implementation plans |
 
-## Current Backend Shape
+## Backend Folder Structure
 
-`backend/index.ts` is still the single Hono entrypoint. It is large, but Phase 1-30 already moved several risky pieces into focused helpers:
-
-| Extracted module | Current responsibility |
-| --- | --- |
-| `backend/ai/openRouter.ts` | OpenRouter JSON call wrapper |
-| `backend/ai/modelPolicy.ts` | Paid vs free-included model selection |
-| `backend/ai/credits.ts` | AI credit balance, grant, and charge helpers |
-| `backend/ai/history.ts` | AI credit history reads |
-| `backend/ai/prompts.ts` | Prompt builders for cycle guide and habit coach |
-| `backend/ai/schemas.ts` | AI response schemas and validators |
-| `backend/ai/*Summary.ts` | Snapshot builders for AI context |
-| `backend/ai/habitCoachPlanLifecycle.ts` | Habit Coach save/charge lifecycle |
-| `backend/payments/topupPackages.ts` | Server-owned topup package catalog |
-| `backend/storage/avatarImage.ts` | Avatar magic bytes, dimension limits, and metadata stripping |
-| `backend/logging/redaction.ts` | PII/payment/secret redaction before logging |
-| `backend/rateLimit.ts` | Worker-local route rate limiting |
-
-Current route inventory in `backend/index.ts`:
-
-| Route group | Routes |
-| --- | --- |
-| Health | `GET /` |
-| Recipes | `GET /api/recipes/today`, `POST /api/generate-recipes` |
-| Included AI | `POST /api/generate-cycle-report`, `POST /api/generate-habits-insight`, `POST /api/generate-calming-reassurance` |
-| AI credit | `GET /api/ai/credits`, `GET /api/ai/credits/history`, topup grant via webhook/RPC |
-| Topup checkout | `POST /api/checkout/topup` |
-| Habit Coach | `GET /api/habit-coach/current`, `POST /api/habit-coach/generate` |
-| Cycle Guide | `POST /api/cycle-guide/generate`, `GET /api/cycle-guide/today` |
-| Admin users/coupons | `GET /api/admin/users`, coupon CRUD |
-| Avatar | `POST /api/upload-avatar` |
-| Affiliate user/admin | `/api/affiliate/*`, `/api/admin/affiliates/*` |
-| Premium checkout | `POST /api/checkout/register` |
-| Mayar webhook | `POST /api/payment/webhook`, `GET /api/payment/webhook` |
-
-## Target Backend Structure
-
-Recommended target after the release stabilizes:
+The backend has been fully decomposed into a modular structure following the safe extraction plan. The entrypoint `backend/index.ts` now only exports the Hono application created in `backend/app.ts`.
 
 ```text
 backend/
-  app.ts
-  index.ts
-  env.ts
+  index.ts             # Entry point exporting Hono instance
+  app.ts               # Bootstraps Hono app, registers middlewares, and mounts routes
+  env.ts               # Worker environment bindings type definition
   middleware/
-    auth.ts
-    cors.ts
-    rateLimit.ts
+    auth.ts            # requireUser and requireAdmin authentication handlers
+    cors.ts            # dynamic trusted-origins CORS helper
+    rateLimit.ts       # wrapper around global rate limiting
+    errorHandler.ts    # global exception formatting and logging
   routes/
-    health.ts
-    recipes.ts
-    includedAi.ts
-    aiCredits.ts
-    habitCoach.ts
-    cycleGuide.ts
-    checkout.ts
-    webhooks.ts
-    affiliates.ts
-    admin.ts
-    avatars.ts
+    ai.recipes.ts      # GET /api/recipes/today, POST /api/generate-recipes
+    ai.cycleGuide.ts   # POST /api/cycle-guide/generate, GET /api/cycle-guide/today
+    ai.habitCoach.ts   # GET /api/habit-coach/current, POST /api/habit-coach/generate
+    ai.reassurance.ts  # POST /api/generate-cycle-report, POST /api/generate-habits-insight, POST /api/generate-calming-reassurance
+    credits.ts         # GET /api/ai/credits, GET /api/ai/credits/history
+    checkout.ts        # POST /api/checkout/topup, POST /api/checkout/register, and self-serve affiliate routes
+    webhook.mayar.ts   # GET/POST /api/payment/webhook (Mayar transaction hook)
+    admin.ts           # GET /api/admin/users, coupon CRUD, affiliate admin CRUD, payout conversions
+    avatar.ts          # POST /api/upload-avatar (R2 avatar upload)
   services/
-    supabaseAdmin.ts
-    mayar.ts
-    checkoutSessions.ts
-    affiliateConversions.ts
-    aiCreditLedger.ts
-    logger.ts
-  ai/
-  payments/
-  storage/
-  logging/
+    supabaseAdmin.ts   # Supabase client creator and auth user list helper
+    mayar.ts           # Mayar API link creation helper
+    metaCapi.ts        # formatE164Phone, hashData, and sendMetaCapiEvent CAPI helper
+    aiCreditLedger.ts  # exports credits charge, grant, history, balance wrappers
+  schemas/
+    requestSchemas.ts  # exports zod schemas and validate helpers for AI request validation
+  ai/                  # AI prompts, summaries, logic, and policy helpers
+  payments/            # payment catalogs and package descriptors
+  storage/             # avatar binary validation and sanitization
+  logging/             # logger output and PII scrubbing redaction
 ```
 
-Target ownership:
+## Modular Backend Map
+
+The extracted routes and services own the following responsibilities:
 
 | Target file | Owns |
 | --- | --- |

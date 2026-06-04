@@ -1,4 +1,6 @@
 // Rate limiting middleware using Supabase RPC or memory fallback.
+// This file handles rate limit rules, memory store backups, identity hashing, and database lookups.
+
 import { getSupabaseAdmin } from "./services/supabaseAdmin";
 
 type Clock = () => number;
@@ -38,14 +40,26 @@ const AI_PATHS = new Set([
 const CHECKOUT_PATHS = new Set(["/api/checkout/register", "/api/checkout/topup"]);
 
 const DEFAULT_RULES = {
-  ai: { max: 20, windowSeconds: 60 },
-  checkout: { max: 10, windowSeconds: 300 },
-  webhook: { max: 120, windowSeconds: 60 },
+  ai: {
+    max: 20,
+    windowSeconds: 60,
+  },
+  checkout: {
+    max: 10,
+    windowSeconds: 300,
+  },
+  webhook: {
+    max: 120,
+    windowSeconds: 60,
+  },
 };
 
 const parsePositiveInteger = (value: unknown, fallback: number): number => {
   const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+  if (Number.isInteger(parsed) && parsed > 0) {
+    return parsed;
+  }
+  return fallback;
 };
 
 const buildRule = (
@@ -53,11 +67,13 @@ const buildRule = (
   maxValue: unknown,
   windowValue: unknown,
   fallback: { max: number; windowSeconds: number },
-): RateLimitRule => ({
-  name,
-  max: parsePositiveInteger(maxValue, fallback.max),
-  windowMs: parsePositiveInteger(windowValue, fallback.windowSeconds) * 1000,
-});
+): RateLimitRule => {
+  return {
+    name,
+    max: parsePositiveInteger(maxValue, fallback.max),
+    windowMs: parsePositiveInteger(windowValue, fallback.windowSeconds) * 1000,
+  };
+};
 
 export const resolveRateLimitRule = (
   method: string,
@@ -115,6 +131,7 @@ export const createMemoryRateLimiter = (options: MemoryRateLimiterOptions = {}) 
     check(key: string, rule: RateLimitRule): RateLimitResult {
       const currentTime = now();
       checksSinceCleanup += 1;
+
       if (checksSinceCleanup >= 500) {
         cleanupExpired(currentTime);
         checksSinceCleanup = 0;
@@ -123,7 +140,11 @@ export const createMemoryRateLimiter = (options: MemoryRateLimiterOptions = {}) 
       const existing = store.get(key);
       if (!existing || currentTime >= existing.resetAt) {
         const resetAt = currentTime + rule.windowMs;
-        store.set(key, { count: 1, resetAt });
+        store.set(key, {
+          count: 1,
+          resetAt,
+        });
+
         return {
           allowed: true,
           remaining: Math.max(0, rule.max - 1),
@@ -162,8 +183,12 @@ const hashIdentity = (value: string): string => {
 const getUserIdFromToken = (token: string): string | null => {
   try {
     const parts = token.split(".");
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) {
+      return null;
+    }
+
     const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+
     const jsonStr = atob(payloadBase64);
     const payload = JSON.parse(jsonStr);
     return payload.sub || null;
@@ -175,6 +200,7 @@ const getUserIdFromToken = (token: string): string | null => {
 const getClientIp = (c: any): string => {
   const forwardedFor = c.req.header("x-forwarded-for") || "";
   const firstForwardedIp = forwardedFor.split(",")[0]?.trim();
+
   return (
     c.req.header("cf-connecting-ip") || c.req.header("x-real-ip") || firstForwardedIp || "unknown"
   );
@@ -262,6 +288,7 @@ export const createRateLimitMiddleware =
 
     if (fallbackToMemory) {
       const fallbackMode = c.env?.RATE_LIMIT_FALLBACK_MODE || "memory";
+
       if (fallbackMode === "fail_closed" && (rule.name === "ai" || rule.name === "checkout")) {
         console.error(
           `Rate limiting DB failed in fail_closed mode for rule: ${rule.name}. Rejecting request.`,
@@ -273,6 +300,7 @@ export const createRateLimitMiddleware =
           503,
         );
       }
+
       result = limiter.check(key, rule);
     }
 

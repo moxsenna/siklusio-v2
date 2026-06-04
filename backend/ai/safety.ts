@@ -1,4 +1,6 @@
 // AI Safety Envelope and medical disclaimer validations.
+// This module provides checks to ensure AI responses do not contain forbidden medical claims.
+
 export const MEDICAL_DISCLAIMER =
   "Informasi ini bersifat pendampingan promil harian umum, bukan pengganti diagnosis medis Sp.OG dan pemeriksaan klinis langsung oleh tenaga kesehatan.";
 
@@ -18,19 +20,35 @@ export type SafetyEnveloped<T> = T & {
   safetyFlags: SafetyFlags;
 };
 
+/**
+ * Checks if the given value contains any forbidden words or phrases.
+ */
 export function containsForbiddenWords(value: unknown): boolean {
-  if (value === null || value === undefined) return false;
+  if (value === null || value === undefined) {
+    return false;
+  }
+
   const str = JSON.stringify(value).toLowerCase();
 
   // 1. Check hard forbidden words
-  if (HARD_FORBIDDEN.some((word) => str.includes(word.toLowerCase()))) {
+  const hasHardForbidden = HARD_FORBIDDEN.some((word) => {
+    return str.includes(word.toLowerCase());
+  });
+
+  if (hasHardForbidden) {
     return true;
   }
 
   // 2. Check contextual forbidden words
-  const hasContextual = CONTEXTUAL_FORBIDDEN.some((word) => str.includes(word.toLowerCase()));
+  const hasContextual = CONTEXTUAL_FORBIDDEN.some((word) => {
+    return str.includes(word.toLowerCase());
+  });
+
   if (hasContextual) {
-    const hasActionTrigger = ACTION_TRIGGERS.some((trigger) => str.includes(trigger.toLowerCase()));
+    const hasActionTrigger = ACTION_TRIGGERS.some((trigger) => {
+      return str.includes(trigger.toLowerCase());
+    });
+
     if (hasActionTrigger) {
       return true;
     }
@@ -39,14 +57,23 @@ export function containsForbiddenWords(value: unknown): boolean {
   return false;
 }
 
+/**
+ * Strips existing safety envelope fields to prevent nesting.
+ */
 export function stripExistingSafetyEnvelope<T extends Record<string, any>>(
   result: T,
 ): Omit<T, "disclaimer" | "safetyFlags"> {
-  if (!result || typeof result !== "object") return result;
+  if (!result || typeof result !== "object") {
+    return result;
+  }
+
   const { disclaimer, safetyFlags, ...rest } = result as any;
   return rest;
 }
 
+/**
+ * Wraps the AI response in a safety envelope with a medical disclaimer and flags.
+ */
 export function aiSafetyEnvelope<T extends Record<string, any>>(result: T): SafetyEnveloped<T> {
   if (containsForbiddenWords(result)) {
     throw new Error(
@@ -54,7 +81,6 @@ export function aiSafetyEnvelope<T extends Record<string, any>>(result: T): Safe
     );
   }
 
-  // Strip existing safety envelope fields to prevent accumulation or conflicts
   const cleanResult = stripExistingSafetyEnvelope(result);
 
   return {

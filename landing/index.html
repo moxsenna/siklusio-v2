@@ -1453,6 +1453,33 @@
   });
   console.log('--> GTM Event: ViewContent');
 
+  // ─── Referral Persistence & Forwarding ───
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get('ref');
+    if (refCode) {
+      const upperRef = refCode.toUpperCase();
+      localStorage.setItem('siklusio_ref_code', upperRef);
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'referral_detected_lp',
+        referral_code: upperRef
+      });
+      console.log('--> GTM Event: Referral Detected on LP:', upperRef);
+    }
+
+    const finalRef = localStorage.getItem('siklusio_ref_code');
+    if (finalRef) {
+      document.querySelectorAll('a[href*="checkout.html"]').forEach(link => {
+        try {
+          const url = new URL(link.href, window.location.href);
+          url.searchParams.set('ref', finalRef);
+          link.href = url.pathname + url.search + url.hash;
+        } catch(e) {}
+      });
+    }
+  })();
+
   // ─── Meta CAPI Test Parameters Forwarding ───
   (function() {
     const params = new URLSearchParams(window.location.search);

@@ -1,7 +1,7 @@
-﻿# Siklusio Runbook
+# Siklusio Runbook
 
-Last updated: 2026-06-03.
-Phase 31 handoff snapshot.
+Last updated: 2026-06-04.
+Developer operations handbook after repository reorganization.
 
 This runbook is the safe operating order for local verification, database migrations, Cloudflare Worker deploys, Cloudflare Pages releases, and production smoke tests.
 
@@ -18,11 +18,14 @@ git status --short --branch
 npm run check
 ```
 
-For mobile dependency health:
+For mobile dependency health and local web build:
 
 ```powershell
+# Jalankan typecheck mobile secara langsung
+npm run typecheck:mobile
+
+# Jalankan build web dari folder mobile-app
 cd mobile-app
-npx expo install --check
 npx expo-doctor@latest
 npm run build:web
 cd ..
@@ -31,7 +34,8 @@ cd ..
 For Worker bundle safety without deploying:
 
 ```powershell
-npx wrangler deploy backend/index.ts --dry-run
+# Wrangler dry-run sekarang mengarah ke backend/src/index.ts
+npx wrangler deploy backend/src/index.ts --dry-run
 ```
 
 For database safety without applying migrations:
@@ -46,10 +50,10 @@ npm run db:lint
 
 1. Work from a clean release worktree or branch.
 2. Stage only intended release files.
-3. Keep these out of audit/release staging unless explicitly requested: `graphify-out/`, `fitur.md`, `my-video/`, revised landing files, `.bak` landing files, and unrelated workspace-main state.
+3. Keep these out of release staging unless explicitly requested: `graphify-out/`, `fitur.md`, `my-video/`, revised landing files, and unrelated workspace-main state.
 4. Run `git diff --check` before committing.
-5. Commit small checkpoints by phase.
-6. Push the release branch before merging to `main`.
+5. Commit small checkpoints.
+6. Push the branch before merging to `main`.
 
 ## Supabase Migration Order
 
@@ -80,8 +84,8 @@ Use this when backend/API behavior changes:
 
 ```powershell
 npm run check
-npx wrangler deploy backend/index.ts --dry-run
-npx wrangler deploy backend/index.ts
+npx wrangler deploy backend/src/index.ts --dry-run
+npm run deploy
 ```
 
 After deploy, record the Worker version id in `MERGED_AUDIT_REPORT.md` if this is part of the audit cycle.
@@ -150,7 +154,7 @@ Smoke coverage:
 
 ## Rollback Notes
 
-1. For Worker regressions, redeploy the last known-good Worker version or commit.
+1. For Worker regressions, redeploy the last known-good Worker version or commit using the historical deployments in Cloudflare dashboard or rolling back wrangler target.
 2. For Pages regressions, roll back the Cloudflare Pages production deployment to the previous successful source commit.
 3. For database migrations, do not improvise rollback SQL in production. Create and review a forward-fix migration unless the rollback was already designed and tested.
 4. For payment/webhook regressions, prefer disabling the affected checkout entry point over letting webhook processing become inconsistent.
@@ -163,10 +167,10 @@ A release is not ready to call safe until the final report includes evidence for
 1. `npm run check`
 2. `npm run db:push:dry-run`
 3. `npm run db:lint`
-4. `npx expo install --check`
-5. `npx expo-doctor@latest`
+4. `npm run typecheck:mobile`
+5. `npx expo-doctor@latest` (from mobile-app/)
 6. `npm run build:web` from `mobile-app/`
-7. `npx wrangler deploy backend/index.ts --dry-run`
+7. `npx wrangler deploy backend/src/index.ts --dry-run`
 8. Supabase apply status, if migrations were pending
 9. Worker deploy version, if backend changed
 10. Cloudflare Pages production source commit, if app/landing changed

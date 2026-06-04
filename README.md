@@ -1,186 +1,113 @@
 # Siklusio v2
 
-## What this app is
-Siklusio v2 adalah aplikasi pendamping siklus menstruasi dan program hamil (promil) yang dirancang khusus untuk perempuan Indonesia. Aplikasi ini membantu pengguna melacak fase siklus tubuhnya (Menstruasi, Folikular, Ovulasi, Luteal), memprediksi masa subur, mencatat kebiasaan harian (*habits*) dan gejala, memfasilitasi keterlibatan suami secara langsung melalui WhatsApp, menyajikan ruang afirmasi dan ketenangan mental pada fase luteal (*TWW Sanctuary*), serta menyajikan *insight* dan rekomendasi kesehatan terpersonalisasi yang didukung oleh AI.
+## Overview
+Siklusio v2 adalah aplikasi pendamping siklus menstruasi dan program hamil (promil) yang dirancang khusus untuk perempuan Indonesia. Aplikasi ini membantu pengguna melacak fase siklus tubuhnya (Menstruasi, Folikular, Ovulasi, Luteal), memprediksi masa subur, mencatat kebiasaan harian (*habits*) dan gejala, memfasilitasi keterlibatan suami secara langsung melalui WhatsApp, menyajikan ruang afirmasi dan ketenangan mental pada fase luteal (*TWW Sanctuary*), serta menyajikan *insight* dan rekomendasi kesehatan terpersonalisasi yang didukung oleh AI, serta integrasi checkout premium.
 
-## Product positioning
-**"Promil lebih terarah, suami lebih paham, hati lebih tenang."**
-Siklusio diposisikan sebagai pendamping personal yang hangat, informatif, dan privat untuk mendukung perjalanan promil. Siklusio **bukanlah** alat diagnosis medis atau pengganti konsultasi dengan dokter kandungan, bidan, atau tenaga medis profesional. Fokus utama aplikasi adalah pada edukasi, pembiasaan harian yang suportif, pelacakan berbasis data siklus, dan dukungan emosional tanpa dihakimi.
+Siklusio diposisikan sebagai pendamping personal yang hangat, informatif, dan privat untuk mendukung perjalanan promil. Siklusio **bukanlah** alat diagnosis medis atau pengganti konsultasi dengan dokter kandungan, bidan, atau tenaga medis profesional.
 
-## Architecture overview
-Siklusio v2 menggunakan struktur monorepo dengan komponen utama sebagai berikut:
-1. **Frontend App (`mobile-app/`)**: Aplikasi universal satu codebase (Android, iOS, Web) yang dikembangkan menggunakan **Expo SDK 54**, **React Native (v0.81)**, dan **Expo Router 6**. Desain UI disesuaikan dengan NativeWind v4 (Tailwind CSS v3 untuk React Native) menggunakan palet warna Material Design 3 pink/violet/teal.
-2. **Backend API (`backend/`)**: Server API berbasis framework **Hono (TypeScript)** yang dideploy ke **Cloudflare Workers**. Backend menangani koordinasi AI via OpenRouter, penanganan webhook pembayaran Mayar, validasi paket kredit AI, proxy upload avatar ke Cloudflare R2, dan verifikasi token autentikasi.
-3. **Database (`supabase/`)**: Database **PostgreSQL** di hosting **Supabase** dengan Row Level Security (RLS) diaktifkan secara ketat pada semua tabel. Menyediakan fungsi database terproteksi (`SECURITY DEFINER` RPC) serta Postgres triggers untuk sinkronisasi data, rate limiting komunitas, dan auto-hide konten bermasalah.
-4. **Landing & Checkout Page (`landing/`)**: Halaman statis HTML/CSS untuk presentasi produk dan form checkout Premium yang terintegrasi dengan Payment Gateway Mayar.
-5. **Storage**: **Cloudflare R2** untuk penyimpanan dan penayangan aset dinamis seperti avatar kustom pengguna.
+## Monorepo Structure
+Proyek ini diorganisasikan dalam struktur monorepo sebagai berikut:
 
-## Local setup
-**Prerequisites:** Node.js (v18+) dan Supabase CLI (untuk pengelolaan database).
+* **`backend/`**: Folder root untuk API backend.
+  * **`backend/src/`**: Source code utama backend Hono. Didekomposisi ke dalam `controllers/`, `routes/`, `middlewares/`, dan `services/`.
+  * `backend/index.ts`: Hanya berisi compatibility re-export untuk merujuk ke entrypoint baru.
+* **`mobile-app/`**: Aplikasi mobile berbasis Expo.
+  * **`mobile-app/app/`**: Folder route untuk Expo Router (route layer).
+  * **`mobile-app/src/features/`**: Implementasi komponen dan logika spesifik per fitur (seperti calendar, community, habits, dashboard, admin).
+  * **`mobile-app/src/shared/`**: Komponen UI dan utilitas reusable yang digunakan lintas fitur.
+  * **`mobile-app/src/theme/`**: Konfigurasi tema dan custom hooks global (seperti `useColorScheme`).
+* **`landing/`**: File static HTML/CSS untuk presentasi produk dan form checkout Premium.
+* **`supabase/`**: Konfigurasi database PostgreSQL, skema migrasi, dan konfigurasi edge functions.
+  * **`supabase/migrations/`**: Kumpulan berkas DDL SQL untuk migrasi database production.
+  * **`supabase/types/`**: Berkas type definitions TypeScript hasil regenerasi dari database.
+* **`docs/`**: Dokumentasi operasional pengembang (seperti `RUNBOOK.md`, `ARCHITECTURE.md`, dan `DATABASE.md`).
 
-1. Clone repository ke mesin lokal Anda.
-2. Install dependensi di root direktori untuk keperluan backend dan database tooling:
+## Architecture
+Siklusio v2 dibangun dengan stack teknologi modern sebagai berikut:
+* **Cloudflare Workers + Hono**: Server API backend berbasis TypeScript yang cepat dan dideploy ke edge server Cloudflare. Terintegrasi menggunakan penyesuaian di `wrangler.jsonc` yang mengarah langsung ke `backend/src/index.ts`.
+* **Expo Mobile App**: Aplikasi universal mobile (iOS, Android, Web) menggunakan Expo SDK 54 dan Expo Router.
+* **Supabase Auth, Postgres, & RLS**: Manajemen autentikasi pengguna dan database PostgreSQL yang terlindungi secara ketat menggunakan Row Level Security (RLS) dan granular function grants.
+* **Mayar Checkout & Webhook**: Integrasi gateway pembayaran untuk registrasi premium dan topup saldo kredit AI secara aman dan otomatis melalui callback webhook terproteksi.
+* **OpenRouter AI**: Pemrosesan kecerdasan buatan untuk analisis siklus (*Cycle Guide*), habit recommendations (*Habit Coach*), dan saran harian dengan fallback models.
+* **Meta CAPI / GTM (Google Tag Manager)**: Integrasi pelacakan konversi checkout dan penayangan dataLayer untuk pixel pemasaran.
+
+## Local Development
+Ikuti langkah-langkah berikut untuk memulai development server lokal:
+
+1. **Install dependensi root & backend:**
    ```bash
    npm install
    ```
-3. Pindah ke direktori mobile app dan install dependensinya:
+2. **Install dependensi aplikasi mobile:**
    ```bash
-   cd mobile-app
-   npm install
+   npm --prefix mobile-app install
    ```
-4. Salin file `.env.example` menjadi `.env.local` dan lengkapi nilai variabel lingkungan (seperti token OpenRouter, kunci akses Supabase, API key Mayar, dan konfigurasi R2).
-5. Jalankan command development server yang sesuai (lihat bagian *Development commands*).
+3. **Pengecekan tipe dan pengujian otomatis (global):**
+   ```bash
+   npm run check
+   ```
+4. **Pengecekan tipe mobile secara terpisah:**
+   ```bash
+   npm --prefix mobile-app run typecheck
+   ```
+5. **Menjalankan Expo development server:**
+   ```bash
+   npm --prefix mobile-app start
+   ```
+   *(Atau `npm --prefix mobile-app run web` untuk langsung menjalankan di platform web).*
+6. **Menjalankan backend API lokal (Wrangler dev):**
+   ```bash
+   npm run dev
+   ```
 
-## Environment variables
-Semua variabel lingkungan yang dibutuhkan didokumentasikan di file [.env.example](.env.example). Kategori utamanya meliputi:
-- **AI (OpenRouter):** `OPENROUTER_API_KEY`, `OPENROUTER_FREE_MODEL` (model gratis untuk insight reguler), `OPENROUTER_PAID_MODEL` (model berbayar sebagai fallback).
-- **Supabase:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY` (kunci super-admin backend, wajib dirahasiakan).
-- **Mayar Payment:** `MAYAR_API_KEY` dan `MAYAR_WEBHOOK_TOKEN` (untuk memvalidasi callback sukses).
-- **Cloudflare R2:** `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`.
-- **CORS & Rate Limiting:** `ALLOWED_ORIGINS` (daftar asal URL yang diizinkan), serta parameter window/max untuk limiter backend (`AI_RATE_LIMIT_MAX`, dll).
-- **Client base URL:** `EXPO_PUBLIC_API_BASE_URL` (wajib diisi dengan URL API backend sesungguhnya pada build production).
+## Environment Variables
+Berikut adalah variabel lingkungan utama yang dikonfigurasi dalam `.env.local` untuk development lokal (nilai rahasia wajib diabaikan):
 
-## Development commands
-Jalankan perintah-perintah berikut dari root direktori proyek:
+* **Supabase**:
+  * `VITE_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_URL`: Endpoint URL proyek Supabase.
+  * `VITE_SUPABASE_ANON_KEY` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Kunci anonim publik Supabase.
+  * `SUPABASE_SERVICE_ROLE_KEY`: Kunci super-admin backend (bypass RLS, **jangan pernah diexpose ke frontend**).
+  * `SUPABASE_PROJECT_REF`: ID referensi proyek Supabase lokal/remote.
+* **OpenRouter AI**:
+  * `OPENROUTER_API_KEY`: API key untuk OpenRouter.
+* **Mayar Payment Gateway**:
+  * `MAYAR_WEBHOOK_TOKEN`: Token rahasia untuk memvalidasi callback webhook Mayar.
+* **CORS & Rate Limiter**:
+  * `RATE_LIMIT_FALLBACK_MODE`: Mode pembatasan akses saat DB gagal (`memory` atau `fail_closed`).
 
-- **Menjalankan Server API Backend (Wrangler dev di port 3000):**
-  ```bash
-  npm run dev
-  ```
-- **Melakukan Pengecekan Kode Secara Global (typecheck backend, typecheck mobile, dan testing):**
-  ```bash
-  npm run check
-  ```
-- **Melakukan Typecheck Kode Backend:**
-  ```bash
-  npm run typecheck:backend
-  ```
-- **Melakukan Typecheck Kode Mobile:**
-  ```bash
-  npm run typecheck:mobile
-  ```
-- **Menjalankan Seluruh Unit Test (`*.test.ts`/`*.test.js`):**
-  ```bash
-  npm run test
-  ```
-
-Jalankan perintah berikut di dalam direktori `mobile-app/`:
-- **Memulai Expo Development Server:**
-  ```bash
-  npm run start
-  ```
-- **Menjalankan Aplikasi di Simulator Android:**
-  ```bash
-  npm run android
-  ```
-- **Menjalankan Aplikasi di Simulator iOS:**
-  ```bash
-  npm run ios
-  ```
-- **Menjalankan Aplikasi di Browser (Web):**
-  ```bash
-  npm run web
-  ```
-- **Mengekspor Build Produksi Platform Web:**
-  ```bash
-  npm run build:web
-  ```
-
-Jalankan perintah database dari root direktori (menggunakan Supabase CLI):
-- **Melihat Status Migrasi Database:**
-  ```bash
-  npm run db:migrations:list
-  ```
-- **Melakukan Dry-Run Migrasi (Verifikasi Tanpa Push):**
-  ```bash
-  npm run db:push:dry-run
-  ```
-- **Menghasikan TypeScript Types Berdasarkan Schema Database:**
-  ```bash
-  npm run db:types
-  ```
-- **Melakukan Linting Schema Database Remote:**
-  ```bash
-  npm run db:lint
-  ```
-
-## Database migration workflow
-- **Canonical Path / Source of Truth:** `supabase/migrations/` adalah satu-satunya sumber kebenaran untuk perubahan skema database production. File `.sql` manual di direktori root `supabase/` adalah legacy/manual reference saja.
-- **Langkah Pembuatan Migrasi Baru:**
-  1. Generate file migrasi baru menggunakan CLI:
-     ```bash
-     npx supabase migration new <nama_deskriptif>
-     ```
-  2. Tulis perintah DDL (SQL) Anda di dalam file baru yang dihasilkan di folder `supabase/migrations/`.
-  3. Lakukan dry-run untuk memastikan kecocokan lokal dan remote:
-     ```bash
-     npm run db:push:dry-run
-     ```
-  4. Jalankan linting skema database:
-     ```bash
-     npm run db:lint
-     ```
-  5. Lakukan deploy/push skema ke database setelah disetujui:
-     ```bash
-     npx supabase db push
-     ```
-  6. Perbarui type definisi TypeScript:
+## Supabase Workflow
+Skema database dikelola melalui migrasi terstruktur:
+* Semua file migrasi disimpan di `supabase/migrations/` sebagai *source of truth*.
+* Generated TypeScript types tersimpan di `supabase/types/database.types.ts`.
+* Untuk melakukan regenerasi type TypeScript berdasarkan database remote:
+  1. Pastikan Anda telah mengeset variabel lingkungan lokal `SUPABASE_PROJECT_REF`.
+  2. Jalankan perintah:
      ```bash
      npm run db:types
      ```
-  7. Commit file migrasi baru, file type `database.types.ts` yang diperbarui, dan dokumen penjelasan terkait dalam satu commit/PR.
-- **Validasi Manual Produksi:** Minimal jalankan migration lint (`npm run db:lint`) dan dry-run (`npm run db:push:dry-run`) secara manual sebelum melakukan push skema baru ke lingkungan produksi.
+* **PENTING**: Jangan pernah mengubah file `database.types.ts` secara manual! File ini akan otomatis diperbarui setiap kali skema database berubah.
 
-## Testing workflow
-- File test diletakkan berdampingan (*co-located*) dengan modul fitur terkait menggunakan penamaan `<nama_file>.test.ts` atau `<nama_file>.test.js`.
-- Pengujian dijalankan secara otomatis menggunakan skrip [run-tests.mjs](scripts/run-tests.mjs), yang memindai seluruh direktori proyek (kecuali folder yang diabaikan seperti `node_modules`, `dist`, dll.) lalu menjalankan masing-masing test menggunakan runner node dengan `--import tsx` (untuk file TypeScript).
-- Seluruh pengujian wajib lolos sebelum kode digabungkan ke branch utama (`main`) atau dideploy ke production. Jalankan tes secara berkala dengan:
+## Backend Workflow
+* Source code utama backend berada di `backend/src/`.
+* Entrypoint backend didefinisikan di `backend/src/index.ts`. Berkas `backend/index.ts` di root backend hanya berfungsi sebagai compatibility re-export.
+* Konfigurasi Cloudflare Worker dideploy mengikuti pengaturan di `wrangler.jsonc` ke target file `backend/src/index.ts`.
+* Lakukan testing dan verifikasi tipe berkala sebelum deployment menggunakan:
   ```bash
-  npm run test
+  npm run check
   ```
 
-## Deployment workflow
-- **Aturan Emas (Golden Rule):** Lakukan deploy database (migrations) terlebih dahulu jika kode bergantung pada skema baru. Deploy Worker (backend API) kedua saat perilaku API berubah. Deploy/merge ke repository untuk rilis Cloudflare Pages (frontend/landing) setelah DB dan Worker dipastikan aman.
-- **CI / Gate Otomatis (CI Pipeline):** Setiap *pull request* dan *push* ke branch `main` akan memicu workflow **CI** (`.github/workflows/ci.yml`) yang secara otomatis menjalankan typechecking mobile/backend dan seluruh test suite (`npm run check`) untuk mencegah terjadinya *regression* pada branch utama.
-- **Deploy Backend otomatis:** Perubahan backend (pada direktori `backend/` atau berkas `wrangler.jsonc`) hanya akan dideploy ke Cloudflare Workers secara otomatis lewat workflow **Deploy Backend** (`.github/workflows/deploy-backend.yml`) **setelah status CI dipastikan sukses/lolos** (melalui event `workflow_run`). Alur ini juga dapat dipicu secara manual (melalui `workflow_dispatch`).
-- **Deploy Backend (Manual/Lokal):**
-  Jalankan perintah deploy untuk mempublikasikan API Hono ke Cloudflare Workers secara lokal:
-  ```bash
-  npm run deploy
-  ```
-- **Deploy Web Frontend & Landing Page (Cloudflare Pages):**
-  Menggunakan integrasi Git Cloudflare Pages yang memicu deploy otomatis setiap kali ada perubahan/merge yang dipush ke branch `main` pada GitHub.
-- **Deploy Aplikasi Mobile (Android & iOS):**
-  Build bundel aplikasi dilakukan menggunakan EAS Build di direktori `mobile-app/`:
-  ```bash
-  eas build --platform android
-  ```
+## Mobile Workflow
+* Berkas route layer untuk navigasi Expo Router tetap diletakkan di `mobile-app/app/`.
+* Implementasi fungsional (komponen, logika, hooks) diletakkan di `mobile-app/src/features/`.
+* Komponen reusable dan utilitas global diletakkan di `mobile-app/src/shared/`.
+* **PENTING**: Jangan memindahkan berkas rute (`route files`) dari folder `mobile-app/app/` tanpa menyediakan wrapper di sana untuk menjaga struktur navigasi.
 
-## Security rules
-> [!IMPORTANT]
-> Aturan keamanan berikut bersifat mutlak dan harus dipatuhi tanpa pengecualian:
-> 
-> 1. **Jangan ubah schema Supabase tanpa migration.** Semua perubahan skema database production wajib didokumentasikan dan dijalankan melalui alur migrasi resmi di folder `supabase/migrations/`.
-> 2. **Jangan expose service role key ke frontend.** Variabel `SUPABASE_SERVICE_ROLE_KEY` memiliki hak akses super-admin yang mem-bypass seluruh aturan RLS database. Kunci ini hanya boleh disimpan sebagai rahasia backend di Cloudflare Worker dan sama sekali tidak boleh diakses oleh aplikasi mobile-app/frontend.
-> 3. **Semua endpoint AI wajib requireUser.** Seluruh API endpoint yang berinteraksi dengan AI (seperti pembuatan resep, analisis siklus, saran mingguan, dan reassurance TWW) wajib memvalidasi token JWT pengguna dan memastikan pengguna telah masuk log (*authenticated*) sebelum memproses permintaan.
-> 4. **Semua output AI wajib disclaimer medis.** Respons yang dihasilkan dari sistem AI harus disertai dengan disclaimer medis yang jelas dalam Bahasa Indonesia, menegaskan bahwa informasi tersebut bersifat edukatif dan pendampingan umum, bukan diagnosis medis atau pengganti nasihat dokter.
-
-## Coding conventions for AI agents
-AI agent yang bekerja di proyek ini harus mengikuti pedoman berikut secara konsisten:
-- **Aturan Bahasa:** Gunakan Bahasa Indonesia yang hangat, sopan, dan jelas untuk seluruh salinan antarmuka (copy UI), pesan error, notifikasi, serta prompts/respons AI. Gunakan Bahasa Inggris untuk identifikasi kode (variable, function, class, file name) yang bersifat teknis umum (misalnya `requireUser`, `AuthContext`, `SyncManager`).
-- **Aturan Penamaan (*Naming Conventions*):**
-  - Variabel/Fungsi TypeScript: `camelCase` (contoh: `buildCycleGuideSnapshot`)
-  - Komponen React & Types/Interfaces: `PascalCase` (contoh: `AiFallbackNotice`)
-  - API Routes: kebab-case path segments (contoh: `/api/cycle-guide/generate`)
-  - Tabel & Kolom Database: `snake_case` (contoh: `ai_credit_balances`, `generated_for_date`)
-  - Migrasi Database: CLI timestamp + descriptive slug (contoh: `20260602174912_phase28_rls_function_grants.sql`)
-- **Penanganan Error AI:** Integrasikan komponen UI `AiFallbackNotice` untuk menampilkan pesan fallback lokal yang ramah saat terjadi kegagalan server, rate-limit (429), atau saldo kredit AI tidak mencukupi (402). Gunakan pembagian kebijakan model AI via `resolveOpenRouterModels({ policy: "paid" | "free_included" })` untuk mengendalikan biaya API.
-- **Aset Khusus:** Jangan ubah, hapus, atau buat ulang folder `graphify-out/` tanpa persetujuan eksplisit karena folder tersebut digunakan untuk pemetaan struktur navigasi arsitektur. Abaikan folder non-rilis seperti `my-video/` atau file internal seperti `fitur.md`.
-
-## Current roadmap
-Daftar prioritas pengembangan jangka pendek dan menengah setelah siklus audit selesai:
-1. **Dekomposisi & Refactoring Backend:** Membagi file `backend/index.ts` yang terlalu besar ke dalam struktur modular yang bersih: `routes/`, `middleware/`, dan `services/`.
-2. **Squash & Baseline Database:** Merapikan snippets SQL root warisan (`supabase/*.sql`) ke dalam skema migrasi awal yang terpadu untuk penyederhanaan deployment baru.
-3. **Adopsi TypeScript Secara Penuh Pada Supabase Client:** Memigrasikan inisialisasi Supabase client di mobile app agar memanfaatkan type hasil `db:types` secara menyeluruh setelah skema lokal dan remote sinkron.
-4. **Peningkatan Versi Expo Platform (SDK 56):** Merencanakan migrasi ke Expo SDK 56 secara aman guna menyelesaikan kerentanan keamanan moderate pada dependensi npm mobile tanpa merusak fungsionalitas runtime SDK 54 yang ada.
-5. **Pengetatan Unit Test RLS:** Mengembangkan pengujian otomatis yang lebih mendalam untuk aturan Row Level Security (RLS) di database Supabase menggunakan profil test terautentikasi (admin vs non-admin).
+## Safety & Security Rules for AI Agents
+Seluruh AI agent yang bekerja pada repositori ini wajib menaati aturan keselamatan mutlak berikut:
+1. **Jangan expose service role key ke frontend**: `SUPABASE_SERVICE_ROLE_KEY` hanya boleh digunakan dan disimpan di sisi backend Workers.
+2. **Semua AI endpoint wajib auth-gated**: Validasi JWT token pengguna dan pastikan request berasal dari user terautentikasi sebelum memanggil OpenRouter AI.
+3. **Jangan log PII/payment payload mentah**: Scrubbing semua informasi data sensitif (seperti nomor telepon, email, payload Mayar asli) dari log output.
+4. **Jangan ubah migration yang sudah applied**: Buat migrasi baru menggunakan CLI jika memerlukan perubahan skema.
+5. **Jangan commit `my-video/` atau `graphify-out/`**: Folder-folder ini adalah output demo atau grafik navigasi internal yang tidak boleh dikomit ke Git.
+6. **Jangan melakukan refactor besar tanpa commit kecil**: Bagi tugas besar menjadi commit-commit kecil yang terfokus dan jalankan `npm run check` di setiap tahap.
+7. **Jangan ubah copy medis menjadi overclaim**: Pertahankan disclaimer medis yang hangat dan informatif. Jangan menjanjikan kehamilan atau hasil medis instan.

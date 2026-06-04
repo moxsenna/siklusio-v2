@@ -18,7 +18,7 @@ Aturan kerja:
 
 ## Current Migration State
 
-Hasil `npm run db:migrations:list` pada 2026-06-03 setelah production release Phase 1-28:
+Hasil `npm run db:migrations:list` pada 2026-06-04 setelah rilis reorganisasi repositori:
 
 | Migration | Local | Remote | Catatan |
 | --- | --- | --- | --- |
@@ -33,15 +33,17 @@ Hasil `npm run db:migrations:list` pada 2026-06-03 setelah production release Ph
 | `20260601101749_atomic_ai_credit_topup_processing.sql` | Ada | Ada | Phase 5 atomic topup RPC |
 | `20260602164929_checkout_affiliate_support_tables.sql` | Ada | Ada | Production support tables untuk checkout, affiliate, dan conversion |
 | `20260602174912_phase28_rls_function_grants.sql` | Ada | Ada | Phase 28 function grants, RPC affiliate, dan hardening `is_admin` |
+| `20260604094057_rate_limit_db.sql` | Ada | Ada | Inisialisasi tabel rate limit utama |
+| `20260604100412_rate_limit_row_lock.sql` | Ada | Ada | Penambahan row locking untuk rate limit |
+| `20260604104737_rate_limit_atomic_lock.sql` | Ada | Ada | Implementasi pg_advisory_xact_lock untuk atomisitas rate limit |
 
-Implikasi:
-
-- `npm run db:push:dry-run` masih akan menampilkan tiga migration pending di atas.
-- `supabase/types/database.types.ts` saat ini dibuat dari linked remote, jadi file itu adalah snapshot remote production saat ini.
-- Jangan wire generated types ke `createClient<Database>()` dulu jika itu membuat local code bertabrakan dengan migration lokal yang belum apply remote.
-- Setelah tiga migration pending dipush, jalankan ulang `npm run db:types` dan baru pertimbangkan typed Supabase client adoption.
+Implikasi & Status Integrasi:
+- **Typed Client Aktif**: Seluruh client Supabase di frontend (`mobile-app/src/lib/supabase.ts`) maupun backend (`backend/src/services/supabaseAdmin.ts`) sudah terikat penuh menggunakan pengetikan data generik `createClient<Database>(...)`.
+- **Waspada Perubahan Manual**: File `supabase/types/database.types.ts` dihasilkan secara otomatis dari CLI generator. **Dilarang keras mengubah file ini secara manual**.
+- **Alur Perubahan**: Setiap perubahan skema database lokal harus didaftarkan melalui file migrasi baru (`npx supabase migration new <nama>`), diaplikasikan ke database remote, lalu jalankan `npm run db:types` untuk memperbarui type definitions TypeScript.
 
 ## Legacy Root SQL
+
 
 File `supabase/*.sql` di root folder adalah legacy/manual reference snippets. Mereka berguna untuk memahami sejarah fitur, tetapi bukan lagi jalur utama untuk perubahan production baru.
 

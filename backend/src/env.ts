@@ -19,4 +19,7 @@ export interface Env {
   ALLOWED_ORIGINS?: string;
   DEBUG_WEBHOOK_LOGS?: string;
   RATE_LIMIT_FALLBACK_MODE?: string;
+  FONNTE_TOKEN?: string;
+  FONNTE_COUNTRY_CODE?: string;
+  FONNTE_CONNECT_ONLY?: string;
 }

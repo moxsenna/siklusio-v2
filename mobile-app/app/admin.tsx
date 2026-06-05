@@ -20,6 +20,7 @@ import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from "../src/lib
 import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
 import AdminAffiliatePanel from "@/src/features/admin/AdminAffiliatePanel";
 import AdminCrmPanel from "@/src/features/admin/AdminCrmPanel";
+import AdminWhatsappAutoresponderPanel from "@/src/features/admin/AdminWhatsappAutoresponderPanel";
 
 // Replicate old types
 interface AdminUser {
@@ -152,7 +153,7 @@ function toAvatarKind(value: string | null): QueueItem["authorAvatarKind"] {
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "users" | "crm" | "moderation" | "coupons" | "affiliates"
+    "users" | "crm" | "moderation" | "coupons" | "affiliates" | "whatsapp"
   >("users");
 
   // Coupons Panel states
@@ -800,6 +801,31 @@ export default function AdminDashboard() {
               🤝 Afiliasi
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveTab("whatsapp")}
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderRadius: 20,
+              backgroundColor: activeTab === "whatsapp" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "whatsapp" ? 0 : 1,
+              borderColor: "#f1e6eb",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "whatsapp" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              💬 WhatsApp Auto
+            </Text>
+          </TouchableOpacity>
+
         </ScrollView>
       </View>
 
@@ -1882,6 +1908,9 @@ export default function AdminDashboard() {
 
         {/* Tab Affiliates */}
         {activeTab === "affiliates" && <AdminAffiliatePanel />}
+
+        {/* Tab WhatsApp Auto */}
+        {activeTab === "whatsapp" && <AdminWhatsappAutoresponderPanel />}
       </ScrollView>
     </View>
   );

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  AlertButton,
   Platform,
   ScrollView,
   Text,
@@ -10,11 +11,21 @@ import {
   View,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { FontAwesome } from "@expo/vector-icons";
-
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { apiGetJson, apiPatchJson, apiPostJson } from "@/src/lib/api";
 
-type CrmLeadStatus =
+type ViewMode = "list" | "kanban" | "detail";
+type PaymentStatus =
+  | "new"
+  | "checkout_started"
+  | "pending_payment"
+  | "paid"
+  | "paid_manual"
+  | "failed"
+  | "cancelled"
+  | "refunded";
+
+type LeadStatus =
   | "new_lead"
   | "contacted"
   | "interested"
@@ -25,77 +36,83 @@ type CrmLeadStatus =
   | "no_response"
   | "not_interested";
 
-type CrmPaymentStatus =
-  | "new"
-  | "checkout_started"
-  | "pending_payment"
-  | "paid"
-  | "paid_manual"
-  | "failed"
-  | "cancelled"
-  | "refunded";
-
-interface CrmLead {
+type CrmLead = {
   id: string;
-  user_id?: string | null;
-  pending_registration_id?: string | null;
-  name?: string | null;
-  email?: string | null;
-  whatsapp?: string | null;
+  user_id: string | null;
+  pending_registration_id: string | null;
+  name: string | null;
+  email: string | null;
+  whatsapp: string | null;
   source: string;
-  referral_code?: string | null;
-  affiliate_code?: string | null;
-  lead_status: CrmLeadStatus;
-  payment_status: CrmPaymentStatus;
-  amount?: number | null;
-  currency?: string | null;
-  mayar_payment_id?: string | null;
-  mayar_transaction_id?: string | null;
-  manual_payment_reference?: string | null;
-  last_contacted_at?: string | null;
-  next_followup_at?: string | null;
+  referral_code: string | null;
+  affiliate_code: string | null;
+  lead_status: LeadStatus;
+  payment_status: PaymentStatus;
+  checkout_url: string | null;
+  mayar_payment_id: string | null;
+  mayar_transaction_id: string | null;
+  manual_payment_reference: string | null;
+  amount: number | null;
+  currency: string;
+  last_contacted_at: string | null;
+  next_followup_at: string | null;
   created_at: string;
-  notes?: Array<{ id: string; note: string; created_at: string }>;
-}
-
-interface CrmSummary {
-  totalLeads: number;
-  pendingPayment: number;
-  paid: number;
-  needFollowUp: number;
-  revenue: number;
-}
-
-const paymentStatusLabels: Record<CrmPaymentStatus, string> = {
-  new: "Baru",
-  checkout_started: "Mulai Checkout",
-  pending_payment: "Menunggu Bayar",
-  paid: "Lunas",
-  paid_manual: "Lunas Manual",
-  failed: "Gagal",
-  cancelled: "Dibatalkan",
-  refunded: "Refund",
+  updated_at: string;
+  notes?: Array<{ id: string; note: string; created_at: string; admin_user_id: string }>;
+  payment_overrides?: Array<{
+    id: string;
+    old_payment_status: PaymentStatus | null;
+    new_payment_status: PaymentStatus;
+    reason: string;
+    reference: string | null;
+    amount: number | null;
+    created_at: string;
+    admin_user_id: string;
+  }>;
 };
 
-const leadStatusLabels: Record<CrmLeadStatus, string> = {
-  new_lead: "Lead Baru",
-  contacted: "Sudah Dihubungi",
-  interested: "Tertarik",
-  checkout_started: "Mulai Checkout",
-  pending_payment: "Menunggu Bayar",
-  paid: "Lunas",
-  onboarded: "Sudah Onboarding",
-  no_response: "Tidak Respon",
-  not_interested: "Tidak Tertarik",
+type CrmResponse = {
+  leads: CrmLead[];
+  count: number;
+  limit: number;
+  offset: number;
+  stats: Record<string, number> & { total: number; revenue: number };
 };
+
+const paymentOptions: Array<{ value: PaymentStatus; label: string }> = [
+  { value: "new", label: "Baru" },
+  { value: "checkout_started", label: "Mulai Checkout" },
+  { value: "pending_payment", label: "Menunggu Bayar" },
+  { value: "paid", label: "Lunas" },
+  { value: "paid_manual", label: "Lunas Manual" },
+  { value: "failed", label: "Gagal" },
+  { value: "cancelled", label: "Dibatalkan" },
+  { value: "refunded", label: "Refund" },
+];
+
+const leadOptions: Array<{ value: LeadStatus; label: string }> = [
+  { value: "new_lead", label: "Lead Baru" },
+  { value: "contacted", label: "Sudah Dihubungi" },
+  { value: "interested", label: "Tertarik" },
+  { value: "checkout_started", label: "Mulai Checkout" },
+  { value: "pending_payment", label: "Menunggu Bayar" },
+  { value: "paid", label: "Lunas" },
+  { value: "onboarded", label: "Onboarded" },
+  { value: "no_response", label: "Tidak Respon" },
+  { value: "not_interested", label: "Tidak Tertarik" },
+];
+
+const kanbanColumns: Array<{ key: PaymentStatus; title: string; color: string }> = [
+  { key: "pending_payment", title: "Menunggu Bayar", color: "#f59e0b" },
+  { key: "paid", title: "Lunas (Webhook)", color: "#10b981" },
+  { key: "paid_manual", title: "Lunas Manual", color: "#6366f1" },
+  { key: "failed", title: "Gagal", color: "#ef4444" },
+  { key: "cancelled", title: "Dibatalkan", color: "#64748b" },
+];
 
 function formatRupiah(value?: number | null) {
-  const number = Number(value || 0);
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(number);
+  const num = Number(value || 0);
+  return `Rp ${num.toLocaleString("id-ID")}`;
 }
 
 function formatDateTime(value?: string | null) {
@@ -117,701 +134,842 @@ function buildWhatsappFollowUp(lead: CrmLead) {
   if (status === "pending_payment") {
     return `Halo ${name}, aku dari Siklusio 🌸\n\nAku lihat pendaftaran Siklusio Bunda sudah sampai tahap checkout, tapi pembayarannya belum selesai. Kalau ada kendala saat pembayaran, Bunda bisa balas pesan ini ya.`;
   }
-
   if (status === "paid" || status === "paid_manual") {
     return `Halo ${name}, terima kasih sudah bergabung dengan Siklusio 🌸\n\nKalau Bunda butuh bantuan login atau onboarding, boleh balas pesan ini ya.`;
   }
-
   return `Halo ${name}, aku dari Siklusio 🌸\n\nTerima kasih sudah tertarik dengan Siklusio. Kalau Bunda ingin dibantu memahami fitur promil, masa subur, dan Pojok Tenang, boleh balas pesan ini ya.`;
 }
 
-async function copyText(text: string) {
-  await Clipboard.setStringAsync(text);
-}
-
 export default function AdminCrmPanel() {
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [leads, setLeads] = useState<CrmLead[]>([]);
+  const [stats, setStats] = useState<CrmResponse["stats"]>({ total: 0, revenue: 0 });
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
-  const [summary, setSummary] = useState<CrmSummary | null>(null);
-  const [leads, setLeads] = useState<CrmLead[]>([]);
-  const [search, setSearch] = useState("");
-  const [paymentFilter, setPaymentFilter] = useState<CrmPaymentStatus | "all">("all");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Form states
+  // Pagination & Search States
+  const [limit] = useState(50);
+  const [offset, setOffset] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
+
+  // Selection
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Forms
   const [overrideReason, setOverrideReason] = useState("");
   const [overrideReference, setOverrideReference] = useState("");
   const [overrideAmount, setOverrideAmount] = useState("37000");
   const [shouldActivate, setShouldActivate] = useState(true);
   const [noteText, setNoteText] = useState("");
 
-  const queryString = useMemo(() => {
-    const params = new URLSearchParams();
-    if (search.trim()) params.set("search", search.trim());
-    if (paymentFilter !== "all") params.set("payment", paymentFilter);
-    const value = params.toString();
-    return value ? `?${value}` : "";
-  }, [paymentFilter, search]);
+  const selectedLead = useMemo(() => {
+    return leads.find((lead) => lead.id === selectedId) || null;
+  }, [leads, selectedId]);
 
-  const fetchCrm = useCallback(async () => {
+  // Search Debouncer
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setOffset(0); // reset page on search
+    }, 450);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Load leads from backend
+  const loadLeads = useCallback(async () => {
     setLoading(true);
     try {
-      const [summaryRes, leadsRes] = await Promise.all([
-        apiGetJson<{ summary: CrmSummary }>("/api/admin/crm/summary"),
-        apiGetJson<{ leads: CrmLead[] }>(`/api/admin/crm/leads${queryString}`),
-      ]);
+      const params = new URLSearchParams();
+      params.set("limit", String(limit));
+      params.set("offset", String(offset));
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+      if (paymentFilter !== "all") params.set("payment", paymentFilter);
 
-      setSummary(summaryRes.summary);
-      setLeads(leadsRes.leads || []);
-    } catch (error: any) {
-      Alert.alert("CRM Error", error.message || "Gagal memuat CRM.");
+      const data = await apiGetJson<CrmResponse>(`/api/admin/crm/leads?${params.toString()}`);
+      setLeads(data.leads || []);
+      setTotalCount(data.count || 0);
+      setStats(data.stats || { total: 0, revenue: 0 });
+    } catch (err: any) {
+      Alert.alert("Gagal", err.message || "Gagal memuat CRM leads.");
     } finally {
       setLoading(false);
     }
-  }, [queryString]);
+  }, [limit, offset, debouncedSearch, paymentFilter]);
 
   useEffect(() => {
-    fetchCrm();
-  }, [fetchCrm]);
+    loadLeads();
+  }, [loadLeads]);
 
-  const markLeadStatus = async (lead: CrmLead, status: CrmLeadStatus) => {
-    setSavingId(lead.id);
+  // Quick Payment Status Dropdown Update (Optimistic with rollback)
+  const handleQuickPaymentStatus = async (lead: CrmLead, newStatus: PaymentStatus) => {
+    const oldStatus = lead.payment_status;
+    setLeads((prev) =>
+      prev.map((item) => (item.id === lead.id ? { ...item, payment_status: newStatus } : item))
+    );
+
+    try {
+      await apiPatchJson(`/api/admin/crm/leads/${lead.id}/payment-status`, {
+        payment_status: newStatus,
+      });
+      // Fetch stats updates silently
+      const silentData = await apiGetJson<CrmResponse>(`/api/admin/crm/leads?limit=1`);
+      if (silentData.stats) setStats(silentData.stats);
+    } catch (err: any) {
+      // Rollback
+      setLeads((prev) =>
+        prev.map((item) => (item.id === lead.id ? { ...item, payment_status: oldStatus } : item))
+      );
+      Alert.alert("Gagal", err.message || "Gagal memperbarui status pembayaran.");
+    }
+  };
+
+  // Quick Lead Status Dropdown Update (Optimistic with rollback)
+  const handleQuickLeadStatus = async (lead: CrmLead, newStatus: LeadStatus) => {
+    const oldStatus = lead.lead_status;
+    setLeads((prev) =>
+      prev.map((item) => (item.id === lead.id ? { ...item, lead_status: newStatus } : item))
+    );
+
     try {
       await apiPatchJson(`/api/admin/crm/leads/${lead.id}`, {
-        lead_status: status,
-        last_contacted_at:
-          status === "contacted" ? new Date().toISOString() : lead.last_contacted_at,
+        lead_status: newStatus,
       });
-      await fetchCrm();
-      Alert.alert("Sukses", `Lead ditandai sebagai ${leadStatusLabels[status]}.`);
-    } catch (error: any) {
-      Alert.alert("Gagal update status", error.message || "Coba lagi.");
-    } finally {
-      setSavingId(null);
+    } catch (err: any) {
+      // Rollback
+      setLeads((prev) =>
+        prev.map((item) => (item.id === lead.id ? { ...item, lead_status: oldStatus } : item))
+      );
+      Alert.alert("Gagal", err.message || "Gagal memperbarui status lead.");
     }
   };
 
-  const overridePayment = async (
-    lead: CrmLead,
-    payment_status: CrmPaymentStatus,
-    shouldActivateUser: boolean,
-  ) => {
-    if (!overrideReason.trim() || overrideReason.trim().length < 8) {
-      Alert.alert("Alasan wajib", "Isi alasan minimal 8 karakter.");
-      return;
-    }
-
-    if (shouldActivateUser && (payment_status === "paid_manual" || payment_status === "paid")) {
-      if (!lead.pending_registration_id && !overrideReference.trim()) {
-        Alert.alert(
-          "Referensi Wajib",
-          "Aktivasi tanpa pending registration wajib menyertakan kode referensi/bukti transfer.",
-        );
-        return;
-      }
-    }
-
-    const label = paymentStatusLabels[payment_status];
-
-    Alert.alert(
-      "Konfirmasi Manual Payment",
-      `Ubah status pembayaran ${lead.email || lead.whatsapp || lead.name} menjadi "${label}"?\n\nTindakan ini akan masuk audit log.`,
-      [
-        { text: "Batal", style: "cancel" },
-        {
-          text: "Ya, Ubah",
-          style: "destructive",
-          onPress: async () => {
-            setSavingId(lead.id);
-            try {
-              const res = await apiPatchJson<{
-                lead: CrmLead;
-                override: any;
-                activationResult: {
-                  paymentOverrideCreated: boolean;
-                  userActivated: boolean;
-                  creditsGranted: boolean;
-                  affiliateConversionCreated: boolean;
-                  checkoutSessionUpdated: boolean;
-                  pendingRegistrationCleaned: boolean;
-                  warnings: string[];
-                };
-              }>(`/api/admin/crm/leads/${lead.id}/payment-status`, {
-                payment_status,
-                reason: overrideReason.trim(),
-                reference: overrideReference.trim() || null,
-                amount: overrideAmount ? Number(overrideAmount) : null,
-                should_activate_user: shouldActivateUser,
-              });
-
-              setOverrideReason("");
-              setOverrideReference("");
-              await fetchCrm();
-
-              // Build checklist details
-              const ar = res.activationResult;
-              const details = [
-                `Payment override created: ${ar.paymentOverrideCreated ? "✅" : "❌"}`,
-                `User activated: ${ar.userActivated ? "✅" : "❌"}`,
-                `AI credits (500) granted: ${ar.creditsGranted ? "✅" : "❌"}`,
-                `Affiliate commission created: ${ar.affiliateConversionCreated ? "✅" : "❌"}`,
-                `Checkout session updated: ${ar.checkoutSessionUpdated ? "✅" : "❌"}`,
-                `Pending registration cleaned: ${ar.pendingRegistrationCleaned ? "✅" : "❌"}`,
-              ].join("\n");
-
-              if (ar.warnings && ar.warnings.length > 0) {
-                Alert.alert(
-                  "Override Berhasil dengan Peringatan",
-                  `${details}\n\n⚠️ Peringatan:\n${ar.warnings.join("\n")}`,
-                );
-              } else {
-                Alert.alert("Override Berhasil", details);
-              }
-            } catch (error: any) {
-              Alert.alert("Gagal override payment", error.message || "Coba lagi.");
-            } finally {
-              setSavingId(null);
-            }
-          },
-        },
-      ],
+  // Mark Contacted (Optimistic with rollback)
+  const markContacted = async (lead: CrmLead) => {
+    const oldLeadStatus = lead.lead_status;
+    const now = new Date().toISOString();
+    setLeads((prev) =>
+      prev.map((item) =>
+        item.id === lead.id
+          ? { ...item, lead_status: "contacted" as LeadStatus, last_contacted_at: now }
+          : item
+      )
     );
+
+    try {
+      await apiPostJson(`/api/admin/crm/leads/${lead.id}/contacted`, {});
+    } catch (err: any) {
+      // Rollback
+      setLeads((prev) =>
+        prev.map((item) =>
+          item.id === lead.id
+            ? { ...item, lead_status: oldLeadStatus, last_contacted_at: lead.last_contacted_at }
+            : item
+        )
+      );
+      Alert.alert("Gagal", err.message || "Gagal menandai dihubungi.");
+    }
   };
 
-  const addNote = async (lead: CrmLead) => {
-    if (!noteText.trim()) return;
-
-    setSavingId(lead.id);
+  // Save admin follow-up notes
+  const addNote = async () => {
+    if (!selectedLead || !noteText.trim()) return;
+    setSavingId(selectedLead.id);
     try {
-      await apiPostJson(`/api/admin/crm/leads/${lead.id}/notes`, {
+      await apiPostJson(`/api/admin/crm/leads/${selectedLead.id}/notes`, {
         note: noteText.trim(),
       });
       setNoteText("");
-      await fetchCrm();
+      await loadLeads();
       Alert.alert("Sukses", "Catatan berhasil ditambahkan.");
-    } catch (error: any) {
-      Alert.alert("Gagal tambah catatan", error.message || "Coba lagi.");
+    } catch (err: any) {
+      Alert.alert("Gagal", err.message || "Gagal menyimpan catatan.");
     } finally {
       setSavingId(null);
     }
   };
 
-  const copyWa = async (lead: CrmLead) => {
-    const text = buildWhatsappFollowUp(lead);
+  // Apply Manual Payment Override (Full flow)
+  const applyManualOverride = async () => {
+    if (!selectedLead) return;
+    if (overrideReason.trim().length < 8) {
+      Alert.alert("Validasi", "Alasan wajib diisi minimal 8 karakter.");
+      return;
+    }
 
+    setSavingId(selectedLead.id);
     try {
-      await copyText(text);
-      Alert.alert("Template disalin", "Pesan follow-up WhatsApp sudah disalin ke clipboard.");
-    } catch {
-      Alert.alert("Template Follow-up", text);
+      const res = await apiPostJson<any>(`/api/admin/crm/leads/${selectedLead.id}/payment-override`, {
+        new_payment_status: "paid_manual",
+        reason: overrideReason.trim(),
+        reference: overrideReference.trim() || null,
+        amount: Number(overrideAmount || 37000),
+        should_activate_user: shouldActivate,
+      });
+
+      setOverrideReason("");
+      setOverrideReference("");
+      await loadLeads();
+
+      const ar = res.activationResult;
+      const details = [
+        `Payment override: ${ar.paymentOverrideCreated ? "✅" : "❌"}`,
+        `User activated: ${ar.userActivated ? "✅" : "❌"}`,
+        `AI credits (500) granted: ${ar.creditsGranted ? "✅" : "❌"}`,
+        `Affiliate commission: ${ar.affiliateConversionCreated ? "✅" : "❌"}`,
+        `Checkout session updated: ${ar.checkoutSessionUpdated ? "✅" : "❌"}`,
+        `Pending registration cleaned: ${ar.pendingRegistrationCleaned ? "✅" : "❌"}`,
+      ].join("\n");
+
+      if (ar.warnings && ar.warnings.length > 0) {
+        Alert.alert(
+          "Override Berhasil dengan Peringatan",
+          `${details}\n\n⚠️ Peringatan:\n${ar.warnings.join("\n")}`
+        );
+      } else {
+        Alert.alert("Override Berhasil", details);
+      }
+    } catch (err: any) {
+      Alert.alert("Gagal", err.message || "Gagal melakukan override pembayaran.");
+    } finally {
+      setSavingId(null);
     }
   };
 
-  return (
-    <View style={{ gap: 16 }}>
-      {/* CRM Card Header */}
-      <View
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 24,
-          padding: 18,
-          borderWidth: 1,
-          borderColor: "#fbcfe8",
-          shadowColor: "#ec4899",
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          elevation: 2,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <FontAwesome name="heart" size={20} color="#ec4899" />
-          <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e1b20" }}>CRM Admin 🌸</Text>
+  // WhatsApp template copier
+  const handleCopyWa = async (lead: CrmLead) => {
+    const text = buildWhatsappFollowUp(lead);
+    try {
+      await Clipboard.setStringAsync(text);
+      Alert.alert("Disalin", "Templat pesan follow-up berhasil disalin ke clipboard.");
+    } catch {
+      Alert.alert("Gagal Menyalin", text);
+    }
+  };
+
+  // Render quick selector component for status (Platform adapted)
+  const renderQuickStatusDropdowns = (lead: CrmLead) => {
+    if (Platform.OS === "web") {
+      return (
+        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          <select
+            value={lead.payment_status}
+            onChange={(e) => handleQuickPaymentStatus(lead, e.target.value as PaymentStatus)}
+            style={{
+              padding: 6,
+              borderRadius: 8,
+              backgroundColor: "#fff",
+              border: "1px solid #e2e8f0",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "#334155",
+            }}
+          >
+            {paymentOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={lead.lead_status}
+            onChange={(e) => handleQuickLeadStatus(lead, e.target.value as LeadStatus)}
+            style={{
+              padding: 6,
+              borderRadius: 8,
+              backgroundColor: "#fff",
+              border: "1px solid #e2e8f0",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "#334155",
+            }}
+          >
+            {leadOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </View>
-        <Text style={{ marginTop: 6, color: "#64748b", lineHeight: 20, fontSize: 13 }}>
-          Pantau lead, kelola status pembayaran, kirim follow-up WhatsApp, dan verifikasi pembayaran
-          manual.
+      );
+    }
+
+    return (
+      <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+        <TouchableOpacity
+          style={styles.pillButton}
+          onPress={() => {
+            const buttons: AlertButton[] = paymentOptions
+              .filter((o) => o.value !== "paid_manual") // Must use override form for paid_manual
+              .map((o) => ({
+                text: o.label,
+                onPress: () => { handleQuickPaymentStatus(lead, o.value); },
+              }));
+            Alert.alert(
+              "Status Pembayaran Cepat",
+              "Pilih status pembayaran lead ini:",
+              buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
+            );
+          }}
+        >
+          <Text style={styles.pillButtonText}>Status Bayar: {lead.payment_status}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.pillButton}
+          onPress={() => {
+            const buttons: AlertButton[] = leadOptions.map((o) => ({
+              text: o.label,
+              onPress: () => { handleQuickLeadStatus(lead, o.value); },
+            }));
+            Alert.alert(
+              "Status Lead Cepat",
+              "Pilih status follow-up lead ini:",
+              buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
+            );
+          }}
+        >
+          <Text style={styles.pillButtonText}>Status Lead: {lead.lead_status}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderLeadCard = (lead: CrmLead, compact = false) => (
+    <View
+      key={lead.id}
+      style={[
+        styles.leadCard,
+        selectedId === lead.id && styles.leadCardActive,
+        compact && { marginBottom: 8 },
+      ]}
+    >
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedId(lead.id);
+          if (viewMode !== "detail" && !compact) setViewMode("detail");
+        }}
+        style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
+      >
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={styles.leadName}>{lead.name || "Tanpa Nama"}</Text>
+          <Text style={styles.leadMeta}>
+            {lead.email || "-"} • {lead.whatsapp || "-"}
+          </Text>
+          <Text style={styles.leadSmall}>
+            Sumber: {lead.source || "checkout"} • {formatDateTime(lead.created_at)}
+          </Text>
+        </View>
+        <FontAwesome name="chevron-right" size={12} color="#cbd5e1" />
+      </TouchableOpacity>
+
+      <View style={styles.badgeRow}>
+        <Text style={[styles.badge, styles.pinkBadge]}>
+          {paymentOptions.find((o) => o.value === lead.payment_status)?.label || lead.payment_status}
+        </Text>
+        <Text style={[styles.badge, styles.tealBadge]}>
+          {leadOptions.find((o) => o.value === lead.lead_status)?.label || lead.lead_status}
+        </Text>
+        <Text style={[styles.badge, styles.purpleBadge]}>{formatRupiah(lead.amount)}</Text>
+      </View>
+
+      {!compact && renderQuickStatusDropdowns(lead)}
+    </View>
+  );
+
+  // Grouping by status for Kanban Board
+  const kanbanGrouped = useMemo(() => {
+    return kanbanColumns.reduce<Record<PaymentStatus, CrmLead[]>>((acc, col) => {
+      acc[col.key] = leads.filter((l) => l.payment_status === col.key);
+      return acc;
+    }, {} as any);
+  }, [leads]);
+
+  return (
+    <View style={styles.container}>
+      {/* Overview stats header */}
+      <View style={styles.overviewCard}>
+        <Text style={styles.overviewTitle}>CRM Dashboard 🌸</Text>
+        <Text style={styles.overviewSubtitle}>
+          Kelola calon pelanggan, kirim follow-up WhatsApp, dan konfirmasi pembayaran manual secara aman.
         </Text>
       </View>
 
-      {/* Summary Row */}
-      {summary && (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-          {[
-            ["Total Lead", String(summary.totalLeads), "#ec4899"],
-            ["Pending Bayar", String(summary.pendingPayment), "#f59e0b"],
-            ["Lunas", String(summary.paid), "#10b981"],
-            ["Perlu Follow-up", String(summary.needFollowUp), "#9333ea"],
-            ["Revenue", formatRupiah(summary.revenue), "#06b6d4"],
-          ].map(([label, value, color]) => (
-            <View
-              key={label}
-              style={{
-                flexGrow: 1,
-                minWidth: 130,
-                backgroundColor: "#fff",
-                borderRadius: 20,
-                padding: 14,
-                borderWidth: 1,
-                borderColor: "#f3e8ff",
-                shadowColor: "#000",
-                shadowOpacity: 0.02,
-                shadowRadius: 5,
-                elevation: 1,
-              }}
-            >
-              <Text style={{ color: "#64748b", fontSize: 11, fontWeight: "bold" }}>{label}</Text>
-              <Text style={{ color: color, fontSize: 20, fontWeight: "900", marginTop: 4 }}>
-                {value}
-              </Text>
-            </View>
-          ))}
-        </View>
-      )}
+      {/* Stats Cards */}
+      <View style={styles.statsGrid}>
+        {[
+          ["Total Lead", String(stats.total || totalCount), "#ec4899"],
+          ["Pending", String(stats.pending_payment || 0), "#f59e0b"],
+          ["Lunas", String((stats.paid || 0) + (stats.paid_manual || 0)), "#10b981"],
+          ["Revenue", formatRupiah(stats.revenue || 0), "#06b6d4"],
+        ].map(([label, value, color]) => (
+          <View key={label} style={styles.statCard}>
+            <Text style={styles.statLabel}>{label}</Text>
+            <Text style={[styles.statValue, { color }]}>{value}</Text>
+          </View>
+        ))}
+      </View>
 
-      {/* Search Bar */}
-      <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
-        <View
-          style={{
-            flex: 1,
-            minWidth: 200,
-            backgroundColor: "#fff",
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: "#e2e8f0",
-            flexDirection: "row",
-            alignItems: "center",
-            paddingHorizontal: 14,
-          }}
-        >
+      {/* Toolbar - Search */}
+      <View style={styles.toolbar}>
+        <View style={styles.searchContainer}>
           <FontAwesome name="search" size={14} color="#94a3b8" style={{ marginRight: 8 }} />
           <TextInput
-            value={search}
-            onChangeText={setSearch}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
             placeholder="Cari nama, email, WA, referral..."
-            style={{
-              flex: 1,
-              paddingVertical: 10,
-              color: "#334155",
-            }}
+            style={styles.searchInput}
           />
         </View>
-        <TouchableOpacity
-          onPress={fetchCrm}
-          style={{
-            backgroundColor: "#ec4899",
-            borderRadius: 16,
-            paddingHorizontal: 18,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "800", fontSize: 13 }}>Cari</Text>
+        <TouchableOpacity style={styles.refreshButton} onPress={loadLeads}>
+          <FontAwesome name="refresh" size={14} color="#ec4899" />
         </TouchableOpacity>
       </View>
 
-      {/* Filters */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 4 }}>
-        {(["all", "pending_payment", "paid", "paid_manual", "failed", "cancelled"] as const).map(
-          (status) => (
-            <TouchableOpacity
-              key={status}
-              onPress={() => setPaymentFilter(status)}
-              style={{
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-                borderRadius: 999,
-                marginRight: 8,
-                backgroundColor: paymentFilter === status ? "#9333ea" : "#fff",
-                borderWidth: 1,
-                borderColor: "#e9d5ff",
-              }}
+      {/* Tab Selectors (List / Kanban / Detail) */}
+      <View style={styles.tabsRow}>
+        {(["list", "kanban", "detail"] as const).map((mode) => (
+          <TouchableOpacity
+            key={mode}
+            style={[styles.tabButton, viewMode === mode && styles.tabButtonActive]}
+            onPress={() => setViewMode(mode)}
+          >
+            <Text
+              style={[styles.tabButtonText, viewMode === mode && styles.tabButtonTextActive]}
             >
-              <Text
-                style={{
-                  color: paymentFilter === status ? "#fff" : "#475569",
-                  fontWeight: "700",
-                  fontSize: 12,
-                }}
-              >
-                {status === "all" ? "Semua Status" : paymentStatusLabels[status]}
-              </Text>
-            </TouchableOpacity>
-          ),
-        )}
+              {mode === "list" ? "List" : mode === "kanban" ? "Kanban" : "Detail"}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Status Filtering Pills */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersRow}>
+        {([{ value: "all", label: "Semua" }, ...paymentOptions] as any).map((opt: any) => (
+          <TouchableOpacity
+            key={opt.value}
+            style={[styles.filterPill, paymentFilter === opt.value && styles.filterPillActive]}
+            onPress={() => {
+              setPaymentFilter(opt.value);
+              setOffset(0);
+            }}
+          >
+            <Text
+              style={[
+                styles.filterPillText,
+                paymentFilter === opt.value && styles.filterPillTextActive,
+              ]}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
 
-      {/* Leads List */}
-      {loading ? (
-        <ActivityIndicator color="#ec4899" size="large" style={{ marginVertical: 32 }} />
-      ) : leads.length === 0 ? (
-        <View
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: 20,
-            padding: 32,
-            alignItems: "center",
-            borderWidth: 1,
-            borderColor: "#e2e8f0",
-          }}
-        >
-          <FontAwesome name="folder-open-o" size={32} color="#94a3b8" />
-          <Text style={{ color: "#64748b", marginTop: 8, fontWeight: "bold", fontSize: 13 }}>
-            Tidak ada lead yang cocok dengan filter.
-          </Text>
-        </View>
-      ) : (
-        leads.map((lead) => {
-          const expanded = expandedId === lead.id;
-          const saving = savingId === lead.id;
+      {loading && <ActivityIndicator color="#ec4899" style={{ marginVertical: 12 }} />}
 
-          return (
-            <View
-              key={lead.id}
-              style={{
-                backgroundColor: "#fff",
-                borderRadius: 22,
-                padding: 16,
-                borderWidth: 1,
-                borderColor: expanded ? "#fbcfe8" : "#f1f5f9",
-                gap: 10,
-                shadowColor: "#000",
-                shadowOpacity: expanded ? 0.03 : 0.01,
-                shadowRadius: 5,
-                elevation: 1,
-              }}
+      {/* List Mode */}
+      {viewMode === "list" && (
+        <View style={{ gap: 10 }}>
+          {leads.length === 0 ? (
+            <Text style={styles.emptyText}>Tidak ada leads yang cocok.</Text>
+          ) : (
+            leads.map((l) => renderLeadCard(l))
+          )}
+
+          {/* Pagination Controls */}
+          <View style={styles.paginationRow}>
+            <TouchableOpacity
+              disabled={offset === 0}
+              style={[styles.pageBtn, offset === 0 && { opacity: 0.4 }]}
+              onPress={() => setOffset((prev) => Math.max(0, prev - limit))}
             >
-              <TouchableOpacity
-                onPress={() => setExpandedId(expanded ? null : lead.id)}
-                style={{ gap: 4 }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: 16, fontWeight: "800", color: "#0f172a", flex: 1 }}>
-                    {lead.name || lead.email || lead.whatsapp || "Lead Tanpa Nama"}
-                  </Text>
-                  <FontAwesome
-                    name={expanded ? "chevron-up" : "chevron-down"}
-                    size={12}
-                    color="#94a3b8"
-                  />
-                </View>
-                <Text style={{ color: "#64748b", fontSize: 13 }}>
-                  {lead.email || "-"} • {lead.whatsapp || "-"}
-                </Text>
-                <Text style={{ color: "#94a3b8", fontSize: 11 }}>
-                  Sumber: {lead.source} • Dibuat: {formatDateTime(lead.created_at)}
-                </Text>
-              </TouchableOpacity>
+              <FontAwesome name="chevron-left" size={12} color="#475569" />
+              <Text style={styles.pageBtnText}>Prev</Text>
+            </TouchableOpacity>
 
-              {/* Status Badges */}
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                <View
-                  style={{
-                    backgroundColor: "#fdf2f8",
-                    borderRadius: 999,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ color: "#be185d", fontWeight: "800", fontSize: 11 }}>
-                    {leadStatusLabels[lead.lead_status]}
-                  </Text>
+            <Text style={styles.pageLabel}>
+              {Math.min(totalCount, offset + 1)} - {Math.min(totalCount, offset + limit)} dari{" "}
+              {totalCount}
+            </Text>
+
+            <TouchableOpacity
+              disabled={offset + limit >= totalCount}
+              style={[styles.pageBtn, offset + limit >= totalCount && { opacity: 0.4 }]}
+              onPress={() => setOffset((prev) => prev + limit)}
+            >
+              <Text style={styles.pageBtnText}>Next</Text>
+              <FontAwesome name="chevron-right" size={12} color="#475569" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Kanban Mode */}
+      {viewMode === "kanban" && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 8 }}>
+          {kanbanColumns.map((col) => {
+            const list = kanbanGrouped[col.key] || [];
+            return (
+              <View key={col.key} style={styles.kanbanColumn}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
+                  <Text style={[styles.kanbanHeader, { color: col.color }]}>{col.title}</Text>
+                  <Text style={styles.kanbanCount}>{list.length}</Text>
                 </View>
-                <View
-                  style={{
-                    backgroundColor: "#f0fdfa",
-                    borderRadius: 999,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ color: "#0f766e", fontWeight: "800", fontSize: 11 }}>
-                    {paymentStatusLabels[lead.payment_status]}
-                  </Text>
-                </View>
-                {lead.amount ? (
-                  <View
-                    style={{
-                      backgroundColor: "#faf5ff",
-                      borderRadius: 999,
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                    }}
-                  >
-                    <Text style={{ color: "#7e22ce", fontWeight: "800", fontSize: 11 }}>
-                      {formatRupiah(lead.amount)}
-                    </Text>
-                  </View>
-                ) : null}
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {list.map((l) => renderLeadCard(l, true))}
+                  {list.length === 0 && <Text style={styles.kanbanEmpty}>Kosong</Text>}
+                </ScrollView>
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
+
+      {/* Detail Mode */}
+      {viewMode === "detail" && (
+        <View style={{ gap: 12 }}>
+          {selectedLead ? (
+            <View style={styles.detailWrap}>
+              {renderLeadCard(selectedLead, true)}
+
+              {/* Status Selectors */}
+              <View style={styles.detailSection}>
+                <Text style={styles.detailSectionTitle}>Ubah Status Cepat</Text>
+                {renderQuickStatusDropdowns(selectedLead)}
               </View>
 
-              {expanded && (
-                <View
-                  style={{
-                    gap: 12,
-                    marginTop: 8,
-                    borderTopWidth: 1,
-                    borderTopColor: "#f1f5f9",
-                    paddingTop: 12,
-                  }}
-                >
-                  {/* Lead Actions */}
-                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                    <TouchableOpacity
-                      disabled={saving}
-                      onPress={() => markLeadStatus(lead, "contacted")}
-                      style={{
-                        backgroundColor: "#14b8a6",
-                        paddingHorizontal: 12,
-                        paddingVertical: 9,
-                        borderRadius: 12,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 6,
-                        opacity: saving ? 0.5 : 1,
-                      }}
-                    >
-                      <FontAwesome name="check-circle" size={13} color="#fff" />
-                      <Text style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}>
-                        Tandai Dihubungi
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      disabled={saving}
-                      onPress={() => copyWa(lead)}
-                      style={{
-                        backgroundColor: "#22c55e",
-                        paddingHorizontal: 12,
-                        paddingVertical: 9,
-                        borderRadius: 12,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 6,
-                        opacity: saving ? 0.5 : 1,
-                      }}
-                    >
-                      <FontAwesome name="whatsapp" size={14} color="#fff" />
-                      <Text style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}>
-                        Copy WA Follow-up
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Manual Payment Override */}
-                  <View
-                    style={{
-                      backgroundColor: "#fff7ed",
-                      borderRadius: 18,
-                      padding: 14,
-                      gap: 8,
-                      borderWidth: 1,
-                      borderColor: "#fed7aa",
-                    }}
+              {/* Action Buttons */}
+              <View style={styles.detailSection}>
+                <Text style={styles.detailSectionTitle}>Aksi Follow-Up</Text>
+                <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
+                  <TouchableOpacity
+                    style={styles.tealActionBtn}
+                    onPress={() => markContacted(selectedLead)}
                   >
-                    <Text style={{ fontWeight: "900", color: "#9a3412", fontSize: 13 }}>
-                      Manual Payment Override 🛡️
-                    </Text>
-                    <Text style={{ color: "#c2410c", fontSize: 11, lineHeight: 16 }}>
-                      Tindakan ini akan dicatat ke audit log admin. Harap berhati-hati dan isi bukti
-                      transfer jika melakukan aktivasi.
-                    </Text>
+                    <FontAwesome name="check-circle" size={13} color="#fff" />
+                    <Text style={styles.actionBtnText}>Tandai Dihubungi</Text>
+                  </TouchableOpacity>
 
-                    <TextInput
-                      value={overrideReason}
-                      onChangeText={setOverrideReason}
-                      placeholder="Alasan wajib (min. 8 karakter), misal: transfer BCA valid..."
-                      multiline
-                      style={{
-                        backgroundColor: "#fff",
-                        borderRadius: 12,
-                        padding: 10,
-                        borderWidth: 1,
-                        borderColor: "#fed7aa",
-                        fontSize: 13,
-                        color: "#334155",
-                        minHeight: 60,
-                      }}
-                    />
-                    <TextInput
-                      value={overrideReference}
-                      onChangeText={setOverrideReference}
-                      placeholder="Referensi/bukti transfer (Wajib jika tidak ada pending reg)"
-                      style={{
-                        backgroundColor: "#fff",
-                        borderRadius: 12,
-                        padding: 10,
-                        borderWidth: 1,
-                        borderColor: "#fed7aa",
-                        fontSize: 13,
-                        color: "#334155",
-                      }}
-                    />
-                    <TextInput
-                      value={overrideAmount}
-                      onChangeText={setOverrideAmount}
-                      placeholder="Nominal"
-                      keyboardType="numeric"
-                      style={{
-                        backgroundColor: "#fff",
-                        borderRadius: 12,
-                        padding: 10,
-                        borderWidth: 1,
-                        borderColor: "#fed7aa",
-                        fontSize: 13,
-                        color: "#334155",
-                      }}
-                    />
-
-                    {/* Toggle User Activation */}
-                    <TouchableOpacity
-                      onPress={() => setShouldActivate(!shouldActivate)}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 8,
-                        marginVertical: 4,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 6,
-                          borderWidth: 2,
-                          borderColor: shouldActivate ? "#e65100" : "#cbd5e1",
-                          backgroundColor: shouldActivate ? "#e65100" : "#fff",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {shouldActivate && <FontAwesome name="check" size={11} color="#fff" />}
-                      </View>
-                      <Text style={{ fontSize: 12, color: "#9a3412", fontWeight: "bold" }}>
-                        Aktifkan Akses Premium User (Idempotent)
-                      </Text>
-                    </TouchableOpacity>
-
-                    {/* Override Action Buttons */}
-                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
-                      <TouchableOpacity
-                        disabled={saving}
-                        onPress={() => overridePayment(lead, "paid_manual", shouldActivate)}
-                        style={{
-                          backgroundColor: "#16a34a",
-                          paddingHorizontal: 12,
-                          paddingVertical: 10,
-                          borderRadius: 12,
-                          opacity: saving ? 0.5 : 1,
-                        }}
-                      >
-                        <Text style={{ color: "#fff", fontWeight: "900", fontSize: 12 }}>
-                          Lunas Manual
-                        </Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        disabled={saving}
-                        onPress={() => overridePayment(lead, "pending_payment", false)}
-                        style={{
-                          backgroundColor: "#f59e0b",
-                          paddingHorizontal: 12,
-                          paddingVertical: 10,
-                          borderRadius: 12,
-                          opacity: saving ? 0.5 : 1,
-                        }}
-                      >
-                        <Text style={{ color: "#fff", fontWeight: "900", fontSize: 12 }}>
-                          Set Pending
-                        </Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        disabled={saving}
-                        onPress={() => overridePayment(lead, "failed", false)}
-                        style={{
-                          backgroundColor: "#ef4444",
-                          paddingHorizontal: 12,
-                          paddingVertical: 10,
-                          borderRadius: 12,
-                          opacity: saving ? 0.5 : 1,
-                        }}
-                      >
-                        <Text style={{ color: "#fff", fontWeight: "900", fontSize: 12 }}>
-                          Gagal
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  {/* Notes Area */}
-                  <View style={{ gap: 8 }}>
-                    <Text style={{ fontWeight: "900", color: "#0f172a", fontSize: 13 }}>
-                      Catatan Follow-up Admin
-                    </Text>
-                    <TextInput
-                      value={noteText}
-                      onChangeText={setNoteText}
-                      placeholder="Tambahkan catatan perkembangan follow-up..."
-                      multiline
-                      style={{
-                        backgroundColor: "#f8fafc",
-                        borderRadius: 12,
-                        padding: 10,
-                        borderWidth: 1,
-                        borderColor: "#e2e8f0",
-                        fontSize: 13,
-                        color: "#334155",
-                        minHeight: 50,
-                      }}
-                    />
-                    <TouchableOpacity
-                      disabled={saving || !noteText.trim()}
-                      onPress={() => addNote(lead)}
-                      style={{
-                        alignSelf: "flex-start",
-                        backgroundColor: noteText.trim() ? "#ec4899" : "#cbd5e1",
-                        paddingHorizontal: 14,
-                        paddingVertical: 9,
-                        borderRadius: 12,
-                        opacity: saving ? 0.5 : 1,
-                      }}
-                    >
-                      <Text style={{ color: "#fff", fontWeight: "900", fontSize: 12 }}>
-                        Simpan Catatan
-                      </Text>
-                    </TouchableOpacity>
-
-                    {/* Display existing notes */}
-                    {(lead.notes || []).slice(0, 3).map((note) => (
-                      <View
-                        key={note.id}
-                        style={{
-                          backgroundColor: "#f8fafc",
-                          borderRadius: 12,
-                          padding: 10,
-                          borderWidth: 1,
-                          borderColor: "#f1f5f9",
-                        }}
-                      >
-                        <Text style={{ color: "#334155", fontSize: 13 }}>{note.note}</Text>
-                        <Text style={{ color: "#94a3b8", fontSize: 10, marginTop: 4 }}>
-                          Oleh Admin • {formatDateTime(note.created_at)}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
+                  <TouchableOpacity
+                    style={styles.greenActionBtn}
+                    onPress={() => handleCopyWa(selectedLead)}
+                  >
+                    <FontAwesome name="whatsapp" size={14} color="#fff" />
+                    <Text style={styles.actionBtnText}>Copy WA Follow-up</Text>
+                  </TouchableOpacity>
                 </View>
-              )}
+              </View>
+
+              {/* Manual Override Form */}
+              <View style={styles.overrideSection}>
+                <Text style={styles.overrideTitle}>Manual Payment Override 🛡️</Text>
+                <Text style={styles.overrideSub}>
+                  Gunakan form ini untuk aktivasi manual. Audit log akan tersimpan.
+                </Text>
+
+                <TextInput
+                  value={overrideReason}
+                  onChangeText={setOverrideReason}
+                  placeholder="Alasan wajib (min. 8 karakter)"
+                  style={styles.formInput}
+                />
+                <TextInput
+                  value={overrideReference}
+                  onChangeText={setOverrideReference}
+                  placeholder="Referensi transfer / bukti bayar"
+                  style={styles.formInput}
+                />
+                <TextInput
+                  value={overrideAmount}
+                  onChangeText={setOverrideAmount}
+                  placeholder="Nominal rupiah (default: 37000)"
+                  keyboardType="numeric"
+                  style={styles.formInput}
+                />
+
+                {/* Toggle premium activation */}
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginVertical: 8 }}
+                  onPress={() => setShouldActivate(!shouldActivate)}
+                >
+                  <View
+                    style={[
+                      styles.checkboxBox,
+                      shouldActivate && { backgroundColor: "#ea580c", borderColor: "#ea580c" },
+                    ]}
+                  >
+                    {shouldActivate && <FontAwesome name="check" size={10} color="#fff" />}
+                  </View>
+                  <Text style={styles.checkboxLabel}>Aktifkan premium user auth (idempotent)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  disabled={savingId === selectedLead.id}
+                  style={styles.overrideSubmit}
+                  onPress={applyManualOverride}
+                >
+                  {savingId === selectedLead.id ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.overrideSubmitText}>Konfirmasi Lunas Manual</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {/* Notes Timeline */}
+              <View style={styles.detailSection}>
+                <Text style={styles.detailSectionTitle}>Catatan Admin ({selectedLead.notes?.length || 0})</Text>
+                <TextInput
+                  value={noteText}
+                  onChangeText={setNoteText}
+                  placeholder="Tambah catatan perkembangan follow-up..."
+                  multiline
+                  style={[styles.formInput, { minHeight: 60 }]}
+                />
+                <TouchableOpacity
+                  disabled={savingId === selectedLead.id || !noteText.trim()}
+                  style={[styles.btnPink, !noteText.trim() && { backgroundColor: "#cbd5e1" }]}
+                  onPress={addNote}
+                >
+                  <Text style={styles.btnPinkText}>Simpan Catatan</Text>
+                </TouchableOpacity>
+
+                <View style={{ gap: 8, marginTop: 12 }}>
+                  {(selectedLead.notes || []).map((n) => (
+                    <View key={n.id} style={styles.noteBox}>
+                      <Text style={styles.noteText}>{n.note}</Text>
+                      <Text style={styles.noteMeta}>
+                        Oleh Admin • {formatDateTime(n.created_at)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
             </View>
-          );
-        })
+          ) : (
+            <Text style={styles.emptyText}>Pilih salah satu lead dari list untuk melihat detail.</Text>
+          )}
+        </View>
       )}
     </View>
   );
 }
+
+const styles: Record<string, any> = {
+  container: { gap: 14 },
+  overviewCard: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#fbcfe8",
+    borderRadius: 20,
+    padding: 16,
+  },
+  overviewTitle: { fontSize: 20, fontWeight: "900", color: "#1e293b" },
+  overviewSubtitle: { fontSize: 13, color: "#64748b", marginTop: 4, lineHeight: 18 },
+  statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  statCard: {
+    flexGrow: 1,
+    minWidth: 130,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#f1e5f9",
+    borderRadius: 16,
+    padding: 12,
+  },
+  statLabel: { fontSize: 11, fontWeight: "bold", color: "#94a3b8", textTransform: "uppercase" },
+  statValue: { fontSize: 20, fontWeight: "900", marginTop: 4 },
+  toolbar: { flexDirection: "row", gap: 8, alignItems: "center" },
+  searchContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 14,
+    paddingHorizontal: 12,
+  },
+  searchInput: { flex: 1, paddingVertical: 8, fontSize: 13, color: "#334155" },
+  refreshButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#fbcfe8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabsRow: { flexDirection: "row", gap: 6 },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e9d5ff",
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  tabButtonActive: { backgroundColor: "#9333ea", borderColor: "#9333ea" },
+  tabButtonText: { fontSize: 12, fontWeight: "bold", color: "#64748b", textTransform: "uppercase" },
+  tabButtonTextActive: { color: "#fff" },
+  filtersRow: { paddingVertical: 4 },
+  filterPill: {
+    marginRight: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#e9d5ff",
+    backgroundColor: "#fff",
+  },
+  filterPillActive: { backgroundColor: "#ec4899", borderColor: "#ec4899" },
+  filterPillText: { fontSize: 11, fontWeight: "700", color: "#475569" },
+  filterPillTextActive: { color: "#fff" },
+  emptyText: {
+    textAlign: "center",
+    color: "#94a3b8",
+    fontSize: 13,
+    fontWeight: "bold",
+    marginVertical: 24,
+  },
+  leadCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#f1f5f9",
+  },
+  leadCardActive: { borderColor: "#ec4899" },
+  leadName: { fontSize: 15, fontWeight: "800", color: "#1e293b" },
+  leadMeta: { fontSize: 12, color: "#64748b", marginTop: 2 },
+  leadSmall: { fontSize: 11, color: "#94a3b8", marginTop: 2 },
+  badgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
+  badge: {
+    fontSize: 10,
+    fontWeight: "bold",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    overflow: "hidden",
+  },
+  pinkBadge: { backgroundColor: "#fdf2f8", color: "#be185d" },
+  tealBadge: { backgroundColor: "#f0fdfa", color: "#0f766e" },
+  purpleBadge: { backgroundColor: "#faf5ff", color: "#7e22ce" },
+  pillButton: {
+    backgroundColor: "#f1f5f9",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  pillButtonText: { fontSize: 11, fontWeight: "bold", color: "#475569" },
+  paginationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  pageBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  pageBtnText: { fontSize: 11, fontWeight: "bold", color: "#475569" },
+  pageLabel: { fontSize: 11, color: "#64748b", fontWeight: "bold" },
+  kanbanColumn: {
+    width: 260,
+    marginRight: 10,
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    padding: 10,
+    maxHeight: 450,
+  },
+  kanbanHeader: { fontSize: 13, fontWeight: "800" },
+  kanbanCount: { fontSize: 11, fontWeight: "bold", color: "#94a3b8" },
+  kanbanEmpty: { textAlign: "center", color: "#cbd5e1", fontSize: 11, paddingVertical: 32 },
+  detailWrap: { gap: 14 },
+  detailSection: { borderTopWidth: 1, borderTopColor: "#f1f5f9", paddingTop: 12 },
+  detailSectionTitle: { fontSize: 13, fontWeight: "800", color: "#1e293b", marginBottom: 6 },
+  tealActionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#14b8a6",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  greenActionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#22c55e",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  actionBtnText: { fontSize: 11, fontWeight: "bold", color: "#fff" },
+  overrideSection: {
+    borderWidth: 1,
+    borderColor: "#fed7aa",
+    backgroundColor: "#fff7ed",
+    borderRadius: 16,
+    padding: 12,
+    gap: 8,
+  },
+  overrideTitle: { fontSize: 13, fontWeight: "900", color: "#ea580c" },
+  overrideSub: { fontSize: 11, color: "#c2410c", lineHeight: 16 },
+  formInput: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 12,
+    color: "#334155",
+  },
+  checkboxBox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: "#ea580c",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxBoxChecked: {
+    backgroundColor: "#ea580c",
+    borderColor: "#ea580c",
+  },
+  checkboxLabel: { fontSize: 11, fontWeight: "bold", color: "#c2410c" },
+  overrideSubmit: {
+    backgroundColor: "#ea580c",
+    borderRadius: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  overrideSubmitText: { fontSize: 11, fontWeight: "900", color: "#fff" },
+  btnPink: {
+    backgroundColor: "#ec4899",
+    borderRadius: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 16,
+  },
+  btnPinkText: { fontSize: 11, fontWeight: "900", color: "#fff" },
+  noteBox: { backgroundColor: "#f8fafc", borderRadius: 10, padding: 8, borderWidth: 1, borderColor: "#f1f5f9" },
+  noteText: { fontSize: 12, color: "#334155", lineHeight: 16 },
+  noteMeta: { fontSize: 9, color: "#94a3b8", marginTop: 4 },
+};

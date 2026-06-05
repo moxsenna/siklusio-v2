@@ -20,7 +20,15 @@ import {
   updateAdminCrmLead,
   createAdminCrmNote,
   overrideAdminCrmPaymentStatus,
+  markAdminCrmLeadContacted,
 } from "../controllers/adminCrm.controller";
+import {
+  getAdminWhatsappSettings,
+  updateAdminWhatsappSetting,
+  previewAdminWhatsappTemplate,
+  sendAdminWhatsappTest,
+  getAdminWhatsappLogs,
+} from "../controllers/adminWhatsapp.controller";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -46,5 +54,14 @@ router.post("/api/admin/crm/leads", createAdminCrmLead);
 router.patch("/api/admin/crm/leads/:id", updateAdminCrmLead);
 router.post("/api/admin/crm/leads/:id/notes", createAdminCrmNote);
 router.patch("/api/admin/crm/leads/:id/payment-status", overrideAdminCrmPaymentStatus);
+router.post("/api/admin/crm/leads/:id/payment-override", overrideAdminCrmPaymentStatus); // full manual payment override
+router.post("/api/admin/crm/leads/:id/contacted", markAdminCrmLeadContacted);
+
+// Admin WhatsApp Autoresponder Endpoints
+router.get("/api/admin/whatsapp/settings", getAdminWhatsappSettings);
+router.patch("/api/admin/whatsapp/settings/:eventKey", updateAdminWhatsappSetting);
+router.post("/api/admin/whatsapp/preview", previewAdminWhatsappTemplate);
+router.post("/api/admin/whatsapp/test", sendAdminWhatsappTest);
+router.get("/api/admin/whatsapp/logs", getAdminWhatsappLogs);
 
 export default router;

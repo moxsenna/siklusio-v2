@@ -179,6 +179,24 @@ test("manual payment override requires validation and is idempotent", async (t) 
       );
     }
 
+    // Get user by ID (for auth check in override)
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users/c0000000-0000-0000-0000-000000000123" &&
+      (!init?.method || init.method === "GET")
+    ) {
+      return new Response(
+        JSON.stringify({
+          user: {
+            id: "c0000000-0000-0000-0000-000000000123",
+            email: "test@example.com",
+            app_metadata: { provider: "email" },
+          },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
+
     // Update user auth metadata
     if (
       url.hostname === "project.supabase.co" &&
@@ -221,9 +239,9 @@ test("manual payment override requires validation and is idempotent", async (t) 
 
   // 1. Validation test: Reference is required for paid/paid_manual activation if no pending registration exists
   const invalidRes = await app.request(
-    "/api/admin/crm/leads/lead-123/payment-status",
+    "/api/admin/crm/leads/lead-123/payment-override",
     {
-      method: "PATCH",
+      method: "POST",
       headers: {
         authorization: "Bearer admin-token",
         "content-type": "application/json",
@@ -247,9 +265,9 @@ test("manual payment override requires validation and is idempotent", async (t) 
 
   // 2. Success first run: providing reference
   const successRes = await app.request(
-    "/api/admin/crm/leads/lead-123/payment-status",
+    "/api/admin/crm/leads/lead-123/payment-override",
     {
-      method: "PATCH",
+      method: "POST",
       headers: {
         authorization: "Bearer admin-token",
         "content-type": "application/json",
@@ -273,9 +291,9 @@ test("manual payment override requires validation and is idempotent", async (t) 
 
   // 3. Idempotent second run
   const idempotentRes = await app.request(
-    "/api/admin/crm/leads/lead-123/payment-status",
+    "/api/admin/crm/leads/lead-123/payment-override",
     {
-      method: "PATCH",
+      method: "POST",
       headers: {
         authorization: "Bearer admin-token",
         "content-type": "application/json",

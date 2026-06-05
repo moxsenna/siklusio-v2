@@ -213,6 +213,11 @@ Authorization: Bearer <supabase_jwt_session_token>
   - `DELETE /api/admin/affiliates/:id` — Menonaktifkan afiliasi.
   - `GET /api/admin/affiliates/conversions` — Membaca konversi afiliasi.
   - `PATCH /api/admin/affiliates/conversions/:id/payout` — Mencatat pembayaran komisi afiliasi.
+  - `GET /api/admin/whatsapp/settings` — Membaca pengaturan autoresponder WhatsApp.
+  - `PATCH /api/admin/whatsapp/settings/:eventKey` — Mengubah template & setting autoresponder per event.
+  - `POST /api/admin/whatsapp/preview` — Preview template autoresponder dengan dummy data.
+  - `POST /api/admin/whatsapp/test` — Mengirimkan pesan test WhatsApp ke nomor tertentu.
+  - `GET /api/admin/whatsapp/logs` — Membaca log pengiriman autoresponder WhatsApp.
 
 ---
 

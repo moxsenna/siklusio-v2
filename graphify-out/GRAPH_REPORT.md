@@ -1,16 +1,16 @@
 # Graph Report - remix_-siklusio  (2026-06-05)
 
 ## Corpus Check
-- 2574 files · ~1,848,838 words
+- 2584 files · ~1,874,402 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 18832 nodes · 27062 edges · 1004 communities (945 shown, 59 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 143 edges (avg confidence: 0.8)
+- 18963 nodes · 27243 edges · 1011 communities (953 shown, 58 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 149 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3b2459a2`
+- Built from commit: `b0fb05dc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -981,7 +981,14 @@
 - [[_COMMUNITY_Community 999|Community 999]]
 - [[_COMMUNITY_Community 1000|Community 1000]]
 - [[_COMMUNITY_Community 1001|Community 1001]]
+- [[_COMMUNITY_Community 1002|Community 1002]]
+- [[_COMMUNITY_Community 1003|Community 1003]]
 - [[_COMMUNITY_Community 1004|Community 1004]]
+- [[_COMMUNITY_Community 1006|Community 1006]]
+- [[_COMMUNITY_Community 1007|Community 1007]]
+- [[_COMMUNITY_Community 1008|Community 1008]]
+- [[_COMMUNITY_Community 1009|Community 1009]]
+- [[_COMMUNITY_Community 1010|Community 1010]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `s` - 179 edges
@@ -1007,51 +1014,51 @@
 - `readText()` --calls--> `join()`  [INFERRED]
   scratch/backup/database-docs.test.js → mobile-app/.expo/audit-export/_expo/static/js/web/entry-79aede259881aaeffeb015697aba664c.js
 
-## Communities (1004 total, 59 thin omitted)
+## Communities (1011 total, 58 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.01
-Nodes (349): [A,E], [A,M], [A,v], abort(), {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b} (+341 more)
+Nodes (319): [A,E], [A,M], [A,v], {addKeyedListener:c}, {addKeyedListener:s}, {addListener:s}, {addOptionsGetter:b}, {addOptionsGetter:d} (+311 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.03
-Nodes (28): $(), addListener(), computeBlankness(), computeViewableItems(), current(), deactivateAndFlush(), deviceName(), dispose() (+20 more)
+Cohesion: 0.02
+Nodes (4): focus(), focusTextInput(), getStateForHref(), s
 
 ### Community 2 - "Community 2"
 Cohesion: 0.02
-Nodes (27): assert(), cancel(), cancelTimeout(), canPush(), configureNextLayoutAnimation(), decode(), disconnect(), enqueue() (+19 more)
+Nodes (55): add(), addChangeListener(), applyTransformOptsToQuery(), bd(), binaryEncode(), canPush(), clear(), clearInteractionHandle() (+47 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.04
-Nodes (128): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+120 more)
+Nodes (130): _acquireLock(), _adminDeletePasskey(), _adminListPasskeys(), _approveAuthorization(), assertPasskeyExperimentalEnabled(), _authenticate(), _autoRefreshTokenTick(), base64UrlToUint8Array() (+122 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.03
-Nodes (35): add(), channel(), clearHeartbeats(), connect(), connectWithFallback(), f(), flushSendBuffer(), getChannels() (+27 more)
+Cohesion: 0.02
+Nodes (51): cancelRefEvent(), cancelTimeout(), channel(), clearHeartbeats(), connect(), connectWithFallback(), destroy(), disconnect() (+43 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.24
-Nodes (14): ACTION_TRIGGERS, aiSafetyEnvelope(), containsForbiddenWords(), CONTEXTUAL_FORBIDDEN, FORBIDDEN_WORDS, HARD_FORBIDDEN, SafetyEnveloped, SafetyFlags (+6 more)
+Cohesion: 0.13
+Nodes (26): ACTION_TRIGGERS, aiSafetyEnvelope(), containsForbiddenWords(), CONTEXTUAL_FORBIDDEN, FORBIDDEN_WORDS, HARD_FORBIDDEN, SafetyEnveloped, SafetyFlags (+18 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.11
 Nodes (36): bufferFromSecret(), cmn(), convertToBuffer(), convertToBuffer3(), createCanonicalRequest(), createStringToSign(), digest(), ff() (+28 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.02
-Nodes (32): addChangeListener(), applyTransformOptsToQuery(), backIndex(), clear(), clearInteractionHandle(), delete(), download(), dropTable() (+24 more)
+Cohesion: 0.03
+Nodes (14): number, abort(), backIndex(), eo(), __getNativeAnimationConfig(), getSize(), hex(), hexa() (+6 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.03
-Nodes (205): error, ac(), ad(), Ae(), af(), Al(), ao(), Au() (+197 more)
+Nodes (215): error, event(), executionCtx(), ac(), ad(), addEventListener(), Ae(), af() (+207 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.00
-Nodes (178): addPaymentInfoEventId, algoList, allowedFields, arrayBuffer(), authSchemes, authUsersById, avatarImage, __awaiter2() (+170 more)
+Nodes (169): addPaymentInfoEventId, algoList, allowedFields, arrayBuffer(), authSchemes, authUsersById, avatarImage, bindGetRetryPlugin() (+161 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.03
-Nodes (78): number, alert(), array(), b(), binaryEncode(), cancelTasks(), cloneRequestState(), containedBy() (+70 more)
+Cohesion: 0.02
+Nodes (68): $(), addListener(), alert(), array(), assert(), b(), cancel(), cancelTasks() (+60 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.06
@@ -1063,19 +1070,19 @@ Nodes (74): code:ts (import { buildHabitCoachDayTasks } from "./habitCoachFounda
 
 ### Community 13 - "Community 13"
 Cohesion: 0.07
-Nodes (34): AuthScreen(), IndexPage(), CustomDropdown(), CustomDropdownProps, DropdownOption, OnboardingScreen(), PaymentPendingScreen(), LoginLogoAnimation() (+26 more)
+Nodes (46): AuthScreen(), IndexPage(), NavigationTracker(), RootLayout(), RootLayoutNav(), unstable_settings, CustomDropdown(), CustomDropdownProps (+38 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.08
 Nodes (53): HabitCoachCard(), Props, CoachStep, coachSteps, HabitCoachSheet(), Props, ReplacementWarning, HabitPlanWeekView() (+45 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.07
-Nodes (49): AdminAffiliatePanel(), toErrorMessage(), AdminCrmPanel(), CrmLead, CrmLeadStatus, CrmPaymentStatus, CrmSummary, formatRupiah() (+41 more)
+Cohesion: 0.06
+Nodes (56): AdminAffiliatePanel(), toErrorMessage(), AdminCrmPanel(), CrmLead, CrmLeadStatus, CrmPaymentStatus, CrmResponse, CrmSummary (+48 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.15
-Nodes (18): NavigationTracker(), RootLayout(), RootLayoutNav(), unstable_settings, AuthProvider(), analytics, AnalyticsManager, buildAnalyticsEventPayload() (+10 more)
+Cohesion: 0.21
+Nodes (11): AnalyticsManager, buildAnalyticsEventPayload(), buildAnalyticsScreenViewPayload(), buildAnalyticsUserPayload(), EventParams, isDevLoggingEnabled(), normalizeAnalyticsEventName(), pushToDataLayer() (+3 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.11
@@ -1102,8 +1109,8 @@ Cohesion: 0.04
 Nodes (44): 0. Working Assumptions, 10. Data Requirements, 11. Privacy, Safety, and Compliance Requirements, 12. Success Metrics, 13. Release Scope, 14. Risks and Mitigations, 15. Open Questions, 16. Launch Messaging (+36 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.06
-Nodes (58): chargeAiCredits(), getAiCreditBalance(), grantPremiumInitialAiCredits(), getAiCreditHistory(), pngWithDimensions(), url, addPaymentInfoEventId, ai (+50 more)
+Cohesion: 0.08
+Nodes (72): assertString(), CalmingReassuranceResult, calmingReassuranceSchema, CycleGuideAiResult, cycleGuideSchema, CycleReportResult, cycleReportSchema, habitCategories (+64 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.04
@@ -1134,8 +1141,8 @@ Cohesion: 0.05
 Nodes (38): Animated Components (`src/tw/animated.tsx`), Apple System Colors with CSS Variables, code:bash (# Install dependencies), code:tsx (import { View, Text, ScrollView, Image } from "@/tw";), code:css (@layer theme {), code:css (@media ios {), code:css (/* src/css/sf.css */), code:tsx (<Text className="text-sf-text">Primary text</Text>) (+30 more)
 
 ### Community 31 - "Community 31"
-Cohesion: 0.08
-Nodes (48): CycleGuideCard(), Props, createEmptyActivityHistory(), CycleContext, CycleContextType, CycleProvider(), generateMockHistory(), usePersistentState() (+40 more)
+Cohesion: 0.16
+Nodes (23): CycleCard(), CycleCardProps, getCycleConfidenceMessage(), getPredictionDeltaMessage(), ActivityDailyRecord, ActivityHistory, AdaptiveCyclePrediction, AdaptiveCyclePredictionInput (+15 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.05
@@ -1150,12 +1157,12 @@ Cohesion: 0.05
 Nodes (37): App Endpoints, Base URL and Auth, Binding API (Workers), Client Provider (`FlagshipClientProvider`), code:typescript (type FlagshipEvaluationContext = Record<string, string | num), code:json ({), code:json ({), code:json ({) (+29 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.15
-Nodes (31): ActivityHistoryMap, ActivityHistoryRow, activityHistoryToRows(), ActivityHistoryUpsertRow, hasDoneTask(), isAuthoritativeLocalRecord(), mergeActivityHistories(), normalizeDateKey() (+23 more)
+Cohesion: 0.11
+Nodes (40): ActivityHistoryMap, ActivityHistoryRow, activityHistoryToRows(), ActivityHistoryUpsertRow, hasDoneTask(), isAuthoritativeLocalRecord(), mergeActivityHistories(), normalizeDateKey() (+32 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.02
-Nodes (10): addEventListener(), componentWillUnmount(), focus(), focusTextInput(), getStateForHref(), is(), listen(), remove() (+2 more)
+Cohesion: 0.05
+Nodes (53): applyTransformOptsToQuery(), bindCallerConfig(), buildUrl(), codepointToUTF8(), collectStream(), collectStream2(), convertHttpAuthSchemesToMap(), csv() (+45 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.05
@@ -1274,8 +1281,8 @@ Cohesion: 0.06
 Nodes (28): Basic Structure, Bindings, code:capnp (using Workerd = import "/workerd/workerd.capnp";), code:capnp ((name = "CACHE", kvNamespace = "kv-service")           # KV), code:capnp ((name = "TASKS", queue = "queue-service")), code:capnp (compatibilityDate = "2024-01-15"                       # Alw), code:capnp (bindings = [), code:capnp (logging = (structuredLogging = true, stdoutPrefix = "OUT: ",) (+20 more)
 
 ### Community 66 - "Community 66"
-Cohesion: 0.14
-Nodes (30): body, calls, chargePayload, generation, makePersonalizedTasks(), makeTask(), makeValidHabitPlan(), parsed (+22 more)
+Cohesion: 0.10
+Nodes (34): chargeAiCredits(), getAiCreditBalance(), grantPremiumInitialAiCredits(), body, calls, chargePayload, generation, makePersonalizedTasks() (+26 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.06
@@ -1334,8 +1341,8 @@ Cohesion: 0.06
 Nodes (28): Aggregation Fields, Boolean Operators (AND / OR), code:graphql ({), code:graphql (# HTTP requests), code:graphql (quantiles { cpuTimeP50 cpuTimeP99 wallTimeP50 wallTimeP99 }), code:graphql (ratio { status4xx status5xx }      # float64 (0 to 1) -- HTT), code:graphql (zones(filter: { zoneTag: "ZONE_ID" })           # up to 10 z), code:graphql (# Explicit AND) (+20 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.20
-Nodes (16): createNamespace(), createNamespaceIfNotExists(), createTable(), createTableIfNotExists(), dropNamespace(), dropTable(), listNamespaces(), listTables() (+8 more)
+Cohesion: 0.07
+Nodes (33): catch(), cf(), close(), closeAndRetry(), computeBlankness(), deactivateAndFlush(), ds(), execute() (+25 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.05
@@ -1698,12 +1705,12 @@ Cohesion: 0.07
 Nodes (23): CI/CD Pattern, code:block1 (terraform/), code:hcl (# modules/cloudflare-zone/main.tf), code:hcl (# Directory: environments/{production,staging}/main.tf + mod), code:hcl (terraform {), code:hcl (locals { worker_name = "full-stack-worker" }), code:hcl (# Terraform creates infrastructure), code:yaml (# GitHub Actions: terraform apply → envsubst wrangler.jsonc.) (+15 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.12
-Nodes (35): { calls, supabaseAdmin }, charge(), conflict, createLifecycleSupabaseMock(), cycleDays, lifecycleDateKeys, makeLifecycleDays(), makeLifecycleTask() (+27 more)
+Cohesion: 0.17
+Nodes (25): { calls, supabaseAdmin }, charge(), conflict, createLifecycleSupabaseMock(), cycleDays, lifecycleDateKeys, makeLifecycleDays(), makeLifecycleTask() (+17 more)
 
 ### Community 173 - "Community 173"
-Cohesion: 0.06
-Nodes (52): AI_PATHS, buildRule(), CHECKOUT_PATHS, Clock, createMemoryRateLimiter(), createRateLimitMiddleware(), DEFAULT_RULES, getClientIdentity() (+44 more)
+Cohesion: 0.14
+Nodes (26): AI_PATHS, buildRule(), CHECKOUT_PATHS, Clock, createMemoryRateLimiter(), createRateLimitMiddleware(), DEFAULT_RULES, getClientIdentity() (+18 more)
 
 ### Community 174 - "Community 174"
 Cohesion: 0.08
@@ -2162,8 +2169,8 @@ Cohesion: 0.10
 Nodes (16): Archive & Extract Attachments, Auto-Reply with Threading, code:typescript (import PostalMime from 'postal-mime';), code:typescript (// Allowlist from KV), code:typescript (import { EmailMessage } from 'cloudflare:email';), code:typescript (const rateKey = `rate:${message.from}`;), code:typescript (const subject = (message.headers.get('Subject') || '').toLow), code:typescript (// support+tenant123@example.com → tenant123) (+8 more)
 
 ### Community 288 - "Community 288"
-Cohesion: 0.13
-Nodes (18): messages, snapshot, buildCycleGuideSnapshot(), AiCreditPolicy, normalizeModels(), OpenRouterModelSelection, resolveOpenRouterModels(), ResolveOpenRouterModelsParams (+10 more)
+Cohesion: 0.11
+Nodes (22): messages, snapshot, buildCycleGuideSnapshot(), HabitCoachCycleDay, AiCreditPolicy, normalizeModels(), OpenRouterModelSelection, resolveOpenRouterModels() (+14 more)
 
 ### Community 289 - "Community 289"
 Cohesion: 0.10
@@ -2562,8 +2569,8 @@ Cohesion: 0.11
 Nodes (14): Cloudflare Workers Playground Skill Reference, code:javascript (export default {), code:javascript (export default {), code:javascript (export default {), code:javascript (import { Hono } from 'https://esm.sh/hono@3';), Common Use Cases, In This Reference, Key Features (+6 more)
 
 ### Community 388 - "Community 388"
-Cohesion: 0.05
-Nodes (76): basePath(), binaryEncode(), _binaryEncodeUserBroadcastPush(), buildHabitCoachPlanDayPayloads(), #buildMatcher(), buildMatcherFromPreprocessedRoutes(), buildOpenRouterRequestBody(), buildRegExp() (+68 more)
+Cohesion: 0.04
+Nodes (80): basePath(), binaryEncode(), _binaryEncodeUserBroadcastPush(), buildHabitCoachPlanDayPayloads(), #buildMatcher(), buildMatcherFromPreprocessedRoutes(), buildOpenRouterRequestBody(), buildRegExp() (+72 more)
 
 ### Community 389 - "Community 389"
 Cohesion: 0.12
@@ -2666,8 +2673,8 @@ Cohesion: 0.12
 Nodes (13): Architecture Pattern: Workers + Tunnel, Best Practices, code:typescript (import { connect } from 'cloudflare:sockets';), code:block2 (┌─────────┐     ┌─────────────┐     ┌──────────────┐     ┌──), Key Limits, Overview, Quick Decision: Which Technology?, Quick Start (+5 more)
 
 ### Community 414 - "Community 414"
-Cohesion: 0.22
-Nodes (27): buildHabitCoachDayTasks(), CyclePhase, fallbackPersonalizedTasks, fillPersonalizedTasks(), foundationWaterTask, getHabitCoachFoundationTasks(), HabitCoachCycleDay, HabitCoachTask (+19 more)
+Cohesion: 0.23
+Nodes (26): buildHabitCoachDayTasks(), CyclePhase, fallbackPersonalizedTasks, fillPersonalizedTasks(), foundationWaterTask, getHabitCoachFoundationTasks(), HabitCoachTask, isFoundationDuplicate() (+18 more)
 
 ### Community 415 - "Community 415"
 Cohesion: 0.12
@@ -2706,8 +2713,8 @@ Cohesion: 0.13
 Nodes (14): 1. Core Identity, 2. Logo & Iconography, 3. Color Palette, 4. Typography, 5. UI & Visual Styling, 6. Social Media & Marketing (Instagram), Aturan Penggunaan Logo (Do's and Don'ts), Body Font: **Plus Jakarta Sans** (+6 more)
 
 ### Community 424 - "Community 424"
-Cohesion: 0.03
-Nodes (96): _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), clearHeartbeats(), close(), closeAndRetry(), connect() (+88 more)
+Cohesion: 0.04
+Nodes (100): _cancelPendingDisconnect(), cancelRefEvent(), cancelTimeout(), canPush(), channel(), clearHeartbeats(), close(), closeAndRetry() (+92 more)
 
 ### Community 425 - "Community 425"
 Cohesion: 0.05
@@ -3003,7 +3010,7 @@ Nodes (38): accountId, containerId, features, fingerprint, name, path, publicId,
 
 ### Community 498 - "Community 498"
 Cohesion: 0.08
-Nodes (48): createApp(), Env, logError(), logInfo(), logWarn(), normalizeKey(), redactLogArgs(), redactLogValue() (+40 more)
+Nodes (46): createApp(), Env, logError(), logInfo(), logWarn(), normalizeKey(), redactLogArgs(), redactLogValue() (+38 more)
 
 ### Community 499 - "Community 499"
 Cohesion: 0.17
@@ -3398,7 +3405,7 @@ Cohesion: 0.29
 Nodes (7): __dirname, __filename, generateIcon(), iconBase64, main(), publicDir, sourceIcon
 
 ### Community 598 - "Community 598"
-Cohesion: 0.17
+Cohesion: 0.16
 Nodes (29): avatarImage, buffer, estimatedBytes, publicUrl, r2Client, router, sanitizedBuffer, AvatarImageInfo (+21 more)
 
 ### Community 599 - "Community 599"
@@ -4082,8 +4089,8 @@ Cohesion: 0.50
 Nodes (3): code:sql (-- Comment explaining what makes this slow/problematic), code:sql (-- Comment explaining why this is better), [Rule Title]
 
 ### Community 776 - "Community 776"
-Cohesion: 0.06
-Nodes (49): generateCycleGuide(), getTodayCycleGuide(), getCurrentHabitPlan(), generateCalmingReassurance(), generateCycleReport(), generateHabitsInsight(), getTodayReassurance(), getTodayWib() (+41 more)
+Cohesion: 0.05
+Nodes (78): createAdminAffiliate(), createAdminCoupon(), deleteAdminAffiliate(), deleteAdminCoupon(), getAdminAffiliateConversions(), getAdminAffiliates(), getAdminCoupons(), getAdminUsers() (+70 more)
 
 ### Community 777 - "Community 777"
 Cohesion: 0.50
@@ -4171,11 +4178,11 @@ Nodes (24): Admin Portal, AI Credit Ledger & Balance System, AI Habit Coach & Pa
 
 ### Community 862 - "Community 862"
 Cohesion: 0.02
-Nodes (17): __addChild(), createInteractionHandle(), __debouncedOnEnd(), __getAnimatedValue(), __getChildren(), __getNativeConfig(), __getNativeTag(), __getPlatformConfig() (+9 more)
+Nodes (25): __addChild(), createInteractionHandle(), current(), __debouncedOnEnd(), enqueueTasks(), __getAnimatedValue(), __getChildren(), __getNativeConfig() (+17 more)
 
 ### Community 863 - "Community 863"
-Cohesion: 0.06
-Nodes (39): bytesToBase64URL(), byteToBase64URL(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls() (+31 more)
+Cohesion: 0.07
+Nodes (35): bytesToBase64URL(), byteToBase64URL(), copy(), createBucket(), createIndex(), createSignedUploadUrl(), createSignedUrl(), createSignedUrls() (+27 more)
 
 ### Community 864 - "Community 864"
 Cohesion: 0.08
@@ -4226,8 +4233,8 @@ Cohesion: 0.11
 Nodes (17): 1. Copy file, 2. Wajib ganti placeholder tracking, 3. DataLayer events yang sudah tersedia, 4. GTM trigger yang perlu dibuat, 5. Validasi teknis, 6. Jangan lupa, code:js (gtmId: 'GTM-XXXXXXX',), code:js (siklusio_view_content) (+9 more)
 
 ### Community 876 - "Community 876"
-Cohesion: 0.08
-Nodes (47): AiReportModal(), AiReportModalProps, AiFallbackNotice(), Props, tonePalette, AiFallbackNotice(), Props, tonePalette (+39 more)
+Cohesion: 0.07
+Nodes (61): AiReportModal(), AiReportModalProps, CycleGuideModal(), Props, AiFallbackNotice(), Props, tonePalette, AiFallbackNotice() (+53 more)
 
 ### Community 877 - "Community 877"
 Cohesion: 0.33
@@ -4254,12 +4261,12 @@ Cohesion: 0.20
 Nodes (8): code:text (POST /api/upload-avatar), code:text (admin_reset_user_avatar(user_id uuid)), code:powershell (node --import tsx backend/storage/avatarImage.test.ts), Moderation Workflow, Runtime Guardrails, Siklusio Avatar Upload And Moderation Policy, Verification, Why Not Full Re-Encode In Worker Yet
 
 ### Community 883 - "Community 883"
-Cohesion: 0.03
-Nodes (84): applyTransformOptsToQuery(), __awaiter(), bindCallerConfig(), blob(), buildUrl(), bytes(), catch(), check() (+76 more)
+Cohesion: 0.04
+Nodes (73): __awaiter(), __awaiter2(), blob(), buildAbortError(), buildQueryString(), bytes(), catch(), check() (+65 more)
 
 ### Community 884 - "Community 884"
-Cohesion: 0.03
-Nodes (97): add(), #addRoute(), ajax(), appendParams(), applySettingDefaults(), batchSend(), buildAbortError(), buildAllMatchers() (+89 more)
+Cohesion: 0.04
+Nodes (60): add(), #addRoute(), ajax(), appendParams(), applySettingDefaults(), batchSend(), buildAllMatchers(), buildWildcardRegExp() (+52 more)
 
 ### Community 885 - "Community 885"
 Cohesion: 0.12
@@ -4330,8 +4337,8 @@ Cohesion: 0.29
 Nodes (7): P3-1. Hapus atau arsipkan legacy files, P3-2. Rapikan graphify-out, P3-3. Hapus Expo template route/komponen, P3-4. Cleanup TWW audio asset, P3-5. Naming cleanup, P3-6. Error boundary lokal, P3. Cleanup dan maintainability
 
 ### Community 902 - "Community 902"
-Cohesion: 0.16
-Nodes (25): createAdminAffiliate(), createAdminCoupon(), deleteAdminAffiliate(), deleteAdminCoupon(), getAdminAffiliateConversions(), getAdminAffiliates(), getAdminCoupons(), getAdminUsers() (+17 more)
+Cohesion: 0.09
+Nodes (25): AI_PATHS, buildRule(), CHECKOUT_PATHS, Clock, createMemoryRateLimiter(), DEFAULT_RULES, getClientIdentity(), getClientIp() (+17 more)
 
 ### Community 903 - "Community 903"
 Cohesion: 0.22
@@ -4340,6 +4347,10 @@ Nodes (7): code:powershell (node --import tsx backend/storage/avatarImage.test.t
 ### Community 904 - "Community 904"
 Cohesion: 0.36
 Nodes (9): Exit-WithError(), Find-WheelEntry(), Get-Manifest(), Get-PlatformTag(), Get-PythonInfo(), Install-Wheel(), Invoke-VenvSetup(), Write-Err() (+1 more)
+
+### Community 905 - "Community 905"
+Cohesion: 0.16
+Nodes (18): generateCalmingReassurance(), generateCycleReport(), generateHabitsInsight(), getTodayReassurance(), getTodayWib(), isDateValidForToday(), sha256Hex(), router (+10 more)
 
 ### Community 906 - "Community 906"
 Cohesion: 0.33
@@ -4458,8 +4469,8 @@ Cohesion: 0.18
 Nodes (10): assets, ddd, fr, h, ip, layers, nm, op (+2 more)
 
 ### Community 946 - "Community 946"
-Cohesion: 0.08
-Nodes (59): assertString(), CalmingReassuranceResult, calmingReassuranceSchema, CycleGuideAiResult, cycleGuideSchema, CycleReportResult, cycleReportSchema, habitCategories (+51 more)
+Cohesion: 0.05
+Nodes (40): resolveTopupPackage(), TopupPackage, ai, allowedFields, app, authUsersById, avatarImage, body (+32 more)
 
 ### Community 947 - "Community 947"
 Cohesion: 0.12
@@ -4554,8 +4565,8 @@ Cohesion: 0.28
 Nodes (7): DatePickerField(), DatePickerFieldProps, formatLong(), MONTHS_ID, NativeWheelDatePicker(), toIsoDate(), WheelColumnProps
 
 ### Community 975 - "Community 975"
-Cohesion: 0.16
-Nodes (21): catch(), execute(), fetchRequest(), fetchThenEvalAsync(), finally(), _genPromise(), getPromise(), go() (+13 more)
+Cohesion: 0.11
+Nodes (9): AnimatedPath, SiklusioExactLogoTraceLoader(), SiklusioExactLogoTraceLoaderProps, styles, SiklusioLoadingScreen(), styles, SIKUSIO_PATH_LENGTHS, TabBarIcon() (+1 more)
 
 ### Community 976 - "Community 976"
 Cohesion: 0.50
@@ -4570,8 +4581,8 @@ Cohesion: 0.67
 Nodes (3): 13. Release Scope, MVP Release, Post-MVP
 
 ### Community 981 - "Community 981"
-Cohesion: 0.25
-Nodes (8): createMemorySessionStorage(), detectEnvironment(), getWebSocketConstructor(), _initializeOptions(), isWebSocketSupported(), onHeartbeat(), resolveSessionStorage(), _wrapHeartbeatCallback()
+Cohesion: 0.06
+Nodes (32): 10) Acceptance test wajib, 1) Buat migration baru, 2) Tambahkan service backend CRM, 3) Integrasikan checkout register ke CRM, 3A. Di branch free bypass, 3B. Di branch paid checkout, 4) Integrasikan Mayar webhook ke CRM, 5) Tambahkan controller CRM backend (+24 more)
 
 ### Community 982 - "Community 982"
 Cohesion: 0.12
@@ -4582,8 +4593,8 @@ Cohesion: 0.50
 Nodes (4): fixImports(), fs, path, walkDir()
 
 ### Community 985 - "Community 985"
-Cohesion: 0.07
-Nodes (39): CalendarGrid(), CalendarGridProps, HeaderProfileButton(), HeaderProfileButton(), useCycle(), ActionCard(), ActionCardProps, AffirmationCard() (+31 more)
+Cohesion: 0.08
+Nodes (30): CalendarGrid(), CalendarGridProps, CycleGuideCard(), Props, HeaderProfileButton(), HeaderProfileButton(), useCycle(), ActionCard() (+22 more)
 
 ### Community 986 - "Community 986"
 Cohesion: 0.28
@@ -4614,8 +4625,8 @@ Cohesion: 0.33
 Nodes (5): body, env, inserts, updates, url
 
 ### Community 993 - "Community 993"
-Cohesion: 0.40
-Nodes (6): _defineProperty(), _objectSpread2(), ownKeys(), toPrimitive(), toPropertyKey(), _typeof()
+Cohesion: 0.16
+Nodes (20): At(), bn(), er(), et(), ff(), Ht(), jn(), jt() (+12 more)
 
 ### Community 994 - "Community 994"
 Cohesion: 0.33
@@ -4637,29 +4648,57 @@ Nodes (3): code:bash (npm run deploy), code:bash (eas build --platform android),
 Cohesion: 0.53
 Nodes (4): env, mayarBodies, topupBodies, url
 
+### Community 1002 - "Community 1002"
+Cohesion: 0.12
+Nodes (16): 1. Google Tag Manager (GTM) Container ID, 2. Direct Meta Pixel Configuration, 3. Referral Persistence (`localStorage` & Cookie), 4. Referral Badges, 5. CAPI Test Parameters Persistence, 6. Attribution and Event ID Forwarding on Checkout Click, Background and Objectives, code:html (<noscript><iframe src="https://www.googletagmanager.com/ns.h) (+8 more)
+
+### Community 1003 - "Community 1003"
+Cohesion: 0.14
+Nodes (13): code:html (<!-- GTM: ganti GTM-XXXXXXX dengan container ID Siklusio. Da), code:html (<noscript><iframe src="https://www.googletagmanager.com/ns.h), code:html (<!-- GTM: GTM-PX5J3XBM. DataLayer events sudah dikirim dari ), code:html (<noscript><iframe src="https://www.googletagmanager.com/ns.h), code:css (.ref-badge {), code:html (<div class="hero-actions">), code:html (<script>), Landing Page Tracking Alignment and lpv2 Routing Implementation Plan (+5 more)
+
 ### Community 1004 - "Community 1004"
-Cohesion: 0.67
-Nodes (4): #getAllDecodedParams(), #getDecodedParam(), #getParamValue(), param()
+Cohesion: 0.20
+Nodes (16): createNamespace(), createNamespaceIfNotExists(), createTable(), createTableIfNotExists(), dropNamespace(), dropTable(), listNamespaces(), listTables() (+8 more)
+
+### Community 1006 - "Community 1006"
+Cohesion: 0.40
+Nodes (6): _defineProperty(), _objectSpread2(), ownKeys(), toPrimitive(), toPropertyKey(), _typeof()
+
+### Community 1007 - "Community 1007"
+Cohesion: 0.50
+Nodes (3): env, envMissingMeta, url
+
+### Community 1008 - "Community 1008"
+Cohesion: 0.10
+Nodes (20): 1. Goals & Non-Blocking Design, 2. Database Schema, 3. Fonnte Service (`backend/src/services/fonnte.ts`), 4. Admin API & Routes, 5. React Native Admin Panel (`mobile-app/src/features/admin/AdminWhatsappAutoresponderPanel.tsx`), Autoresponder Execution Flow (`sendWhatsappAutoresponder`), Branding Alignment, code:sql (create table if not exists public.whatsapp_autoresponder_set) (+12 more)
+
+### Community 1009 - "Community 1009"
+Cohesion: 0.40
+Nodes (4): indexHtml, indexPath, lpv2Html, lpv2Path
+
+### Community 1010 - "Community 1010"
+Cohesion: 0.25
+Nodes (8): createMemorySessionStorage(), detectEnvironment(), getWebSocketConstructor(), _initializeOptions(), isWebSocketSupported(), onHeartbeat(), resolveSessionStorage(), _wrapHeartbeatCallback()
 
 ## Knowledge Gaps
-- **7938 isolated node(s):** `name`, `private`, `version`, `type`, `description` (+7933 more)
+- **8017 isolated node(s):** `name`, `private`, `version`, `type`, `description` (+8012 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **59 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `number` connect `Community 10` to `Community 1`, `Community 2`, `Community 35`, `Community 4`, `Community 388`, `Community 902`, `Community 7`, `Community 776`, `Community 8`, `Community 9`, `Community 876`, `Community 173`, `Community 14`, `Community 15`, `Community 883`, `Community 884`, `Community 23`, `Community 862`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **Why does `string()` connect `Community 7` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 388`, `Community 8`, `Community 776`, `Community 10`, `Community 9`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 414`, `Community 31`, `Community 35`, `Community 172`, `Community 173`, `Community 81`, `Community 985`, `Community 986`, `Community 862`, `Community 866`, `Community 876`, `Community 883`, `Community 884`?**
-  _High betweenness centrality (0.010) - this node is a cross-community bridge._
-- **Why does `u()` connect `Community 862` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 36`, `Community 7`, `Community 8`, `Community 10`, `Community 975`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **Why does `number` connect `Community 7` to `Community 388`, `Community 66`, `Community 35`, `Community 4`, `Community 2`, `Community 902`, `Community 36`, `Community 776`, `Community 8`, `Community 10`, `Community 9`, `Community 876`, `Community 173`, `Community 14`, `Community 15`, `Community 884`, `Community 862`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `string()` connect `Community 2` to `Community 0`, `Community 4`, `Community 388`, `Community 902`, `Community 7`, `Community 8`, `Community 776`, `Community 10`, `Community 905`, `Community 9`, `Community 13`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 414`, `Community 31`, `Community 35`, `Community 36`, `Community 172`, `Community 173`, `Community 81`, `Community 985`, `Community 986`, `Community 862`, `Community 866`, `Community 876`, `Community 1004`, `Community 883`, `Community 884`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `error` connect `Community 8` to `Community 993`, `Community 3`, `Community 4`, `Community 388`, `Community 7`, `Community 9`, `Community 10`, `Community 11`, `Community 877`, `Community 81`, `Community 883`, `Community 884`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _7938 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _8017 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.0058033887985082435 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.006126526082130965 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.02505664400906304 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.024412094064949607 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.02270967741935484 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.02292152292152292 - nodes in this community are weakly interconnected._

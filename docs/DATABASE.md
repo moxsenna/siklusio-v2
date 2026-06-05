@@ -41,6 +41,8 @@ Berikut adalah daftar tabel utama yang ada di dalam database Siklusio beserta pe
 | **`community_reactions`**   | Reaksi (seperti dukungan emosional) terhadap post.                                        | RLS aktif. Satu user dibatasi maksimal satu reaksi per postingan.                                                                           |
 | **`community_reports`**     | Laporan penyalahgunaan postingan/komentar yang melanggar ketentuan.                       | RLS aktif. User dapat membuat laporan, tetapi tidak dapat melihat laporan buatan orang lain.                                                |
 | **`crm_profiles`**          | View/Tabel bantuan untuk pengelolaan administrasi dan CRM.                                | Dibatasi secara ketat hanya untuk admin.                                                                                                    |
+| **`whatsapp_autoresponder_settings`** | Template konfigurasi pesan otomatis WhatsApp per event.                           | Read & write hanya untuk administrator (`is_admin = true`).                                                                                |
+| **`whatsapp_autoresponder_logs`**    | Log audit pengiriman pesan WhatsApp otomatis beserta status pengirimannya (idempotent).    | Read-only untuk admin. Write & update hanya untuk backend tepercaya (`service_role`). Klien normal dilarang akses.                         |
 
 ---
 
@@ -62,8 +64,13 @@ Berikut adalah riwayat berkas migrasi database terverifikasi yang telah diaplika
 - `20260604094057_rate_limit_db.sql`
 - `20260604100412_rate_limit_row_lock.sql`
 - `20260604104737_rate_limit_atomic_lock.sql`
+- `20260605134100_admin_crm.sql`
+- `20260605154500_meta_capi_attribution.sql`
+- `20260606120000_admin_crm_fix_pipeline.sql`
+- `20260606130000_whatsapp_autoresponder.sql`
 
 ---
+
 
 ## 4. Berkas TypeScript Types yang Dihasilkan (Generated Types)
 

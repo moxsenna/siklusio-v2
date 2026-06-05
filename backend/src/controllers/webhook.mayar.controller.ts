@@ -3,7 +3,9 @@ import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logWarn, logError } from "../logging/redaction";
+import { upsertAdminCrmLead } from "../services/adminCrm";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "../services/metaCapi";
+import { sendWhatsappAutoresponder } from "../services/fonnte";
 
 // POST /api/payment/webhook
 export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
@@ -306,6 +308,25 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
       });
     }
 
+    try {
+      await upsertAdminCrmLead(supabaseAdmin, {
+        userId: authData.user?.id || pending.user_id || null,
+        pendingRegistrationId: pending.id,
+        name: pending.name,
+        email: pending.email,
+        whatsapp: pending.whatsapp,
+        source: "mayar_webhook",
+        referralCode: pending.coupon_code || null,
+        affiliateCode: pending.affiliate_code || null,
+        leadStatus: "paid",
+        paymentStatus: "paid",
+        mayarTransactionId,
+        amount: body.data?.amount ? Number(body.data.amount) : null,
+      });
+    } catch (crmErr) {
+      logError("CRM upsert failed during Mayar webhook processing:", crmErr);
+    }
+
     // Process affiliate conversion from checkout_session
     const affiliateCode = pending.affiliate_code;
     if (affiliateCode) {
@@ -369,6 +390,13 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
         .eq("id", session.id);
     }
 
+    // Fallback: update any pending checkout sessions under the same email to paid
+    await supabaseAdmin
+      .from("checkout_sessions")
+      .update({ status: "paid", paid_at: new Date().toISOString() })
+      .eq("email", email.toLowerCase())
+      .eq("status", "pending");
+
     // Send Meta CAPI Purchase with event_id
     const eventId = `purchase_${mayarTransactionId || (session ? session.id : "missing_tx")}`;
     const userData = {
@@ -419,6 +447,40 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
     // Delete the pending registration record (cleanup) - LAST STEP
     logInfo("--> Deleting pending registration record");
     await supabaseAdmin.from("pending_registrations").delete().eq("id", pending.id);
+
+    const autoresponderPromise = sendWhatsappAutoresponder({
+      c,
+      eventKey: "payment_completed",
+      recipientWhatsapp: session?.whatsapp || pending.whatsapp,
+      recipientName: session?.name || pending.name,
+      idempotencyKey: `wa:payment_completed:${session?.mayar_transaction_id || mayarTransactionId || session?.id || pending.id}`,
+      templateContext: {
+        nama: session?.name || pending.name || "Bunda",
+        email: session?.email || pending.email || "-",
+        no_hp: session?.whatsapp || pending.whatsapp || "-",
+        link_pembayaran: session?.mayar_link || "-",
+        jumlah_pembayaran: `Rp ${Number(session?.final_amount || body.data?.amount || 0).toLocaleString("id-ID")}`,
+        status_pembayaran: "Berhasil",
+        kode_kupon: session?.coupon_code || pending.coupon_code || "-",
+        kode_affiliate: session?.affiliate_code || pending.affiliate_code || "-",
+        link_login: "https://app.siklusio.web.id/auth",
+        tanggal: new Date().toLocaleDateString("id-ID"),
+        transaction_id: session?.mayar_transaction_id || mayarTransactionId || "-",
+      },
+      metadata: {
+        checkout_session_id: session?.id || null,
+        mayar_transaction_id: session?.mayar_transaction_id || mayarTransactionId || null,
+        source: "mayar_webhook",
+      },
+    }).catch((err) => {
+      logError("Webhook Payment completed WhatsApp autoresponder failed:", err);
+    });
+
+    try {
+      c.executionCtx.waitUntil(autoresponderPromise);
+    } catch (_) {
+      // Fallback for environments without Cloudflare execution context
+    }
 
     logInfo("<-- Webhook processed successfully! User created ID:", authData.user?.id);
     return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });

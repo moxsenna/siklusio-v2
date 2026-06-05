@@ -7,6 +7,9 @@ import { createMayarPaymentLink } from "../services/mayar";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "../services/metaCapi";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logError } from "../logging/redaction";
+import { sendWhatsappAutoresponder } from "../services/fonnte";
+
+import { upsertAdminCrmLead } from "../services/adminCrm";
 
 // POST /api/checkout/topup
 export const checkoutTopup = async (c: Context<{ Bindings: Env }>) => {
@@ -229,6 +232,25 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
         .select()
         .single();
 
+      try {
+        await upsertAdminCrmLead(supabaseAdmin, {
+          userId: authData.user?.id || null,
+          name,
+          email: email.toLowerCase(),
+          whatsapp,
+          source: "free_bypass_checkout",
+          referralCode: couponCode ? couponCode.trim().toUpperCase() : null,
+          affiliateCode: validatedAffiliateCode,
+          leadStatus: "paid",
+          paymentStatus: "paid_manual",
+          checkoutUrl: "https://app.siklusio.web.id/auth?status=success_free",
+          mayarTransactionId: null,
+          amount: 0,
+        });
+      } catch (crmErr) {
+        logError("CRM upsert failed during free bypass checkout:", crmErr);
+      }
+
       if (validatedAffiliateCode && session) {
         const { data: aff } = await supabaseAdmin
           .from("affiliates")
@@ -312,6 +334,39 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
         }
       }
 
+      const autoresponderPromise = sendWhatsappAutoresponder({
+        c,
+        eventKey: "payment_completed",
+        recipientWhatsapp: whatsapp,
+        recipientName: name,
+        idempotencyKey: `wa:payment_completed:free_bypass:${session.id}`,
+        templateContext: {
+          nama: name,
+          email: email.toLowerCase(),
+          no_hp: whatsapp,
+          link_pembayaran: "-",
+          jumlah_pembayaran: "Rp 0",
+          status_pembayaran: "Gratis (Kupon 100%)",
+          kode_kupon: couponCode ? couponCode.trim().toUpperCase() : "-",
+          kode_affiliate: validatedAffiliateCode || "-",
+          link_login: "https://app.siklusio.web.id/auth",
+          tanggal: new Date().toLocaleDateString("id-ID"),
+          transaction_id: session.id,
+        },
+        metadata: {
+          checkout_session_id: session.id,
+          source: "free_bypass",
+        },
+      }).catch((err) => {
+        logError("Free Bypass WhatsApp autoresponder failed:", err);
+      });
+
+      try {
+        c.executionCtx.waitUntil(autoresponderPromise);
+      } catch (_) {
+        // Fallback for non-Cloudflare environments
+      }
+
       logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
       return c.json({ paymentUrl: "https://app.siklusio.web.id/auth?status=success_free" });
     }
@@ -333,17 +388,21 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
     const userId = authData.user.id;
 
     logInfo("--> Inserting pending registration...");
-    const { error: insertErr } = await supabaseAdmin.from("pending_registrations").upsert(
-      {
-        email: email.toLowerCase(),
-        user_id: userId,
-        name,
-        whatsapp,
-        coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
-        affiliate_code: validatedAffiliateCode,
-      },
-      { onConflict: "email" },
-    );
+    const { data: pendingRow, error: insertErr } = await supabaseAdmin
+      .from("pending_registrations")
+      .upsert(
+        {
+          email: email.toLowerCase(),
+          user_id: userId,
+          name,
+          whatsapp,
+          coupon_code: couponCode ? couponCode.trim().toUpperCase() : null,
+          affiliate_code: validatedAffiliateCode,
+        },
+        { onConflict: "email" },
+      )
+      .select("id")
+      .maybeSingle();
 
     if (insertErr) {
       logError("DB Insert pending registration error:", insertErr);
@@ -392,6 +451,60 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
       await supabaseAdmin.auth.admin.deleteUser(userId);
       await supabaseAdmin.from("pending_registrations").delete().eq("email", email.toLowerCase());
       return c.json({ error: "Gagal mencatat sesi pembayaran. Silakan coba kembali." }, 500);
+    }
+
+    try {
+      await upsertAdminCrmLead(supabaseAdmin, {
+        userId,
+        pendingRegistrationId: pendingRow?.id || null,
+        name,
+        email: email.toLowerCase(),
+        whatsapp,
+        source: "checkout_register",
+        referralCode: couponCode ? couponCode.trim().toUpperCase() : null,
+        affiliateCode: validatedAffiliateCode,
+        leadStatus: "checkout_started",
+        paymentStatus: "pending_payment",
+        checkoutUrl: paymentUrl,
+        mayarTransactionId: mayarTxId,
+        amount: finalAmount,
+      });
+    } catch (crmErr) {
+      logError("CRM upsert failed during paid checkout registration:", crmErr);
+    }
+
+    const autoresponderPromise = sendWhatsappAutoresponder({
+      c,
+      eventKey: "registration_completed",
+      recipientWhatsapp: whatsapp,
+      recipientName: name,
+      idempotencyKey: `wa:registration_completed:${mayarTxId || email.toLowerCase()}`,
+      templateContext: {
+        nama: name,
+        email: email.toLowerCase(),
+        no_hp: whatsapp,
+        link_pembayaran: paymentUrl,
+        jumlah_pembayaran: `Rp ${finalAmount.toLocaleString("id-ID")}`,
+        status_pembayaran: "Menunggu Pembayaran",
+        kode_kupon: couponCode ? couponCode.trim().toUpperCase() : "-",
+        kode_affiliate: validatedAffiliateCode || "-",
+        link_login: "https://app.siklusio.web.id/auth",
+        tanggal: new Date().toLocaleDateString("id-ID"),
+        transaction_id: mayarTxId || "-",
+      },
+      metadata: {
+        checkout_session_status: "pending",
+        mayar_transaction_id: mayarTxId,
+        email: email.toLowerCase(),
+      },
+    }).catch((err) => {
+      logError("Registration WhatsApp autoresponder failed:", err);
+    });
+
+    try {
+      c.executionCtx.waitUntil(autoresponderPromise);
+    } catch (_) {
+      // Fallback for non-Cloudflare environments
     }
 
     logInfo("<-- Checkout request successful! Payment URL:", paymentUrl);

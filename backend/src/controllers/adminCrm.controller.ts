@@ -3,6 +3,7 @@ import { type Env } from "../env";
 import { requireAdmin } from "../middlewares/auth";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logWarn, logError } from "../logging/redaction";
+import { sendWhatsappAutoresponder } from "../services/fonnte";
 
 type AdminContext = Context<{ Bindings: Env }>;
 
@@ -117,9 +118,14 @@ export const getAdminCrmLeads = async (c: AdminContext) => {
     const admin = await requireAdmin(c);
     if (!admin) return c.json({ error: "Forbidden" }, 403);
 
-    const status = c.req.query("status");
-    const payment = c.req.query("payment");
-    const search = c.req.query("search");
+    const limitRaw = c.req.query("limit");
+    const offsetRaw = c.req.query("offset");
+    const limit = limitRaw ? Math.max(10, Math.min(200, Math.floor(Number(limitRaw)))) : 100;
+    const offset = offsetRaw ? Math.max(0, Math.floor(Number(offsetRaw))) : 0;
+
+    const status = c.req.query("status") || c.req.query("lead_status") || c.req.query("leadStatus");
+    const payment = c.req.query("payment") || c.req.query("payment_status") || c.req.query("paymentStatus");
+    const search = c.req.query("search") || c.req.query("q");
 
     let query = admin.supabaseAdmin
       .from("admin_crm_leads")
@@ -138,16 +144,17 @@ export const getAdminCrmLeads = async (c: AdminContext) => {
           admin_user_id
         )
       `,
+        { count: "exact" },
       )
       .order("created_at", { ascending: false })
-      .limit(200);
+      .range(offset, offset + limit - 1);
 
     if (status && leadStatuses.has(status)) {
-      query = query.eq("lead_status", status);
+      query = query.eq("lead_status", status as any);
     }
 
     if (payment && paymentStatuses.has(payment)) {
-      query = query.eq("payment_status", payment);
+      query = query.eq("payment_status", payment as any);
     }
 
     if (search && search.trim()) {
@@ -157,10 +164,28 @@ export const getAdminCrmLeads = async (c: AdminContext) => {
       );
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
     if (error) throw error;
 
-    return c.json({ leads: data || [] });
+    // Fetch stats for the summary block
+    const { data: statsRows, error: statsErr } = await admin.supabaseAdmin
+      .from("admin_crm_leads")
+      .select("payment_status, amount");
+    if (statsErr) throw statsErr;
+
+    const stats = (statsRows || []).reduce(
+      (acc: any, row: any) => {
+        acc.total += 1;
+        acc[row.payment_status] = (acc[row.payment_status] || 0) + 1;
+        if (row.payment_status === "paid" || row.payment_status === "paid_manual") {
+          acc.revenue += Number(row.amount || 0);
+        }
+        return acc;
+      },
+      { total: 0, revenue: 0 },
+    );
+
+    return c.json({ leads: data || [], count: count || 0, limit, offset, stats });
   } catch (error: any) {
     logError("Error in getAdminCrmLeads:", error);
     return c.json({ error: error.message || "Gagal memuat lead CRM" }, 500);
@@ -238,6 +263,9 @@ export const updateAdminCrmLead = async (c: AdminContext) => {
     }
     if (body.lead_status !== undefined && leadStatuses.has(body.lead_status)) {
       updates.lead_status = body.lead_status;
+    }
+    if (body.payment_status !== undefined && paymentStatuses.has(body.payment_status)) {
+      updates.payment_status = body.payment_status;
     }
     if (body.next_followup_at !== undefined) {
       updates.next_followup_at = cleanString(body.next_followup_at, 64);
@@ -319,7 +347,7 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
     const leadId = c.req.param("id");
     const body = await c.req.json();
 
-    const newStatus = cleanString(body.payment_status, 40);
+    const newStatus = cleanString(body.payment_status || body.new_payment_status, 40);
     const reason = cleanString(body.reason, 1000);
     const reference = cleanString(body.reference, 200);
     const amount = body.amount == null ? null : Number(body.amount);
@@ -426,7 +454,7 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
         lead_id: leadId,
         admin_user_id: admin.user.id,
         old_payment_status: oldStatus,
-        new_payment_status: newStatus,
+        new_payment_status: newStatus as any,
         reason,
         reference: finalReference,
         amount,
@@ -492,11 +520,12 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
           if (currentAccessStatus === "active") {
             activationResult.warnings.push("User auth sudah dalam keadaan aktif.");
           } else {
-            // Update auth status
+            // Update auth status preserving existing app_metadata properties
             const { error: activeErr } = await supabaseAdmin.auth.admin.updateUserById(
               authUser.id,
               {
                 app_metadata: {
+                  ...(authUser.app_metadata || {}),
                   siklusio_access_status: "active",
                 },
               },
@@ -657,6 +686,44 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
       updatedLead.user_id = finalActivatedUserId;
     }
 
+    if (newStatus === "paid" || newStatus === "paid_manual") {
+      const autoresponderPromise = sendWhatsappAutoresponder({
+        c,
+        eventKey: "payment_completed",
+        recipientWhatsapp: lead.whatsapp,
+        recipientName: lead.name,
+        idempotencyKey: `wa:payment_completed:manual:${leadId}:${finalReference || override.id}`,
+        templateContext: {
+          nama: lead.name || "Bunda",
+          email: lead.email || "-",
+          no_hp: lead.whatsapp || "-",
+          link_pembayaran: "-",
+          jumlah_pembayaran: amount
+            ? `Rp ${Number(amount).toLocaleString("id-ID")}`
+            : "-",
+          status_pembayaran: "Berhasil Manual",
+          kode_kupon: "-",
+          kode_affiliate: lead.affiliate_code || "-",
+          link_login: "https://app.siklusio.web.id/auth",
+          tanggal: new Date().toLocaleDateString("id-ID"),
+          transaction_id: finalReference || override.id,
+        },
+        metadata: {
+          source: "admin_manual_payment_override",
+          lead_id: leadId,
+          override_id: override.id,
+        },
+      }).catch((err) => {
+        logError("CRM Manual Payment WhatsApp autoresponder failed:", err);
+      });
+
+      try {
+        c.executionCtx.waitUntil(autoresponderPromise);
+      } catch (_) {
+        // Fallback for non-Cloudflare environments (e.g. testing)
+      }
+    }
+
     // Write audit log
     await insertAuditLog(
       supabaseAdmin,
@@ -681,5 +748,38 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
   } catch (error: any) {
     logError("Error in overrideAdminCrmPaymentStatus:", error);
     return c.json({ error: error.message || "Gagal mengganti status pembayaran manual" }, 500);
+  }
+};
+
+export const markAdminCrmLeadContacted = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const now = new Date().toISOString();
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("admin_crm_leads")
+      .update({ lead_status: "contacted", last_contacted_at: now })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await insertAuditLog(
+      admin.supabaseAdmin,
+      admin.user.id,
+      "crm_lead_contacted",
+      "admin_crm_leads",
+      id,
+      { at: now },
+    );
+
+    return c.json({ lead: data });
+  } catch (error: any) {
+    logError("Error in markAdminCrmLeadContacted:", error);
+    return c.json({ error: error.message || "Gagal menandai dihubungi" }, 500);
   }
 };

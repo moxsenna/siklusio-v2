@@ -111,6 +111,23 @@ Gunakan perintah ini untuk memantau error dari OpenRouter API, callback Mayar, d
 
 ---
 
+## 📈 6. Integrasi Meta Pixel & Conversions API (CAPI)
+
+Untuk tracking konversi pendaftaran premium secara server-to-server, pastikan variabel berikut dikonfigurasi di Cloudflare Worker secrets:
+
+- `META_PIXEL_ID`: ID Meta Pixel untuk mencatat konversi.
+- `META_CAPI_ACCESS_TOKEN`: Token akses Conversions API (CAPI) yang di-generate dari Meta Events Manager.
+- `META_GRAPH_API_VERSION`: Versi API Graph Meta yang digunakan (default: `v18.0`, disarankan `v19.0` atau yang terbaru).
+- `META_TEST_EVENT_CODE`: Kode event uji coba dari Meta Events Manager (untuk kebutuhan pengujian event CAPI).
+- `META_TEST_MODE_SECRET`: Token rahasia internal untuk memvalidasi mode uji coba Meta.
+
+Gunakan perintah wrangler berikut untuk memasukkan secret di Cloudflare:
+```bash
+npx wrangler secret put META_CAPI_ACCESS_TOKEN
+```
+
+---
+
 ## 🚫 Peringatan Penting AI Agent (AI Agent Warning)
 
 > [!CAUTION]

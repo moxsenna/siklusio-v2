@@ -19,20 +19,28 @@ export async function hashData(val: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function sendMetaCapiEvent(
+export type MetaCapiResult = {
+  ok: boolean;
+  skipped: boolean;
+  status?: number;
+  error?: string;
+  response?: unknown;
+};
+
+export async function sendMetaCapiEvent(
   c: Context<{ Bindings: Env }>,
   eventName: string,
   eventId: string,
   userData: any,
   customData: any,
   testEventCode?: string,
-) {
+): Promise<MetaCapiResult> {
   const env = c.env;
   if (!env.META_PIXEL_ID || !env.META_CAPI_ACCESS_TOKEN) {
     console.warn(
       `--> sendMetaCapiEvent skipped: META_PIXEL_ID or META_CAPI_ACCESS_TOKEN missing for event ${eventName}`,
     );
-    return;
+    return { ok: false, skipped: true };
   }
 
   const apiVersion = env.META_GRAPH_API_VERSION || "v18.0";
@@ -79,29 +87,39 @@ export function sendMetaCapiEvent(
     `--> CAPI Event Sent: ${eventName} | Event ID: ${eventId} | test_event_code_present: ${!!finalTestCode} | test_event_code_source: ${testCodeSource}`,
   );
 
-  const performFetch = () =>
-    fetch(url, {
+  try {
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const text = await res.text();
-          console.error(`--> Meta CAPI Error [${eventName}]: ${res.status} - Redacted Payload`);
-        } else {
-          console.log(`--> Meta CAPI Success [${eventName}]: ${eventId}`);
-        }
-      })
-      .catch((err) => {
-        console.error(`--> Meta CAPI Fetch Error [${eventName}]:`, err.message);
-      });
+    });
 
-  if (c.executionCtx) {
-    c.executionCtx.waitUntil(performFetch());
-  } else {
-    performFetch();
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`--> Meta CAPI Error [${eventName}] (Event ID: ${eventId}): status ${res.status}`);
+      let parsedResponse: any = null;
+      try {
+        parsedResponse = JSON.parse(text);
+      } catch {
+        parsedResponse = text;
+      }
+      return { ok: false, skipped: false, status: res.status, response: parsedResponse };
+    } else {
+      console.log(`--> Meta CAPI Success [${eventName}]: ${eventId}`);
+      const text = await res.text();
+      let parsedResponse: any = null;
+      try {
+        parsedResponse = JSON.parse(text);
+      } catch {
+        parsedResponse = text;
+      }
+      return { ok: true, skipped: false, status: res.status, response: parsedResponse };
+    }
+  } catch (err: any) {
+    console.error(`--> Meta CAPI Fetch Error [${eventName}] (Event ID: ${eventId}):`, err.message);
+    return { ok: false, skipped: false, error: err.message };
   }
 }
+

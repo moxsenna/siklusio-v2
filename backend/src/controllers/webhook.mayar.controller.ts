@@ -3,6 +3,7 @@ import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logWarn, logError } from "../logging/redaction";
+import { hashData, formatE164Phone, sendMetaCapiEvent } from "../services/metaCapi";
 
 // POST /api/payment/webhook
 export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
@@ -89,6 +90,7 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
     }
 
     const supabaseAdmin = getSupabaseAdmin(c);
+    let session: any = null;
 
     // Idempotency & Top-Up check:
     if (mayarTransactionId) {
@@ -134,7 +136,119 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
         return c.json({ status: "ok", message: "Topup successful", balance: balanceAfter }, 200);
       }
 
-      // 2. Check if this transaction was already processed as an affiliate conversion
+      // 4. Find checkout session with all tracking fields selected
+      if (mayarTransactionId) {
+        const { data: s } = await supabaseAdmin
+          .from("checkout_sessions")
+          .select(`
+            id,
+            email,
+            whatsapp,
+            final_amount,
+            mayar_transaction_id,
+            hashed_email,
+            hashed_phone,
+            fbp,
+            fbc,
+            client_ip_address,
+            client_user_agent,
+            meta_test_event_code,
+            purchase_capi_sent_at,
+            purchase_capi_event_id,
+            status
+          `)
+          .eq("mayar_transaction_id", mayarTransactionId)
+          .maybeSingle();
+        session = s;
+      }
+
+      if (!session && email) {
+        logInfo(`--> Checkout session not found by transaction ID ${mayarTransactionId}. Falling back to email...`);
+        const { data: s } = await supabaseAdmin
+          .from("checkout_sessions")
+          .select(`
+            id,
+            email,
+            whatsapp,
+            final_amount,
+            mayar_transaction_id,
+            hashed_email,
+            hashed_phone,
+            fbp,
+            fbc,
+            client_ip_address,
+            client_user_agent,
+            meta_test_event_code,
+            purchase_capi_sent_at,
+            purchase_capi_event_id,
+            status
+          `)
+          .eq("email", email.toLowerCase())
+          .eq("status", "pending")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        session = s;
+      }
+
+      // 6. Check if session already paid
+      if (session && session.status === "paid") {
+        if (session.purchase_capi_sent_at) {
+          logInfo(`--> Webhook idempotency: checkout_session ${session.id} already paid and CAPI sent, skipping`);
+          return c.json({ status: "ok", message: "Transaction already processed" }, 200);
+        }
+
+        // Retry CAPI only (recovery flow)
+        logInfo(`--> Webhook recovery: checkout_session ${session.id} is paid but CAPI not sent yet. Retrying CAPI...`);
+        const eventId = `purchase_${mayarTransactionId || session.mayar_transaction_id || session.id}`;
+        const userData = {
+          em: session.hashed_email ? [session.hashed_email] : undefined,
+          ph: session.hashed_phone ? [session.hashed_phone] : undefined,
+          fbp: session.fbp || undefined,
+          fbc: session.fbc || undefined,
+          client_ip_address: session.client_ip_address || undefined,
+          client_user_agent: session.client_user_agent || undefined,
+        };
+        const customData = {
+          currency: "IDR",
+          value: Number(session.final_amount),
+          content_name: "Siklusio Premium Lifetime",
+          content_type: "product",
+          content_ids: ["siklusio_premium_lifetime"],
+          num_items: 1,
+          order_id: mayarTransactionId || session.mayar_transaction_id,
+        };
+
+        let capiSuccess = false;
+        if (c.env.META_PIXEL_ID && c.env.META_CAPI_ACCESS_TOKEN) {
+          const res = await sendMetaCapiEvent(
+            c,
+            "Purchase",
+            eventId,
+            userData,
+            customData,
+            session.meta_test_event_code
+          );
+          capiSuccess = res.ok;
+        } else {
+          logWarn("--> Meta env variables missing. Skipping CAPI retry.");
+          capiSuccess = true;
+        }
+
+        if (capiSuccess) {
+          await supabaseAdmin
+            .from("checkout_sessions")
+            .update({
+              purchase_capi_sent_at: new Date().toISOString(),
+              purchase_capi_event_id: eventId,
+            })
+            .eq("id", session.id);
+        }
+
+        return c.json({ status: "ok", message: "CAPI retry processed" }, 200);
+      }
+
+      // Check if this transaction was already processed as an affiliate conversion
       const { data: existingConversion } = await supabaseAdmin
         .from("affiliate_conversions")
         .select("id")
@@ -183,19 +297,11 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
       return c.json({ error: "Auth user activation failed: " + signupErr.message }, 500);
     }
 
-    const { data: premiumSession } = await supabaseAdmin
-      .from("checkout_sessions")
-      .select("id")
-      .eq("email", email.toLowerCase())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
     if (authData.user?.id) {
       await grantPremiumInitialAiCredits({
         supabaseAdmin,
         userId: authData.user.id,
-        referenceId: premiumSession?.id || null,
+        referenceId: session?.id || null,
       });
     }
 
@@ -203,16 +309,6 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
     const affiliateCode = pending.affiliate_code;
     if (affiliateCode) {
       logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
-
-      const { data: session } = await supabaseAdmin
-        .from("checkout_sessions")
-        .select("*")
-        .eq("email", email.toLowerCase())
-        .eq("affiliate_code", affiliateCode)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
 
       const { data: affiliate } = await supabaseAdmin
         .from("affiliates")
@@ -258,16 +354,68 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
           logInfo(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
         }
       }
-
-      if (session) {
-        await supabaseAdmin
-          .from("checkout_sessions")
-          .update({ status: "paid", paid_at: new Date().toISOString() })
-          .eq("id", session.id);
-      }
     }
 
-    // Delete the pending registration record (cleanup)
+    // Mark checkout_session status paid + paid_at
+    if (session) {
+      await supabaseAdmin
+        .from("checkout_sessions")
+        .update({
+          status: "paid",
+          paid_at: new Date().toISOString(),
+          mayar_transaction_id: session.mayar_transaction_id || mayarTransactionId || null,
+        })
+        .eq("id", session.id);
+    }
+
+    // Send Meta CAPI Purchase with event_id
+    const eventId = `purchase_${mayarTransactionId || (session ? session.id : "missing_tx")}`;
+    const userData = {
+      em: session?.hashed_email ? [session.hashed_email] : [await hashData(email)],
+      ph: session?.hashed_phone ? [session.hashed_phone] : (pending.whatsapp ? [await hashData(formatE164Phone(pending.whatsapp))] : undefined),
+      fbp: session?.fbp || undefined,
+      fbc: session?.fbc || undefined,
+      client_ip_address: session?.client_ip_address || undefined,
+      client_user_agent: session?.client_user_agent || undefined,
+    };
+    const customData = {
+      currency: "IDR",
+      value: Number(session?.final_amount) || Number(body.data?.amount) || 37000,
+      content_name: "Siklusio Premium Lifetime",
+      content_type: "product",
+      content_ids: ["siklusio_premium_lifetime"],
+      num_items: 1,
+      order_id: mayarTransactionId || (session ? session.id : undefined),
+    };
+
+    let capiSuccess = false;
+    if (c.env.META_PIXEL_ID && c.env.META_CAPI_ACCESS_TOKEN) {
+      const res = await sendMetaCapiEvent(
+        c,
+        "Purchase",
+        eventId,
+        userData,
+        customData,
+        session?.meta_test_event_code || undefined
+      );
+      capiSuccess = res.ok;
+    } else {
+      logWarn("--> Meta env variables missing. Skipping CAPI but marking done.");
+      capiSuccess = true;
+    }
+
+    // If CAPI success, update purchase_capi_sent_at + purchase_capi_event_id
+    if (capiSuccess && session) {
+      await supabaseAdmin
+        .from("checkout_sessions")
+        .update({
+          purchase_capi_sent_at: new Date().toISOString(),
+          purchase_capi_event_id: eventId,
+        })
+        .eq("id", session.id);
+    }
+
+    // Delete the pending registration record (cleanup) - LAST STEP
     logInfo("--> Deleting pending registration record");
     await supabaseAdmin.from("pending_registrations").delete().eq("id", pending.id);
 

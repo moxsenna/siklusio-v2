@@ -4,7 +4,7 @@ import { requireUser } from "../middlewares/auth";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { resolveTopupPackage } from "../payments/topupPackages";
 import { createMayarPaymentLink } from "../services/mayar";
-import { hashData, formatE164Phone } from "../services/metaCapi";
+import { hashData, formatE164Phone, sendMetaCapiEvent } from "../services/metaCapi";
 import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logError } from "../logging/redaction";
 
@@ -194,10 +194,8 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
       client_user_agent: clientUa || null,
       hashed_email: hashedEmail || null,
       hashed_phone: hashedPhone || null,
+      meta_test_event_code: validatedTestEventCode || null,
     };
-    if (validatedTestEventCode) {
-      metaAttribution.test_event_code = validatedTestEventCode;
-    }
 
     if (finalAmount === 0) {
       logInfo("--> 100% Free Coupon applied! Bypassing Mayar...");
@@ -226,6 +224,7 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
           final_amount: 0,
           status: "free_bypass",
           paid_at: new Date().toISOString(),
+          ...metaAttribution,
         })
         .select()
         .single();
@@ -265,6 +264,52 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
           userId: authData.user.id,
           referenceId: session?.id || null,
         });
+      }
+
+      if (session) {
+        const eventId = `purchase_free_${session.id}`;
+        const userData = {
+          em: hashedEmail ? [hashedEmail] : undefined,
+          ph: hashedPhone ? [hashedPhone] : undefined,
+          fbp: fbp || undefined,
+          fbc: fbc || undefined,
+          client_ip_address: clientIp || undefined,
+          client_user_agent: clientUa || undefined,
+        };
+        const customData = {
+          currency: "IDR",
+          value: 0,
+          content_name: "Siklusio Premium Lifetime",
+          content_type: "product",
+          content_ids: ["siklusio_premium_lifetime"],
+          num_items: 1,
+          order_id: session.id,
+        };
+
+        let capiSuccess = false;
+        if (c.env.META_PIXEL_ID && c.env.META_CAPI_ACCESS_TOKEN) {
+          const res = await sendMetaCapiEvent(
+            c,
+            "Purchase",
+            eventId,
+            userData,
+            customData,
+            validatedTestEventCode
+          );
+          capiSuccess = res.ok;
+        } else {
+          capiSuccess = true;
+        }
+
+        if (capiSuccess) {
+          await supabaseAdmin
+            .from("checkout_sessions")
+            .update({
+              purchase_capi_sent_at: new Date().toISOString(),
+              purchase_capi_event_id: eventId,
+            })
+            .eq("id", session.id);
+        }
       }
 
       logInfo("<-- Free Checkout successful! User ID:", authData.user?.id);
@@ -339,6 +384,7 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
       mayar_link: paymentUrl,
       mayar_transaction_id: mayarTxId,
       status: "pending",
+      ...metaAttribution,
     });
 
     if (sessionErr) {

@@ -1,0 +1,685 @@
+import { Context } from "hono";
+import { type Env } from "../env";
+import { requireAdmin } from "../middlewares/auth";
+import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
+import { logInfo, logWarn, logError } from "../logging/redaction";
+
+type AdminContext = Context<{ Bindings: Env }>;
+
+const leadStatuses = new Set([
+  "new_lead",
+  "contacted",
+  "interested",
+  "checkout_started",
+  "pending_payment",
+  "paid",
+  "onboarded",
+  "no_response",
+  "not_interested",
+]);
+
+const paymentStatuses = new Set([
+  "new",
+  "checkout_started",
+  "pending_payment",
+  "paid",
+  "paid_manual",
+  "failed",
+  "cancelled",
+  "refunded",
+]);
+
+function cleanString(value: unknown, max = 500): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, max);
+}
+
+function cleanEmail(value: unknown): string | null {
+  const email = cleanString(value, 254);
+  return email ? email.toLowerCase() : null;
+}
+
+function cleanWhatsapp(value: unknown): string | null {
+  const text = cleanString(value, 32);
+  if (!text) return null;
+  return text.replace(/[^\d+]/g, "");
+}
+
+async function insertAuditLog(
+  supabaseAdmin: any,
+  actorUserId: string,
+  action: string,
+  targetType: string,
+  targetId: string | null,
+  metadata: Record<string, unknown> = {},
+) {
+  try {
+    await supabaseAdmin.from("admin_crm_audit_logs").insert({
+      actor_user_id: actorUserId,
+      action,
+      target_type: targetType,
+      target_id: targetId,
+      metadata,
+    });
+  } catch (err) {
+    logError("Failed to write audit log:", err);
+  }
+}
+
+export const getAdminCrmSummary = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const { supabaseAdmin } = admin;
+
+    const { data: leads, error } = await supabaseAdmin
+      .from("admin_crm_leads")
+      .select("id, lead_status, payment_status, amount, created_at, next_followup_at")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    const now = new Date();
+
+    const summary = {
+      totalLeads: leads?.length || 0,
+      pendingPayment:
+        leads?.filter((lead: any) => lead.payment_status === "pending_payment").length || 0,
+      paid:
+        leads?.filter(
+          (lead: any) => lead.payment_status === "paid" || lead.payment_status === "paid_manual",
+        ).length || 0,
+      needFollowUp:
+        leads?.filter((lead: any) => {
+          if (!lead.next_followup_at) return false;
+          return new Date(lead.next_followup_at) <= now;
+        }).length || 0,
+      revenue:
+        leads
+          ?.filter(
+            (lead: any) => lead.payment_status === "paid" || lead.payment_status === "paid_manual",
+          )
+          .reduce((sum: number, lead: any) => sum + Number(lead.amount || 0), 0) || 0,
+    };
+
+    return c.json({ summary });
+  } catch (error: any) {
+    logError("Error in getAdminCrmSummary:", error);
+    return c.json({ error: error.message || "Gagal memuat ringkasan CRM" }, 500);
+  }
+};
+
+export const getAdminCrmLeads = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const status = c.req.query("status");
+    const payment = c.req.query("payment");
+    const search = c.req.query("search");
+
+    let query = admin.supabaseAdmin
+      .from("admin_crm_leads")
+      .select(
+        `
+        *,
+        notes:admin_crm_notes(id, note, created_at, admin_user_id),
+        payment_overrides:admin_crm_payment_overrides(
+          id,
+          old_payment_status,
+          new_payment_status,
+          reason,
+          reference,
+          amount,
+          created_at,
+          admin_user_id
+        )
+      `,
+      )
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (status && leadStatuses.has(status)) {
+      query = query.eq("lead_status", status);
+    }
+
+    if (payment && paymentStatuses.has(payment)) {
+      query = query.eq("payment_status", payment);
+    }
+
+    if (search && search.trim()) {
+      const value = `%${search.trim()}%`;
+      query = query.or(
+        `name.ilike.${value},email.ilike.${value},whatsapp.ilike.${value},referral_code.ilike.${value},affiliate_code.ilike.${value}`,
+      );
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return c.json({ leads: data || [] });
+  } catch (error: any) {
+    logError("Error in getAdminCrmLeads:", error);
+    return c.json({ error: error.message || "Gagal memuat lead CRM" }, 500);
+  }
+};
+
+export const createAdminCrmLead = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const body = await c.req.json();
+
+    const payload = {
+      name: cleanString(body.name, 120),
+      email: cleanEmail(body.email),
+      whatsapp: cleanWhatsapp(body.whatsapp),
+      source: cleanString(body.source, 80) || "manual_admin",
+      referral_code: cleanString(body.referral_code, 80)?.toUpperCase() || null,
+      affiliate_code: cleanString(body.affiliate_code, 80)?.toUpperCase() || null,
+      lead_status: leadStatuses.has(body.lead_status) ? body.lead_status : "new_lead",
+      payment_status: paymentStatuses.has(body.payment_status) ? body.payment_status : "new",
+      amount: body.amount == null ? null : Number(body.amount),
+      currency: cleanString(body.currency, 8) || "IDR",
+      next_followup_at: cleanString(body.next_followup_at, 64),
+    };
+
+    if (!payload.email && !payload.whatsapp) {
+      return c.json({ error: "Minimal isi email atau WhatsApp lead." }, 400);
+    }
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("admin_crm_leads")
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await insertAuditLog(
+      admin.supabaseAdmin,
+      admin.user.id,
+      "crm_lead_created",
+      "admin_crm_leads",
+      data.id,
+      { email: payload.email, source: payload.source },
+    );
+
+    return c.json({ lead: data });
+  } catch (error: any) {
+    logError("Error in createAdminCrmLead:", error);
+    return c.json({ error: error.message || "Gagal membuat lead CRM" }, 500);
+  }
+};
+
+export const updateAdminCrmLead = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const id = c.req.param("id");
+    const body = await c.req.json();
+
+    const updates: Record<string, unknown> = {};
+
+    if (body.name !== undefined) updates.name = cleanString(body.name, 120);
+    if (body.email !== undefined) updates.email = cleanEmail(body.email);
+    if (body.whatsapp !== undefined) updates.whatsapp = cleanWhatsapp(body.whatsapp);
+    if (body.source !== undefined) updates.source = cleanString(body.source, 80);
+    if (body.referral_code !== undefined) {
+      updates.referral_code = cleanString(body.referral_code, 80)?.toUpperCase() || null;
+    }
+    if (body.affiliate_code !== undefined) {
+      updates.affiliate_code = cleanString(body.affiliate_code, 80)?.toUpperCase() || null;
+    }
+    if (body.lead_status !== undefined && leadStatuses.has(body.lead_status)) {
+      updates.lead_status = body.lead_status;
+    }
+    if (body.next_followup_at !== undefined) {
+      updates.next_followup_at = cleanString(body.next_followup_at, 64);
+    }
+    if (body.last_contacted_at !== undefined) {
+      updates.last_contacted_at = cleanString(body.last_contacted_at, 64);
+    }
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("admin_crm_leads")
+      .update(updates as any)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await insertAuditLog(
+      admin.supabaseAdmin,
+      admin.user.id,
+      "crm_lead_updated",
+      "admin_crm_leads",
+      id,
+      { fields: Object.keys(updates) },
+    );
+
+    return c.json({ lead: data });
+  } catch (error: any) {
+    logError("Error in updateAdminCrmLead:", error);
+    return c.json({ error: error.message || "Gagal update lead CRM" }, 500);
+  }
+};
+
+export const createAdminCrmNote = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const leadId = c.req.param("id");
+    const body = await c.req.json();
+    const note = cleanString(body.note, 2000);
+
+    if (!note) return c.json({ error: "Catatan tidak boleh kosong." }, 400);
+
+    const { data, error } = await admin.supabaseAdmin
+      .from("admin_crm_notes")
+      .insert({
+        lead_id: leadId,
+        admin_user_id: admin.user.id,
+        note,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await insertAuditLog(
+      admin.supabaseAdmin,
+      admin.user.id,
+      "crm_note_created",
+      "admin_crm_leads",
+      leadId,
+      { note_id: data.id },
+    );
+
+    return c.json({ note: data });
+  } catch (error: any) {
+    logError("Error in createAdminCrmNote:", error);
+    return c.json({ error: error.message || "Gagal membuat catatan CRM" }, 500);
+  }
+};
+
+export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
+  try {
+    const admin = await requireAdmin(c);
+    if (!admin) return c.json({ error: "Forbidden" }, 403);
+
+    const { supabaseAdmin } = admin;
+    const leadId = c.req.param("id");
+    const body = await c.req.json();
+
+    const newStatus = cleanString(body.payment_status, 40);
+    const reason = cleanString(body.reason, 1000);
+    const reference = cleanString(body.reference, 200);
+    const amount = body.amount == null ? null : Number(body.amount);
+    const shouldActivateUser = Boolean(body.should_activate_user);
+
+    if (!newStatus || !paymentStatuses.has(newStatus)) {
+      return c.json({ error: "Status pembayaran tidak valid." }, 400);
+    }
+
+    if (!reason || reason.length < 8) {
+      return c.json({ error: "Alasan wajib diisi minimal 8 karakter." }, 400);
+    }
+
+    // Get lead data
+    const { data: lead, error: leadErr } = await supabaseAdmin
+      .from("admin_crm_leads")
+      .select("*")
+      .eq("id", leadId)
+      .single();
+
+    if (leadErr) throw leadErr;
+    if (!lead) return c.json({ error: "Lead tidak ditemukan." }, 404);
+
+    const email = cleanEmail(lead.email);
+
+    // If trying to activate with paid/paid_manual status, enforce email and reference safety
+    if (shouldActivateUser && (newStatus === "paid" || newStatus === "paid_manual")) {
+      if (!email) {
+        return c.json({ error: "Lead harus memiliki alamat email untuk diaktifkan." }, 400);
+      }
+      // Simple format check
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return c.json({ error: "Alamat email lead tidak valid." }, 400);
+      }
+    }
+
+    // Generate idempotency key
+    // manual_payment:{lead_id}:{payment_status}:{reference}
+    // If reference is empty, we only allow it if pending registration exists.
+    // If reference is empty and we don't have pending registration, we block it.
+    let finalReference = reference;
+    const { data: pending } = email
+      ? await supabaseAdmin
+          .from("pending_registrations")
+          .select("*")
+          .eq("email", email)
+          .maybeSingle()
+      : { data: null };
+
+    if (shouldActivateUser && (newStatus === "paid" || newStatus === "paid_manual")) {
+      if (!pending && !finalReference) {
+        return c.json(
+          {
+            error:
+              "Bukti pembayaran (reference) wajib diisi untuk aktivasi tanpa pending registration.",
+          },
+          400,
+        );
+      }
+    }
+
+    const idempotencyKey = `manual_payment:${leadId}:${newStatus}:${finalReference || "no-ref-" + Math.random().toString(36).substring(2, 10)}`;
+
+    // Check for existing override with the same idempotency key
+    const { data: existingOverride } = await supabaseAdmin
+      .from("admin_crm_payment_overrides")
+      .select("*")
+      .eq("idempotency_key", idempotencyKey)
+      .maybeSingle();
+
+    if (existingOverride) {
+      logInfo(`Idempotent payment override matched for key: ${idempotencyKey}`);
+      return c.json({
+        lead,
+        override: existingOverride,
+        activationResult: {
+          paymentOverrideCreated: false,
+          userActivated: false,
+          creditsGranted: false,
+          affiliateConversionCreated: false,
+          checkoutSessionUpdated: false,
+          pendingRegistrationCleaned: false,
+          warnings: ["Permintaan ini sudah diproses sebelumnya (idempotency key cocok)."],
+        },
+      });
+    }
+
+    // Prepare response result checklist
+    const activationResult = {
+      paymentOverrideCreated: false,
+      userActivated: false,
+      creditsGranted: false,
+      affiliateConversionCreated: false,
+      checkoutSessionUpdated: false,
+      pendingRegistrationCleaned: false,
+      warnings: [] as string[],
+    };
+
+    // Insert override record
+    const oldStatus = lead.payment_status || null;
+    const { data: override, error: overrideErr } = await supabaseAdmin
+      .from("admin_crm_payment_overrides")
+      .insert({
+        lead_id: leadId,
+        admin_user_id: admin.user.id,
+        old_payment_status: oldStatus,
+        new_payment_status: newStatus,
+        reason,
+        reference: finalReference,
+        amount,
+        should_activate_user: shouldActivateUser,
+        activated_user_id: null, // we will fill this if activated
+        idempotency_key: idempotencyKey,
+      })
+      .select()
+      .single();
+
+    if (overrideErr) throw overrideErr;
+    activationResult.paymentOverrideCreated = true;
+
+    // Update lead payment status
+    const leadUpdates: Record<string, unknown> = {
+      payment_status: newStatus,
+      manual_payment_reference: finalReference,
+    };
+
+    if (newStatus === "paid" || newStatus === "paid_manual") {
+      leadUpdates.lead_status = "paid";
+      if (amount != null && Number.isFinite(amount)) {
+        leadUpdates.amount = amount;
+      }
+    }
+
+    const { data: updatedLead, error: updateErr } = await supabaseAdmin
+      .from("admin_crm_leads")
+      .update(leadUpdates as any)
+      .eq("id", leadId)
+      .select()
+      .single();
+
+    if (updateErr) throw updateErr;
+
+    // Handle user activation if requested
+    let finalActivatedUserId: string | null = null;
+
+    if (shouldActivateUser && (newStatus === "paid" || newStatus === "paid_manual")) {
+      try {
+        let authUser: any = null;
+        let authUserId = pending?.user_id || lead.user_id || null;
+
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (authUserId && uuidRegex.test(authUserId)) {
+          const { data: authData } = await supabaseAdmin.auth.admin.getUserById(authUserId);
+          authUser = authData?.user;
+        }
+
+        if (!authUser && email) {
+          const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
+          if (listErr) {
+            logError("Failed to list users in override:", listErr);
+          }
+          authUser = userList?.users.find((u: any) => u.email?.toLowerCase() === email);
+        }
+
+        if (authUser) {
+          finalActivatedUserId = authUser.id;
+
+          // Check if already active
+          const currentAccessStatus = authUser.app_metadata?.siklusio_access_status;
+          if (currentAccessStatus === "active") {
+            activationResult.warnings.push("User auth sudah dalam keadaan aktif.");
+          } else {
+            // Update auth status
+            const { error: activeErr } = await supabaseAdmin.auth.admin.updateUserById(
+              authUser.id,
+              {
+                app_metadata: {
+                  siklusio_access_status: "active",
+                },
+              },
+            );
+            if (activeErr) throw activeErr;
+            activationResult.userActivated = true;
+          }
+
+          // Update override table with activated user id
+          await supabaseAdmin
+            .from("admin_crm_payment_overrides")
+            .update({ activated_user_id: authUser.id })
+            .eq("id", override.id);
+
+          // Find checkout session for reference ID in credit ledger
+          const { data: premiumSession } = await supabaseAdmin
+            .from("checkout_sessions")
+            .select("id")
+            .eq("email", email)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          // Grant premium bonus AI credits (idempotent helper)
+          const creditsResult = await grantPremiumInitialAiCredits({
+            supabaseAdmin,
+            userId: authUser.id,
+            referenceId: premiumSession?.id || null,
+          });
+
+          if (creditsResult !== null) {
+            activationResult.creditsGranted = true;
+          } else {
+            activationResult.warnings.push(
+              "Kredit premium awal (500) sudah pernah diberikan sebelumnya.",
+            );
+          }
+
+          // Process affiliate conversion from checkout session / pending registration
+          const affiliateCode = pending?.affiliate_code || lead.affiliate_code;
+          if (affiliateCode) {
+            const normalizedCode = affiliateCode.trim().toUpperCase();
+            const { data: session } = await supabaseAdmin
+              .from("checkout_sessions")
+              .select("*")
+              .eq("email", email)
+              .eq("affiliate_code", normalizedCode)
+              .eq("status", "pending")
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            const { data: affiliate } = await supabaseAdmin
+              .from("affiliates")
+              .select("id, commission_type, commission_value, allow_zero_order_commission")
+              .eq("code", normalizedCode)
+              .eq("is_active", true)
+              .maybeSingle();
+
+            if (affiliate) {
+              const amountPaid = session?.final_amount || amount || 0;
+
+              let commissionAmount = 0;
+              if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
+                commissionAmount = 0;
+              } else if (affiliate.commission_type === "percentage") {
+                commissionAmount = Math.floor(
+                  Number(amountPaid) * (Number(affiliate.commission_value) / 100),
+                );
+              } else {
+                commissionAmount = Number(affiliate.commission_value);
+              }
+
+              // Check if affiliate conversion already exists for this lead email and affiliate
+              const { data: existingConv } = await supabaseAdmin
+                .from("affiliate_conversions")
+                .select("id")
+                .eq("affiliate_id", affiliate.id)
+                .eq("buyer_email", email)
+                .maybeSingle();
+
+              if (existingConv) {
+                activationResult.warnings.push(
+                  "Konversi afiliasi untuk transaksi ini sudah tercatat.",
+                );
+              } else {
+                const { error: convErr } = await supabaseAdmin
+                  .from("affiliate_conversions")
+                  .insert({
+                    affiliate_id: affiliate.id,
+                    checkout_session_id: session?.id || null,
+                    buyer_name: pending?.name || lead.name || "User",
+                    buyer_email: email,
+                    buyer_whatsapp: pending?.whatsapp || lead.whatsapp || "-",
+                    amount_paid: Number(amountPaid),
+                    commission_amount: commissionAmount,
+                    mayar_transaction_id: session?.mayar_transaction_id || null,
+                  });
+
+                if (convErr) {
+                  if (convErr.code === "23505") {
+                    activationResult.warnings.push("Konversi afiliasi sudah terdaftar (23505).");
+                  } else {
+                    logError("Error inserting affiliate conversion in manual override:", convErr);
+                  }
+                } else {
+                  activationResult.affiliateConversionCreated = true;
+                }
+              }
+            }
+
+            if (session) {
+              const { error: sessUpdateErr } = await supabaseAdmin
+                .from("checkout_sessions")
+                .update({ status: "paid", paid_at: new Date().toISOString() })
+                .eq("id", session.id);
+
+              if (sessUpdateErr) {
+                logError("Failed to update checkout session in override:", sessUpdateErr);
+              } else {
+                activationResult.checkoutSessionUpdated = true;
+              }
+            }
+          }
+
+          // Delete the pending registration record (cleanup)
+          if (pending) {
+            const { error: delErr } = await supabaseAdmin
+              .from("pending_registrations")
+              .delete()
+              .eq("id", pending.id);
+
+            if (delErr) {
+              logError("Failed to clean pending registration in override:", delErr);
+            } else {
+              activationResult.pendingRegistrationCleaned = true;
+            }
+          }
+        } else {
+          activationResult.warnings.push(
+            "CRM status berhasil diubah, namun aktivasi user dilewati karena user terdaftar (auth) tidak ditemukan.",
+          );
+        }
+      } catch (actError: any) {
+        logError("Error during user activation in manual override:", actError);
+        activationResult.warnings.push(
+          `Terjadi kesalahan saat mengaktifkan user: ${actError.message || actError}`,
+        );
+      }
+    }
+
+    // Update lead table with user_id reference if user was found and not already linked
+    if (finalActivatedUserId && !lead.user_id) {
+      await supabaseAdmin
+        .from("admin_crm_leads")
+        .update({ user_id: finalActivatedUserId })
+        .eq("id", leadId);
+      updatedLead.user_id = finalActivatedUserId;
+    }
+
+    // Write audit log
+    await insertAuditLog(
+      supabaseAdmin,
+      admin.user.id,
+      "crm_payment_status_overridden",
+      "admin_crm_leads",
+      leadId,
+      {
+        old_status: oldStatus,
+        new_status: newStatus,
+        override_id: override.id,
+        should_activate_user: shouldActivateUser,
+        activation_checklist: activationResult,
+      },
+    );
+
+    return c.json({
+      lead: updatedLead,
+      override,
+      activationResult,
+    });
+  } catch (error: any) {
+    logError("Error in overrideAdminCrmPaymentStatus:", error);
+    return c.json({ error: error.message || "Gagal mengganti status pembayaran manual" }, 500);
+  }
+};

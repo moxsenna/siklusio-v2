@@ -19,6 +19,7 @@ import { REACTION_EMOJI } from "../src/lib/communityTypes";
 import { apiGetJson, apiPostJson, apiPatchJson, apiDeleteJson } from "../src/lib/api";
 import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
 import AdminAffiliatePanel from "@/src/features/admin/AdminAffiliatePanel";
+import AdminCrmPanel from "@/src/features/admin/AdminCrmPanel";
 
 // Replicate old types
 interface AdminUser {
@@ -150,9 +151,9 @@ function toAvatarKind(value: string | null): QueueItem["authorAvatarKind"] {
 
 export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "moderation" | "coupons" | "affiliates">(
-    "users",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "users" | "crm" | "moderation" | "coupons" | "affiliates"
+  >("users");
 
   // Coupons Panel states
   const [coupons, setCoupons] = useState<any[]>([]);
@@ -701,6 +702,30 @@ export default function AdminDashboard() {
               }}
             >
               👥 Pengguna ({users.length})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveTab("crm")}
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderRadius: 20,
+              backgroundColor: activeTab === "crm" ? "#ec4899" : "transparent",
+              borderWidth: activeTab === "crm" ? 0 : 1,
+              borderColor: "#f1e6eb",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: activeTab === "crm" ? "#fff" : "#64748b",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              🌸 CRM
             </Text>
           </TouchableOpacity>
 
@@ -1851,6 +1876,9 @@ export default function AdminDashboard() {
             )}
           </View>
         )}
+
+        {/* Tab CRM */}
+        {activeTab === "crm" && <AdminCrmPanel />}
 
         {/* Tab Affiliates */}
         {activeTab === "affiliates" && <AdminAffiliatePanel />}

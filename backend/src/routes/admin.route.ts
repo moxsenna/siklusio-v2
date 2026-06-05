@@ -13,6 +13,14 @@ import {
   getAdminAffiliateConversions,
   payoutAdminAffiliateConversion,
 } from "../controllers/admin.controller";
+import {
+  getAdminCrmSummary,
+  getAdminCrmLeads,
+  createAdminCrmLead,
+  updateAdminCrmLead,
+  createAdminCrmNote,
+  overrideAdminCrmPaymentStatus,
+} from "../controllers/adminCrm.controller";
 
 const router = new Hono<{ Bindings: Env }>();
 
@@ -30,5 +38,13 @@ router.patch("/api/admin/affiliates/:id", updateAdminAffiliate);
 router.delete("/api/admin/affiliates/:id", deleteAdminAffiliate);
 router.get("/api/admin/affiliates/conversions", getAdminAffiliateConversions);
 router.patch("/api/admin/affiliates/conversions/:id/payout", payoutAdminAffiliateConversion);
+
+// Admin CRM Endpoints
+router.get("/api/admin/crm/summary", getAdminCrmSummary);
+router.get("/api/admin/crm/leads", getAdminCrmLeads);
+router.post("/api/admin/crm/leads", createAdminCrmLead);
+router.patch("/api/admin/crm/leads/:id", updateAdminCrmLead);
+router.post("/api/admin/crm/leads/:id/notes", createAdminCrmNote);
+router.patch("/api/admin/crm/leads/:id/payment-status", overrideAdminCrmPaymentStatus);
 
 export default router;

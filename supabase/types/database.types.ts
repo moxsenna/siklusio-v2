@@ -938,6 +938,177 @@ export type Database = {
           },
         ];
       };
+      admin_crm_leads: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          pending_registration_id: string | null;
+          name: string | null;
+          email: string | null;
+          whatsapp: string | null;
+          source: string;
+          referral_code: string | null;
+          affiliate_code: string | null;
+          lead_status: string;
+          payment_status: string;
+          checkout_url: string | null;
+          mayar_payment_id: string | null;
+          mayar_transaction_id: string | null;
+          manual_payment_reference: string | null;
+          amount: number | null;
+          currency: string;
+          last_contacted_at: string | null;
+          next_followup_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          pending_registration_id?: string | null;
+          name?: string | null;
+          email?: string | null;
+          whatsapp?: string | null;
+          source?: string;
+          referral_code?: string | null;
+          affiliate_code?: string | null;
+          lead_status?: string;
+          payment_status?: string;
+          checkout_url?: string | null;
+          mayar_payment_id?: string | null;
+          mayar_transaction_id?: string | null;
+          manual_payment_reference?: string | null;
+          amount?: number | null;
+          currency?: string;
+          last_contacted_at?: string | null;
+          next_followup_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          pending_registration_id?: string | null;
+          name?: string | null;
+          email?: string | null;
+          whatsapp?: string | null;
+          source?: string;
+          referral_code?: string | null;
+          affiliate_code?: string | null;
+          lead_status?: string;
+          payment_status?: string;
+          checkout_url?: string | null;
+          mayar_payment_id?: string | null;
+          mayar_transaction_id?: string | null;
+          manual_payment_reference?: string | null;
+          amount?: number | null;
+          currency?: string;
+          last_contacted_at?: string | null;
+          next_followup_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      admin_crm_notes: {
+        Row: {
+          id: string;
+          lead_id: string;
+          admin_user_id: string;
+          note: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          admin_user_id: string;
+          note: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          admin_user_id?: string;
+          note?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      admin_crm_payment_overrides: {
+        Row: {
+          id: string;
+          lead_id: string;
+          admin_user_id: string;
+          old_payment_status: string | null;
+          new_payment_status: string;
+          reason: string;
+          reference: string | null;
+          amount: number | null;
+          should_activate_user: boolean;
+          activated_user_id: string | null;
+          idempotency_key: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          admin_user_id: string;
+          old_payment_status?: string | null;
+          new_payment_status: string;
+          reason: string;
+          reference?: string | null;
+          amount?: number | null;
+          should_activate_user?: boolean;
+          activated_user_id?: string | null;
+          idempotency_key: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          admin_user_id?: string;
+          old_payment_status?: string | null;
+          new_payment_status?: string;
+          reason?: string;
+          reference?: string | null;
+          amount?: number | null;
+          should_activate_user?: boolean;
+          activated_user_id?: string | null;
+          idempotency_key?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      admin_crm_audit_logs: {
+        Row: {
+          id: string;
+          actor_user_id: string | null;
+          action: string;
+          target_type: string;
+          target_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id?: string | null;
+          action: string;
+          target_type: string;
+          target_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          actor_user_id?: string | null;
+          action?: string;
+          target_type?: string;
+          target_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

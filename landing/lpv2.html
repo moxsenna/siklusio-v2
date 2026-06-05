@@ -1501,11 +1501,17 @@
     const params = new URLSearchParams(window.location.search);
     const testCode = params.get('test_event_code');
     const testSecret = params.get('test_secret');
+    
     if (testCode) {
       sessionStorage.setItem('siklusio_test_event_code', testCode);
+    } else if (window.location.hostname && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+      sessionStorage.removeItem('siklusio_test_event_code');
     }
+    
     if (testSecret) {
       sessionStorage.setItem('siklusio_test_secret', testSecret);
+    } else if (window.location.hostname && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+      sessionStorage.removeItem('siklusio_test_secret');
     }
 
     const finalCode = testCode || sessionStorage.getItem('siklusio_test_event_code');

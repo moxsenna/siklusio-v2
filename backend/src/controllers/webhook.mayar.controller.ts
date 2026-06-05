@@ -74,6 +74,7 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
     // Only process purchase/payment success events for account creation
     const isPurchaseEvent =
       event === "payment.success" ||
+      event === "payment.received" ||
       event === "payment" ||
       event === "purchase" ||
       body.data?.status === "paid" ||

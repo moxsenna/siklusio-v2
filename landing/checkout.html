@@ -87,10 +87,21 @@
     .value-mini { background:#fff; border:1px solid rgba(236,72,153,.10); border-radius:18px; padding:14px; }
     .value-mini strong { display:block; font-family:'Outfit',sans-serif; font-size:18px; line-height:1.15; margin-bottom:3px; }
     .value-mini span { display:block; color:var(--muted); font-size:12px; line-height:1.45; }
+    .hero-card { padding:26px 30px; }
+    .hero-title { font-size:34px; max-width:780px; }
+    .hero-sub { margin-bottom:18px; }
+    .value-row { grid-template-columns:repeat(4,1fr); }
+    .checkout-confidence { margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; }
+    .checkout-confidence span { display:inline-flex; align-items:center; gap:7px; border-radius:999px; background:#fff; border:1px solid rgba(20,184,166,.16); color:#0f766e; padding:8px 12px; font-size:12px; font-weight:900; }
 
     .form-card { padding:30px; }
     .card-title { font-family:'Outfit',sans-serif; font-size:28px; line-height:1.15; font-weight:900; margin-bottom:8px; }
     .card-subtitle { color:var(--muted); font-size:14px; margin-bottom:22px; }
+    .conversion-note {
+      margin-bottom:18px; padding:14px 16px; border-radius:18px;
+      background:linear-gradient(135deg,rgba(236,72,153,.08),rgba(20,184,166,.08));
+      border:1px solid rgba(236,72,153,.14); color:#334155; font-size:13px; font-weight:800; line-height:1.55;
+    }
     .progress-line { display:flex; gap:8px; margin-bottom:24px; }
     .progress-step { flex:1; height:6px; border-radius:999px; background:rgba(236,72,153,.16); overflow:hidden; }
     .progress-step:nth-child(1), .progress-step:nth-child(2) { background:var(--gradient); }
@@ -115,7 +126,37 @@
     }
     .form-control:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 4px rgba(236,72,153,.10); }
     .helper { font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.5; }
-    .coupon-wrap { margin-top:22px; padding-top:20px; border-top:1px dashed rgba(148,163,184,.55); }
+    .coupon-details { margin:16px 0 18px; padding-top:16px; border-top:1px dashed rgba(148,163,184,.55); }
+    .coupon-details summary {
+      cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:8px;
+      color:var(--pink-dark); font-size:13px; font-weight:900; padding:8px 12px;
+      border-radius:999px; background:rgba(236,72,153,.08); border:1px solid rgba(236,72,153,.14);
+    }
+    .coupon-details summary::-webkit-details-marker { display:none; }
+    .coupon-details[open] summary { margin-bottom:12px; }
+    .activation-note {
+      margin-top:14px; padding:15px; border-radius:18px; background:#f0fdfa;
+      border:1px solid rgba(20,184,166,.22); color:#0f766e; font-size:12.5px; line-height:1.55;
+    }
+    .activation-note strong { display:block; margin-bottom:8px; font-size:13px; color:#0f766e; }
+    .activation-note ol { margin:0; padding-left:18px; }
+    .activation-note li { margin:4px 0; font-weight:800; }
+    .payment-method-note{
+      margin:14px 0 0;
+      padding:13px 14px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid rgba(20,184,166,.18);
+      color:#334155;
+      font-size:12.5px;
+      line-height:1.55;
+      font-weight:800;
+    }
+    .payment-method-note strong{
+      display:block;
+      color:#0f766e;
+      margin-bottom:3px;
+    }
 
     .btn-submit {
       width:100%; margin-top:4px; padding:18px 20px; border:none; border-radius:19px;
@@ -186,17 +227,29 @@
     @media (max-width: 920px) {
       main { padding:28px 0 42px; }
       .checkout-wrapper { grid-template-columns:1fr; }
-      .summary-box { position:static; order:-1; }
-      .hero-title { font-size:34px; }
-      .value-row { grid-template-columns:1fr; }
+      .summary-box { position:static; order:0; }
+      .hero-card { padding:22px; margin-bottom:18px; }
+      .hero-title { font-size:30px; }
+      .value-row { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width: 560px) {
       .container { padding:0 12px; }
+      main { padding:18px 0 34px; }
+      .top-strip { justify-content:flex-start; margin-bottom:14px; }
+      .strip-pill { padding:6px 10px; font-size:12px; }
       .back-link { font-size:12px; padding:8px 10px; }
       .logo-text { font-size:19px; }
       .hero-card, .form-card, .summary-box { border-radius:20px; padding:16px; }
+      .hero-card { display:none; }
       .bonus-box { padding: 12px; border-radius: 16px; }
-      .hero-title { font-size:29px; }
+      .hero-title { font-size:24px; letter-spacing:-.7px; }
+      .hero-sub { font-size:13px; margin-bottom:14px; }
+      .value-row { grid-template-columns:1fr 1fr; gap:8px; }
+      .value-mini { padding:10px; border-radius:14px; }
+      .value-mini strong { font-size:15px; }
+      .value-mini span { font-size:11px; }
+      .checkout-confidence { gap:6px; }
+      .checkout-confidence span { border-radius:14px; width:100%; padding:8px 10px; }
       .trust-badges { grid-template-columns:1fr; }
       .price-value { font-size:40px; }
     }
@@ -228,21 +281,30 @@
 
       <section class="hero-card">
         <div class="eyebrow">Aktivasi Premium Siklusio</div>
-        <h1 class="hero-title">Satu langkah kecil untuk promil yang <span class="grad-text">lebih terarah dan lebih tenang.</span></h1>
+        <h1 class="hero-title">Premium Lifetime Rp 37.000 untuk promil yang <span class="grad-text">lebih rapi dan tenang.</span></h1>
         <p class="hero-sub">
-          Aktifkan akses penuh Siklusio untuk memahami fase tubuh, menata kebiasaan promil, mengurangi cemas saat TWW, dan melibatkan suami dengan cara yang lebih hangat.
+          Isi akun, lanjut bayar aman via Mayar, lalu login memakai email dan kata sandi yang Bunda buat di sini.
         </p>
         <div class="value-row">
-          <div class="value-mini"><strong>1× bayar</strong><span>Akses Premium Lifetime tanpa langganan bulanan.</span></div>
-          <div class="value-mini"><strong>Rp 37.000</strong><span>Setara jajan kecil, manfaatnya menemani jangka panjang.</span></div>
-          <div class="value-mini"><strong>500 kredit AI</strong><span>Bonus awal untuk panduan personal dan Surat Tenang.</span></div>
+          <div class="value-mini"><strong>1× bayar</strong><span>Tidak ada langganan bulanan.</span></div>
+          <div class="value-mini"><strong>Akses cepat</strong><span>Premium aktif otomatis setelah pembayaran berhasil.</span></div>
+          <div class="value-mini"><strong>Isi HPHT</strong><span>Bisa langsung mulai onboarding siklus.</span></div>
+          <div class="value-mini"><strong>500 kredit AI</strong><span>Bonus awal masuk ke akun Premium.</span></div>
+        </div>
+        <div class="checkout-confidence" aria-label="Jaminan aktivasi checkout">
+          <span>✓ Pembayaran aman via Mayar</span>
+          <span>✓ Sekali bayar lifetime</span>
+          <span>✓ Data promil tetap privat</span>
         </div>
       </section>
 
       <div class="checkout-wrapper">
         <section class="form-card">
-          <h2 class="card-title">Buat akun Bunda</h2>
-          <p class="card-subtitle">Isi data singkat di bawah ini. Setelah pembayaran selesai, Bunda bisa masuk ke aplikasi dan mulai onboarding personal.</p>
+          <h2 class="card-title">Isi akun untuk aktivasi</h2>
+          <p class="card-subtitle">Data ini dipakai untuk membuat akun Premium Bunda sebelum diarahkan ke pembayaran aman.</p>
+          <div class="conversion-note">
+            Akses langsung setelah pembayaran berhasil. Sekali bayar, tidak ada langganan bulanan, dan Bunda bisa login memakai email + password ini.
+          </div>
 
           <div class="progress-line" aria-hidden="true">
             <div class="progress-step"></div>
@@ -255,41 +317,58 @@
             <span id="referralDiscount" style="margin-left:auto;font-size:12px;color:#0f766e;font-weight:900;"></span>
           </div>
 
-          <div id="errorAlert" class="alert alert-danger"></div>
-          <div id="successAlert" class="alert alert-success"></div>
+          <div id="errorAlert" class="alert alert-danger" role="alert" aria-live="polite"></div>
+          <div id="successAlert" class="alert alert-success" role="status" aria-live="polite"></div>
 
-          <form id="checkoutForm">
+          <form id="checkoutForm" novalidate>
             <div class="form-group">
               <label class="form-label" for="inputName">Nama Lengkap <span class="label-hint">untuk akun</span></label>
-              <input type="text" id="inputName" class="form-control" placeholder="Contoh: Dina Rahma" required autocomplete="name">
+              <input type="text" id="inputName" name="name" class="form-control" placeholder="Contoh: Dina Rahma" required autocomplete="name">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="inputWhatsapp">Nomor WhatsApp Aktif <span class="label-hint">untuk konfirmasi</span></label>
-              <input type="tel" id="inputWhatsapp" class="form-control" placeholder="Contoh: 08123456789" required autocomplete="tel" inputmode="tel">
+              <input type="tel" id="inputWhatsapp" name="whatsapp" class="form-control" placeholder="Contoh: 08123456789" required autocomplete="tel" inputmode="tel">
               <p class="helper">Pastikan nomor aktif agar konfirmasi dan bantuan aktivasi mudah diterima.</p>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="inputEmail">Email Login <span class="label-hint">untuk masuk aplikasi</span></label>
-              <input type="email" id="inputEmail" class="form-control" placeholder="nama@email.com" required autocomplete="email" inputmode="email">
+              <input type="email" id="inputEmail" name="email" class="form-control" placeholder="nama@email.com" required autocomplete="email" inputmode="email" spellcheck="false">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="inputPassword">Kata Sandi <span class="label-hint">minimal 6 karakter</span></label>
-              <input type="password" id="inputPassword" class="form-control" placeholder="Buat kata sandi akun" required autocomplete="new-password" minlength="6">
+              <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Buat kata sandi akun" required autocomplete="new-password" minlength="6">
+              <p class="helper">Password ini dipakai untuk login ke aplikasi setelah pembayaran berhasil.</p>
             </div>
 
-            <div class="form-group coupon-wrap">
-              <label class="form-label" for="inputCoupon">Kode Kupon <span class="label-hint">opsional</span></label>
-              <input type="text" id="inputCoupon" class="form-control" placeholder="Masukkan kode jika ada" style="text-transform:uppercase;">
-              <p class="helper">Punya kode dari teman atau promo Siklusio? Masukkan di sini sebelum lanjut bayar.</p>
+            <details class="coupon-details">
+              <summary>Punya kode kupon atau referral?</summary>
+              <div class="form-group">
+                <label class="form-label" for="inputCoupon">Kode Kupon <span class="label-hint">opsional</span></label>
+                <input type="text" id="inputCoupon" name="coupon" class="form-control" placeholder="Masukkan kode jika ada" style="text-transform:uppercase;" autocomplete="off" spellcheck="false">
+                <p class="helper">Masukkan kode dari teman atau promo Siklusio sebelum lanjut bayar.</p>
+              </div>
+            </details>
+
+            <div class="payment-method-note">
+              <strong>Total hari ini Rp 37.000 - sekali bayar.</strong>
+              Bunda akan diarahkan ke halaman pembayaran Mayar. Mayar akan menampilkan metode pembayaran yang tersedia sebelum Bunda menyelesaikan pembayaran.
             </div>
 
             <button type="submit" id="btnSubmit" class="btn-submit">
               <div id="btnSpinner" class="spinner"></div>
-              <span id="btnText">Aktifkan Premium Sekarang</span>
+              <span id="btnText">Lanjut ke Pembayaran Aman</span>
             </button>
+            <div class="activation-note">
+              <strong>Setelah pembayaran berhasil:</strong>
+              <ol>
+                <li>Akun Premium aktif otomatis</li>
+                <li>Bunda bisa login dan mulai isi HPHT</li>
+                <li>Bonus dan kredit AI masuk ke akun</li>
+              </ol>
+            </div>
           </form>
 
           <div class="privacy-note">
@@ -297,7 +376,7 @@
           </div>
 
           <div class="trust-badges">
-            <div class="trust-badge">💳 Pembayaran aman</div>
+            <div class="trust-badge">💳 Pembayaran aman via Mayar</div>
             <div class="trust-badge">🌸 Sekali bayar</div>
             <div class="trust-badge">🤍 Data privat</div>
           </div>
@@ -409,9 +488,10 @@
       return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
+    const params = new URLSearchParams(window.location.search);
+
     // Capture fbclid from URL query parameter
     (function persistFbclid() {
-      const params = new URLSearchParams(window.location.search);
       const fbclid = params.get('fbclid');
       if (fbclid) {
         sessionStorage.setItem('siklusio_fbclid', fbclid);
@@ -423,30 +503,33 @@
     const fbp = getCookie('_fbp') || '';
     let fbc = getCookie('_fbc') || '';
     if (!fbc) {
-      const fbclid = new URLSearchParams(window.location.search).get('fbclid') || sessionStorage.getItem('siklusio_fbclid');
+      const fbclid = params.get('fbclid') || sessionStorage.getItem('siklusio_fbclid');
       if (fbclid) {
         fbc = `fb.1.${Date.now()}.${fbclid}`;
       }
     }
 
     // Extract Meta CAPI test parameters from URL or sessionStorage fallback
-    const params = new URLSearchParams(window.location.search);
     const testEventCode = params.get('test_event_code') || sessionStorage.getItem('siklusio_test_event_code') || '';
     const testSecret = params.get('test_secret') || sessionStorage.getItem('siklusio_test_secret') || '';
 
-    // Generate unique lead_event_id & initiate_checkout_event_id for Conversions API deduplication
+    // Reuse LP CTA event_id when present so checkout page load does not double-fire InitiateCheckout.
+    const incomingInitiateCheckoutEventId = params.get('event_id') || params.get('initiate_checkout_event_id') || '';
     const leadEventId = generateEventId('lead');
-    const initiateCheckoutEventId = generateEventId('initiate_checkout');
+    const initiateCheckoutEventId = incomingInitiateCheckoutEventId || generateEventId('initiate_checkout');
 
-    // Trigger GTM Meta Pixel InitiateCheckout
-    window.dataLayer.push({
-      event: 'siklusio_initiate_checkout',
-      initiate_checkout_event_id: initiateCheckoutEventId,
-      content_name: 'Siklusio Premium Lifetime Access',
-      value: 37000,
-      currency: 'IDR'
-    });
-    console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
+    if (!incomingInitiateCheckoutEventId) {
+      window.dataLayer.push({
+        event: 'siklusio_initiate_checkout',
+        initiate_checkout_event_id: initiateCheckoutEventId,
+        content_name: 'Siklusio Premium Lifetime Access',
+        value: 37000,
+        currency: 'IDR'
+      });
+      console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
+    } else {
+      console.log('--> Reusing LP InitiateCheckout event_id:', incomingInitiateCheckoutEventId);
+    }
 
     // Trigger standard GA4 begin_checkout event
     window.dataLayer.push({
@@ -558,8 +641,27 @@
       return getApiBase() + '/api/checkout/register';
     }
 
+    function pushCheckoutEvent(eventPayload) {
+      window.dataLayer.push(eventPayload);
+    }
+
+    function trackCheckoutValidationError(reason) {
+      pushCheckoutEvent({
+        event: 'checkout_validation_error',
+        initiate_checkout_event_id: initiateCheckoutEventId,
+        error_reason: reason
+      });
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      pushCheckoutEvent({
+        event: 'checkout_form_submit_attempt',
+        initiate_checkout_event_id: initiateCheckoutEventId,
+        value: 37000,
+        currency: 'IDR'
+      });
 
       errorAlert.style.display = 'none';
       successAlert.style.display = 'none';
@@ -574,6 +676,19 @@
       if (!name || !whatsapp || !email || !password) {
         const errMsg = 'Mohon lengkapi semua data akun terlebih dahulu.';
         showError(errMsg);
+        trackCheckoutValidationError('missing_required_fields');
+
+        window.dataLayer.push({
+          event: 'checkout_error',
+          error_type: 'client_validation',
+          error_message: errMsg
+        });
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        const errMsg = 'Format email belum valid ya, Bunda.';
+        showError(errMsg);
+        trackCheckoutValidationError('invalid_email');
 
         window.dataLayer.push({
           event: 'checkout_error',
@@ -585,6 +700,7 @@
       if (password.length < 6) {
         const errMsg = 'Kata sandi minimal 6 karakter ya, Bunda.';
         showError(errMsg);
+        trackCheckoutValidationError('password_too_short');
 
         window.dataLayer.push({
           event: 'checkout_error',
@@ -596,7 +712,7 @@
 
       btnSubmit.disabled = true;
       btnSpinner.style.display = 'inline-block';
-      btnText.innerText = 'Menyiapkan Pembayaran...';
+      btnText.innerText = 'Menyiapkan Pembayaran Aman...';
 
       try {
         console.log('--> Sending registration request to:', getApiUrl());
@@ -628,7 +744,7 @@
 
         localStorage.removeItem('siklusio_ref_code');
 
-        successAlert.innerText = 'Akun berhasil disiapkan. Mengalihkan Bunda ke halaman pembayaran aman...';
+        successAlert.innerText = 'Akun berhasil disiapkan. Mengalihkan Bunda ke pembayaran aman Mayar...';
         successAlert.style.display = 'block';
         btnText.innerText = 'Mengalihkan...';
 
@@ -643,7 +759,7 @@
         console.log('--> GTM Event: siklusio_lead with event_id:', leadEventId);
 
         window.dataLayer.push({
-          event: 'purchase_initiated',
+          event: 'checkout_payment_link_created',
           ref_code: affiliateCode || '',
           coupon_applied: couponCode || '',
           ecommerce: {
@@ -658,7 +774,15 @@
             }]
           }
         });
-        console.log('--> GTM Event: purchase_initiated', { ref_code: affiliateCode, coupon: couponCode });
+        console.log('--> GTM Event: checkout_payment_link_created', { ref_code: affiliateCode, coupon: couponCode });
+
+        pushCheckoutEvent({
+          event: 'checkout_mayar_redirect_start',
+          initiate_checkout_event_id: initiateCheckoutEventId,
+          transaction_id: result.transactionId || '',
+          value: result.finalAmount || 37000,
+          currency: 'IDR'
+        });
 
         setTimeout(() => {
           window.location.href = result.paymentUrl;
@@ -678,7 +802,7 @@
 
         btnSubmit.disabled = false;
         btnSpinner.style.display = 'none';
-        btnText.innerText = 'Aktifkan Premium Sekarang';
+        btnText.innerText = 'Lanjut ke Pembayaran Aman';
       }
     });
 

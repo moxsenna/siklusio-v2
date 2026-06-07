@@ -69,6 +69,12 @@
     .ref-badge {display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 16px; background: rgba(236, 72, 153, 0.06); border: 1px solid rgba(236, 72, 153, 0.15); font-size: 13px; font-weight: 600; color: var(--pink); margin-top: 12px;}
     .sticker-promo{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;background:#fff;border:1px solid rgba(236,72,153,0.15);border-radius:28px;padding:40px;box-shadow:var(--shadow);margin:40px 0}
     @media (max-width: 920px){.sticker-promo{grid-template-columns:1fr;text-align:center;padding:24px 16px;gap:24px}}
+    .hero-outcome{margin:18px 0 18px;max-width:690px;background:rgba(255,255,255,.9);border:1px solid rgba(20,184,166,.18);border-radius:22px;padding:16px 18px;box-shadow:0 16px 42px rgba(20,184,166,.10)}
+    .hero-outcome strong{display:block;color:var(--slate-950);font-family:Outfit,sans-serif;font-size:18px;margin-bottom:8px}
+    .hero-outcome ul{list-style:none;margin:0;padding:0;display:grid;gap:7px;color:var(--slate-600);font-size:14px;font-weight:800}
+    .hero-outcome li:before{content:"✓";color:var(--teal);font-weight:900;margin-right:8px}
+    .hero .hero-price-note{margin:0 0 16px;color:var(--slate-600);font-size:13px;font-weight:900}
+    .hero .hero-price-note strong{color:var(--pink-dark)}
   </style>
 </head>
 <body>
@@ -94,10 +100,19 @@
           <span class="eyebrow">🌸 Pendamping promil privat untuk Bunda Indonesia</span>
           <h1>Masih <span class="gradient-text">nebak-nebak masa subur</span> sendiri, Bunda?</h1>
           <p>Siklusio bantu Bunda memahami fase siklus, mengenali masa subur, menjaga habit promil, menenangkan masa TWW, dan mengajak suami ikut paham — dalam satu aplikasi privat yang hangat.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="hero_primary">Aktifkan Premium Lifetime — Rp37.000</a>
-            <a class="btn btn-secondary" href="#fitur" data-track="hero_view_features">Lihat Isi Aplikasinya Dulu ↓</a>
+          <div class="hero-outcome" role="group" aria-label="Yang bisa Bunda mulai setelah aktivasi">
+            <strong>Dalam 5 menit setelah login, Bunda bisa mulai promil lebih rapi.</strong>
+            <ul>
+              <li>Isi HPHT dan lihat perkiraan masa subur tanpa hitung manual.</li>
+              <li>Mulai checklist promil harian sesuai fase tubuh.</li>
+              <li>Buka dukungan TWW dan panduan AI saat butuh ditenangkan.</li>
+            </ul>
           </div>
+          <div class="hero-actions">
+            <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="hero_primary">Mulai Promil Lebih Rapi Hari Ini</a>
+            <a class="btn btn-secondary" href="#fitur" data-track="hero_view_features">Lihat Isi Aplikasinya Dulu</a>
+          </div>
+          <p class="hero-price-note"><strong>Premium Lifetime Rp37.000</strong> - sekali bayar, tanpa langganan bulanan, akses langsung setelah pembayaran.</p>
           <div id="hero-ref-badge" class="ref-badge" style="display: none;"></div>
           <div class="micro"><span>✓ Sekali bayar</span><span>✓ Tanpa langganan bulanan</span><span>✓ Bonus digital Rp196.000</span><span>✓ Bebas iklan pihak ketiga</span></div>
           <div class="offer-mini" aria-label="Ringkasan penawaran Siklusio">
@@ -322,14 +337,14 @@
         <span class="eyebrow">Mulai hari ini</span>
         <h2>Promil lebih terarah, suami lebih paham, hati lebih tenang.</h2>
         <p style="font-size:18px;color:#64748b;max-width:720px;margin:0 auto 26px">Aktifkan Premium Lifetime Siklusio dan dapatkan semua fitur utama plus 4 bonus digital untuk menemani perjalanan promil Bunda.</p>
-        <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="final">Aktifkan Premium Lifetime — Rp37.000</a>
+        <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="final">Mulai Promil Lebih Rapi Hari Ini</a>
       </div>
     </section>
   </main>
 
   <div class="sticky-cta" role="region" aria-label="CTA aktivasi premium">
-    <div><strong>Premium Lifetime Rp37.000</strong><small class="hide-mobile">Sekali bayar · bonus Rp196.000</small></div>
-    <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="sticky_mobile">Aktifkan Sekarang</a>
+    <div><strong>Premium Lifetime Rp37.000</strong><small class="hide-mobile">Sekali bayar - akses langsung</small></div>
+    <a class="btn btn-primary cta-checkout" href="./checkout.html" data-cta-location="sticky_mobile">Mulai Sekarang</a>
   </div>
 
   <footer>

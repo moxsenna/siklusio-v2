@@ -75,6 +75,14 @@
     .hero-outcome li:before{content:"✓";color:var(--teal);font-weight:900;margin-right:8px}
     .hero .hero-price-note{margin:0 0 16px;color:var(--slate-600);font-size:13px;font-weight:900}
     .hero .hero-price-note strong{color:var(--pink-dark)}
+    .hero-proof{margin:18px 0 16px;display:grid;gap:12px;max-width:690px}
+    .proof-quote{background:rgba(255,255,255,.88);border:1px solid rgba(236,72,153,.18);border-radius:22px;padding:16px 18px;box-shadow:0 16px 42px rgba(236,72,153,.10)}
+    .proof-quote strong{display:block;color:var(--slate-900);font-family:Outfit,sans-serif;font-size:18px;margin-bottom:4px}
+    .proof-quote span{display:block;color:var(--slate-600);font-weight:700;font-size:14px;line-height:1.55}
+    .hero-trust-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .hero-trust-strip span{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid rgba(20,184,166,.18);border-radius:16px;padding:10px 12px;color:#0f766e;font-size:12.5px;font-weight:900;line-height:1.35}
+    .sticky-cta{display:none}
+    @media (max-width: 920px){.sticky-cta{display:flex;opacity:0;pointer-events:none;transform:translate(-50%,14px)}.sticky-cta.is-visible{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.hero-trust-strip{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -114,6 +122,18 @@
           </div>
           <p class="hero-price-note"><strong>Premium Lifetime Rp37.000</strong> - sekali bayar, tanpa langganan bulanan, akses langsung setelah pembayaran.</p>
           <div id="hero-ref-badge" class="ref-badge" style="display: none;"></div>
+          <div class="hero-proof" aria-label="Bukti dan keamanan aktivasi Siklusio">
+            <div class="proof-quote">
+              <strong>Dipakai oleh Bunda yang ingin promil lebih rapi tanpa overthinking sendiri.</strong>
+              <span>"Jadi lebih tenang karena tahu kapan masa subur dan ada checklist hariannya."</span>
+            </div>
+            <div class="hero-trust-strip">
+              <span>✓ Akses langsung setelah pembayaran</span>
+              <span>✓ Pembayaran aman via Mayar</span>
+              <span>✓ Bisa langsung login dan isi HPHT</span>
+              <span>✓ Sekali bayar, tidak ada langganan</span>
+            </div>
+          </div>
           <div class="micro">
             <span>✓ Pelacak siklus</span>
             <span>✓ Checklist promil</span>
@@ -512,6 +532,14 @@
             setTimeout(function(){ window.location.href = appendCheckoutParams(el.getAttribute('href') || cfg.checkoutUrl || './checkout.html', eventId, ctaLocation); }, 180);
           });
         });
+
+        var stickyCta = document.querySelector('.sticky-cta');
+        function updateStickyCta(){
+          if (!stickyCta) return;
+          stickyCta.classList.toggle('is-visible', window.scrollY > 640);
+        }
+        updateStickyCta();
+        window.addEventListener('scroll', updateStickyCta, { passive: true });
       });
     })();
   </script>

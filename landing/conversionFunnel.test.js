@@ -75,11 +75,14 @@ test("landing hero keeps bonus secondary to core app benefits", () => {
 });
 
 test("checkout form explains payment method and redirect before submit", () => {
-  const formStart = checkoutHtml.indexOf("<form id=\"checkoutForm\">");
+  const formOpenMatch = /<form\b[^>]*id="checkoutForm"[^>]*>/.exec(checkoutHtml);
+
+  assert.ok(formOpenMatch);
+
+  const formStart = formOpenMatch.index;
   const submitIndex = checkoutHtml.indexOf("id=\"btnSubmit\"", formStart);
   const formEnd = checkoutHtml.indexOf("</form>", formStart);
 
-  assert.notEqual(formStart, -1);
   assert.notEqual(submitIndex, -1);
   assert.notEqual(formEnd, -1);
   assert.ok(formStart < submitIndex);
@@ -101,4 +104,24 @@ test("checkout form explains payment method and redirect before submit", () => {
   assert.ok(totalIndex < submitLocalIndex);
   assert.ok(paymentMethodIndex < submitLocalIndex);
   assert.ok(redirectIndex < submitLocalIndex);
+});
+
+test("checkout tracks submit attempts, validation errors, and Mayar redirect start", () => {
+  const formOpenTag = checkoutHtml.match(/<form\b[^>]*id="checkoutForm"[^>]*>/)?.[0] || "";
+  const redirectEventIndex = checkoutHtml.indexOf("event: 'checkout_mayar_redirect_start'");
+  const redirectHrefIndex = checkoutHtml.indexOf("window.location.href = result.paymentUrl");
+  const redirectEventBlock = checkoutHtml.slice(redirectEventIndex, redirectHrefIndex);
+
+  assert.match(formOpenTag, /\bnovalidate\b/);
+  assert.match(checkoutHtml, /event:\s*'checkout_form_submit_attempt'/);
+  assert.match(checkoutHtml, /event:\s*'checkout_validation_error'/);
+  assert.match(checkoutHtml, /trackCheckoutValidationError\('invalid_email'\)/);
+  assert.match(checkoutHtml, /event:\s*'checkout_mayar_redirect_start'/);
+  assert.notEqual(redirectEventIndex, -1);
+  assert.notEqual(redirectHrefIndex, -1);
+  assert.ok(redirectEventIndex < redirectHrefIndex);
+  assert.match(redirectEventBlock, /initiate_checkout_event_id:\s*initiateCheckoutEventId/);
+  assert.match(redirectEventBlock, /transaction_id:\s*result\.transactionId\s*\|\|\s*''/);
+  assert.match(redirectEventBlock, /value:\s*result\.finalAmount\s*\|\|\s*37000/);
+  assert.match(redirectEventBlock, /currency:\s*'IDR'/);
 });

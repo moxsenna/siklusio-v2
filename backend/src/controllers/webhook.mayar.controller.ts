@@ -3,10 +3,8 @@ import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { logInfo, logWarn, logError } from "../logging/redaction";
 import { hasAffiliateConversionForTransaction } from "../services/affiliateConversionService";
-import {
-  processMayarWebhookPremiumActivation,
-  retryPaidSessionPurchaseMetaCapi,
-} from "../services/paymentActivationService";
+import { retryPaidSessionPurchaseMetaCapi } from "../services/paymentNotificationService";
+import { processMayarWebhookPremiumActivation } from "../services/paymentActivationService";
 
 // POST /api/payment/webhook
 export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {

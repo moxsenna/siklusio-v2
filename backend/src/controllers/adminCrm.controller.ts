@@ -1,9 +1,7 @@
 import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
 import { logInfo, logError } from "../logging/redaction";
-import {
-  processAdminManualPremiumActivation,
-  scheduleAdminManualPaymentAutoresponder,
-} from "../services/paymentActivationService";
+import { processAdminManualPremiumActivation } from "../services/paymentActivationService";
+import { scheduleAdminManualPaymentAutoresponder } from "../services/paymentNotificationService";
 
 type AdminContext = AdminHandlerContext;
 

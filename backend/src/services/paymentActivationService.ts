@@ -5,6 +5,10 @@ import { upsertAdminCrmLead } from "./adminCrm";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "./metaCapi";
 import { sendWhatsappAutoresponder } from "./fonnte";
 import { resolveAuthUserForActivation } from "./authUserLookup";
+import {
+  recordAdminManualAffiliateConversion,
+  recordWebhookAffiliateConversion,
+} from "./affiliateConversionService";
 import { logInfo, logWarn, logError } from "../logging/redaction";
 
 export type CheckoutSessionSnapshot = {
@@ -39,13 +43,6 @@ export type PendingRegistrationSnapshot = {
   coupon_code?: string | null;
 };
 
-export type AffiliateRecord = {
-  id: string;
-  commission_type: string;
-  commission_value: number;
-  allow_zero_order_commission?: boolean | null;
-};
-
 export type AdminManualActivationResult = {
   paymentOverrideCreated: boolean;
   userActivated: boolean;
@@ -55,32 +52,6 @@ export type AdminManualActivationResult = {
   pendingRegistrationCleaned: boolean;
   warnings: string[];
 };
-
-export function calculateAffiliateCommission(
-  amountPaid: number,
-  affiliate: AffiliateRecord,
-): number {
-  if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
-    return 0;
-  }
-  if (affiliate.commission_type === "percentage") {
-    return Math.floor(Number(amountPaid) * (Number(affiliate.commission_value) / 100));
-  }
-  return Number(affiliate.commission_value);
-}
-
-export async function hasAffiliateConversionForTransaction(
-  supabaseAdmin: SupabaseClient,
-  mayarTransactionId: string,
-): Promise<boolean> {
-  const { data: existingConversion } = await supabaseAdmin
-    .from("affiliate_conversions")
-    .select("id")
-    .eq("mayar_transaction_id", mayarTransactionId)
-    .maybeSingle();
-
-  return Boolean(existingConversion);
-}
 
 export async function activatePendingAuthUser(
   supabaseAdmin: SupabaseClient,
@@ -109,55 +80,6 @@ export async function grantPremiumCreditsForActivation(
     userId,
     referenceId: referenceId || null,
   });
-}
-
-export async function recordWebhookAffiliateConversion(params: {
-  supabaseAdmin: SupabaseClient;
-  affiliateCode: string;
-  pending: PendingRegistrationSnapshot;
-  session: CheckoutSessionSnapshot | null;
-  mayarTransactionId: string | null;
-  fallbackAmount?: number | null;
-}) {
-  const { supabaseAdmin, affiliateCode, pending, session, mayarTransactionId, fallbackAmount } =
-    params;
-
-  logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
-
-  const { data: affiliate } = await supabaseAdmin
-    .from("affiliates")
-    .select("id, commission_type, commission_value, allow_zero_order_commission")
-    .eq("code", affiliateCode)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!affiliate) return { created: false };
-
-  const amountPaid = session?.final_amount || fallbackAmount || 0;
-  const commissionAmount = calculateAffiliateCommission(Number(amountPaid), affiliate);
-
-  const { error: convErr } = await supabaseAdmin.from("affiliate_conversions").insert({
-    affiliate_id: affiliate.id,
-    checkout_session_id: session?.id || null,
-    buyer_name: pending.name,
-    buyer_email: pending.email,
-    buyer_whatsapp: pending.whatsapp,
-    amount_paid: Number(amountPaid),
-    commission_amount: commissionAmount,
-    mayar_transaction_id: mayarTransactionId,
-  });
-
-  if (convErr) {
-    if (convErr.code === "23505") {
-      logInfo(`--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`);
-      return { created: false, duplicate: true };
-    }
-    logError("Error inserting affiliate conversion:", convErr);
-    return { created: false, error: convErr };
-  }
-
-  logInfo(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
-  return { created: true, commissionAmount };
 }
 
 export async function markCheckoutSessionPaid(
@@ -391,7 +313,11 @@ export async function processMayarWebhookPremiumActivation(params: {
     await recordWebhookAffiliateConversion({
       supabaseAdmin,
       affiliateCode: pending.affiliate_code,
-      pending,
+      buyer: {
+        name: pending.name,
+        email: pending.email,
+        whatsapp: pending.whatsapp,
+      },
       session,
       mayarTransactionId,
       fallbackAmount,
@@ -492,61 +418,21 @@ export async function processAdminManualPremiumActivation(params: {
 
   const affiliateCode = pending?.affiliate_code || lead.affiliate_code;
   if (affiliateCode) {
-    const normalizedCode = affiliateCode.trim().toUpperCase();
-    const { data: session } = await supabaseAdmin
-      .from("checkout_sessions")
-      .select("*")
-      .eq("email", email)
-      .eq("affiliate_code", normalizedCode)
-      .eq("status", "pending")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const affiliateResult = await recordAdminManualAffiliateConversion({
+      supabaseAdmin,
+      affiliateCode,
+      email,
+      buyerName: pending?.name || lead.name || "User",
+      buyerWhatsapp: pending?.whatsapp || lead.whatsapp || "-",
+      amount,
+    });
 
-    const { data: affiliate } = await supabaseAdmin
-      .from("affiliates")
-      .select("id, commission_type, commission_value, allow_zero_order_commission")
-      .eq("code", normalizedCode)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (affiliate) {
-      const amountPaid = session?.final_amount || amount || 0;
-      const commissionAmount = calculateAffiliateCommission(Number(amountPaid), affiliate);
-
-      const { data: existingConv } = await supabaseAdmin
-        .from("affiliate_conversions")
-        .select("id")
-        .eq("affiliate_id", affiliate.id)
-        .eq("buyer_email", email)
-        .maybeSingle();
-
-      if (existingConv) {
-        activationResult.warnings.push("Konversi afiliasi untuk transaksi ini sudah tercatat.");
-      } else {
-        const { error: convErr } = await supabaseAdmin.from("affiliate_conversions").insert({
-          affiliate_id: affiliate.id,
-          checkout_session_id: session?.id || null,
-          buyer_name: pending?.name || lead.name || "User",
-          buyer_email: email,
-          buyer_whatsapp: pending?.whatsapp || lead.whatsapp || "-",
-          amount_paid: Number(amountPaid),
-          commission_amount: commissionAmount,
-          mayar_transaction_id: session?.mayar_transaction_id || null,
-        });
-
-        if (convErr) {
-          if (convErr.code === "23505") {
-            activationResult.warnings.push("Konversi afiliasi sudah terdaftar (23505).");
-          } else {
-            logError("Error inserting affiliate conversion in manual override:", convErr);
-          }
-        } else {
-          activationResult.affiliateConversionCreated = true;
-        }
-      }
+    activationResult.warnings.push(...affiliateResult.warnings);
+    if (affiliateResult.created) {
+      activationResult.affiliateConversionCreated = true;
     }
 
+    const session = affiliateResult.pendingCheckoutSession;
     if (session) {
       const { error: sessUpdateErr } = await supabaseAdmin
         .from("checkout_sessions")

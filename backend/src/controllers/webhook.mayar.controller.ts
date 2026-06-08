@@ -2,8 +2,8 @@ import { Context } from "hono";
 import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { logInfo, logWarn, logError } from "../logging/redaction";
+import { hasAffiliateConversionForTransaction } from "../services/affiliateConversionService";
 import {
-  hasAffiliateConversionForTransaction,
   processMayarWebhookPremiumActivation,
   retryPaidSessionPurchaseMetaCapi,
 } from "../services/paymentActivationService";

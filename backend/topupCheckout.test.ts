@@ -36,12 +36,16 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
       );
     }
 
-    if (url.hostname === "api.mayar.id" && url.pathname === "/hl/v1/payment/create") {
+    if (url.hostname === "api.mayar.id" && url.pathname === "/hl/v1/invoice/create") {
       mayarBodies.push(JSON.parse(String(init?.body || "{}")));
       return new Response(
         JSON.stringify({
           statusCode: 200,
-          data: { link: "https://mayar.test/pay/topup-1", id: "tx-topup-1" },
+          data: {
+            link: "https://mayar.test/pay/topup-1",
+            id: "invoice-topup-1",
+            transactionId: "trx-topup-1",
+          },
         }),
         { status: 200, headers: { "content-type": "application/json" } },
       );
@@ -82,11 +86,20 @@ test("topup checkout uses server-owned package price and credits", async (t) => 
   const responseText = await response.text();
   assert.equal(response.status, 200, responseText);
   assert.equal(mayarBodies.length, 1);
-  assert.equal(mayarBodies[0].amount, 9900);
-  assert.equal(mayarBodies[0].name, "Top Up Kredit AI Siklusio (300 Kredit)");
+  assert.equal(mayarBodies[0].name, "Maya");
+  assert.equal(mayarBodies[0].email, "maya@example.com");
+  assert.equal(mayarBodies[0].mobile, "08123456789");
+  assert.equal(mayarBodies[0].description, "Top up saldo kredit AI Siklusio sebanyak 300 kredit.");
+  assert.equal(mayarBodies[0].items[0].description, "Top Up Kredit AI Siklusio (300 Kredit)");
+  assert.equal(mayarBodies[0].items[0].rate, 9900);
+  assert.equal(mayarBodies[0].extraData.noCustomer, "maya@example.com");
+  assert.equal(mayarBodies[0].extraData.idProd, "coba_dulu");
+  assert.equal(mayarBodies[0].extraData.productName, "Top Up Kredit AI Siklusio (300 Kredit)");
+
   assert.equal(topupBodies.length, 1);
   assert.equal(topupBodies[0].amount_rp, 9900);
   assert.equal(topupBodies[0].credits_amount, 300);
+  assert.equal(topupBodies[0].mayar_transaction_id, "trx-topup-1");
 });
 
 test("topup checkout rejects unknown package ids before payment creation", async (t) => {

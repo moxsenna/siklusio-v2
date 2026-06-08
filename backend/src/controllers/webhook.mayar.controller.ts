@@ -390,13 +390,6 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
         .eq("id", session.id);
     }
 
-    // Fallback: update any pending checkout sessions under the same email to paid
-    await supabaseAdmin
-      .from("checkout_sessions")
-      .update({ status: "paid", paid_at: new Date().toISOString() })
-      .eq("email", email.toLowerCase())
-      .eq("status", "pending");
-
     // Send Meta CAPI Purchase with event_id
     const eventId = `purchase_${mayarTransactionId || (session ? session.id : "missing_tx")}`;
     const userData = {

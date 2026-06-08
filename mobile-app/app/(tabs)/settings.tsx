@@ -526,7 +526,7 @@ export default function SettingsScreen() {
                 activeViewTab === "cycle" ? "text-primary" : "text-on-surface-variant/70"
               }`}
             >
-              Siklus & Celengan
+              Siklus & Tabungan
             </Text>
           </TouchableOpacity>
         </View>
@@ -535,15 +535,9 @@ export default function SettingsScreen() {
         <View className="gap-6">
           {activeViewTab === "cycle" && (
             <>
-              {/* Card 1: Pengaturan Siklus */}
+              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="calendar" size={18} color="#ec4899"/><Text className="text-base font-bold text-on-surface">Data Siklus Bunda</Text></View>
               <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-                <View className="flex-row items-center gap-3 mb-4">
-                  <FontAwesome name="calendar" size={18} color="#ec4899" />
-                  <Text className="text-base font-bold text-on-surface">Pengaturan Siklus</Text>
-                </View>
-
-                <View className="gap-4">
-                  <View>
+                  <View className="mb-4">
                     <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
                       HPHT (Hari Pertama Haid Terakhir)
                     </Text>
@@ -597,6 +591,9 @@ export default function SettingsScreen() {
                       </View>
                     </View>
                   </View>
+                  <Text className="text-xs text-on-surface-variant mt-1">
+                    Data ini membantu Siklusio memperkirakan fase tubuh dan masa subur Bunda.
+                  </Text>
 
                   <TouchableOpacity
                     onPress={handleCycleSubmit}
@@ -607,13 +604,13 @@ export default function SettingsScreen() {
                     </Text>
                   </TouchableOpacity>
                 </View>
-              </View>
 
               {/* Card 2: Pengaturan Tabungan */}
+              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="money" size={18} color="#0d9488"/><Text className="text-base font-bold text-on-surface">Persiapan Promil</Text></View>
               <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
                 <View className="flex-row items-center gap-3 mb-4">
                   <FontAwesome name="money" size={18} color="#0d9488" />
-                  <Text className="text-base font-bold text-on-surface">Pengaturan Tabungan</Text>
+                  <Text className="text-base font-bold text-on-surface">Tabungan Promil</Text>
                 </View>
 
                 <View className="gap-4">
@@ -666,73 +663,44 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
-              {/* Card 3: AI Server */}
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-                <View className="flex-row items-center gap-3 mb-4">
-                  <View className="w-9 h-9 rounded-full bg-indigo-100 items-center justify-center">
-                    <FontAwesome name="magic" size={16} color="#4f46e5" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-bold text-on-surface">Asisten AI Siklusio</Text>
-                    <Text className="text-[10px] font-mono text-indigo-600 font-bold uppercase tracking-wider">
-                      OpenRouter Server
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100 gap-3">
-                  <Text className="text-xs text-indigo-900/90 leading-relaxed">
-                    Semua fitur AI sekarang memakai OpenRouter dari server Siklusio. Kamu tidak
-                    perlu memasukkan Gemini API Key pribadi di aplikasi.
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      storage.removeItem("hs_gemini_api_key");
-                      showToast("Kunci Gemini lama dibersihkan dari perangkat.", "info");
-                    }}
-                    className="w-full py-3 bg-indigo-600 rounded-2xl items-center justify-center shadow-sm active:bg-indigo-700"
-                  >
-                    <Text className="text-white font-bold text-xs uppercase tracking-wider">
-                      Bersihkan Kunci Lama
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Card 4: Pengaturan Pengingat */}
-              <TouchableOpacity
-                onPress={handleReminderToggle}
-                className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
-              >
-                <View className="flex-row items-center gap-4 flex-1 pr-4">
-                  <View
-                    className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? "bg-primary/20 text-primary" : "bg-surface-variant text-on-surface-variant"}`}
-                  >
-                    <FontAwesome name="bell" size={18} color={dailyReminder ? "#ec4899" : "#888"} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">
-                      Pengingat Harian & Promil
-                    </Text>
-                    <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
-                      {dailyReminder
-                        ? `Notifikasi lokal terjadwal setiap pukul ${reminderTimeLabel}.`
-                        : "Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile."}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Custom Toggle Switch */}
-                <View
-                  className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? "bg-primary" : "bg-surface-variant"}`}
+              {/* Reminder Section Header */}
+              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="bell" size={18} color="#ec4899"/><Text className="text-base font-bold text-on-surface">Pengingat</Text></View>
+              {Platform.OS !== "web" && (
+                <TouchableOpacity
+                  onPress={handleReminderToggle}
+                  className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
                 >
+                  <View className="flex-row items-center gap-4 flex-1 pr-4">
+                    <View
+                      className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? "bg-primary/20 text-primary" : "bg-surface-variant text-on-surface-variant"}`}
+                    >
+                      <FontAwesome name="bell" size={18} color={dailyReminder ? "#ec4899" : "#888"} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">
+                        Pengingat Harian & Promil
+                      </Text>
+                      <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
+                        {dailyReminder
+                          ? `Notifikasi lokal terjadwal setiap pukul ${reminderTimeLabel}.`
+                          : "Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile."}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Custom Toggle Switch */}
                   <View
-                    className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? "self-end" : "self-start"}`}
-                  />
-                </View>
-              </TouchableOpacity>
+                    className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? "bg-primary" : "bg-surface-variant"}`}
+                  >
+                    <View
+                      className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? "self-end" : "self-start"}`}
+                    />
+                  </View>
+                </TouchableOpacity>
+              )}
 
               {/* Card 5: Program Afiliasi */}
+              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="gift" size={18} color="#db2777"/><Text className="text-base font-bold text-on-surface">Referral</Text></View>
               <TouchableOpacity
                 onPress={() => router.push("/affiliate")}
                 className="bg-pink-50 rounded-[32px] p-6 shadow-sm border border-pink-100 flex-row items-center justify-between"
@@ -758,7 +726,6 @@ export default function SettingsScreen() {
           )}
 
           {activeViewTab === "profile" && (
-            /* Card 3: Profil & Pasangan */
             <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
               <View className="flex-row items-center gap-3 mb-2">
                 <FontAwesome name="heart" size={18} color="#ec4899" />
@@ -865,7 +832,8 @@ export default function SettingsScreen() {
             </View>
           )}
 
-          {/* Log Out Button */}
+          {/* Akun Section */}
+          <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="user" size={18} color="#ef4444"/><Text className="text-base font-bold text-on-surface">Akun</Text></View>
           <TouchableOpacity
             onPress={confirmSignOut}
             className="w-full mt-4 flex-row items-center justify-center gap-2 py-4 bg-error/10 rounded-2xl border border-error/20"

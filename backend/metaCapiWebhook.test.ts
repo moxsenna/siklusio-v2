@@ -413,3 +413,134 @@ test("Meta env missing should not break paid activation", async (t) => {
   assert.equal(userActivated, true);
   assert.equal(capiCalled, false); // No CAPI graph calls must happen when configs are missing
 });
+
+test("Paid webhook updates only matched checkout session when same email has multiple pending sessions", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const patchUrls: string[] = [];
+  let userActivated = false;
+
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input));
+
+    if (url.hostname === "project.supabase.co") {
+      if (url.pathname === "/rest/v1/pending_registrations") {
+        if (init?.method === "GET") {
+          return new Response(
+            JSON.stringify({
+              id: "pending-1",
+              user_id: "11111111-1111-4111-8111-111111111111",
+              email: "buyer@example.com",
+              name: "Buyer",
+              whatsapp: "08123456789",
+              affiliate_code: null,
+            }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
+        }
+        if (init?.method === "DELETE") {
+          return new Response("", { status: 204 });
+        }
+      }
+
+      if (url.pathname === "/rest/v1/checkout_sessions") {
+        if (init?.method === "GET") {
+          const txFilter = url.searchParams.get("mayar_transaction_id");
+          if (txFilter === "eq.tx-paid") {
+            return new Response(
+              JSON.stringify({
+                id: "session-paid",
+                email: "buyer@example.com",
+                whatsapp: "08123456789",
+                final_amount: 37000,
+                mayar_transaction_id: "tx-paid",
+                status: "pending",
+                hashed_email: "hashed-email-val",
+                hashed_phone: "hashed-phone-val",
+                fbp: null,
+                fbc: null,
+                client_ip_address: null,
+                client_user_agent: null,
+                meta_test_event_code: null,
+                purchase_capi_sent_at: null,
+                purchase_capi_event_id: null,
+              }),
+              { status: 200, headers: { "content-type": "application/json" } },
+            );
+          }
+          return new Response("null", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
+        }
+        if (init?.method === "PATCH") {
+          patchUrls.push(url.toString());
+          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+        }
+      }
+
+      if (url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" && init?.method === "PUT") {
+        userActivated = true;
+        return new Response(
+          JSON.stringify({
+            user: {
+              id: "11111111-1111-4111-8111-111111111111",
+              app_metadata: { siklusio_access_status: "active" },
+            },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+
+      if (url.pathname === "/rest/v1/ai_credit_ledger" || url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+        return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.pathname === "/rest/v1/affiliate_conversions") {
+        return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+      }
+    }
+
+    if (url.hostname === "graph.facebook.com") {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    throw new Error(`Unexpected fetch ${url.toString()} ${init?.method || "GET"}`);
+  };
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const response = await app.request(
+    "/api/payment/webhook",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-callback-token": "valid-token",
+      },
+      body: JSON.stringify({
+        event: "payment.success",
+        data: {
+          id: "tx-paid",
+          customerEmail: "buyer@example.com",
+        },
+      }),
+    },
+    env,
+  );
+
+  const responseText = await response.text();
+  assert.equal(response.status, 200, responseText);
+  assert.equal(userActivated, true);
+  assert.ok(patchUrls.length >= 1);
+
+  for (const patchUrl of patchUrls) {
+    assert.match(patchUrl, /id=eq\.session-paid/);
+    assert.equal(patchUrl.includes("email=eq."), false);
+    assert.equal(patchUrl.includes("status=eq.pending"), false);
+  }
+});

@@ -46,13 +46,14 @@ export const checkoutTopup = async (c: Context<{ Bindings: Env }>) => {
 
     console.log("--> Calling Mayar API to create topup link...");
     const { link: paymentUrl, id: mayarTxId } = await createMayarPaymentLink(mayarKey, {
-      name: `Top Up Kredit AI Siklusio (${credits} Kredit)`,
-      amount: finalAmount,
-      description: `Top up saldo kredit AI Siklusio sebanyak ${credits} kredit.`,
-      redirectUrl: "https://app.siklusio.web.id/auth?status=topup_success",
-      email: email,
-      mobile: whatsapp,
       customerName: name,
+      amount: finalAmount,
+      productName: `Top Up Kredit AI Siklusio (${credits} Kredit)`,
+      productDescription: `Top up saldo kredit AI Siklusio sebanyak ${credits} kredit.`,
+      productId: selectedPackage.id || `ai_credit_topup_${credits}`,
+      redirectUrl: "https://app.siklusio.web.id/auth?status=topup_success",
+      email,
+      mobile: whatsapp,
     });
 
     const { error: insertErr } = await supabaseAdmin.from("ai_credit_topups").insert({
@@ -99,15 +100,12 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
     }
 
     let validatedTestEventCode: string | undefined = undefined;
-    if (test_event_code) {
-      const secret = c.env.META_TEST_MODE_SECRET;
-      if (secret) {
-        if (test_secret === secret) {
-          validatedTestEventCode = test_event_code;
-        }
-      } else {
-        validatedTestEventCode = test_event_code;
-      }
+    if (
+      test_event_code &&
+      c.env.META_TEST_MODE_SECRET &&
+      test_secret === c.env.META_TEST_MODE_SECRET
+    ) {
+      validatedTestEventCode = test_event_code;
     }
 
     const clientIp = c.req.header("CF-Connecting-IP") || "";
@@ -415,14 +413,15 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
     let mayarTxId = "";
     try {
       const result = await createMayarPaymentLink(mayarKey, {
-        name: "Siklusio Premium — Akses Selamanya",
+        customerName: name,
         amount: finalAmount,
-        description:
-          "Investasi satu kali untuk akses selamanya: Pelacak Ovulasi Medis, Asisten AI 24/7, Komunitas Aman, dan Jembatan Rasa Suami.",
+        productName: "Siklusio Premium Lifetime",
+        productDescription:
+          "Akses selamanya Siklusio Premium: pelacak ovulasi, AI insight, komunitas aman, dan fitur promil.",
+        productId: "siklusio_premium_lifetime",
         redirectUrl: "https://app.siklusio.web.id/auth?status=success",
         email: email.toLowerCase(),
         mobile: whatsapp,
-        customerName: name,
       });
       paymentUrl = result.link;
       mayarTxId = result.id;

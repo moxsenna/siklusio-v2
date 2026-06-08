@@ -68,6 +68,9 @@ Berikut adalah riwayat berkas migrasi database terverifikasi yang telah diaplika
 - `20260605154500_meta_capi_attribution.sql`
 - `20260606120000_admin_crm_fix_pipeline.sql`
 - `20260606130000_whatsapp_autoresponder.sql`
+- `20260608120000_community_privacy_hardening.sql`
+- `20260608123000_revoke_anon_community_user_id_select.sql`
+- `20260608124500_regrant_anon_community_safe_columns.sql`
 
 ---
 

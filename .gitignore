@@ -48,6 +48,9 @@ graphify-out/.graphify_*
 .agent/
 .agents/
 
+# Supabase CLI local state (never commit)
+supabase/.temp/
+
 # Scratch folder
 scratch/
 

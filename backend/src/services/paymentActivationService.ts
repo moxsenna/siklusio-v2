@@ -1,14 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BindingsContext } from "../middlewares/auth";
-import { grantPremiumInitialAiCredits } from "./aiCreditLedger";
 import { upsertAdminCrmLead } from "./adminCrm";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "./metaCapi";
 import { sendWhatsappAutoresponder } from "./fonnte";
-import { resolveAuthUserForActivation } from "./authUserLookup";
 import {
   recordAdminManualAffiliateConversion,
   recordWebhookAffiliateConversion,
 } from "./affiliateConversionService";
+import {
+  grantAdminManualPremiumEntitlement,
+  grantWebhookPremiumEntitlement,
+} from "./premiumEntitlementService";
 import { logInfo, logWarn, logError } from "../logging/redaction";
 
 export type CheckoutSessionSnapshot = {
@@ -52,35 +54,6 @@ export type AdminManualActivationResult = {
   pendingRegistrationCleaned: boolean;
   warnings: string[];
 };
-
-export async function activatePendingAuthUser(
-  supabaseAdmin: SupabaseClient,
-  pendingUserId: string,
-) {
-  const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.updateUserById(
-    pendingUserId,
-    {
-      app_metadata: {
-        siklusio_access_status: "active",
-      },
-    },
-  );
-
-  if (signupErr) throw signupErr;
-  return authData.user;
-}
-
-export async function grantPremiumCreditsForActivation(
-  supabaseAdmin: SupabaseClient,
-  userId: string,
-  referenceId?: string | null,
-) {
-  return grantPremiumInitialAiCredits({
-    supabaseAdmin,
-    userId,
-    referenceId: referenceId || null,
-  });
-}
 
 export async function markCheckoutSessionPaid(
   supabaseAdmin: SupabaseClient,
@@ -283,16 +256,15 @@ export async function processMayarWebhookPremiumActivation(params: {
 }) {
   const { c, supabaseAdmin, pending, session, mayarTransactionId, email, fallbackAmount } = params;
 
-  logInfo("--> Activating existing pending Supabase Auth user:", pending.user_id);
-  const authUser = await activatePendingAuthUser(supabaseAdmin, pending.user_id);
-
-  if (authUser?.id) {
-    await grantPremiumCreditsForActivation(supabaseAdmin, authUser.id, session?.id || null);
-  }
+  const entitlement = await grantWebhookPremiumEntitlement({
+    supabaseAdmin,
+    pendingUserId: pending.user_id,
+    creditReferenceId: session?.id || null,
+  });
 
   try {
     await upsertAdminCrmLead(supabaseAdmin, {
-      userId: authUser?.id || pending.user_id || null,
+      userId: entitlement.userId || pending.user_id || null,
       pendingRegistrationId: pending.id,
       name: pending.name,
       email: pending.email,
@@ -347,7 +319,7 @@ export async function processMayarWebhookPremiumActivation(params: {
     fallbackAmount,
   });
 
-  return { userId: authUser?.id || null };
+  return { userId: entitlement.userId };
 }
 
 export async function processAdminManualPremiumActivation(params: {
@@ -367,54 +339,21 @@ export async function processAdminManualPremiumActivation(params: {
 }) {
   const { supabaseAdmin, pending, lead, email, amount, activationResult } = params;
 
-  let finalActivatedUserId: string | null = null;
-  const authUserId = pending?.user_id || lead.user_id || null;
-  const authUser = await resolveAuthUserForActivation(supabaseAdmin, {
-    authUserId,
+  const entitlement = await grantAdminManualPremiumEntitlement({
+    supabaseAdmin,
+    authUserId: pending?.user_id || lead.user_id || null,
     email,
   });
 
-  if (!authUser) {
-    activationResult.warnings.push(
-      "CRM status berhasil diubah, namun aktivasi user dilewati karena user terdaftar (auth) tidak ditemukan.",
-    );
+  activationResult.warnings.push(...entitlement.warnings);
+  activationResult.userActivated = entitlement.userActivated;
+  activationResult.creditsGranted = entitlement.creditsGranted;
+
+  if (!entitlement.activatedUserId) {
     return { activatedUserId: null };
   }
 
-  finalActivatedUserId = authUser.id;
-  const currentAccessStatus = authUser.app_metadata?.siklusio_access_status;
-  if (currentAccessStatus === "active") {
-    activationResult.warnings.push("User auth sudah dalam keadaan aktif.");
-  } else {
-    const { error: activeErr } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
-      app_metadata: {
-        ...(authUser.app_metadata || {}),
-        siklusio_access_status: "active",
-      },
-    });
-    if (activeErr) throw activeErr;
-    activationResult.userActivated = true;
-  }
-
-  const { data: premiumSession } = await supabaseAdmin
-    .from("checkout_sessions")
-    .select("id")
-    .eq("email", email)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const creditsResult = await grantPremiumCreditsForActivation(
-    supabaseAdmin,
-    authUser.id,
-    premiumSession?.id || null,
-  );
-
-  if (creditsResult !== null) {
-    activationResult.creditsGranted = true;
-  } else {
-    activationResult.warnings.push("Kredit premium awal (500) sudah pernah diberikan sebelumnya.");
-  }
+  const finalActivatedUserId = entitlement.activatedUserId;
 
   const affiliateCode = pending?.affiliate_code || lead.affiliate_code;
   if (affiliateCode) {

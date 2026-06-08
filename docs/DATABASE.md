@@ -29,6 +29,7 @@ Berikut adalah daftar tabel utama yang ada di dalam database Siklusio beserta pe
 | **`ai_credit_ledger`**      | Buku besar transaksi kredit AI (riwayat masuk/keluar kredit).                             | RLS aktif. Read-only untuk pemilik akun, mutasi dikontrol ketat oleh sistem.                                                                |
 | **`ai_credit_topups`**      | Log riwayat pembelian topup kredit AI.                                                    | RLS aktif. Read-only untuk pengguna, ditulis oleh sistem webhook Mayar.                                                                     |
 | **`recipe_generations`**    | Rekomendasi nutrisi harian yang dihasilkan oleh AI untuk fase siklus terkait.             | RLS aktif. User hanya bisa melihat hasil miliknya sendiri.                                                                                  |
+| **`ai_daily_generation_cache`** | Cache harian hasil AI gratis (`cycle_report`, `habits_insight`) per user per tanggal WIB. | RLS aktif. User terautentikasi hanya boleh `SELECT` baris miliknya; insert/update/delete hanya via `service_role` backend.                 |
 | **`habit_coach_plans`**     | Rencana kebiasaan harian jangka panjang yang disusun AI untuk promil.                     | RLS aktif. Pemilik rencana saja yang dapat mengakses.                                                                                       |
 | **`cycle_guides`**          | Hasil analisis siklus berkala terpersonalisasi yang diajukan ke OpenRouter.               | RLS aktif. Pemilik akun saja yang memiliki hak baca.                                                                                        |
 | **`pending_registrations`** | Pendaftaran member premium yang statusnya masih menunggu konfirmasi pembayaran.           | RLS aktif. Dikelola oleh backend webhook pembayaran.                                                                                        |
@@ -71,6 +72,7 @@ Berikut adalah riwayat berkas migrasi database terverifikasi yang telah diaplika
 - `20260608120000_community_privacy_hardening.sql`
 - `20260608123000_revoke_anon_community_user_id_select.sql`
 - `20260608124500_regrant_anon_community_safe_columns.sql`
+- `20260608130000_ai_daily_generation_cache.sql`
 
 ---
 

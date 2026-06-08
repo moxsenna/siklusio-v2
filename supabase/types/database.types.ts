@@ -365,6 +365,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_daily_generation_cache: {
+        Row: {
+          created_at: string
+          feature: string
+          generated_for_date: string
+          id: string
+          metadata: Json
+          result: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature: string
+          generated_for_date: string
+          id?: string
+          metadata?: Json
+          result: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature?: string
+          generated_for_date?: string
+          id?: string
+          metadata?: Json
+          result?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_daily_generation_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_credit_balances: {
         Row: {
           balance: number

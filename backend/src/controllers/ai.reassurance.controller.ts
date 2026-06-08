@@ -14,21 +14,15 @@ import {
   calmingReassuranceSchema,
 } from "../schemas/requestSchemas";
 import { aiSafetyEnvelope } from "../ai/safety";
+import {
+  getTodayDateKey,
+  getDailyGenerationCache,
+  saveDailyGenerationCache,
+} from "../services/aiDailyGenerationCache";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Returns today's date string (YYYY-MM-DD) in WIB (UTC+7).
- */
-function getTodayWib(): string {
-  const now = new Date();
-  // UTC+7 offset in ms
-  const wibOffset = 7 * 60 * 60 * 1000;
-  const wibDate = new Date(now.getTime() + wibOffset);
-  return wibDate.toISOString().slice(0, 10);
-}
 
 /**
  * Validates that the client-supplied generatedForDate is within ±1 day
@@ -36,7 +30,7 @@ function getTodayWib(): string {
  */
 function isDateValidForToday(clientDate: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(clientDate)) return false;
-  const todayWib = getTodayWib();
+  const todayWib = getTodayDateKey();
   const today = new Date(todayWib + "T00:00:00Z");
   const client = new Date(clientDate + "T00:00:00Z");
   const diffDays = Math.abs((client.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -61,16 +55,31 @@ async function sha256Hex(text: string): Promise<string> {
 export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-cycle-report");
   try {
-    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } =
-      await c.req.json();
-    const apiKey = c.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
-    }
-
     const auth = await requireUser(c);
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
+    }
+
+    const { cycleData, phase, cycleDay, daysToNextPeriod, fertilityWindow, nickname } =
+      await c.req.json();
+
+    const generatedForDate = getTodayDateKey();
+    const cachedRow = await getDailyGenerationCache(
+      auth.supabaseAdmin,
+      auth.user.id,
+      "cycle_report",
+      generatedForDate,
+    );
+
+    if (cachedRow?.result) {
+      console.log("--> [BACKEND] Returning cached cycle report for today.");
+      const result = aiSafetyEnvelope(validateCycleReport(cachedRow.result));
+      return c.json({ ...result, cached: true });
+    }
+
+    const apiKey = c.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
@@ -109,7 +118,17 @@ export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
 
     console.log("--> [BACKEND] Received OpenRouter response.");
     const result = aiSafetyEnvelope(validateCycleReport(ai.data));
-    return c.json(result);
+
+    await saveDailyGenerationCache(
+      auth.supabaseAdmin,
+      auth.user.id,
+      "cycle_report",
+      generatedForDate,
+      result as unknown as import("../../../supabase/types/database.types").Json,
+      { model: ai.model, usage: ai.usage || null },
+    );
+
+    return c.json({ ...result, cached: false });
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);
@@ -126,15 +145,30 @@ export const generateCycleReport = async (c: Context<{ Bindings: Env }>) => {
 export const generateHabitsInsight = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] Received request /api/generate-habits-insight");
   try {
-    const { weeklyData, currentPhase, nickname } = await c.req.json();
-    const apiKey = c.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
-    }
-
     const auth = await requireUser(c);
     if (!auth) {
       return c.json({ error: "Missing or invalid session" }, 401);
+    }
+
+    const { weeklyData, currentPhase, nickname } = await c.req.json();
+
+    const generatedForDate = getTodayDateKey();
+    const cachedRow = await getDailyGenerationCache(
+      auth.supabaseAdmin,
+      auth.user.id,
+      "habits_insight",
+      generatedForDate,
+    );
+
+    if (cachedRow?.result) {
+      console.log("--> [BACKEND] Returning cached habits insight for today.");
+      const result = aiSafetyEnvelope(validateHabitsInsight(cachedRow.result));
+      return c.json({ ...result, cached: true });
+    }
+
+    const apiKey = c.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return c.json({ error: "OPENROUTER_API_KEY is not defined" }, 500);
     }
 
     console.log("--> [BACKEND] Calling OpenRouter API...");
@@ -176,7 +210,17 @@ export const generateHabitsInsight = async (c: Context<{ Bindings: Env }>) => {
 
     console.log("--> [BACKEND] Received OpenRouter response.");
     const result = aiSafetyEnvelope(validateHabitsInsight(ai.data));
-    return c.json(result);
+
+    await saveDailyGenerationCache(
+      auth.supabaseAdmin,
+      auth.user.id,
+      "habits_insight",
+      generatedForDate,
+      result as unknown as import("../../../supabase/types/database.types").Json,
+      { model: ai.model, usage: ai.usage || null },
+    );
+
+    return c.json({ ...result, cached: false });
   } catch (error: any) {
     console.error("<-- [BACKEND] OpenRouter API Error / Exception:");
     console.error(error.stack || error);

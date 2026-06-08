@@ -3,6 +3,13 @@ import { type Env } from "../env";
 import { requireUser } from "../middlewares/auth";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 import { logInfo, logError } from "../logging/redaction";
+import {
+  getAffiliateForUser,
+  listAffiliateConversionsForUser,
+  registerPublicAffiliate,
+  updateAffiliateBankForUser,
+  validatePublicAffiliateCode,
+} from "../services/affiliatePublicService";
 import { processCheckoutRegistration } from "../services/checkoutRegistrationService";
 import { processCheckoutTopup } from "../services/checkoutTopupService";
 
@@ -59,35 +66,9 @@ export const checkoutRegister = async (c: Context<{ Bindings: Env }>) => {
 export const validateAffiliate = async (c: Context<{ Bindings: Env }>) => {
   console.log("--> [BACKEND] GET /api/affiliate/validate");
   try {
-    const code = (c.req.query("code") || "").trim().toUpperCase();
-    if (!code) return c.json({ valid: false });
-
     const supabaseAdmin = getSupabaseAdmin(c);
-    const { data: affiliate } = await supabaseAdmin
-      .from("affiliates")
-      .select("code, commission_type, commission_value")
-      .eq("code", code)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (!affiliate) return c.json({ valid: false });
-
-    const { data: coupon } = await supabaseAdmin
-      .from("coupons")
-      .select("discount_type, discount_value")
-      .eq("code", code)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    let discountLabel = "";
-    if (coupon) {
-      discountLabel =
-        coupon.discount_type === "percentage"
-          ? `Diskon ${coupon.discount_value}%`
-          : `Diskon Rp ${Number(coupon.discount_value).toLocaleString("id-ID")}`;
-    }
-
-    return c.json({ valid: true, discountLabel });
+    const result = await validatePublicAffiliateCode(supabaseAdmin, c.req.query("code") || "");
+    return c.json(result);
   } catch (error: any) {
     console.error("Affiliate validate error:", error);
     return c.json({ valid: false });
@@ -101,14 +82,8 @@ export const getAffiliateMe = async (c: Context<{ Bindings: Env }>) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
-    const { supabaseAdmin, user } = auth;
-    const { data: affiliate } = await supabaseAdmin
-      .from("affiliates")
-      .select("*")
-      .eq("email", user.email)
-      .maybeSingle();
-
-    return c.json({ affiliate: affiliate || null });
+    const affiliate = await getAffiliateForUser(auth.supabaseAdmin, auth.user.email);
+    return c.json({ affiliate });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -121,45 +96,14 @@ export const registerAffiliate = async (c: Context<{ Bindings: Env }>) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
-    const { supabaseAdmin, user } = auth;
-    const { code, bank_name, account_number, account_holder } = await c.req.json();
+    const body = await c.req.json();
+    const result = await registerPublicAffiliate(auth.supabaseAdmin, auth.user, body);
 
-    if (!code) {
-      return c.json({ error: "Kode referal wajib diisi" }, 400);
-    }
-    const safeCode = code.trim().toUpperCase().replace(/\s/g, "");
-
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("name, whatsapp_number")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const name = profile?.name || user.email?.split("@")[0] || "User";
-    const whatsapp = profile?.whatsapp_number || "-";
-
-    const { data, error } = await supabaseAdmin.rpc("create_affiliate_with_coupon", {
-      p_name: name,
-      p_email: user.email,
-      p_whatsapp: whatsapp,
-      p_code: safeCode,
-      p_commission_type: "percentage",
-      p_commission_value: 40,
-      p_bank_name: bank_name || null,
-      p_account_number: account_number || null,
-      p_account_holder: account_holder || null,
-      p_auto_coupon: false,
-      p_coupon_discount_type: "percentage",
-      p_coupon_discount_value: 0,
-    });
-
-    if (error) {
-      if (error.code === "23505")
-        return c.json({ error: "Kode referal sudah digunakan, pilih kode lain." }, 400);
-      throw error;
+    if (result.ok === false) {
+      return c.json({ error: result.error }, result.status);
     }
 
-    return c.json({ affiliate: data });
+    return c.json({ affiliate: result.affiliate });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -172,25 +116,11 @@ export const getAffiliateConversions = async (c: Context<{ Bindings: Env }>) => 
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
-    const { supabaseAdmin, user } = auth;
-    const { data: affiliate } = await supabaseAdmin
-      .from("affiliates")
-      .select("id")
-      .eq("email", user.email)
-      .maybeSingle();
-
-    if (!affiliate) {
-      return c.json({ conversions: [] });
-    }
-
-    const { data: conversions, error } = await supabaseAdmin
-      .from("affiliate_conversions")
-      .select("*")
-      .eq("affiliate_id", affiliate.id)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return c.json({ conversions: conversions || [] });
+    const conversions = await listAffiliateConversionsForUser(
+      auth.supabaseAdmin,
+      auth.user.email,
+    );
+    return c.json({ conversions });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -203,15 +133,8 @@ export const updateAffiliateBank = async (c: Context<{ Bindings: Env }>) => {
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
-    const { supabaseAdmin, user } = auth;
-    const { bank_name, account_number, account_holder } = await c.req.json();
-
-    const { error } = await supabaseAdmin
-      .from("affiliates")
-      .update({ bank_name, account_number, account_holder })
-      .eq("email", user.email);
-
-    if (error) throw error;
+    const body = await c.req.json();
+    await updateAffiliateBankForUser(auth.supabaseAdmin, auth.user.email, body);
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);

@@ -57,6 +57,7 @@ test("manual payment override requires validation and is idempotent", async (t) 
   const originalFetch = globalThis.fetch;
   const updates: any[] = [];
   const inserts: any[] = [];
+  let listUsersCalls = 0;
 
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
@@ -163,20 +164,13 @@ test("manual payment override requires validation and is idempotent", async (t) 
       return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
     }
 
-    // List users (to find matching email for activation)
-    if (url.hostname === "project.supabase.co" && url.pathname === "/auth/v1/admin/users") {
-      return new Response(
-        JSON.stringify({
-          users: [
-            {
-              id: "c0000000-0000-0000-0000-000000000123",
-              email: "test@example.com",
-              app_metadata: { provider: "email" },
-            },
-          ],
-        }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      );
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users" &&
+      (!init?.method || init.method === "GET")
+    ) {
+      listUsersCalls += 1;
+      throw new Error("listUsers should not be called during admin manual payment activation");
     }
 
     // Get user by ID (for auth check in override)
@@ -316,4 +310,5 @@ test("manual payment override requires validation and is idempotent", async (t) 
   assert.deepEqual(dataIdempotent.activationResult.warnings, [
     "Permintaan ini sudah diproses sebelumnya (idempotency key cocok).",
   ]);
+  assert.equal(listUsersCalls, 0);
 });

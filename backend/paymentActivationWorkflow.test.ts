@@ -349,10 +349,20 @@ test("paid webhook sends Meta CAPI once and recovery path only when purchase_cap
 test("admin manual premium activation does not send Meta CAPI Purchase", async (t) => {
   const originalFetch = globalThis.fetch;
   let capiCalls = 0;
+  let listUsersCalls = 0;
   const authUpdateBodies: Array<Record<string, unknown>> = [];
 
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users" &&
+      (!init?.method || init.method === "GET")
+    ) {
+      listUsersCalls += 1;
+      throw new Error("listUsers should not be called during admin manual payment activation");
+    }
 
     if (
       url.hostname === "project.supabase.co" &&
@@ -499,6 +509,181 @@ test("admin manual premium activation does not send Meta CAPI Purchase", async (
   assert.equal(authUpdateBodies.length, 1);
   assert.equal((authUpdateBodies[0].app_metadata as any).provider, "email");
   assert.equal((authUpdateBodies[0].app_metadata as any).siklusio_access_status, "active");
+  assert.equal(listUsersCalls, 0);
+});
+
+test("admin manual activation resolves auth user via pending registration without listUsers", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let listUsersCalls = 0;
+  const authUpdateBodies: Array<Record<string, unknown>> = [];
+
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input));
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users" &&
+      (!init?.method || init.method === "GET")
+    ) {
+      listUsersCalls += 1;
+      throw new Error("listUsers should not be called during admin manual payment activation");
+    }
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/check_rate_limit" &&
+      init?.method === "POST"
+    ) {
+      return mockRateLimitResponse();
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/auth/v1/user") {
+      return new Response(
+        JSON.stringify({ id: "admin-uid", email: "admin@example.com" }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/profiles") {
+      return new Response(JSON.stringify({ is_admin: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_leads") {
+      if (!init?.method || init.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            id: "lead-pending-only",
+            name: "Buyer",
+            email: "buyer@example.com",
+            whatsapp: "08123456789",
+            payment_status: "pending_payment",
+            lead_status: "new_lead",
+            user_id: null,
+            affiliate_code: null,
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+      if (init.method === "PATCH") {
+        return new Response(
+          JSON.stringify({
+            id: "lead-pending-only",
+            payment_status: "paid_manual",
+            lead_status: "paid",
+            user_id: "11111111-1111-4111-8111-111111111111",
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+      if (!init?.method || init.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            id: "pending-lookup",
+            user_id: "11111111-1111-4111-8111-111111111111",
+            email: "buyer@example.com",
+            name: "Buyer",
+            whatsapp: "08123456789",
+            affiliate_code: null,
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+      if (init.method === "DELETE") {
+        return new Response("", { status: 204 });
+      }
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_payment_overrides") {
+      if (!init?.method || init.method === "GET") {
+        return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+      }
+      if (init.method === "POST") {
+        const body = JSON.parse(String(init.body || "{}"));
+        return new Response(JSON.stringify({ id: "override-pending", ...body }), {
+          status: 201,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      if (init.method === "PATCH") {
+        return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+      }
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_audit_logs") {
+      return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+    }
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111"
+    ) {
+      if (!init?.method || init.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            user: {
+              id: "11111111-1111-4111-8111-111111111111",
+              email: "buyer@example.com",
+              app_metadata: { provider: "email", siklusio_access_status: "pending" },
+            },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+      if (init.method === "PUT") {
+        authUpdateBodies.push(JSON.parse(String(init.body || "{}")));
+        return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+      }
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/checkout_sessions") {
+      return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/ai_credit_ledger") {
+      return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+      return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+    }
+
+    throw new Error(`Unexpected fetch ${url.toString()} ${init?.method || "GET"}`);
+  };
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const response = await app.request(
+    "/api/admin/crm/leads/lead-pending-only/payment-override",
+    {
+      method: "POST",
+      headers: {
+        authorization: "Bearer admin-token",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        payment_status: "paid_manual",
+        reason: "Valid reason for payment override",
+        reference: "REF-PENDING",
+        amount: 37000,
+        should_activate_user: true,
+      }),
+    },
+    adminEnv,
+  );
+
+  assert.equal(response.status, 200);
+  const json = await response.json();
+  assert.equal(json.activationResult.userActivated, true);
+  assert.equal(authUpdateBodies.length, 1);
+  assert.equal(listUsersCalls, 0);
 });
 
 test("webhook premium credit grant failure returns 500 instead of false success", async (t) => {

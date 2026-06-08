@@ -4,6 +4,7 @@ import { grantPremiumInitialAiCredits } from "./aiCreditLedger";
 import { upsertAdminCrmLead } from "./adminCrm";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "./metaCapi";
 import { sendWhatsappAutoresponder } from "./fonnte";
+import { resolveAuthUserForActivation } from "./authUserLookup";
 import { logInfo, logWarn, logError } from "../logging/redaction";
 
 export type CheckoutSessionSnapshot = {
@@ -423,32 +424,6 @@ export async function processMayarWebhookPremiumActivation(params: {
   return { userId: authUser?.id || null };
 }
 
-async function resolveAuthUserForManualActivation(
-  supabaseAdmin: SupabaseClient,
-  params: {
-    authUserId?: string | null;
-    email: string;
-  },
-) {
-  let authUser: any = null;
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  if (params.authUserId && uuidRegex.test(params.authUserId)) {
-    const { data: authData } = await supabaseAdmin.auth.admin.getUserById(params.authUserId);
-    authUser = authData?.user;
-  }
-
-  if (!authUser && params.email) {
-    const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
-    if (listErr) {
-      logError("Failed to list users in override:", listErr);
-    }
-    authUser = userList?.users.find((u: any) => u.email?.toLowerCase() === params.email);
-  }
-
-  return authUser;
-}
-
 export async function processAdminManualPremiumActivation(params: {
   supabaseAdmin: SupabaseClient;
   pending: PendingRegistrationSnapshot | null;
@@ -468,7 +443,7 @@ export async function processAdminManualPremiumActivation(params: {
 
   let finalActivatedUserId: string | null = null;
   const authUserId = pending?.user_id || lead.user_id || null;
-  const authUser = await resolveAuthUserForManualActivation(supabaseAdmin, {
+  const authUser = await resolveAuthUserForActivation(supabaseAdmin, {
     authUserId,
     email,
   });

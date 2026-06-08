@@ -2,10 +2,9 @@ import { Context } from "hono";
 import { type Env } from "../env";
 import { requireUser } from "../middlewares/auth";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
-import { resolveTopupPackage } from "../payments/topupPackages";
-import { createMayarPaymentLink } from "../services/mayar";
 import { logInfo, logError } from "../logging/redaction";
 import { processCheckoutRegistration } from "../services/checkoutRegistrationService";
+import { processCheckoutTopup } from "../services/checkoutTopupService";
 
 // POST /api/checkout/topup
 export const checkoutTopup = async (c: Context<{ Bindings: Env }>) => {
@@ -15,58 +14,18 @@ export const checkoutTopup = async (c: Context<{ Bindings: Env }>) => {
     if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
 
     const { packageId } = await c.req.json();
-
-    const selectedPackage = resolveTopupPackage(packageId);
-    if (!selectedPackage) {
-      return c.json({ error: "Paket topup tidak valid." }, 400);
-    }
-
-    const mayarKey = c.env.MAYAR_API_KEY;
-    if (!mayarKey) {
-      return c.json({ error: "Konfigurasi pembayaran belum tersedia." }, 500);
-    }
-
-    const finalAmount = selectedPackage.price;
-    const credits = selectedPackage.credits;
-    const { supabaseAdmin, user } = auth;
-
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("name, whatsapp_number")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const name = profile?.name || user.email?.split("@")[0] || "User";
-    const whatsapp = profile?.whatsapp_number || "-";
-    const email = user.email || "";
-
-    console.log("--> Calling Mayar API to create topup link...");
-    const { link: paymentUrl, id: mayarTxId } = await createMayarPaymentLink(mayarKey, {
-      customerName: name,
-      amount: finalAmount,
-      productName: `Top Up Kredit AI Siklusio (${credits} Kredit)`,
-      productDescription: `Top up saldo kredit AI Siklusio sebanyak ${credits} kredit.`,
-      productId: selectedPackage.id || `ai_credit_topup_${credits}`,
-      redirectUrl: "https://app.siklusio.web.id/auth?status=topup_success",
-      email,
-      mobile: whatsapp,
+    const result = await processCheckoutTopup({
+      c,
+      supabaseAdmin: auth.supabaseAdmin,
+      user: auth.user,
+      packageId,
     });
 
-    const { error: insertErr } = await supabaseAdmin.from("ai_credit_topups").insert({
-      user_id: user.id,
-      mayar_link: paymentUrl,
-      mayar_transaction_id: mayarTxId,
-      amount_rp: finalAmount,
-      credits_amount: credits,
-      status: "pending",
-    });
-
-    if (insertErr) {
-      console.error("DB Insert topup error:", insertErr);
-      return c.json({ error: "Gagal memproses permintaan topup." }, 500);
+    if (result.ok === false) {
+      return c.json({ error: result.error }, result.status);
     }
 
-    return c.json({ paymentUrl });
+    return c.json({ paymentUrl: result.paymentUrl });
   } catch (error: any) {
     console.error("<-- Checkout topup error:", error.stack || error);
     return c.json({ error: "Terjadi kesalahan internal pada server topup." }, 500);

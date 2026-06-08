@@ -1,13 +1,11 @@
-import { Context } from "hono";
-import { type Env } from "../env";
-import { requireAdmin } from "../middlewares/auth";
+import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
 import { logInfo, logError } from "../logging/redaction";
 import {
   processAdminManualPremiumActivation,
   scheduleAdminManualPaymentAutoresponder,
 } from "../services/paymentActivationService";
 
-type AdminContext = Context<{ Bindings: Env }>;
+type AdminContext = AdminHandlerContext;
 
 const leadStatuses = new Set([
   "new_lead",
@@ -73,10 +71,7 @@ async function insertAuditLog(
 
 export const getAdminCrmSummary = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
-
-    const { supabaseAdmin } = admin;
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const { data: leads, error } = await supabaseAdmin
       .from("admin_crm_leads")
@@ -117,8 +112,7 @@ export const getAdminCrmSummary = async (c: AdminContext) => {
 
 export const getAdminCrmLeads = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const limitRaw = c.req.query("limit");
     const offsetRaw = c.req.query("offset");
@@ -196,8 +190,7 @@ export const getAdminCrmLeads = async (c: AdminContext) => {
 
 export const createAdminCrmLead = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const body = await c.req.json();
 
@@ -245,8 +238,7 @@ export const createAdminCrmLead = async (c: AdminContext) => {
 
 export const updateAdminCrmLead = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const id = c.req.param("id");
     const body = await c.req.json();
@@ -303,8 +295,7 @@ export const updateAdminCrmLead = async (c: AdminContext) => {
 
 export const createAdminCrmNote = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const leadId = c.req.param("id");
     const body = await c.req.json();
@@ -342,9 +333,7 @@ export const createAdminCrmNote = async (c: AdminContext) => {
 
 export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
-
+    const admin = getAdminAuth(c);
     const { supabaseAdmin } = admin;
     const leadId = c.req.param("id");
     const body = await c.req.json();
@@ -569,8 +558,7 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
 
 export const markAdminCrmLeadContacted = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const id = c.req.param("id");
     const now = new Date().toISOString();

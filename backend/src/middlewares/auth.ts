@@ -1,8 +1,21 @@
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { type Context, type Next } from "hono";
 import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 
-export const requireUser = async (c: Context<{ Bindings: Env }>) => {
+export type AuthContext = {
+  supabaseAdmin: SupabaseClient;
+  user: User;
+};
+
+export type AppVariables = {
+  adminAuth?: AuthContext;
+};
+
+export type BindingsContext = Context<{ Bindings: Env; Variables?: AppVariables }>;
+export type AdminHandlerContext = BindingsContext;
+
+export const requireUser = async (c: BindingsContext) => {
   const authHeader = c.req.header("authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
 
@@ -25,7 +38,7 @@ export const requireUser = async (c: Context<{ Bindings: Env }>) => {
   }
 };
 
-export const requireAdmin = async (c: Context<{ Bindings: Env }>) => {
+export const requireAdmin = async (c: BindingsContext) => {
   const auth = await requireUser(c);
   if (!auth) return null;
   const { supabaseAdmin, user } = auth;
@@ -38,10 +51,7 @@ export const requireAdmin = async (c: Context<{ Bindings: Env }>) => {
   return { supabaseAdmin, user };
 };
 
-export const requireAdminMiddleware = async (
-  c: Context<{ Bindings: Env }>,
-  next: Next,
-) => {
+export const requireAdminMiddleware = async (c: AdminHandlerContext, next: Next) => {
   const auth = await requireUser(c);
   if (!auth) {
     return c.json({ error: "Missing or invalid session" }, 401);
@@ -58,5 +68,14 @@ export const requireAdminMiddleware = async (
     return c.json({ error: "Forbidden" }, 403);
   }
 
+  c.set("adminAuth", auth);
   await next();
 };
+
+export function getAdminAuth(c: AdminHandlerContext): AuthContext {
+  const adminAuth = c.get("adminAuth");
+  if (!adminAuth) {
+    throw new Error("Admin auth context missing. Route must use requireAdminMiddleware.");
+  }
+  return adminAuth;
+}

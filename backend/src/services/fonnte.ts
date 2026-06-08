@@ -1,8 +1,5 @@
-import type { Context } from "hono";
-import type { Env } from "../env";
+import type { BindingsContext } from "../middlewares/auth";
 import { logError, logInfo, logWarn } from "../logging/redaction";
-
-type BindingsContext = Context<{ Bindings: Env }>;
 
 export type WhatsappAutoresponderEvent =
   | "registration_completed"

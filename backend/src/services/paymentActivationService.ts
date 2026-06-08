@@ -1,13 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Context } from "hono";
-import type { Env } from "../env";
+import type { BindingsContext } from "../middlewares/auth";
 import { grantPremiumInitialAiCredits } from "./aiCreditLedger";
 import { upsertAdminCrmLead } from "./adminCrm";
 import { hashData, formatE164Phone, sendMetaCapiEvent } from "./metaCapi";
 import { sendWhatsappAutoresponder } from "./fonnte";
 import { logInfo, logWarn, logError } from "../logging/redaction";
-
-export type BindingsContext = Context<{ Bindings: Env }>;
 
 export type CheckoutSessionSnapshot = {
   id: string;

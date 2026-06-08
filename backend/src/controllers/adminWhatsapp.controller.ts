@@ -1,6 +1,5 @@
-import type { Context } from "hono";
 import type { Env } from "../env";
-import { requireAdmin } from "../middlewares/auth";
+import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
 import {
   normalizeWhatsapp,
   renderWhatsappTemplate,
@@ -8,7 +7,7 @@ import {
 } from "../services/fonnte";
 import { logError } from "../logging/redaction";
 
-type AdminContext = Context<{ Bindings: Env }>;
+type AdminContext = AdminHandlerContext;
 
 const allowedEvents = new Set([
   "registration_completed",
@@ -38,8 +37,7 @@ const dummyContext = {
 
 export const getAdminWhatsappSettings = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const { data, error } = await admin.supabaseAdmin
       .from("whatsapp_autoresponder_settings")
@@ -67,8 +65,7 @@ export const getAdminWhatsappSettings = async (c: AdminContext) => {
 
 export const updateAdminWhatsappSetting = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const eventKey = c.req.param("eventKey");
     if (!allowedEvents.has(eventKey)) {
@@ -119,8 +116,7 @@ export const updateAdminWhatsappSetting = async (c: AdminContext) => {
 
 export const previewAdminWhatsappTemplate = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const body = await c.req.json();
     const template = String(body.message_template || "");
@@ -147,8 +143,7 @@ export const previewAdminWhatsappTemplate = async (c: AdminContext) => {
 
 export const sendAdminWhatsappTest = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const body = await c.req.json();
     const eventKey = String(body.eventKey || "");
@@ -178,8 +173,7 @@ export const sendAdminWhatsappTest = async (c: AdminContext) => {
 
 export const getAdminWhatsappLogs = async (c: AdminContext) => {
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const admin = getAdminAuth(c);
 
     const eventKey = c.req.query("event");
     const statusFilter = c.req.query("status");

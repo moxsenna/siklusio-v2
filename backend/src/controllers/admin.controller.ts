@@ -1,31 +1,11 @@
-import { Context } from "hono";
-import { type Env } from "../env";
-import { requireUser, requireAdmin } from "../middlewares/auth";
+import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
 import { listAllAuthUsers } from "../services/supabaseAdmin";
 
 // GET /api/admin/users
-export const getAdminUsers = async (c: Context<{ Bindings: Env }>) => {
+export const getAdminUsers = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] Received request /api/admin/users");
   try {
-    const auth = await requireUser(c);
-    if (!auth) {
-      return c.json({ error: "Missing or invalid session" }, 401);
-    }
-    const { supabaseAdmin, user } = auth;
-
-    const { data: profile, error: profileErr } = await supabaseAdmin
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profileErr) {
-      return c.json({ error: profileErr.message }, 500);
-    }
-
-    if (!profile?.is_admin) {
-      return c.json({ error: "Forbidden: admin access required" }, 403);
-    }
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const authUsers = await listAllAuthUsers(supabaseAdmin);
     const authUsersById = new Map(authUsers.map((authUser: any) => [authUser.id, authUser]));
@@ -37,7 +17,6 @@ export const getAdminUsers = async (c: Context<{ Bindings: Env }>) => {
 
     if (profileError) throw profileError;
 
-    // Merge database profiles and Auth emails
     const usersData = profiles.map((p) => {
       const authUser = authUsersById.get(p.id);
       return {
@@ -55,19 +34,10 @@ export const getAdminUsers = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // GET /api/admin/coupons
-export const getAdminCoupons = async (c: Context<{ Bindings: Env }>) => {
+export const getAdminCoupons = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] Received request GET /api/admin/coupons");
   try {
-    const auth = await requireUser(c);
-    if (!auth) return c.json({ error: "Missing or invalid session" }, 401);
-
-    const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (!profile?.is_admin) return c.json({ error: "Forbidden: admin access required" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const { data: coupons, error } = await supabaseAdmin
       .from("coupons")
@@ -82,18 +52,10 @@ export const getAdminCoupons = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // POST /api/admin/coupons
-export const createAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
+export const createAdminCoupon = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] Received request POST /api/admin/coupons");
   try {
-    const auth = await requireUser(c);
-    if (!auth) return c.json({ error: "Missing session" }, 401);
-    const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const { code, discount_type, discount_value, is_active } = await c.req.json();
     if (!code || !discount_type || !discount_value) {
@@ -119,17 +81,9 @@ export const createAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // PATCH /api/admin/coupons/:id
-export const updateAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
+export const updateAdminCoupon = async (c: AdminHandlerContext) => {
   try {
-    const auth = await requireUser(c);
-    if (!auth) return c.json({ error: "Missing session" }, 401);
-    const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const id = c.req.param("id");
     const { is_active } = await c.req.json();
@@ -143,17 +97,9 @@ export const updateAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // DELETE /api/admin/coupons/:id
-export const deleteAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
+export const deleteAdminCoupon = async (c: AdminHandlerContext) => {
   try {
-    const auth = await requireUser(c);
-    if (!auth) return c.json({ error: "Missing session" }, 401);
-    const { supabaseAdmin, user } = auth;
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (!profile?.is_admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const id = c.req.param("id");
     const { error } = await supabaseAdmin.from("coupons").delete().eq("id", id);
@@ -165,13 +111,12 @@ export const deleteAdminCoupon = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // GET /api/admin/affiliates
-export const getAdminAffiliates = async (c: Context<{ Bindings: Env }>) => {
+export const getAdminAffiliates = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
-    const { data, error } = await admin.supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("affiliates")
       .select("*")
       .order("created_at", { ascending: false });
@@ -183,11 +128,10 @@ export const getAdminAffiliates = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // POST /api/admin/affiliates
-export const createAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
+export const createAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] POST /api/admin/affiliates");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const body = await c.req.json();
     const {
@@ -210,8 +154,7 @@ export const createAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
     }
 
     if (autoCreateCoupon) {
-      // Use transactional RPC
-      const { data, error } = await admin.supabaseAdmin.rpc("create_affiliate_with_coupon", {
+      const { data, error } = await supabaseAdmin.rpc("create_affiliate_with_coupon", {
         p_name: name,
         p_email: email,
         p_whatsapp: whatsapp,
@@ -227,42 +170,39 @@ export const createAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
       });
       if (error) throw error;
       return c.json({ result: data });
-    } else {
-      // Direct insert without coupon
-      const { data, error } = await admin.supabaseAdmin
-        .from("affiliates")
-        .insert({
-          name,
-          email,
-          whatsapp,
-          code: code.trim().toUpperCase(),
-          commission_type,
-          commission_value: Number(commission_value),
-          bank_name: bank_name || null,
-          account_number: account_number || null,
-          account_holder: account_holder || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return c.json({ affiliate: data });
     }
+
+    const { data, error } = await supabaseAdmin
+      .from("affiliates")
+      .insert({
+        name,
+        email,
+        whatsapp,
+        code: code.trim().toUpperCase(),
+        commission_type,
+        commission_value: Number(commission_value),
+        bank_name: bank_name || null,
+        account_number: account_number || null,
+        account_holder: account_holder || null,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return c.json({ affiliate: data });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
 };
 
 // PATCH /api/admin/affiliates/:id
-export const updateAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
+export const updateAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/:id");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const id = c.req.param("id");
     const updates = await c.req.json();
 
-    // Only allow safe fields to be updated
     const allowedFields = [
       "name",
       "email",
@@ -280,7 +220,7 @@ export const updateAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];
     }
 
-    const { error } = await admin.supabaseAdmin
+    const { error } = await supabaseAdmin
       .from("affiliates")
       .update(safeUpdates as any)
       .eq("id", id);
@@ -292,14 +232,13 @@ export const updateAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // DELETE /api/admin/affiliates/:id
-export const deleteAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
+export const deleteAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] DELETE /api/admin/affiliates/:id");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
     const id = c.req.param("id");
-    const { error } = await admin.supabaseAdmin.from("affiliates").delete().eq("id", id);
+    const { error } = await supabaseAdmin.from("affiliates").delete().eq("id", id);
     if (error) throw error;
     return c.json({ status: "ok" });
   } catch (error: any) {
@@ -308,13 +247,12 @@ export const deleteAdminAffiliate = async (c: Context<{ Bindings: Env }>) => {
 };
 
 // GET /api/admin/affiliates/conversions
-export const getAdminAffiliateConversions = async (c: Context<{ Bindings: Env }>) => {
+export const getAdminAffiliateConversions = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates/conversions");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin } = getAdminAuth(c);
 
-    const { data, error } = await admin.supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("affiliate_conversions")
       .select(
         "*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)",
@@ -328,21 +266,20 @@ export const getAdminAffiliateConversions = async (c: Context<{ Bindings: Env }>
 };
 
 // PATCH /api/admin/affiliates/conversions/:id/payout
-export const payoutAdminAffiliateConversion = async (c: Context<{ Bindings: Env }>) => {
+export const payoutAdminAffiliateConversion = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/conversions/:id/payout");
   try {
-    const admin = await requireAdmin(c);
-    if (!admin) return c.json({ error: "Forbidden" }, 403);
+    const { supabaseAdmin, user } = getAdminAuth(c);
 
     const id = c.req.param("id");
     const { payout_reference, payout_note } = await c.req.json();
 
-    const { error } = await admin.supabaseAdmin
+    const { error } = await supabaseAdmin
       .from("affiliate_conversions")
       .update({
         payout_status: "paid",
         payout_at: new Date().toISOString(),
-        payout_marked_by: admin.user.email || admin.user.id,
+        payout_marked_by: user.email || user.id,
         payout_reference: payout_reference || null,
         payout_note: payout_note || null,
       })

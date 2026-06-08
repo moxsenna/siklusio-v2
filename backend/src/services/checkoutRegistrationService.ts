@@ -33,11 +33,37 @@ export type CouponRecord = {
   discount_value: number;
 };
 
+export const DUPLICATE_EMAIL_ERROR =
+  "Email ini sudah terdaftar. Silakan login langsung di aplikasi.";
+
 export type CheckoutRegisterFailure = {
   ok: false;
   status: 400 | 500;
   error: string;
 };
+
+export function isDuplicateEmailSignupError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+
+  const err = error as { message?: string; status?: number; code?: string };
+  const message = String(err.message || "").toLowerCase();
+
+  return (
+    err.status === 422 ||
+    err.code === "email_exists" ||
+    message.includes("already been registered") ||
+    message.includes("already registered") ||
+    message.includes("user already registered")
+  );
+}
+
+export function duplicateEmailFailure(): CheckoutRegisterFailure {
+  return {
+    ok: false,
+    status: 400,
+    error: DUPLICATE_EMAIL_ERROR,
+  };
+}
 
 export type CheckoutRegisterResult =
   | { ok: true; paymentUrl: string }
@@ -245,6 +271,9 @@ async function processFreeBypassCheckout(params: {
 
   if (signupErr) {
     logError("Supabase auth user creation error:", signupErr);
+    if (isDuplicateEmailSignupError(signupErr)) {
+      return duplicateEmailFailure();
+    }
     return { ok: false, status: 500, error: "Gagal membuat akun: " + signupErr.message };
   }
 
@@ -434,6 +463,9 @@ async function processPaidCheckoutRegistration(params: {
 
   if (signupErr) {
     logError("Supabase auth user creation error:", signupErr);
+    if (isDuplicateEmailSignupError(signupErr)) {
+      return duplicateEmailFailure();
+    }
     return { ok: false, status: 500, error: "Gagal membuat akun: " + signupErr.message };
   }
 
@@ -607,23 +639,6 @@ export async function processCheckoutRegistration(params: {
       ok: false,
       status: 500,
       error: "Konfigurasi pembayaran belum tersedia. Hubungi admin.",
-    };
-  }
-
-  logInfo("--> Checking existing auth users...");
-  const { data: authUserList, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
-  if (authErr) {
-    logError("Error listing users:", authErr);
-  }
-  const emailExists = authUserList?.users.some(
-    (u: any) => u.email?.toLowerCase() === email.toLowerCase(),
-  );
-
-  if (emailExists) {
-    return {
-      ok: false,
-      status: 400,
-      error: "Email ini sudah terdaftar. Silakan login langsung di aplikasi.",
     };
   }
 

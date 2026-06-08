@@ -2,9 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   BASE_CHECKOUT_AMOUNT,
+  DUPLICATE_EMAIL_ERROR,
   MIN_PAID_CHECKOUT_AMOUNT,
   applyCouponDiscount,
+  duplicateEmailFailure,
   enforceMinimumPaidAmount,
+  isDuplicateEmailSignupError,
   normalizeAffiliateCodeInput,
   normalizeCouponCode,
   resolveValidatedTestEventCode,
@@ -66,4 +69,24 @@ test("enforceMinimumPaidAmount keeps free checkout at zero and enforces minimum 
   assert.equal(enforceMinimumPaidAmount(0), 0);
   assert.equal(enforceMinimumPaidAmount(5000), MIN_PAID_CHECKOUT_AMOUNT);
   assert.equal(enforceMinimumPaidAmount(BASE_CHECKOUT_AMOUNT), BASE_CHECKOUT_AMOUNT);
+});
+
+test("isDuplicateEmailSignupError detects Supabase duplicate email signup errors", () => {
+  assert.equal(
+    isDuplicateEmailSignupError({
+      status: 422,
+      message: "A user with this email address has already been registered",
+      code: "email_exists",
+    }),
+    true,
+  );
+  assert.equal(isDuplicateEmailSignupError({ status: 500, message: "database unavailable" }), false);
+});
+
+test("duplicateEmailFailure preserves existing duplicate email client response", () => {
+  assert.deepEqual(duplicateEmailFailure(), {
+    ok: false,
+    status: 400,
+    error: DUPLICATE_EMAIL_ERROR,
+  });
 });

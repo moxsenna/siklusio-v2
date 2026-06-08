@@ -27,17 +27,6 @@ test("paid checkout stores pending registration without plaintext password", asy
     if (
       url.hostname === "project.supabase.co" &&
       url.pathname === "/auth/v1/admin/users" &&
-      (!init?.method || init.method === "GET")
-    ) {
-      return new Response(JSON.stringify({ users: [] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-
-    if (
-      url.hostname === "project.supabase.co" &&
-      url.pathname === "/auth/v1/admin/users" &&
       init?.method === "POST"
     ) {
       authCreateBodies.push(JSON.parse(String(init.body || "{}")));
@@ -287,17 +276,6 @@ test("paid checkout does not return payment URL when checkout session insert fai
     if (
       url.hostname === "project.supabase.co" &&
       url.pathname === "/auth/v1/admin/users" &&
-      (!init?.method || init.method === "GET")
-    ) {
-      return new Response(JSON.stringify({ users: [] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
-
-    if (
-      url.hostname === "project.supabase.co" &&
-      url.pathname === "/auth/v1/admin/users" &&
       init?.method === "POST"
     ) {
       return new Response(
@@ -409,17 +387,6 @@ async function registerCheckoutWithMetaTestFields(
 
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
-
-    if (
-      url.hostname === "project.supabase.co" &&
-      url.pathname === "/auth/v1/admin/users" &&
-      (!init?.method || init.method === "GET")
-    ) {
-      return new Response(JSON.stringify({ users: [] }), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-    }
 
     if (
       url.hostname === "project.supabase.co" &&
@@ -543,4 +510,102 @@ test("checkout register stores test_event_code only when test_secret matches MET
   assert.equal(response.status, 200);
   assert.equal(checkoutSessionsBodies.length, 1);
   assert.equal(checkoutSessionsBodies[0].meta_test_event_code, "TESTCODE");
+});
+
+test("duplicate email returns existing client error without listUsers or downstream side effects", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let listUsersCalls = 0;
+  let mayarCalls = 0;
+  let capiCalls = 0;
+  const pendingBodies: unknown[] = [];
+  const checkoutSessionsBodies: unknown[] = [];
+
+  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input));
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users" &&
+      (!init?.method || init.method === "GET")
+    ) {
+      listUsersCalls += 1;
+      throw new Error("listUsers should not be called during checkout registration");
+    }
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/auth/v1/admin/users" &&
+      init?.method === "POST"
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: "email_exists",
+          message: "A user with this email address has already been registered",
+        }),
+        { status: 422, headers: { "content-type": "application/json" } },
+      );
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+      pendingBodies.push(JSON.parse(String(init?.body || "{}")));
+      return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+    }
+
+    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/checkout_sessions") {
+      checkoutSessionsBodies.push(JSON.parse(String(init?.body || "{}")));
+      return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+    }
+
+    if (url.hostname === "api.mayar.id" && url.pathname === "/hl/v1/invoice/create") {
+      mayarCalls += 1;
+      return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+    }
+
+    if (url.hostname === "graph.facebook.com") {
+      capiCalls += 1;
+      return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+    }
+
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/check_rate_limit" &&
+      init?.method === "POST"
+    ) {
+      return new Response(
+        JSON.stringify({ allowed: true, remaining: 99, reset_at: Math.ceil(Date.now() / 1000) + 60 }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
+
+    throw new Error(`Unexpected fetch ${url.toString()} ${init?.method || "GET"}`);
+  };
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const response = await app.request(
+    "/api/checkout/register",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Maya",
+        email: "maya@example.com",
+        whatsapp: "08123456789",
+        password: "secret123",
+      }),
+    },
+    env,
+  );
+
+  const payload = await response.json();
+  assert.equal(response.status, 400);
+  assert.equal(payload.error, "Email ini sudah terdaftar. Silakan login langsung di aplikasi.");
+  assert.equal(listUsersCalls, 0);
+  assert.equal(mayarCalls, 0);
+  assert.equal(capiCalls, 0);
+  assert.equal(pendingBodies.length, 0);
+  assert.equal(checkoutSessionsBodies.length, 0);
+  assert.equal("paymentUrl" in payload, false);
 });

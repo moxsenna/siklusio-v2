@@ -53,6 +53,7 @@ function createMockFetch(options: {
   userId: string | null;
   cacheStore: CacheRow[];
   openRouterFails?: boolean;
+  invalidProviderPayload?: boolean;
   counters?: { openRouterCalls: number };
 }) {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -107,8 +108,11 @@ function createMockFetch(options: {
 
       const requestBody = JSON.parse(String(init?.body || "{}"));
       const schemaName = requestBody?.response_format?.json_schema?.name;
-      const payload =
-        schemaName === "habits_insight" ? habitsInsightPayload : cycleReportPayload;
+      const payload = options.invalidProviderPayload
+        ? { summary: "Output tidak lengkap" }
+        : schemaName === "habits_insight"
+          ? habitsInsightPayload
+          : cycleReportPayload;
 
       return new Response(
         JSON.stringify({
@@ -462,6 +466,41 @@ test("provider failure does not cache cycle report success", async (t) => {
         authorization: "Bearer user-a-token",
         "content-type": "application/json",
         "cf-connecting-ip": "203.0.113.29",
+      },
+      body: JSON.stringify(cycleReportRequestBody),
+    },
+    env,
+  );
+
+  assert.equal(response.status, 500);
+  assert.equal(counters.openRouterCalls, 1);
+  assert.equal(cacheStore.length, 0);
+});
+
+test("invalid provider output does not cache cycle report success", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const cacheStore: CacheRow[] = [];
+  const counters = { openRouterCalls: 0 };
+
+  globalThis.fetch = createMockFetch({
+    userId: USER_A,
+    cacheStore,
+    counters,
+    invalidProviderPayload: true,
+  });
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const response = await app.request(
+    "/api/generate-cycle-report",
+    {
+      method: "POST",
+      headers: {
+        authorization: "Bearer user-a-token",
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.31",
       },
       body: JSON.stringify(cycleReportRequestBody),
     },

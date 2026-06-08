@@ -1,9 +1,11 @@
 import { Context } from "hono";
 import { type Env } from "../env";
 import { requireAdmin } from "../middlewares/auth";
-import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
-import { logInfo, logWarn, logError } from "../logging/redaction";
-import { sendWhatsappAutoresponder } from "../services/fonnte";
+import { logInfo, logError } from "../logging/redaction";
+import {
+  processAdminManualPremiumActivation,
+  scheduleAdminManualPaymentAutoresponder,
+} from "../services/paymentActivationService";
 
 type AdminContext = Context<{ Bindings: Env }>;
 
@@ -490,184 +492,26 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
 
     if (updateErr) throw updateErr;
 
-    // Handle user activation if requested
     let finalActivatedUserId: string | null = null;
 
     if (shouldActivateUser && (newStatus === "paid" || newStatus === "paid_manual")) {
       try {
-        let authUser: any = null;
-        let authUserId = pending?.user_id || lead.user_id || null;
+        const manualActivation = await processAdminManualPremiumActivation({
+          supabaseAdmin,
+          pending,
+          lead,
+          email,
+          amount,
+          activationResult,
+        });
 
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (authUserId && uuidRegex.test(authUserId)) {
-          const { data: authData } = await supabaseAdmin.auth.admin.getUserById(authUserId);
-          authUser = authData?.user;
-        }
+        finalActivatedUserId = manualActivation.activatedUserId;
 
-        if (!authUser && email) {
-          const { data: userList, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
-          if (listErr) {
-            logError("Failed to list users in override:", listErr);
-          }
-          authUser = userList?.users.find((u: any) => u.email?.toLowerCase() === email);
-        }
-
-        if (authUser) {
-          finalActivatedUserId = authUser.id;
-
-          // Check if already active
-          const currentAccessStatus = authUser.app_metadata?.siklusio_access_status;
-          if (currentAccessStatus === "active") {
-            activationResult.warnings.push("User auth sudah dalam keadaan aktif.");
-          } else {
-            // Update auth status preserving existing app_metadata properties
-            const { error: activeErr } = await supabaseAdmin.auth.admin.updateUserById(
-              authUser.id,
-              {
-                app_metadata: {
-                  ...(authUser.app_metadata || {}),
-                  siklusio_access_status: "active",
-                },
-              },
-            );
-            if (activeErr) throw activeErr;
-            activationResult.userActivated = true;
-          }
-
-          // Update override table with activated user id
+        if (finalActivatedUserId) {
           await supabaseAdmin
             .from("admin_crm_payment_overrides")
-            .update({ activated_user_id: authUser.id })
+            .update({ activated_user_id: finalActivatedUserId })
             .eq("id", override.id);
-
-          // Find checkout session for reference ID in credit ledger
-          const { data: premiumSession } = await supabaseAdmin
-            .from("checkout_sessions")
-            .select("id")
-            .eq("email", email)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          // Grant premium bonus AI credits (idempotent helper)
-          const creditsResult = await grantPremiumInitialAiCredits({
-            supabaseAdmin,
-            userId: authUser.id,
-            referenceId: premiumSession?.id || null,
-          });
-
-          if (creditsResult !== null) {
-            activationResult.creditsGranted = true;
-          } else {
-            activationResult.warnings.push(
-              "Kredit premium awal (500) sudah pernah diberikan sebelumnya.",
-            );
-          }
-
-          // Process affiliate conversion from checkout session / pending registration
-          const affiliateCode = pending?.affiliate_code || lead.affiliate_code;
-          if (affiliateCode) {
-            const normalizedCode = affiliateCode.trim().toUpperCase();
-            const { data: session } = await supabaseAdmin
-              .from("checkout_sessions")
-              .select("*")
-              .eq("email", email)
-              .eq("affiliate_code", normalizedCode)
-              .eq("status", "pending")
-              .order("created_at", { ascending: false })
-              .limit(1)
-              .maybeSingle();
-
-            const { data: affiliate } = await supabaseAdmin
-              .from("affiliates")
-              .select("id, commission_type, commission_value, allow_zero_order_commission")
-              .eq("code", normalizedCode)
-              .eq("is_active", true)
-              .maybeSingle();
-
-            if (affiliate) {
-              const amountPaid = session?.final_amount || amount || 0;
-
-              let commissionAmount = 0;
-              if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
-                commissionAmount = 0;
-              } else if (affiliate.commission_type === "percentage") {
-                commissionAmount = Math.floor(
-                  Number(amountPaid) * (Number(affiliate.commission_value) / 100),
-                );
-              } else {
-                commissionAmount = Number(affiliate.commission_value);
-              }
-
-              // Check if affiliate conversion already exists for this lead email and affiliate
-              const { data: existingConv } = await supabaseAdmin
-                .from("affiliate_conversions")
-                .select("id")
-                .eq("affiliate_id", affiliate.id)
-                .eq("buyer_email", email)
-                .maybeSingle();
-
-              if (existingConv) {
-                activationResult.warnings.push(
-                  "Konversi afiliasi untuk transaksi ini sudah tercatat.",
-                );
-              } else {
-                const { error: convErr } = await supabaseAdmin
-                  .from("affiliate_conversions")
-                  .insert({
-                    affiliate_id: affiliate.id,
-                    checkout_session_id: session?.id || null,
-                    buyer_name: pending?.name || lead.name || "User",
-                    buyer_email: email,
-                    buyer_whatsapp: pending?.whatsapp || lead.whatsapp || "-",
-                    amount_paid: Number(amountPaid),
-                    commission_amount: commissionAmount,
-                    mayar_transaction_id: session?.mayar_transaction_id || null,
-                  });
-
-                if (convErr) {
-                  if (convErr.code === "23505") {
-                    activationResult.warnings.push("Konversi afiliasi sudah terdaftar (23505).");
-                  } else {
-                    logError("Error inserting affiliate conversion in manual override:", convErr);
-                  }
-                } else {
-                  activationResult.affiliateConversionCreated = true;
-                }
-              }
-            }
-
-            if (session) {
-              const { error: sessUpdateErr } = await supabaseAdmin
-                .from("checkout_sessions")
-                .update({ status: "paid", paid_at: new Date().toISOString() })
-                .eq("id", session.id);
-
-              if (sessUpdateErr) {
-                logError("Failed to update checkout session in override:", sessUpdateErr);
-              } else {
-                activationResult.checkoutSessionUpdated = true;
-              }
-            }
-          }
-
-          // Delete the pending registration record (cleanup)
-          if (pending) {
-            const { error: delErr } = await supabaseAdmin
-              .from("pending_registrations")
-              .delete()
-              .eq("id", pending.id);
-
-            if (delErr) {
-              logError("Failed to clean pending registration in override:", delErr);
-            } else {
-              activationResult.pendingRegistrationCleaned = true;
-            }
-          }
-        } else {
-          activationResult.warnings.push(
-            "CRM status berhasil diubah, namun aktivasi user dilewati karena user terdaftar (auth) tidak ditemukan.",
-          );
         }
       } catch (actError: any) {
         logError("Error during user activation in manual override:", actError);
@@ -687,41 +531,13 @@ export const overrideAdminCrmPaymentStatus = async (c: AdminContext) => {
     }
 
     if (newStatus === "paid" || newStatus === "paid_manual") {
-      const autoresponderPromise = sendWhatsappAutoresponder({
+      scheduleAdminManualPaymentAutoresponder({
         c,
-        eventKey: "payment_completed",
-        recipientWhatsapp: lead.whatsapp,
-        recipientName: lead.name,
-        idempotencyKey: `wa:payment_completed:manual:${leadId}:${finalReference || override.id}`,
-        templateContext: {
-          nama: lead.name || "Bunda",
-          email: lead.email || "-",
-          no_hp: lead.whatsapp || "-",
-          link_pembayaran: "-",
-          jumlah_pembayaran: amount
-            ? `Rp ${Number(amount).toLocaleString("id-ID")}`
-            : "-",
-          status_pembayaran: "Berhasil Manual",
-          kode_kupon: "-",
-          kode_affiliate: lead.affiliate_code || "-",
-          link_login: "https://app.siklusio.web.id/auth",
-          tanggal: new Date().toLocaleDateString("id-ID"),
-          transaction_id: finalReference || override.id,
-        },
-        metadata: {
-          source: "admin_manual_payment_override",
-          lead_id: leadId,
-          override_id: override.id,
-        },
-      }).catch((err) => {
-        logError("CRM Manual Payment WhatsApp autoresponder failed:", err);
+        lead,
+        overrideId: override.id,
+        finalReference,
+        amount,
       });
-
-      try {
-        c.executionCtx.waitUntil(autoresponderPromise);
-      } catch (_) {
-        // Fallback for non-Cloudflare environments (e.g. testing)
-      }
     }
 
     // Write audit log

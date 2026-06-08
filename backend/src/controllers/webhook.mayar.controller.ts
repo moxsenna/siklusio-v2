@@ -1,11 +1,12 @@
 import { Context } from "hono";
 import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
-import { grantPremiumInitialAiCredits } from "../services/aiCreditLedger";
 import { logInfo, logWarn, logError } from "../logging/redaction";
-import { upsertAdminCrmLead } from "../services/adminCrm";
-import { hashData, formatE164Phone, sendMetaCapiEvent } from "../services/metaCapi";
-import { sendWhatsappAutoresponder } from "../services/fonnte";
+import {
+  hasAffiliateConversionForTransaction,
+  processMayarWebhookPremiumActivation,
+  retryPaidSessionPurchaseMetaCapi,
+} from "../services/paymentActivationService";
 
 // POST /api/payment/webhook
 export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
@@ -201,64 +202,17 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
           return c.json({ status: "ok", message: "Transaction already processed" }, 200);
         }
 
-        // Retry CAPI only (recovery flow)
-        logInfo(`--> Webhook recovery: checkout_session ${session.id} is paid but CAPI not sent yet. Retrying CAPI...`);
-        const eventId = `purchase_${mayarTransactionId || session.mayar_transaction_id || session.id}`;
-        const userData = {
-          em: session.hashed_email ? [session.hashed_email] : undefined,
-          ph: session.hashed_phone ? [session.hashed_phone] : undefined,
-          fbp: session.fbp || undefined,
-          fbc: session.fbc || undefined,
-          client_ip_address: session.client_ip_address || undefined,
-          client_user_agent: session.client_user_agent || undefined,
-        };
-        const customData = {
-          currency: "IDR",
-          value: Number(session.final_amount),
-          content_name: "Siklusio Premium Lifetime",
-          content_type: "product",
-          content_ids: ["siklusio_premium_lifetime"],
-          num_items: 1,
-          order_id: mayarTransactionId || session.mayar_transaction_id,
-        };
-
-        let capiSuccess = false;
-        if (c.env.META_PIXEL_ID && c.env.META_CAPI_ACCESS_TOKEN) {
-          const res = await sendMetaCapiEvent(
-            c,
-            "Purchase",
-            eventId,
-            userData,
-            customData,
-            session.meta_test_event_code
-          );
-          capiSuccess = res.ok;
-        } else {
-          logWarn("--> Meta env variables missing. Skipping CAPI retry.");
-          capiSuccess = true;
-        }
-
-        if (capiSuccess) {
-          await supabaseAdmin
-            .from("checkout_sessions")
-            .update({
-              purchase_capi_sent_at: new Date().toISOString(),
-              purchase_capi_event_id: eventId,
-            })
-            .eq("id", session.id);
-        }
+        await retryPaidSessionPurchaseMetaCapi({
+          c,
+          supabaseAdmin,
+          session,
+          mayarTransactionId,
+        });
 
         return c.json({ status: "ok", message: "CAPI retry processed" }, 200);
       }
 
-      // Check if this transaction was already processed as an affiliate conversion
-      const { data: existingConversion } = await supabaseAdmin
-        .from("affiliate_conversions")
-        .select("id")
-        .eq("mayar_transaction_id", mayarTransactionId)
-        .maybeSingle();
-
-      if (existingConversion) {
+      if (await hasAffiliateConversionForTransaction(supabaseAdmin, mayarTransactionId)) {
         logInfo(
           `--> Webhook idempotency: transaction ${mayarTransactionId} already processed, skipping`,
         );
@@ -284,199 +238,36 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
       return c.json({ status: "ok", message: "No pending registration found" }, 200);
     }
 
-    // Activate existing pending auth user
-    logInfo("--> Activating existing pending Supabase Auth user:", pending.user_id);
-    const { data: authData, error: signupErr } = await supabaseAdmin.auth.admin.updateUserById(
-      pending.user_id,
-      {
-        app_metadata: {
-          siklusio_access_status: "active",
-        },
-      },
-    );
-
-    if (signupErr) {
-      logError("Supabase auth user activation error:", signupErr);
-      return c.json({ error: "Auth user activation failed: " + signupErr.message }, 500);
-    }
-
-    if (authData.user?.id) {
-      await grantPremiumInitialAiCredits({
-        supabaseAdmin,
-        userId: authData.user.id,
-        referenceId: session?.id || null,
-      });
-    }
-
+    let activationResult: { userId: string | null };
     try {
-      await upsertAdminCrmLead(supabaseAdmin, {
-        userId: authData.user?.id || pending.user_id || null,
-        pendingRegistrationId: pending.id,
-        name: pending.name,
-        email: pending.email,
-        whatsapp: pending.whatsapp,
-        source: "mayar_webhook",
-        referralCode: pending.coupon_code || null,
-        affiliateCode: pending.affiliate_code || null,
-        leadStatus: "paid",
-        paymentStatus: "paid",
-        mayarTransactionId,
-        amount: body.data?.amount ? Number(body.data.amount) : null,
-      });
-    } catch (crmErr) {
-      logError("CRM upsert failed during Mayar webhook processing:", crmErr);
-    }
-
-    // Process affiliate conversion from checkout_session
-    const affiliateCode = pending.affiliate_code;
-    if (affiliateCode) {
-      logInfo(`--> Processing affiliate conversion for code: ${affiliateCode}`);
-
-      const { data: affiliate } = await supabaseAdmin
-        .from("affiliates")
-        .select("id, commission_type, commission_value, allow_zero_order_commission")
-        .eq("code", affiliateCode)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (affiliate) {
-        const amountPaid = session?.final_amount || body.data?.amount || 0;
-
-        let commissionAmount = 0;
-        if (Number(amountPaid) === 0 && !affiliate.allow_zero_order_commission) {
-          commissionAmount = 0;
-        } else if (affiliate.commission_type === "percentage") {
-          commissionAmount = Math.floor(
-            Number(amountPaid) * (Number(affiliate.commission_value) / 100),
-          );
-        } else {
-          commissionAmount = Number(affiliate.commission_value);
-        }
-
-        const { error: convErr } = await supabaseAdmin.from("affiliate_conversions").insert({
-          affiliate_id: affiliate.id,
-          checkout_session_id: session?.id || null,
-          buyer_name: pending.name,
-          buyer_email: pending.email,
-          buyer_whatsapp: pending.whatsapp,
-          amount_paid: Number(amountPaid),
-          commission_amount: commissionAmount,
-          mayar_transaction_id: mayarTransactionId,
-        });
-
-        if (convErr) {
-          if (convErr.code === "23505") {
-            logInfo(
-              `--> Affiliate conversion already exists for tx ${mayarTransactionId} (idempotent)`,
-            );
-          } else {
-            logError("Error inserting affiliate conversion:", convErr);
-          }
-        } else {
-          logInfo(`--> Affiliate conversion recorded: commission Rp ${commissionAmount}`);
-        }
-      }
-    }
-
-    // Mark checkout_session status paid + paid_at
-    if (session) {
-      await supabaseAdmin
-        .from("checkout_sessions")
-        .update({
-          status: "paid",
-          paid_at: new Date().toISOString(),
-          mayar_transaction_id: session.mayar_transaction_id || mayarTransactionId || null,
-        })
-        .eq("id", session.id);
-    }
-
-    // Send Meta CAPI Purchase with event_id
-    const eventId = `purchase_${mayarTransactionId || (session ? session.id : "missing_tx")}`;
-    const userData = {
-      em: session?.hashed_email ? [session.hashed_email] : [await hashData(email)],
-      ph: session?.hashed_phone ? [session.hashed_phone] : (pending.whatsapp ? [await hashData(formatE164Phone(pending.whatsapp))] : undefined),
-      fbp: session?.fbp || undefined,
-      fbc: session?.fbc || undefined,
-      client_ip_address: session?.client_ip_address || undefined,
-      client_user_agent: session?.client_user_agent || undefined,
-    };
-    const customData = {
-      currency: "IDR",
-      value: Number(session?.final_amount) || Number(body.data?.amount) || 37000,
-      content_name: "Siklusio Premium Lifetime",
-      content_type: "product",
-      content_ids: ["siklusio_premium_lifetime"],
-      num_items: 1,
-      order_id: mayarTransactionId || (session ? session.id : undefined),
-    };
-
-    let capiSuccess = false;
-    if (c.env.META_PIXEL_ID && c.env.META_CAPI_ACCESS_TOKEN) {
-      const res = await sendMetaCapiEvent(
+      activationResult = await processMayarWebhookPremiumActivation({
         c,
-        "Purchase",
-        eventId,
-        userData,
-        customData,
-        session?.meta_test_event_code || undefined
+        supabaseAdmin,
+        pending,
+        session,
+        mayarTransactionId,
+        email,
+        fallbackAmount: body.data?.amount ? Number(body.data.amount) : null,
+      });
+    } catch (activationErr: any) {
+      logError("Supabase auth user activation error:", activationErr);
+      return c.json(
+        {
+          error:
+            activationErr instanceof Error
+              ? "Auth user activation failed: " + activationErr.message
+              : "Auth user activation failed",
+        },
+        500,
       );
-      capiSuccess = res.ok;
-    } else {
-      logWarn("--> Meta env variables missing. Skipping CAPI but marking done.");
-      capiSuccess = true;
     }
 
-    // If CAPI success, update purchase_capi_sent_at + purchase_capi_event_id
-    if (capiSuccess && session) {
-      await supabaseAdmin
-        .from("checkout_sessions")
-        .update({
-          purchase_capi_sent_at: new Date().toISOString(),
-          purchase_capi_event_id: eventId,
-        })
-        .eq("id", session.id);
-    }
-
-    // Delete the pending registration record (cleanup) - LAST STEP
-    logInfo("--> Deleting pending registration record");
-    await supabaseAdmin.from("pending_registrations").delete().eq("id", pending.id);
-
-    const autoresponderPromise = sendWhatsappAutoresponder({
-      c,
-      eventKey: "payment_completed",
-      recipientWhatsapp: session?.whatsapp || pending.whatsapp,
-      recipientName: session?.name || pending.name,
-      idempotencyKey: `wa:payment_completed:${session?.mayar_transaction_id || mayarTransactionId || session?.id || pending.id}`,
-      templateContext: {
-        nama: session?.name || pending.name || "Bunda",
-        email: session?.email || pending.email || "-",
-        no_hp: session?.whatsapp || pending.whatsapp || "-",
-        link_pembayaran: session?.mayar_link || "-",
-        jumlah_pembayaran: `Rp ${Number(session?.final_amount || body.data?.amount || 0).toLocaleString("id-ID")}`,
-        status_pembayaran: "Berhasil",
-        kode_kupon: session?.coupon_code || pending.coupon_code || "-",
-        kode_affiliate: session?.affiliate_code || pending.affiliate_code || "-",
-        link_login: "https://app.siklusio.web.id/auth",
-        tanggal: new Date().toLocaleDateString("id-ID"),
-        transaction_id: session?.mayar_transaction_id || mayarTransactionId || "-",
-      },
-      metadata: {
-        checkout_session_id: session?.id || null,
-        mayar_transaction_id: session?.mayar_transaction_id || mayarTransactionId || null,
-        source: "mayar_webhook",
-      },
-    }).catch((err) => {
-      logError("Webhook Payment completed WhatsApp autoresponder failed:", err);
+    logInfo("<-- Webhook processed successfully! User created ID:", activationResult.userId);
+    return c.json({
+      status: "ok",
+      message: "Registration successful!",
+      userId: activationResult.userId,
     });
-
-    try {
-      c.executionCtx.waitUntil(autoresponderPromise);
-    } catch (_) {
-      // Fallback for environments without Cloudflare execution context
-    }
-
-    logInfo("<-- Webhook processed successfully! User created ID:", authData.user?.id);
-    return c.json({ status: "ok", message: "Registration successful!", userId: authData.user?.id });
   } catch (error: any) {
     logError("<-- Webhook handler exception:", error.stack || error);
     return c.json({ error: "Internal server error processing webhook" }, 500);

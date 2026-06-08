@@ -1,4 +1,4 @@
-import { type Context } from "hono";
+import { type Context, type Next } from "hono";
 import { type Env } from "../env";
 import { getSupabaseAdmin } from "../services/supabaseAdmin";
 
@@ -36,4 +36,27 @@ export const requireAdmin = async (c: Context<{ Bindings: Env }>) => {
     .maybeSingle();
   if (!profile?.is_admin) return null;
   return { supabaseAdmin, user };
+};
+
+export const requireAdminMiddleware = async (
+  c: Context<{ Bindings: Env }>,
+  next: Next,
+) => {
+  const auth = await requireUser(c);
+  if (!auth) {
+    return c.json({ error: "Missing or invalid session" }, 401);
+  }
+
+  const { supabaseAdmin, user } = auth;
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.is_admin) {
+    return c.json({ error: "Forbidden" }, 403);
+  }
+
+  await next();
 };

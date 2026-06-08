@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { type Env } from "../env";
+import { requireAdminMiddleware } from "../middlewares/auth";
 import {
   getAdminUsers,
   getAdminCoupons,
@@ -31,6 +32,8 @@ import {
 } from "../controllers/adminWhatsapp.controller";
 
 const router = new Hono<{ Bindings: Env }>();
+
+router.use("/api/admin/*", requireAdminMiddleware);
 
 // API Routes for Admin
 router.get("/api/admin/users", getAdminUsers);

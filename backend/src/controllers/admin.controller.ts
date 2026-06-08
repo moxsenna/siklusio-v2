@@ -1,4 +1,12 @@
 import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
+import {
+  createAffiliate,
+  deleteAffiliate,
+  listAffiliateConversions,
+  listAffiliates,
+  markAffiliateConversionPaid,
+  updateAffiliate,
+} from "../services/affiliateAdminService";
 import { listAllAuthUsers } from "../services/supabaseAdmin";
 
 // GET /api/admin/users
@@ -115,13 +123,8 @@ export const getAdminAffiliates = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates");
   try {
     const { supabaseAdmin } = getAdminAuth(c);
-
-    const { data, error } = await supabaseAdmin
-      .from("affiliates")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return c.json({ affiliates: data });
+    const affiliates = await listAffiliates(supabaseAdmin);
+    return c.json({ affiliates });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -132,63 +135,18 @@ export const createAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] POST /api/admin/affiliates");
   try {
     const { supabaseAdmin } = getAdminAuth(c);
-
     const body = await c.req.json();
-    const {
-      name,
-      email,
-      whatsapp,
-      code,
-      commission_type,
-      commission_value,
-      bank_name,
-      account_number,
-      account_holder,
-      autoCreateCoupon,
-      coupon_discount_type,
-      coupon_discount_value,
-    } = body;
+    const result = await createAffiliate(supabaseAdmin, body);
 
-    if (!name || !email || !whatsapp || !code || !commission_type || commission_value == null) {
-      return c.json({ error: "Data afiliasi tidak lengkap" }, 400);
+    if (result.ok === false) {
+      return c.json({ error: result.error }, result.status);
     }
 
-    if (autoCreateCoupon) {
-      const { data, error } = await supabaseAdmin.rpc("create_affiliate_with_coupon", {
-        p_name: name,
-        p_email: email,
-        p_whatsapp: whatsapp,
-        p_code: code,
-        p_commission_type: commission_type,
-        p_commission_value: Number(commission_value),
-        p_bank_name: bank_name || null,
-        p_account_number: account_number || null,
-        p_account_holder: account_holder || null,
-        p_auto_coupon: true,
-        p_coupon_discount_type: coupon_discount_type || "percentage",
-        p_coupon_discount_value: Number(coupon_discount_value || 10),
-      });
-      if (error) throw error;
-      return c.json({ result: data });
+    if (result.kind === "rpc") {
+      return c.json({ result: result.result });
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("affiliates")
-      .insert({
-        name,
-        email,
-        whatsapp,
-        code: code.trim().toUpperCase(),
-        commission_type,
-        commission_value: Number(commission_value),
-        bank_name: bank_name || null,
-        account_number: account_number || null,
-        account_holder: account_holder || null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return c.json({ affiliate: data });
+    return c.json({ affiliate: result.affiliate });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -199,32 +157,9 @@ export const updateAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/:id");
   try {
     const { supabaseAdmin } = getAdminAuth(c);
-
     const id = c.req.param("id");
     const updates = await c.req.json();
-
-    const allowedFields = [
-      "name",
-      "email",
-      "whatsapp",
-      "commission_type",
-      "commission_value",
-      "bank_name",
-      "account_number",
-      "account_holder",
-      "is_active",
-      "allow_zero_order_commission",
-    ];
-    const safeUpdates: Record<string, any> = {};
-    for (const key of allowedFields) {
-      if (updates[key] !== undefined) safeUpdates[key] = updates[key];
-    }
-
-    const { error } = await supabaseAdmin
-      .from("affiliates")
-      .update(safeUpdates as any)
-      .eq("id", id);
-    if (error) throw error;
+    await updateAffiliate(supabaseAdmin, id, updates);
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
@@ -236,10 +171,8 @@ export const deleteAdminAffiliate = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] DELETE /api/admin/affiliates/:id");
   try {
     const { supabaseAdmin } = getAdminAuth(c);
-
     const id = c.req.param("id");
-    const { error } = await supabaseAdmin.from("affiliates").delete().eq("id", id);
-    if (error) throw error;
+    await deleteAffiliate(supabaseAdmin, id);
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
@@ -251,15 +184,8 @@ export const getAdminAffiliateConversions = async (c: AdminHandlerContext) => {
   console.log("--> [BACKEND] GET /api/admin/affiliates/conversions");
   try {
     const { supabaseAdmin } = getAdminAuth(c);
-
-    const { data, error } = await supabaseAdmin
-      .from("affiliate_conversions")
-      .select(
-        "*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)",
-      )
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return c.json({ conversions: data });
+    const conversions = await listAffiliateConversions(supabaseAdmin);
+    return c.json({ conversions });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -270,21 +196,15 @@ export const payoutAdminAffiliateConversion = async (c: AdminHandlerContext) => 
   console.log("--> [BACKEND] PATCH /api/admin/affiliates/conversions/:id/payout");
   try {
     const { supabaseAdmin, user } = getAdminAuth(c);
-
     const id = c.req.param("id");
     const { payout_reference, payout_note } = await c.req.json();
 
-    const { error } = await supabaseAdmin
-      .from("affiliate_conversions")
-      .update({
-        payout_status: "paid",
-        payout_at: new Date().toISOString(),
-        payout_marked_by: user.email || user.id,
-        payout_reference: payout_reference || null,
-        payout_note: payout_note || null,
-      })
-      .eq("id", id);
-    if (error) throw error;
+    await markAffiliateConversionPaid(supabaseAdmin, {
+      conversionId: id,
+      markedBy: user.email || user.id,
+      payout: { payout_reference, payout_note },
+    });
+
     return c.json({ status: "ok" });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);

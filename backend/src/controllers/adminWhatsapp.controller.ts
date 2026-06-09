@@ -1,25 +1,13 @@
 import type { Env } from "../env";
 import { getAdminAuth, type AdminHandlerContext } from "../middlewares/auth";
-import {
-  normalizeWhatsapp,
-  renderWhatsappTemplate,
-  sendFonnteMessage,
-} from "../services/fonnte";
+import { normalizeWhatsapp, renderWhatsappTemplate, sendFonnteMessage } from "../services/fonnte";
 import { logError } from "../logging/redaction";
 
 type AdminContext = AdminHandlerContext;
 
-const allowedEvents = new Set([
-  "registration_completed",
-  "payment_completed",
-]);
+const allowedEvents = new Set(["registration_completed", "payment_completed"]);
 
-const allowedStatuses = new Set([
-  "pending",
-  "sent",
-  "failed",
-  "skipped",
-]);
+const allowedStatuses = new Set(["pending", "sent", "failed", "skipped"]);
 
 const dummyContext = {
   nama: "Bunda Rani",

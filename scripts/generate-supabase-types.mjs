@@ -13,17 +13,8 @@ mkdirSync(outDir, { recursive: true });
 
 const output = execFileSync(
   "npx",
-  [
-    "supabase",
-    "gen",
-    "types",
-    "typescript",
-    "--project-id",
-    projectRef,
-    "--schema",
-    "public",
-  ],
-  { encoding: "utf8", shell: process.platform === "win32" }
+  ["supabase", "gen", "types", "typescript", "--project-id", projectRef, "--schema", "public"],
+  { encoding: "utf8", shell: process.platform === "win32" },
 );
 
 writeFileSync(resolve(outDir, "database.types.ts"), output);

@@ -438,8 +438,14 @@ test("cycle report cache does not leak across users", async (t) => {
   assert.equal(json.cached, false);
   assert.equal(counters.openRouterCalls, 2);
   assert.equal(cacheStore.length, 2);
-  assert.equal(cacheStore.some((row) => row.user_id === USER_A), true);
-  assert.equal(cacheStore.some((row) => row.user_id === USER_B), true);
+  assert.equal(
+    cacheStore.some((row) => row.user_id === USER_A),
+    true,
+  );
+  assert.equal(
+    cacheStore.some((row) => row.user_id === USER_B),
+    true,
+  );
 });
 
 test("provider failure does not cache cycle report success", async (t) => {

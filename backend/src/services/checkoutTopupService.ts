@@ -12,9 +12,7 @@ export type CheckoutTopupFailure = {
   error: string;
 };
 
-export type CheckoutTopupResult =
-  | { ok: true; paymentUrl: string }
-  | CheckoutTopupFailure;
+export type CheckoutTopupResult = { ok: true; paymentUrl: string } | CheckoutTopupFailure;
 
 export function buildTopupCustomerDetails(params: {
   profile?: { name?: string | null; whatsapp_number?: string | null } | null;
@@ -72,6 +70,7 @@ export async function processCheckoutTopup(params: {
     redirectUrl: "https://app.siklusio.web.id/auth?status=topup_success",
     email: customer.email,
     mobile: customer.whatsapp,
+    flow: "ai_credit_topup",
   });
 
   const { error: insertErr } = await supabaseAdmin.from("ai_credit_topups").insert({

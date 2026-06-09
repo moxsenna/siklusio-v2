@@ -116,10 +116,7 @@ export const getAffiliateConversions = async (c: Context<{ Bindings: Env }>) => 
     const auth = await requireUser(c);
     if (!auth) return c.json({ error: "Unauthorized" }, 401);
 
-    const conversions = await listAffiliateConversionsForUser(
-      auth.supabaseAdmin,
-      auth.user.email,
-    );
+    const conversions = await listAffiliateConversionsForUser(auth.supabaseAdmin, auth.user.email);
     return c.json({ conversions });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);

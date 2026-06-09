@@ -118,7 +118,8 @@ export const getAdminCrmLeads = async (c: AdminContext) => {
     const offset = offsetRaw ? Math.max(0, Math.floor(Number(offsetRaw))) : 0;
 
     const status = c.req.query("status") || c.req.query("lead_status") || c.req.query("leadStatus");
-    const payment = c.req.query("payment") || c.req.query("payment_status") || c.req.query("paymentStatus");
+    const payment =
+      c.req.query("payment") || c.req.query("payment_status") || c.req.query("paymentStatus");
     const search = c.req.query("search") || c.req.query("q");
 
     let query = admin.supabaseAdmin

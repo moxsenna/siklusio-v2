@@ -79,13 +79,19 @@ function buildWebhookMock(store: Store) {
 
     if (url.hostname === "project.supabase.co") {
       if (url.pathname === "/rest/v1/ai_credit_topups") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
 
       if (url.pathname === "/rest/v1/pending_registrations") {
         if (!init?.method || init.method === "GET") {
           if (store.pendingDeleted) {
-            return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+            return new Response("null", {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            });
           }
           return new Response(
             JSON.stringify({
@@ -119,7 +125,10 @@ function buildWebhookMock(store: Store) {
           if (body.status === "paid") {
             store.session.status = "paid";
           }
-          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
@@ -138,7 +147,10 @@ function buildWebhookMock(store: Store) {
         if (init.method === "POST") {
           const row = JSON.parse(String(init.body || "{}"));
           store.affiliateConversions.push(row);
-          return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 201,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
@@ -166,7 +178,10 @@ function buildWebhookMock(store: Store) {
         if (init.method === "POST") {
           const row = JSON.parse(String(init.body || "{}"));
           store.whatsappLogs.push(row);
-          return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 201,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
@@ -197,12 +212,18 @@ function buildWebhookMock(store: Store) {
       }
 
       if (url.pathname === "/rest/v1/ai_credit_ledger") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
 
       if (url.pathname === "/rest/v1/rpc/grant_ai_credits") {
         store.grantCreditCalls += 1;
-        return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("500", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
 
       if (url.pathname === "/rest/v1/rpc/admin_crm_upsert_lead") {
@@ -373,10 +394,10 @@ test("admin manual premium activation does not send Meta CAPI Purchase", async (
     }
 
     if (url.hostname === "project.supabase.co" && url.pathname === "/auth/v1/user") {
-      return new Response(
-        JSON.stringify({ id: "admin-uid", email: "admin@example.com" }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ id: "admin-uid", email: "admin@example.com" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
     }
 
     if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/profiles") {
@@ -415,11 +436,17 @@ test("admin manual premium activation does not send Meta CAPI Purchase", async (
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_payment_overrides") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/admin_crm_payment_overrides"
+    ) {
       if (!init?.method || init.method === "GET") {
         return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
       }
@@ -435,7 +462,10 @@ test("admin manual premium activation does not send Meta CAPI Purchase", async (
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_audit_logs") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/admin_crm_audit_logs"
+    ) {
       return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
     }
 
@@ -469,7 +499,10 @@ test("admin manual premium activation does not send Meta CAPI Purchase", async (
       return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/grant_ai_credits"
+    ) {
       return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
     }
 
@@ -538,10 +571,10 @@ test("admin manual activation resolves auth user via pending registration withou
     }
 
     if (url.hostname === "project.supabase.co" && url.pathname === "/auth/v1/user") {
-      return new Response(
-        JSON.stringify({ id: "admin-uid", email: "admin@example.com" }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ id: "admin-uid", email: "admin@example.com" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
     }
 
     if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/profiles") {
@@ -580,7 +613,10 @@ test("admin manual activation resolves auth user via pending registration withou
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       if (!init?.method || init.method === "GET") {
         return new Response(
           JSON.stringify({
@@ -599,7 +635,10 @@ test("admin manual activation resolves auth user via pending registration withou
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_payment_overrides") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/admin_crm_payment_overrides"
+    ) {
       if (!init?.method || init.method === "GET") {
         return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
       }
@@ -615,7 +654,10 @@ test("admin manual activation resolves auth user via pending registration withou
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_audit_logs") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/admin_crm_audit_logs"
+    ) {
       return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
     }
 
@@ -649,7 +691,10 @@ test("admin manual activation resolves auth user via pending registration withou
       return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/rpc/grant_ai_credits") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/rpc/grant_ai_credits"
+    ) {
       return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
     }
 
@@ -701,7 +746,10 @@ test("webhook premium credit grant failure returns 500 instead of false success"
 
     if (url.hostname === "project.supabase.co") {
       if (url.pathname === "/rest/v1/ai_credit_topups") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
       if (url.pathname === "/rest/v1/checkout_sessions") {
         return new Response(
@@ -746,13 +794,16 @@ test("webhook premium credit grant failure returns 500 instead of false success"
         );
       }
       if (url.pathname === "/rest/v1/ai_credit_ledger") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
       if (url.pathname === "/rest/v1/rpc/grant_ai_credits") {
-        return new Response(
-          JSON.stringify({ message: "grant failed", code: "PGRST500" }),
-          { status: 500, headers: { "content-type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ message: "grant failed", code: "PGRST500" }), {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 
@@ -788,10 +839,16 @@ test("webhook auth activation failure returns 500 instead of false success", asy
 
     if (url.hostname === "project.supabase.co") {
       if (url.pathname === "/rest/v1/ai_credit_topups") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
       if (url.pathname === "/rest/v1/checkout_sessions") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
       if (url.pathname === "/rest/v1/affiliate_conversions") {
         return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });

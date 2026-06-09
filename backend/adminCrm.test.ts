@@ -160,7 +160,10 @@ test("manual payment override requires validation and is idempotent", async (t) 
     }
 
     // Check/insert audit logs
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/admin_crm_audit_logs") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/admin_crm_audit_logs"
+    ) {
       return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
     }
 

@@ -68,11 +68,7 @@ function parseEqFilters(searchParams: URLSearchParams): Record<string, string> {
   return filters;
 }
 
-function createMockFetch(options: {
-  userId?: string | null;
-  store: Store;
-  rpcErrorCode?: string;
-}) {
+function createMockFetch(options: { userId?: string | null; store: Store; rpcErrorCode?: string }) {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
 
@@ -158,7 +154,10 @@ function createMockFetch(options: {
       });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/affiliate_conversions") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/affiliate_conversions"
+    ) {
       const filters = parseEqFilters(url.searchParams);
       const matches = options.store.conversions.filter(
         (row) => !filters.affiliate_id || row.affiliate_id === filters.affiliate_id,
@@ -227,7 +226,11 @@ test("user-specific affiliate routes reject unauthenticated requests", async (t)
     globalThis.fetch = originalFetch;
   });
 
-  for (const path of ["/api/affiliate/me", "/api/affiliate/me/conversions", "/api/affiliate/register"]) {
+  for (const path of [
+    "/api/affiliate/me",
+    "/api/affiliate/me/conversions",
+    "/api/affiliate/register",
+  ]) {
     const response = await app.request(
       path,
       {
@@ -258,7 +261,11 @@ test("authenticated user can read affiliate profile and conversions", async (t) 
   const meJson = await me.json();
   assert.equal(meJson.affiliate.code, "MAYA10");
 
-  const conversions = await app.request("/api/affiliate/me/conversions", { method: "GET", headers }, env);
+  const conversions = await app.request(
+    "/api/affiliate/me/conversions",
+    { method: "GET", headers },
+    env,
+  );
   assert.equal(conversions.status, 200);
   const conversionsJson = await conversions.json();
   assert.equal(conversionsJson.conversions.length, 1);
@@ -304,7 +311,10 @@ test("authenticated user can register affiliate code and update bank info", asyn
   assert.equal(register.status, 200);
   const registerJson = await register.json();
   assert.equal(registerJson.affiliate.code, "JAS10");
-  assert.equal(store.affiliates.some((row) => row.code === "JAS10"), true);
+  assert.equal(
+    store.affiliates.some((row) => row.code === "JAS10"),
+    true,
+  );
 
   const bank = await app.request(
     "/api/affiliate/me/bank",

@@ -1,7 +1,7 @@
 # Siklusio Testing & Verification Guide
 
-Last updated: 2026-06-05  
-Last verified against codebase: 2026-06-05  
+Last updated: 2026-06-09  
+Last verified against codebase: 2026-06-09
 Target Audience: Non-coder Founder & AI Coding Agents
 
 ---
@@ -18,7 +18,8 @@ Siklusio v2 menggunakan modul bawaan (native) Node.js **`node:test`** dan **`nod
 | **Verifikasi Tipe & Tes (Global)** | `npm run check`                 | Menjalankan typecheck TypeScript backend, typecheck mobile, dan memicu `npm test` secara berurutan.          |
 | **Typecheck Backend**              | `npm run typecheck:backend`     | Menjalankan compiler TypeScript (`tsc --noEmit`) di level backend untuk memastikan tidak ada kesalahan tipe. |
 | **Typecheck Mobile**               | `npm run typecheck:mobile`      | Memvalidasi tipe kode TypeScript aplikasi mobile (`mobile-app`).                                             |
-| **Pemeriksaan Format Kode**        | `npm run format:check`          | Memvalidasi kepatuhan formatting file markdown dan TypeScript terhadap aturan Prettier.                      |
+| **Pemeriksaan Format Kode**        | `npm run format:check`          | Memvalidasi kepatuhan formatting seluruh monorepo terhadap Prettier.                                         |
+| **Pemeriksaan Format CI**          | `npm run format:check:ci`       | Subset CI: `backend/`, `.github/`, `scripts/` (dijalankan di GitHub Actions).                                |
 
 ---
 
@@ -38,6 +39,10 @@ Semua file pengujian aktif diletakkan di dalam folder `backend/` dengan akhiran 
 | **[metaCapiWebhook.test.ts](file:///d:/Coding/remix_-siklusio/backend/metaCapiWebhook.test.ts)**   | `paymentNotificationService` (via webhook)            | Meta CAPI Purchase pada payment success.                                                                          |
 
 Lihat juga matriks lengkap payment flow di [PAYMENT_FLOW_ARCHITECTURE.md](./PAYMENT_FLOW_ARCHITECTURE.md#8-test-matrix).
+
+| **[infraGuardrails.test.ts](file:///d:/Coding/remix_-siklusio/backend/infraGuardrails.test.ts)** | Repo hygiene | Gagal jika `supabase/.temp` tracked, `.env.example` berisi token nyata, atau root `supabase/*.sql` baru di luar legacy allowlist. |
+
+CI juga menjalankan **gitleaks** secret scan (lihat [SECURITY.md §7](./SECURITY.md#7-ci--infra-guardrails-sprint-4a)).
 
 ---
 

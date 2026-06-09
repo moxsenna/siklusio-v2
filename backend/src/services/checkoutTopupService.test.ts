@@ -1,9 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  buildTopupCustomerDetails,
-  buildTopupMayarProductFields,
-} from "./checkoutTopupService";
+import { buildTopupCustomerDetails, buildTopupMayarProductFields } from "./checkoutTopupService";
 
 test("buildTopupCustomerDetails prefers profile fields and falls back to email local-part", () => {
   assert.deepEqual(

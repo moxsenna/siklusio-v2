@@ -1,9 +1,7 @@
 import type { BindingsContext } from "../middlewares/auth";
 import { logError, logInfo, logWarn } from "../logging/redaction";
 
-export type WhatsappAutoresponderEvent =
-  | "registration_completed"
-  | "payment_completed";
+export type WhatsappAutoresponderEvent = "registration_completed" | "payment_completed";
 
 type TemplateContext = Record<string, string | number | null | undefined>;
 
@@ -44,10 +42,7 @@ export function normalizeWhatsapp(input?: string | null) {
   return digits;
 }
 
-export function renderWhatsappTemplate(
-  template: string,
-  context: TemplateContext,
-) {
+export function renderWhatsappTemplate(template: string, context: TemplateContext) {
   return template.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, rawKey) => {
     const key = String(rawKey).trim();
     if (!ALLOWED_PLACEHOLDERS.has(key)) {
@@ -61,11 +56,14 @@ export function renderWhatsappTemplate(
   });
 }
 
-export async function sendFonnteMessage(c: BindingsContext, params: {
-  target: string;
-  message: string;
-  delaySeconds?: number;
-}) {
+export async function sendFonnteMessage(
+  c: BindingsContext,
+  params: {
+    target: string;
+    message: string;
+    delaySeconds?: number;
+  },
+) {
   const token = c.env.FONNTE_TOKEN;
   if (!token) {
     throw new Error("FONNTE_TOKEN belum dikonfigurasi.");
@@ -120,9 +118,7 @@ async function insertLogOrSkip(
   payload: Record<string, unknown>,
   idempotencyKey: string,
 ) {
-  const { error } = await supabaseAdmin
-    .from("whatsapp_autoresponder_logs")
-    .insert(payload);
+  const { error } = await supabaseAdmin.from("whatsapp_autoresponder_logs").insert(payload);
 
   if (error?.code === "23505") {
     logInfo(`Idempotency duplicate caught on insert log: ${idempotencyKey}`);
@@ -185,7 +181,7 @@ export async function sendWhatsappAutoresponder(input: SendAutoresponderInput) {
       idempotency_key: idempotencyKey,
       metadata: { ...metadata, reason: "setting_not_found" },
     };
-    
+
     const { duplicated } = await insertLogOrSkip(supabaseAdmin, logPayload, idempotencyKey);
     if (duplicated) {
       return { status: "skipped" as const, reason: "Sudah pernah diproses (duplicate key)." };

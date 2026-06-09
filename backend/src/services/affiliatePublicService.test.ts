@@ -26,7 +26,10 @@ function createMockSupabase(handlers: {
   coupons?: Array<Record<string, unknown>>;
   conversions?: Array<Record<string, unknown>>;
   profile?: Record<string, unknown> | null;
-  onRpc?: (args: Record<string, unknown>) => { data?: unknown; error?: { code?: string; message?: string } | null };
+  onRpc?: (args: Record<string, unknown>) => {
+    data?: unknown;
+    error?: { code?: string; message?: string } | null;
+  };
   onUpdateAffiliate?: (email: string | undefined, row: Record<string, unknown>) => void;
 }) {
   const affiliates = [...(handlers.affiliates || [])];
@@ -141,7 +144,10 @@ function createMockSupabase(handlers: {
       throw new Error(`Unexpected table ${table}`);
     },
     rpc(_fn: string, args: Record<string, unknown>) {
-      const result = handlers.onRpc?.(args) ?? { data: { id: "aff-new", code: args.p_code }, error: null };
+      const result = handlers.onRpc?.(args) ?? {
+        data: { id: "aff-new", code: args.p_code },
+        error: null,
+      };
       return Promise.resolve(result);
     },
   };
@@ -149,11 +155,15 @@ function createMockSupabase(handlers: {
 
 test("validatePublicAffiliateCode returns false for empty or inactive codes", async () => {
   const supabaseAdmin = createMockSupabase({
-    affiliates: [{ code: "MAYA10", is_active: false, commission_type: "percentage", commission_value: 10 }],
+    affiliates: [
+      { code: "MAYA10", is_active: false, commission_type: "percentage", commission_value: 10 },
+    ],
   });
 
   assert.deepEqual(await validatePublicAffiliateCode(supabaseAdmin as any, ""), { valid: false });
-  assert.deepEqual(await validatePublicAffiliateCode(supabaseAdmin as any, "UNKNOWN"), { valid: false });
+  assert.deepEqual(await validatePublicAffiliateCode(supabaseAdmin as any, "UNKNOWN"), {
+    valid: false,
+  });
 });
 
 test("validatePublicAffiliateCode returns discount label when coupon exists", async () => {
@@ -183,7 +193,10 @@ test("getAffiliateForUser and listAffiliateConversionsForUser scope data to user
   const affiliate = await getAffiliateForUser(supabaseAdmin as any, "maya@example.com");
   assert.equal(affiliate?.id, "aff-1");
 
-  const conversions = await listAffiliateConversionsForUser(supabaseAdmin as any, "maya@example.com");
+  const conversions = await listAffiliateConversionsForUser(
+    supabaseAdmin as any,
+    "maya@example.com",
+  );
   assert.equal(conversions.length, 1);
   assert.equal((conversions[0] as { id: string }).id, "conv-1");
 });
@@ -194,7 +207,10 @@ test("registerPublicAffiliate normalizes code and handles duplicate errors", asy
     profile: { name: "Maya", whatsapp_number: "08123456789" },
     onRpc: (args) => {
       rpcArgs = args;
-      return { data: { id: "aff-new", code: args.p_code }, error: { code: "23505", message: "duplicate" } };
+      return {
+        data: { id: "aff-new", code: args.p_code },
+        error: { code: "23505", message: "duplicate" },
+      };
     },
   });
 

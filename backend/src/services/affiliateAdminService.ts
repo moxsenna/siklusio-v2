@@ -52,9 +52,7 @@ export function validateCreateAffiliateInput(input: CreateAffiliateInput): strin
   return null;
 }
 
-export function pickAffiliateUpdateFields(
-  updates: UpdateAffiliateInput,
-): Record<string, unknown> {
+export function pickAffiliateUpdateFields(updates: UpdateAffiliateInput): Record<string, unknown> {
   const safeUpdates: Record<string, unknown> = {};
   for (const key of AFFILIATE_UPDATE_ALLOWED_FIELDS) {
     if (updates[key] !== undefined) {
@@ -164,9 +162,7 @@ export async function deleteAffiliate(supabaseAdmin: SupabaseClient<Database>, i
 export async function listAffiliateConversions(supabaseAdmin: SupabaseClient<Database>) {
   const { data, error } = await supabaseAdmin
     .from("affiliate_conversions")
-    .select(
-      "*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)",
-    )
+    .select("*, affiliates(name, code, email, whatsapp, bank_name, account_number, account_holder)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;

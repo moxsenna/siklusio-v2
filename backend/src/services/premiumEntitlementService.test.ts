@@ -109,7 +109,11 @@ test("grantPremiumCreditsForActivation returns null when premium bonus already g
     },
   };
 
-  const result = await grantPremiumCreditsForActivation(supabaseAdmin as any, "user-1", "session-1");
+  const result = await grantPremiumCreditsForActivation(
+    supabaseAdmin as any,
+    "user-1",
+    "session-1",
+  );
   assert.equal(result, null);
 });
 

@@ -35,7 +35,7 @@ test("Paid webhook with no affiliate still sends Purchase", async (t) => {
               whatsapp: "08123456789",
               affiliate_code: null,
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
         if (init?.method === "DELETE") {
@@ -64,32 +64,52 @@ test("Paid webhook with no affiliate still sends Purchase", async (t) => {
               purchase_capi_sent_at: null,
               purchase_capi_event_id: null,
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
         if (init?.method === "PATCH") {
           sessionUpdateBody = JSON.parse(String(init.body || "{}"));
-          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
       // 3. User activation mock
-      if (url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" && init?.method === "PUT") {
+      if (
+        url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" &&
+        init?.method === "PUT"
+      ) {
         userActivated = true;
         return new Response(
-          JSON.stringify({ user: { id: "11111111-1111-4111-8111-111111111111", app_metadata: { siklusio_access_status: "active" } } }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          JSON.stringify({
+            user: {
+              id: "11111111-1111-4111-8111-111111111111",
+              app_metadata: { siklusio_access_status: "active" },
+            },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
 
       // 4. Initial credits mock
-      if (url.pathname === "/rest/v1/ai_credit_ledger" || url.pathname === "/rest/v1/rpc/grant_ai_credits") {
-        return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+      if (
+        url.pathname === "/rest/v1/ai_credit_ledger" ||
+        url.pathname === "/rest/v1/rpc/grant_ai_credits"
+      ) {
+        return new Response("500", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
 
       // 5. Affiliate conversion mock
       if (url.pathname === "/rest/v1/affiliate_conversions") {
-        return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+        return new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 
@@ -125,7 +145,7 @@ test("Paid webhook with no affiliate still sends Purchase", async (t) => {
         },
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();
@@ -174,12 +194,15 @@ test("Paid webhook duplicate with purchase_capi_sent_at does not send again", as
               purchase_capi_sent_at: "2026-06-05T12:00:00Z",
               purchase_capi_event_id: "purchase_tx-123",
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
       }
       if (url.pathname === "/rest/v1/ai_credit_topups") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 
@@ -211,7 +234,7 @@ test("Paid webhook duplicate with purchase_capi_sent_at does not send again", as
         },
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();
@@ -248,16 +271,22 @@ test("Paid webhook duplicate with paid session but null purchase_capi_sent_at re
               purchase_capi_sent_at: null,
               purchase_capi_event_id: null,
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
         if (init?.method === "PATCH") {
           sessionUpdateBody = JSON.parse(String(init.body || "{}"));
-          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
       if (url.pathname === "/rest/v1/ai_credit_topups") {
-        return new Response("null", { status: 200, headers: { "content-type": "application/json" } });
+        return new Response("null", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 
@@ -289,7 +318,7 @@ test("Paid webhook duplicate with paid session but null purchase_capi_sent_at re
         },
       }),
     },
-    env
+    env,
   );
 
   const responseText = await response.text();
@@ -328,7 +357,7 @@ test("Meta env missing should not break paid activation", async (t) => {
               whatsapp: "08123456789",
               affiliate_code: null,
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
         if (init?.method === "DELETE") {
@@ -356,24 +385,41 @@ test("Meta env missing should not break paid activation", async (t) => {
               purchase_capi_sent_at: null,
               purchase_capi_event_id: null,
             }),
-            { status: 200, headers: { "content-type": "application/json" } }
+            { status: 200, headers: { "content-type": "application/json" } },
           );
         }
         if (init?.method === "PATCH") {
-          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
-      if (url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" && init?.method === "PUT") {
+      if (
+        url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" &&
+        init?.method === "PUT"
+      ) {
         userActivated = true;
         return new Response(
-          JSON.stringify({ user: { id: "11111111-1111-4111-8111-111111111111", app_metadata: { siklusio_access_status: "active" } } }),
-          { status: 200, headers: { "content-type": "application/json" } }
+          JSON.stringify({
+            user: {
+              id: "11111111-1111-4111-8111-111111111111",
+              app_metadata: { siklusio_access_status: "active" },
+            },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
         );
       }
 
-      if (url.pathname === "/rest/v1/ai_credit_ledger" || url.pathname === "/rest/v1/rpc/grant_ai_credits") {
-        return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+      if (
+        url.pathname === "/rest/v1/ai_credit_ledger" ||
+        url.pathname === "/rest/v1/rpc/grant_ai_credits"
+      ) {
+        return new Response("500", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 
@@ -405,7 +451,7 @@ test("Meta env missing should not break paid activation", async (t) => {
         },
       }),
     },
-    envMissingMeta
+    envMissingMeta,
   );
 
   const responseText = await response.text();
@@ -474,11 +520,17 @@ test("Paid webhook updates only matched checkout session when same email has mul
         }
         if (init?.method === "PATCH") {
           patchUrls.push(url.toString());
-          return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response("{}", {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
         }
       }
 
-      if (url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" && init?.method === "PUT") {
+      if (
+        url.pathname === "/auth/v1/admin/users/11111111-1111-4111-8111-111111111111" &&
+        init?.method === "PUT"
+      ) {
         userActivated = true;
         return new Response(
           JSON.stringify({
@@ -491,12 +543,21 @@ test("Paid webhook updates only matched checkout session when same email has mul
         );
       }
 
-      if (url.pathname === "/rest/v1/ai_credit_ledger" || url.pathname === "/rest/v1/rpc/grant_ai_credits") {
-        return new Response("500", { status: 200, headers: { "content-type": "application/json" } });
+      if (
+        url.pathname === "/rest/v1/ai_credit_ledger" ||
+        url.pathname === "/rest/v1/rpc/grant_ai_credits"
+      ) {
+        return new Response("500", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
 
       if (url.pathname === "/rest/v1/affiliate_conversions") {
-        return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+        return new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
     }
 

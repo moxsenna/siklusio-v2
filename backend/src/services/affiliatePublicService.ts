@@ -1,9 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database } from "../../../supabase/types/database.types";
 
-export type ValidateAffiliateCodeResult =
-  | { valid: false }
-  | { valid: true; discountLabel: string };
+export type ValidateAffiliateCodeResult = { valid: false } | { valid: true; discountLabel: string };
 
 export type RegisterPublicAffiliateInput = {
   code?: string;

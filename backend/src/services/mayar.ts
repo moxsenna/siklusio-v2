@@ -1,3 +1,5 @@
+export type SiklusioMayarFlow = "membership_purchase" | "ai_credit_topup";
+
 export interface MayarPaymentPayload {
   customerName: string;
   email: string;
@@ -7,16 +9,12 @@ export interface MayarPaymentPayload {
   productDescription?: string;
   productId: string;
   redirectUrl: string;
+  flow?: SiklusioMayarFlow;
 }
 
-export const createMayarPaymentLink = async (
-  mayarKey: string,
-  payload: MayarPaymentPayload,
-) => {
+export const createMayarPaymentLink = async (mayarKey: string, payload: MayarPaymentPayload) => {
   const customerName =
-    payload.customerName?.trim() ||
-    payload.email.split("@")[0] ||
-    "Pelanggan Siklusio";
+    payload.customerName?.trim() || payload.email.split("@")[0] || "Pelanggan Siklusio";
 
   const productName = payload.productName.trim();
 
@@ -40,6 +38,8 @@ export const createMayarPaymentLink = async (
       noCustomer: payload.email.toLowerCase(),
       idProd: payload.productId,
       productName,
+      app: "siklusio",
+      ...(payload.flow ? { flow: payload.flow } : {}),
     },
   };
 
@@ -59,10 +59,7 @@ export const createMayarPaymentLink = async (
     throw new Error(resJson.message || "Gagal membuat invoice Mayar");
   }
 
-  const transactionId =
-    resJson.data?.transactionId ||
-    resJson.data?.transaction_id ||
-    null;
+  const transactionId = resJson.data?.transactionId || resJson.data?.transaction_id || null;
 
   const invoiceId = resJson.data?.id || null;
   const paymentReferenceId = transactionId || invoiceId || null;

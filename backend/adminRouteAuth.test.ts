@@ -67,7 +67,10 @@ function mockAuthFetch(isAdmin: boolean, userId = isAdmin ? ADMIN_USER_ID : NON_
       });
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/whatsapp_autoresponder_settings") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/whatsapp_autoresponder_settings"
+    ) {
       return new Response(JSON.stringify([]), {
         status: 200,
         headers: { "content-type": "application/json" },
@@ -88,7 +91,11 @@ function mockAuthFetch(isAdmin: boolean, userId = isAdmin ? ADMIN_USER_ID : NON_
 const adminEndpoints = [
   { method: "GET", path: "/api/admin/users" },
   { method: "GET", path: "/api/admin/coupons" },
-  { method: "POST", path: "/api/admin/coupons", body: { code: "TEST10", discount_type: "percentage", discount_value: 10 } },
+  {
+    method: "POST",
+    path: "/api/admin/coupons",
+    body: { code: "TEST10", discount_type: "percentage", discount_value: 10 },
+  },
   { method: "GET", path: "/api/admin/affiliates" },
   { method: "GET", path: "/api/admin/affiliates/conversions" },
   { method: "GET", path: "/api/admin/crm/summary" },

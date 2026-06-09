@@ -67,7 +67,10 @@ test("paid checkout stores pending registration without plaintext password", asy
       assert.equal(mayarBody.name, "Maya");
       assert.equal(mayarBody.email, "maya@example.com");
       assert.equal(mayarBody.mobile, "08123456789");
-      assert.equal(mayarBody.description, "Akses selamanya Siklusio Premium: pelacak ovulasi, AI insight, komunitas aman, dan fitur promil.");
+      assert.equal(
+        mayarBody.description,
+        "Akses selamanya Siklusio Premium: pelacak ovulasi, AI insight, komunitas aman, dan fitur promil.",
+      );
       assert.equal(mayarBody.items[0].description, "Siklusio Premium Lifetime");
       assert.equal(mayarBody.extraData.noCustomer, "maya@example.com");
       assert.equal(mayarBody.extraData.idProd, "siklusio_premium_lifetime");
@@ -546,7 +549,10 @@ test("duplicate email returns existing client error without listUsers or downstr
       );
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/pending_registrations") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/pending_registrations"
+    ) {
       pendingBodies.push(JSON.parse(String(init?.body || "{}")));
       return new Response("{}", { status: 201, headers: { "content-type": "application/json" } });
     }
@@ -572,7 +578,11 @@ test("duplicate email returns existing client error without listUsers or downstr
       init?.method === "POST"
     ) {
       return new Response(
-        JSON.stringify({ allowed: true, remaining: 99, reset_at: Math.ceil(Date.now() / 1000) + 60 }),
+        JSON.stringify({
+          allowed: true,
+          remaining: 99,
+          reset_at: Math.ceil(Date.now() / 1000) + 60,
+        }),
         { status: 200, headers: { "content-type": "application/json" } },
       );
     }

@@ -80,7 +80,10 @@ test("isDuplicateEmailSignupError detects Supabase duplicate email signup errors
     }),
     true,
   );
-  assert.equal(isDuplicateEmailSignupError({ status: 500, message: "database unavailable" }), false);
+  assert.equal(
+    isDuplicateEmailSignupError({ status: 500, message: "database unavailable" }),
+    false,
+  );
 });
 
 test("duplicateEmailFailure preserves existing duplicate email client response", () => {

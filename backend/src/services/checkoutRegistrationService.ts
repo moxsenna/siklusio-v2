@@ -65,9 +65,7 @@ export function duplicateEmailFailure(): CheckoutRegisterFailure {
   };
 }
 
-export type CheckoutRegisterResult =
-  | { ok: true; paymentUrl: string }
-  | CheckoutRegisterFailure;
+export type CheckoutRegisterResult = { ok: true; paymentUrl: string } | CheckoutRegisterFailure;
 
 type CheckoutAmountResult = { ok: true; finalAmount: number } | CheckoutRegisterFailure;
 

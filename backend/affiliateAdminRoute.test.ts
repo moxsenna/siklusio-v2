@@ -67,7 +67,11 @@ function parseEqFilters(searchParams: URLSearchParams): Record<string, string> {
   return filters;
 }
 
-function createMockFetch(isAdmin: boolean, store: Store, userId = isAdmin ? ADMIN_USER_ID : NON_ADMIN_USER_ID) {
+function createMockFetch(
+  isAdmin: boolean,
+  store: Store,
+  userId = isAdmin ? ADMIN_USER_ID : NON_ADMIN_USER_ID,
+) {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input));
 
@@ -145,7 +149,10 @@ function createMockFetch(isAdmin: boolean, store: Store, userId = isAdmin ? ADMI
       }
     }
 
-    if (url.hostname === "project.supabase.co" && url.pathname === "/rest/v1/affiliate_conversions") {
+    if (
+      url.hostname === "project.supabase.co" &&
+      url.pathname === "/rest/v1/affiliate_conversions"
+    ) {
       if (!init?.method || init.method === "GET") {
         return new Response(JSON.stringify(store.conversions), {
           status: 200,
@@ -176,11 +183,7 @@ test("affiliate admin routes reject unauthenticated requests", async (t) => {
     globalThis.fetch = originalFetch;
   });
 
-  const response = await app.request(
-    "/api/admin/affiliates",
-    { method: "GET" },
-    env,
-  );
+  const response = await app.request("/api/admin/affiliates", { method: "GET" }, env);
 
   assert.equal(response.status, 401);
 });
@@ -303,7 +306,10 @@ test("admin can create update and delete affiliate", async (t) => {
   );
   assert.equal(deleteRes.status, 200);
   assert.deepEqual(await deleteRes.json(), { status: "ok" });
-  assert.equal(store.affiliates.some((row) => row.id === created.affiliate.id), false);
+  assert.equal(
+    store.affiliates.some((row) => row.id === created.affiliate.id),
+    false,
+  );
 });
 
 test("admin can mark affiliate conversion payout as paid", async (t) => {

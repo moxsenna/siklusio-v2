@@ -21,7 +21,8 @@
     "db:types": "npm run generate:types",
     "db:lint": "supabase db lint --linked --schema public --fail-on error",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
+    "format:check:ci": "prettier --check \"backend/**/*.{ts,tsx,js}\" \".github/**/*.{yml,yaml}\" \"scripts/**/*.{mjs,js}\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1054.0",

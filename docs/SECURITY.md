@@ -1,7 +1,7 @@
 # Siklusio Security Handbook
 
-Last updated: 2026-06-05  
-Last verified against codebase: 2026-06-05  
+Last updated: 2026-06-09  
+Last verified against codebase: 2026-06-09
 Target Audience: Non-coder Founder & AI Coding Agents
 
 ---
@@ -34,6 +34,8 @@ Siklusio menggunakan PostgreSQL Row Level Security (RLS) di Supabase untuk memas
 Callback webhook dari Mayar (`POST /api/payment/webhook`) adalah jalur sensitif karena memicu pembuatan akun premium dan pengisian saldo kredit AI.
 
 - **Validasi Token**: Webhook diverifikasi dengan membaca header `x-callback-token` (atau `X-Callback-Token`) dan mencocokkannya dengan nilai rahasia `MAYAR_WEBHOOK_TOKEN` yang disimpan secara aman di environment bindings Cloudflare Worker.
+- **Multi-app router (Task 10.3c)**: Bila `MAYAR_MULTI_APP_ROUTER_ENABLED=true`, payload dengan `extraData.app=vibenovel` dan `flow=credit_topup` diteruskan ke `VIBENOVEL_MAYAR_WEBHOOK_URL` **sebelum** logika Siklusio (tanpa aktivasi akun, CAPI, WhatsApp, atau grant kredit). Gagal forward → HTTP 502 (fail-closed) agar Mayar dapat retry. Rollback: set `MAYAR_MULTI_APP_ROUTER_ENABLED=false`.
+- **Verifikasi lokal (Task 10.3d)**: Cross-repo smoke VibeNovel `scripts/sprint10-dual-app-smoke.ps1` — forward + grant sekali + duplicate idempotent. Router **hanya** di-enable di test/staging; produksi tetap `false` sampai ops Go/No-Go.
 - **Idempotensi**: Sistem memverifikasi ID Transaksi (`mayar_transaction_id`) terhadap tabel `ai_credit_topups` dan `affiliate_conversions` sebelum memproses. Transaksi yang sudah terbayar tidak akan diproses ulang untuk menghindari eksploitasi pengisian kredit berulang (double-grant).
 - _Rujukan berkas implementasi:_ [webhook.mayar.controller.ts](file:///d:/Coding/remix_-siklusio/backend/src/controllers/webhook.mayar.controller.ts#L11-L23).
 
@@ -71,3 +73,68 @@ AI Coding Agent dan pengembang wajib memastikan kepatuhan penuh terhadap aturan 
 | **Jangan Menjanjikan Kehamilan**         | Hindari menjanjikan kehamilan atau menjamin keberhasilan promil ("pasti hamil dengan tips ini", "garansi hamil bulan depan").                                                                                  | _“Ikhtiar promil harian ini adalah langkah kecil yang baik untuk menyiapkan tubuhmu. Mari tetap konsisten menjaga kebiasaan sehat hari ini, ya.”_                                                                |
 | **Wajib Menampilkan Disclaimer**         | Setiap response AI untuk analisis siklus, saran nutrisi, dan habit coaching wajib menyertakan disclaimer medis di bagian bawah.                                                                                | _“Informasi ini bersifat edukatif dan pendampingan umum, bukan diagnosis medis. Konsultasikan dengan dokter kandungan jika kamu mengalami nyeri berat atau kendala siklus lainnya.”_                             |
 | **Bahasa yang Hangat & Tidak Overclaim** | Gunakan gaya bahasa Indonesia yang empati, menenangkan, menggunakan panggilan "kamu" atau sapaan personal nickname. Hindari istilah klinis yang terkesan mendiagnosis atau menghakimi.                         | _“Halo [Nickname], hari ini tubuhmu sedang bersiap untuk fase ovulasi. Tetap jaga hidrasi dan istirahat yang cukup ya, kamu sudah melakukan yang terbaik hari ini.”_                                             |
+
+---
+
+## 7. CI / Infra Guardrails (Sprint 4A)
+
+Automated checks (see `.github/workflows/ci.yml` and `backend/infraGuardrails.test.ts`):
+
+| Guard | Mechanism |
+| ----- | --------- |
+| Secret leak scan | [gitleaks](https://github.com/gitleaks/gitleaks) on every push/PR (`.gitleaks.toml` allowlists `.env.example`) |
+| Env template hygiene | Test fails if `.env.example` contains real tokens (e.g. `FONNTE_TOKEN` must use `your-*` placeholders) |
+| Supabase CLI temp | Test fails if `supabase/.temp/` is tracked by git |
+| Legacy SQL drift | Test fails if new `supabase/*.sql` root files are tracked outside the legacy allowlist — use `supabase/migrations/` instead |
+| Format (CI scope) | `npm run format:check:ci` on `backend/`, `.github/`, `scripts/` |
+
+**Not in CI (requires production credentials):**
+
+- `npm run db:push:dry-run` — needs linked Supabase project + access token; run manually before deploy.
+- `npm run db:lint` — same requirement.
+
+---
+
+## 8. Token Rotation Checklist
+
+Rotate immediately if a secret was committed, pasted in chat, or exposed in logs.
+
+### Fonnte (`FONNTE_TOKEN`)
+
+1. Fonnte dashboard → generate new API token.
+2. Update Cloudflare Worker secret / `wrangler secret put FONNTE_TOKEN`.
+3. Update local `.env.local` only (never commit).
+4. Revoke old Fonnte token.
+5. Smoke: trigger a test autoresponder or verify `payment_completed` log row.
+
+### Cloudflare API Token (R2 / Workers deploy)
+
+1. Cloudflare dashboard → My Profile → API Tokens.
+2. Create replacement token with minimal scope (Workers Scripts Edit + R2 if needed).
+3. Update GitHub Actions secret used by Deploy Backend workflow.
+4. Update local `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` or token-based deploy creds in `.env.local`.
+5. Revoke old token after successful deploy.
+6. Verify: `npm run deploy:backend` or GitHub Deploy Backend workflow green.
+
+### GitHub Actions Secrets
+
+| Secret | Used for |
+| ------ | -------- |
+| `CLOUDFLARE_API_TOKEN` | Backend deploy (Wrangler) |
+| `CLOUDFLARE_ACCOUNT_ID` | Backend deploy |
+| Supabase / Mayar / OpenRouter / Meta secrets | Worker runtime (set in Cloudflare, not always in GH) |
+
+Rotation steps:
+
+1. Rotate at the **provider** first (Cloudflare, Supabase, Mayar, OpenRouter, Meta).
+2. Update **Cloudflare Worker** secrets for runtime (`wrangler secret put …` or dashboard).
+3. Update **GitHub Actions** repository secrets for CI/deploy.
+4. Re-run CI + Deploy Backend on `main`.
+5. Revoke old credentials at provider.
+
+### After any leak
+
+1. Rotate affected tokens (above).
+2. Confirm `.env.example` still uses placeholders only (`npm test` → `infraGuardrails.test.ts`).
+3. Confirm `supabase/.temp/` is not tracked: `git ls-files supabase/.temp`.
+4. Review gitleaks CI output on the offending commit.

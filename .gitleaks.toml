@@ -1,0 +1,14 @@
+title = "Siklusio gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow env templates and local-only paths"
+paths = [
+  '''\.env\.example$''',
+  '''^docs/superpowers/''',
+  '''LAPORAN_AUDIT''',
+  '''MERGED_AUDIT_REPORT''',
+  '''CODEX_AUDIT_REPORT''',
+]

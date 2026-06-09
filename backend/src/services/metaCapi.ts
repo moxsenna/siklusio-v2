@@ -98,7 +98,9 @@ export async function sendMetaCapiEvent(
 
     if (!res.ok) {
       const text = await res.text();
-      console.error(`--> Meta CAPI Error [${eventName}] (Event ID: ${eventId}): status ${res.status}`);
+      console.error(
+        `--> Meta CAPI Error [${eventName}] (Event ID: ${eventId}): status ${res.status}`,
+      );
       let parsedResponse: any = null;
       try {
         parsedResponse = JSON.parse(text);
@@ -122,4 +124,3 @@ export async function sendMetaCapiEvent(
     return { ok: false, skipped: false, error: err.message };
   }
 }
-

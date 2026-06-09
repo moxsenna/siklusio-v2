@@ -142,7 +142,8 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
       if (mayarTransactionId) {
         const { data: s } = await supabaseAdmin
           .from("checkout_sessions")
-          .select(`
+          .select(
+            `
             id,
             email,
             whatsapp,
@@ -158,17 +159,21 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
             purchase_capi_sent_at,
             purchase_capi_event_id,
             status
-          `)
+          `,
+          )
           .eq("mayar_transaction_id", mayarTransactionId)
           .maybeSingle();
         session = s;
       }
 
       if (!session && email) {
-        logInfo(`--> Checkout session not found by transaction ID ${mayarTransactionId}. Falling back to email...`);
+        logInfo(
+          `--> Checkout session not found by transaction ID ${mayarTransactionId}. Falling back to email...`,
+        );
         const { data: s } = await supabaseAdmin
           .from("checkout_sessions")
-          .select(`
+          .select(
+            `
             id,
             email,
             whatsapp,
@@ -184,7 +189,8 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
             purchase_capi_sent_at,
             purchase_capi_event_id,
             status
-          `)
+          `,
+          )
           .eq("email", email.toLowerCase())
           .eq("status", "pending")
           .order("created_at", { ascending: false })
@@ -196,7 +202,9 @@ export const handleMayarWebhook = async (c: Context<{ Bindings: Env }>) => {
       // 6. Check if session already paid
       if (session && session.status === "paid") {
         if (session.purchase_capi_sent_at) {
-          logInfo(`--> Webhook idempotency: checkout_session ${session.id} already paid and CAPI sent, skipping`);
+          logInfo(
+            `--> Webhook idempotency: checkout_session ${session.id} already paid and CAPI sent, skipping`,
+          );
           return c.json({ status: "ok", message: "Transaction already processed" }, 200);
         }
 

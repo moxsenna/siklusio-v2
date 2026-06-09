@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BindingsContext } from "../middlewares/auth";
-import { upsertAdminCrmLead } from "./adminCrm";
 import {
   recordAdminManualAffiliateConversion,
   recordWebhookAffiliateConversion,
@@ -13,7 +12,13 @@ import {
   scheduleMayarWebhookPaymentAutoresponder,
   sendWebhookPurchaseMetaCapi,
 } from "./paymentNotificationService";
-import { logInfo, logError } from "../logging/redaction";
+import {
+  cleanupAdminManualPendingRegistration,
+  deleteWebhookPendingRegistration,
+  markAdminManualCheckoutSessionPaid,
+  markCheckoutSessionPaid,
+  syncWebhookPaymentCrmLead,
+} from "./paymentFinalizationService";
 
 export type CheckoutSessionSnapshot = {
   id: string;
@@ -57,29 +62,6 @@ export type AdminManualActivationResult = {
   warnings: string[];
 };
 
-export async function markCheckoutSessionPaid(
-  supabaseAdmin: SupabaseClient,
-  session: CheckoutSessionSnapshot,
-  mayarTransactionId?: string | null,
-) {
-  await supabaseAdmin
-    .from("checkout_sessions")
-    .update({
-      status: "paid",
-      paid_at: new Date().toISOString(),
-      mayar_transaction_id: session.mayar_transaction_id || mayarTransactionId || null,
-    })
-    .eq("id", session.id);
-}
-
-export async function deletePendingRegistration(
-  supabaseAdmin: SupabaseClient,
-  pendingId: string,
-) {
-  logInfo("--> Deleting pending registration record");
-  await supabaseAdmin.from("pending_registrations").delete().eq("id", pendingId);
-}
-
 export async function processMayarWebhookPremiumActivation(params: {
   c: BindingsContext;
   supabaseAdmin: SupabaseClient;
@@ -97,24 +79,12 @@ export async function processMayarWebhookPremiumActivation(params: {
     creditReferenceId: session?.id || null,
   });
 
-  try {
-    await upsertAdminCrmLead(supabaseAdmin, {
-      userId: entitlement.userId || pending.user_id || null,
-      pendingRegistrationId: pending.id,
-      name: pending.name,
-      email: pending.email,
-      whatsapp: pending.whatsapp,
-      source: "mayar_webhook",
-      referralCode: pending.coupon_code || null,
-      affiliateCode: pending.affiliate_code || null,
-      leadStatus: "paid",
-      paymentStatus: "paid",
-      mayarTransactionId,
-      amount: fallbackAmount != null ? Number(fallbackAmount) : null,
-    });
-  } catch (crmErr) {
-    logError("CRM upsert failed during Mayar webhook processing:", crmErr);
-  }
+  await syncWebhookPaymentCrmLead(supabaseAdmin, {
+    userId: entitlement.userId,
+    pending,
+    mayarTransactionId,
+    fallbackAmount,
+  });
 
   if (pending.affiliate_code) {
     await recordWebhookAffiliateConversion({
@@ -145,7 +115,7 @@ export async function processMayarWebhookPremiumActivation(params: {
     fallbackAmount,
   });
 
-  await deletePendingRegistration(supabaseAdmin, pending.id);
+  await deleteWebhookPendingRegistration(supabaseAdmin, pending.id);
   scheduleMayarWebhookPaymentAutoresponder({
     c,
     session,
@@ -208,28 +178,16 @@ export async function processAdminManualPremiumActivation(params: {
 
     const session = affiliateResult.pendingCheckoutSession;
     if (session) {
-      const { error: sessUpdateErr } = await supabaseAdmin
-        .from("checkout_sessions")
-        .update({ status: "paid", paid_at: new Date().toISOString() })
-        .eq("id", session.id);
-
-      if (sessUpdateErr) {
-        logError("Failed to update checkout session in override:", sessUpdateErr);
-      } else {
+      const sessionResult = await markAdminManualCheckoutSessionPaid(supabaseAdmin, session.id);
+      if (sessionResult.updated) {
         activationResult.checkoutSessionUpdated = true;
       }
     }
   }
 
   if (pending) {
-    const { error: delErr } = await supabaseAdmin
-      .from("pending_registrations")
-      .delete()
-      .eq("id", pending.id);
-
-    if (delErr) {
-      logError("Failed to clean pending registration in override:", delErr);
-    } else {
+    const cleanupResult = await cleanupAdminManualPendingRegistration(supabaseAdmin, pending.id);
+    if (cleanupResult.cleaned) {
       activationResult.pendingRegistrationCleaned = true;
     }
   }

@@ -34,6 +34,10 @@ Semua file pengujian aktif diletakkan di dalam folder `backend/` dengan akhiran 
 | **[checkoutRegister.test.ts](file:///d:/Coding/remix_-siklusio/backend/checkoutRegister.test.ts)** | `backend/src/controllers/checkout.controller.ts`      | Memvalidasi alur inisialisasi registrasi premium, validasi kupon, dan integrasi session.                          |
 | **[topupCheckout.test.ts](file:///d:/Coding/remix_-siklusio/backend/topupCheckout.test.ts)**       | `backend/src/controllers/checkout.controller.ts`      | Menguji validasi checkout topup kredit AI dan penanganan error parameter yang salah.                              |
 | **[topupWebhook.test.ts](file:///d:/Coding/remix_-siklusio/backend/topupWebhook.test.ts)**         | `backend/src/controllers/webhook.mayar.controller.ts` | Memvalidasi pemrosesan topup kredit secara atomik dan keabsahan token webhook Mayar.                              |
+| **[paymentActivationWorkflow.test.ts](file:///d:/Coding/remix_-siklusio/backend/paymentActivationWorkflow.test.ts)** | `paymentActivationService` + webhook/admin routes | Regresi end-to-end aktivasi premium: idempotency kredit, affiliate, CAPI, WhatsApp, admin manual. |
+| **[metaCapiWebhook.test.ts](file:///d:/Coding/remix_-siklusio/backend/metaCapiWebhook.test.ts)**   | `paymentNotificationService` (via webhook)            | Meta CAPI Purchase pada payment success.                                                                          |
+
+Lihat juga matriks lengkap payment flow di [PAYMENT_FLOW_ARCHITECTURE.md](./PAYMENT_FLOW_ARCHITECTURE.md#8-test-matrix).
 
 ---
 

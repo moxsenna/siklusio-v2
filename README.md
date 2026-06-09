@@ -19,6 +19,7 @@ Siklusio v2 adalah aplikasi pendamping siklus menstruasi dan program hamil (prom
 - [ARCHITECTURE.md](file:///d:/Coding/remix_-siklusio/docs/ARCHITECTURE.md) — Arsitektur monorepo, batas modularitas backend Hono, struktur frontend Expo, serta diagram alur data.
 - [DATABASE.md](file:///d:/Coding/remix_-siklusio/docs/DATABASE.md) — Skema database, inventori tabel, kebijakan Row Level Security (RLS), fungsi RPC, dan aturan migrasi Supabase.
 - [API.md](file:///d:/Coding/remix_-siklusio/docs/API.md) — Pemetaan detail endpoint backend Hono, skema Zod, parameter input/output, rate limits, dan biaya kredit AI.
+- [PAYMENT_FLOW_ARCHITECTURE.md](file:///d:/Coding/remix_-siklusio/docs/PAYMENT_FLOW_ARCHITECTURE.md) — Arsitektur payment flow pasca Sprint 2G: coordinator, service matrix, idempotency, guardrails, dan test matrix (wajib dibaca sebelum mengubah webhook/activation).
 - [SECURITY.md](file:///d:/Coding/remix_-siklusio/docs/SECURITY.md) — Kebijakan keamanan data, manajemen token, mitigasi kebocoran PII, dan protokol keselamatan medis/konten AI.
 - [DEPLOYMENT.md](file:///d:/Coding/remix_-siklusio/docs/DEPLOYMENT.md) — Panduan rilis dan deployment Cloudflare Workers (backend), Expo EAS (mobile app), Cloudflare Pages (landing), dan migrasi database.
 - [TESTING.md](file:///d:/Coding/remix_-siklusio/docs/TESTING.md) — Rangkaian pengujian native `node:test`, petunjuk penulisan tes backend/mobile, dan verifikasi tipe.

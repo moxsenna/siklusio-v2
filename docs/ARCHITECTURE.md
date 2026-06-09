@@ -62,7 +62,7 @@ Repositori Siklusio v2 didekomposisi secara ketat untuk menjaga kerapian kode da
 | **`backend/index.ts`**         | Entrypoint compat wrapper.                                          | Melakukan export dari backend source.                                                                                                            |
 | **`backend/src/`**             | Sumber Utama Kode Server Hono.                                      | Seluruh endpoint, middleware, controller, dan schemas didefinisikan di sini. Entrypoint Wrangler diarahkan langsung ke `backend/src/index.ts`.   |
 | **`backend/src/routes/`**      | Layer Rute API.                                                     | Menangani mapping route untuk API Hono.                                                                                                          |
-| **`backend/src/services/`**    | Layer Layanan Bisnis.                                               | Layanan eksternal seperti integrasi Mayar dan Meta CAPI.                                                                                         |
+| **`backend/src/services/`**    | Layer Layanan Bisnis.                                               | Layanan eksternal seperti integrasi Mayar dan Meta CAPI. Payment activation dipecah menjadi coordinator + layanan khusus — lihat [PAYMENT_FLOW_ARCHITECTURE.md](./PAYMENT_FLOW_ARCHITECTURE.md). |
 | **`supabase/migrations/`**     | Sumber Kebenaran Tunggal (_Source of Truth_) Skema Database.        | Seluruh perubahan DDL database wajib melalui file migrasi di folder ini. SQL di folder root hanyalah referensi legacy.                           |
 
 ---

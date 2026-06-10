@@ -10,7 +10,7 @@ import {
   Easing,
   Modal,
 } from "react-native";
-import { useCycle } from "@/src/context/CycleContext";
+import { useCycleProfile } from "@/src/hooks/useCycleSelectors";
 import { apiPostJson, apiGetJson } from "@/src/lib/api";
 import { useTodayKey } from "@/src/hooks/useTodayKey";
 import {
@@ -162,7 +162,7 @@ function RevealedTwwSection({
 // ---------------------------------------------------------------------------
 
 export function TwwSanctuaryModal({ onClose }: TwwSanctuaryModalProps) {
-  const { userNickname } = useCycle();
+  const { userNickname } = useCycleProfile();
   const todayKey = useTodayKey();
 
   // ── State ────────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, Modal, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useCycle } from "@/src/context/CycleContext";
+import { useCycleProfile } from "@/src/hooks/useCycleSelectors";
 import { useAuth } from "@/src/context/AuthContext";
 import { resolveAvatarSource } from "@/src/lib/avatars";
 import { supabase } from "@/src/lib/supabase";
@@ -10,7 +10,7 @@ import { getAuthenticatedSupabaseClientStatus } from "@/src/lib/supabaseAccess";
 
 export function HeaderProfileButton() {
   const router = useRouter();
-  const { avatarUrl, avatarKind, userNickname } = useCycle();
+  const { avatarUrl, avatarKind, userNickname } = useCycleProfile();
   const { signOut, session } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

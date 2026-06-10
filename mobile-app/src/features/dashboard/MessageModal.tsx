@@ -1,21 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Linking, Modal } from "react-native";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActions,
+  useCyclePrediction,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 
 interface MessageModalProps {
   onClose: () => void;
 }
 
 export function MessageModal({ onClose }: MessageModalProps) {
-  const {
-    currentPhase,
-    cycleDay,
-    daysToNextPeriod,
-    husbandName,
-    husbandNickname,
-    husbandNumber,
-    getDayInfo,
-  } = useCycle();
+  const { currentPhase, cycleDay, daysToNextPeriod } = useCyclePrediction();
+  const { husbandName, husbandNickname, husbandNumber } = useCycleProfile();
+  const { getDayInfo } = useCycleActions();
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
 
   const getTipsSuamiPhase = () => {

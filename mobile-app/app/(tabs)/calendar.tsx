@@ -6,17 +6,21 @@ import { CalendarGrid } from "@/src/features/calendar/CalendarGrid";
 import { CycleGuideCard } from "@/src/features/calendar/CycleGuideCard";
 import { CycleGuideModal } from "@/src/features/calendar/CycleGuideModal";
 import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActions,
+  useCycleActivityHistory,
+  useCyclePrediction,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 import { useTodayKey } from "@/src/hooks/useTodayKey";
 import { stampDailyRecord } from "@/src/lib/activityHistorySync";
 import { buildCycleGuidePreview } from "@/src/lib/cycleGuideSummary";
 
 export default function CalendarScreen() {
   const router = useRouter();
+  const { getDayInfo } = useCycleActions();
+  const { activityHistory, setActivityHistory } = useCycleActivityHistory();
   const {
-    getDayInfo,
-    activityHistory,
-    setActivityHistory,
     currentPhase,
     cycleDay,
     daysToNextPeriod,
@@ -28,8 +32,8 @@ export default function CalendarScreen() {
     periodConfidence,
     hasManualLogs,
     lastPredictionDeltaDays,
-    userNickname,
-  } = useCycle();
+  } = useCyclePrediction();
+  const { userNickname } = useCycleProfile();
   const todayKey = useTodayKey();
 
   const [currentMonth, setCurrentMonth] = useState(new Date());

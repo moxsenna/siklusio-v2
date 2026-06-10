@@ -2,7 +2,11 @@ import React, { useState, useMemo } from "react";
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActions,
+  useCycleActivityHistory,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 import { analytics } from "@/src/lib/analytics";
 import { useTodayKey } from "@/src/hooks/useTodayKey";
 import { parseLocalDate } from "@/src/lib/dateUtils";
@@ -19,7 +23,9 @@ import { HeaderCreditChip } from "@/src/shared/components/HeaderCreditChip";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { activityHistory, getDayInfo, userNickname } = useCycle();
+  const { activityHistory } = useCycleActivityHistory();
+  const { getDayInfo } = useCycleActions();
+  const { userNickname } = useCycleProfile();
   const todayKey = useTodayKey();
   const todayDate = useMemo(() => parseLocalDate(todayKey), [todayKey]);
 

@@ -1,7 +1,11 @@
 import React, { useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActivityHistory,
+  useCyclePrediction,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 import { useTodayKey } from "@/src/hooks/useTodayKey";
 
 interface ActionCardProps {
@@ -11,7 +15,9 @@ interface ActionCardProps {
 }
 
 export function ActionCard({ onOpenMessageModal, isFertile, isStrictOvulation }: ActionCardProps) {
-  const { currentPhase, activityHistory, userNickname } = useCycle();
+  const { currentPhase } = useCyclePrediction();
+  const { activityHistory } = useCycleActivityHistory();
+  const { userNickname } = useCycleProfile();
   const router = useRouter();
   const todayKey = useTodayKey();
 

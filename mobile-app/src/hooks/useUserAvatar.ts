@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useCycle } from "../context/CycleContext";
+import { useCycleProfile } from "./useCycleSelectors";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { AvatarKind } from "../lib/avatars";
@@ -11,7 +11,7 @@ import { getAuthenticatedSupabaseClientStatus } from "../lib/supabaseAccess";
  */
 export function useUserAvatar() {
   const { user } = useAuth();
-  const { avatarUrl, avatarKind, setAvatarUrl, setAvatarKind } = useCycle();
+  const { avatarUrl, avatarKind, setAvatarUrl, setAvatarKind } = useCycleProfile();
 
   const updateAvatar = useCallback(
     async (next: { url: string | null; kind: AvatarKind | null }) => {

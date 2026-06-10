@@ -18,7 +18,7 @@ import { supabase } from "../lib/supabase";
 import { CyclePhase, Task, DailyRecord, calculateCycleData } from "../lib/cycleUtils";
 import type { PredictionConfidence } from "../lib/cyclePrediction";
 
-interface CycleContextType {
+export interface CycleContextType {
   lastPeriodDate: Date | null;
   setLastPeriodDate: (date: Date | null) => void;
   cycleLength: number;

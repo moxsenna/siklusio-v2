@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, TextInput, Alert } from "react-native";
-import { useCycle } from "@/src/context/CycleContext";
+import { useCycleSavings } from "@/src/hooks/useCycleSelectors";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export function SavingsCard() {
-  const { currentSaving, setCurrentSaving, targetSaving } = useCycle();
+  const { currentSaving, setCurrentSaving, targetSaving } = useCycleSavings();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [amountInput, setAmountInput] = useState("");
 

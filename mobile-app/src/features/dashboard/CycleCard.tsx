@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, Text } from "react-native";
-import { useCycle } from "@/src/context/CycleContext";
+import { useCyclePrediction } from "@/src/hooks/useCycleSelectors";
 import { getCycleConfidenceMessage, getPredictionDeltaMessage } from "@/src/lib/cycleInsightCopy";
 
 interface CycleCardProps {
@@ -15,7 +15,7 @@ export function CycleCard({ displayPhase, actionCardIcon }: CycleCardProps) {
     predictedCycleLength,
     cycleConfidence,
     lastPredictionDeltaDays,
-  } = useCycle();
+  } = useCyclePrediction();
 
   const borderClass = useMemo(() => {
     if (displayPhase === "Masa Subur" || displayPhase === "Ovulasi") {

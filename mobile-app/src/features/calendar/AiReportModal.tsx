@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SiklusioLoading } from "../../components/loading/SiklusioLoading";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActivityHistory,
+  useCyclePrediction,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 import { format } from "date-fns";
 import { parseLocalDate } from "@/src/lib/dateUtils";
 import { AiFallbackNotice } from "@/src/shared/components/AiFallbackNotice";
@@ -13,15 +17,10 @@ interface AiReportModalProps {
 }
 
 export function AiReportModal({ onClose }: AiReportModalProps) {
-  const {
-    currentPhase,
-    cycleDay,
-    daysToNextPeriod,
-    activityHistory,
-    fertileWindowStart,
-    fertileWindowEnd,
-    userNickname,
-  } = useCycle();
+  const { currentPhase, cycleDay, daysToNextPeriod, fertileWindowStart, fertileWindowEnd } =
+    useCyclePrediction();
+  const { activityHistory } = useCycleActivityHistory();
+  const { userNickname } = useCycleProfile();
 
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);

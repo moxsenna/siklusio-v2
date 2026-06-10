@@ -12,7 +12,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { useCycle } from "@/src/context/CycleContext";
+import { useCycleActions, useCycleActivityHistory } from "@/src/hooks/useCycleSelectors";
 
 interface CalendarGridProps {
   currentMonth: Date;
@@ -27,7 +27,8 @@ export function CalendarGrid({
   onSelectDate,
   selectedDate,
 }: CalendarGridProps) {
-  const { getDayInfo, activityHistory } = useCycle();
+  const { getDayInfo } = useCycleActions();
+  const { activityHistory } = useCycleActivityHistory();
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));

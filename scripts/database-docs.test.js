@@ -18,6 +18,10 @@ test("database handoff docs, generated types, and scripts are present", () => {
   assert.equal(packageJson.scripts["db:migrations:list"], "supabase migration list --linked");
   assert.equal(packageJson.scripts["db:push:dry-run"], "supabase db push --dry-run");
   assert.equal(packageJson.scripts["db:types"], "npm run generate:types");
+  assert.equal(
+    packageJson.scripts["db:baseline-check"],
+    "node scripts/sprint4b-db-baseline-check.mjs",
+  );
 
   const databaseDoc = readText("docs/DATABASE.md");
   assert.match(databaseDoc, /supabase\/migrations\/.*source of truth/i);

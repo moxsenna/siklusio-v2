@@ -1,7 +1,7 @@
 # Siklusio Database Guide
 
-Last updated: 2026-06-05  
-Last verified against codebase: 2026-06-05  
+Last updated: 2026-06-10  
+Last verified against codebase: 2026-06-10 (Sprint 4B baseline)
 Target Audience: Non-coder Founder & AI Coding Agents
 
 ---
@@ -73,6 +73,10 @@ Berikut adalah riwayat berkas migrasi database terverifikasi yang telah diaplika
 - `20260608123000_revoke_anon_community_user_id_select.sql`
 - `20260608124500_regrant_anon_community_safe_columns.sql`
 - `20260608130000_ai_daily_generation_cache.sql`
+
+**Remote parity (2026-06-10):** `npm run db:migrations:list --linked` — 22 local, 22 remote, no pending migrations.
+
+Repo-local baseline verification: `npm run db:baseline-check` (see [SPRINT_4B_INFRA_DB_BASELINE.md](./SPRINT_4B_INFRA_DB_BASELINE.md)).
 
 ---
 

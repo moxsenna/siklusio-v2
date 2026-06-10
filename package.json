@@ -19,6 +19,7 @@
     "db:migrations:list": "supabase migration list --linked",
     "db:push:dry-run": "supabase db push --dry-run",
     "db:types": "npm run generate:types",
+    "db:baseline-check": "node scripts/sprint4b-db-baseline-check.mjs",
     "db:lint": "supabase db lint --linked --schema public --fail-on error",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",

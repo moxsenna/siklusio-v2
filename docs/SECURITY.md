@@ -87,6 +87,7 @@ Automated checks (see `.github/workflows/ci.yml` and `backend/infraGuardrails.te
 | Supabase CLI temp | Test fails if `supabase/.temp/` is tracked by git |
 | Legacy SQL drift | Test fails if new `supabase/*.sql` root files are tracked outside the legacy allowlist — use `supabase/migrations/` instead |
 | Format (CI scope) | `npm run format:check:ci` on `backend/`, `.github/`, `scripts/` |
+| DB baseline (Sprint 4B) | `npm run db:baseline-check` — migration inventory, legacy allowlist, types tables, SQL secret scan (repo-local) |
 
 **Not in CI (requires production credentials):**
 

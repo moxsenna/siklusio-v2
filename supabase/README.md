@@ -1,6 +1,6 @@
 # Supabase Folder Contract
 
-Tanggal audit terakhir: 2026-06-02.
+Tanggal audit terakhir: 2026-06-10 (Sprint 4B).
 
 ## Canonical Path
 
@@ -31,7 +31,7 @@ npm run db:types
 
 File ini generated. Jangan edit manual.
 
-Saat ini types dibuat dari linked remote project. Karena ada migration lokal yang belum ada di remote, jangan pakai file ini untuk mengetatkan `createClient<Database>()` sampai pending migrations sudah apply atau local database yang sudah lengkap dipakai untuk generate types.
+Saat ini types dibuat dari linked remote project. Per 2026-06-10, `npm run db:migrations:list --linked` menunjukkan **22 local = 22 remote** (tidak ada pending migration). Regenerasi types tetap manual (`npm run db:types`, butuh `SUPABASE_PROJECT_REF`) setelah migration baru di-apply ke remote.
 
 ## Legacy Root SQL
 
@@ -46,6 +46,7 @@ Contoh:
 ## Safe Commands
 
 ```powershell
+npm run db:baseline-check
 npm run db:migrations:list
 npm run db:push:dry-run
 npm run db:lint

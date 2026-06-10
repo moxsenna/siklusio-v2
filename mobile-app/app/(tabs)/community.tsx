@@ -1,24 +1,26 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   SafeAreaView,
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
   Platform,
   Alert,
+  ListRenderItem,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useAuth } from "@/src/context/AuthContext";
-import { useCommunityFeed } from "@/src/hooks/useCommunityFeed";
+import { useCommunityFeed, emptyReactionState } from "@/src/hooks/useCommunityFeed";
 import { PostCard } from "@/src/features/community/PostCard";
 import { ComposerModal } from "@/src/features/community/ComposerModal";
 import { CommentsModal } from "@/src/features/community/CommentsModal";
 import { ReportModal } from "@/src/features/community/ReportModal";
 import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
 import { analytics } from "@/src/lib/analytics";
+import { CommunityFeedItem } from "@/src/lib/communityTypes";
 
 export default function CommunityScreen() {
   const { user } = useAuth();
@@ -39,14 +41,17 @@ export default function CommunityScreen() {
     else Alert.alert("Eror", msg);
   };
 
-  const handleReact = async (postId: string, rx: any) => {
-    try {
-      await feed.toggleReaction(postId, rx);
-      analytics.logEvent("community_react", { reaction_type: rx });
-    } catch (e: any) {
-      showError(e?.message || "Gagal mengirim reaksi.");
-    }
-  };
+  const handleReact = useCallback(
+    async (postId: string, rx: Parameters<typeof feed.toggleReaction>[1]) => {
+      try {
+        await feed.toggleReaction(postId, rx);
+        analytics.logEvent("community_react", { reaction_type: rx });
+      } catch (e: any) {
+        showError(e?.message || "Gagal mengirim reaksi.");
+      }
+    },
+    [feed],
+  );
 
   const handleCreatePost = async (content: string) => {
     const res = await feed.createPost(content, false, null);
@@ -66,54 +71,52 @@ export default function CommunityScreen() {
     setReportOpen(true);
   };
 
-  const handleOpenComments = (postId: string, preview: string) => {
+  const handleOpenComments = useCallback((postId: string, preview: string) => {
     setCommentsPostId(postId);
     setCommentsPostPreview(preview);
-  };
+  }, []);
 
   const handleCloseComments = () => {
     setCommentsPostId(null);
     setCommentsPostPreview(null);
   };
 
-  const handleDeleteOwn = async (postId: string) => {
-    try {
-      await feed.deleteOwnPost(postId);
-    } catch (e: any) {
-      showError(e?.message || "Gagal menghapus postingan.");
-    }
-  };
+  const handleDeleteOwn = useCallback(
+    async (postId: string) => {
+      try {
+        await feed.deleteOwnPost(postId);
+      } catch (e: any) {
+        showError(e?.message || "Gagal menghapus postingan.");
+      }
+    },
+    [feed],
+  );
 
-  return (
-    <SafeAreaView
-      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
-      className="bg-background"
-    >
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          padding: 24,
-          paddingBottom: 100,
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={feed.refreshing}
-            onRefresh={feed.refresh}
-            tintColor="#ec4899"
-            colors={["#ec4899"]}
-          />
-        }
-        onScroll={({ nativeEvent }) => {
-          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-          const distanceFromBottom =
-            contentSize.height - (layoutMeasurement.height + contentOffset.y);
-          if (distanceFromBottom < 200 && !feed.loading && feed.hasMore) {
-            feed.loadMore();
-          }
-        }}
-        scrollEventThrottle={400}
-      >
-        {/* Header */}
+  const handleEndReached = useCallback(() => {
+    if (!feed.loading && feed.hasMore && !feed.refreshing) {
+      feed.loadMore();
+    }
+  }, [feed.loading, feed.hasMore, feed.refreshing, feed.loadMore]);
+
+  const renderItem: ListRenderItem<CommunityFeedItem> = useCallback(
+    ({ item }) => (
+      <PostCard
+        post={item}
+        reactions={feed.reactions[item.id] ?? emptyReactionState()}
+        onReact={(rx) => handleReact(item.id, rx)}
+        onOpenComments={() => handleOpenComments(item.id, item.content)}
+        onReport={() => handleOpenReport(item.id, "post")}
+        onDeleteOwn={() => handleDeleteOwn(item.id)}
+      />
+    ),
+    [feed.reactions, handleReact, handleOpenComments, handleDeleteOwn],
+  );
+
+  const keyExtractor = useCallback((item: CommunityFeedItem) => item.id, []);
+
+  const ListHeaderComponent = useMemo(
+    () => (
+      <>
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-3">
             <Text className="text-3xl font-bold text-on-background">Komunitas</Text>
@@ -124,7 +127,6 @@ export default function CommunityScreen() {
           <HeaderProfileButton />
         </View>
 
-        {/* Top Composer Bar - Premium Social Input design */}
         <TouchableOpacity
           onPress={() => setComposerOpen(true)}
           activeOpacity={0.9}
@@ -143,131 +145,162 @@ export default function CommunityScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Feed List wrapped in gap-3 layout */}
-        <View className="gap-3">
-          {feed.error && (
-            <View
-              style={{
-                backgroundColor: "#fef2f2",
-                borderColor: "#fee2e2",
-                borderWidth: 1,
-                borderRadius: 16,
-                padding: 14,
-                flexDirection: "row",
-                gap: 10,
-              }}
-            >
-              <FontAwesome name="exclamation-triangle" size={18} color="#ef4444" />
-              <Text style={{ fontSize: 12, color: "#ef4444", flex: 1 }}>{feed.error}</Text>
-            </View>
-          )}
+        {feed.error ? (
+          <View
+            style={{
+              backgroundColor: "#fef2f2",
+              borderColor: "#fee2e2",
+              borderWidth: 1,
+              borderRadius: 16,
+              padding: 14,
+              flexDirection: "row",
+              gap: 10,
+              marginBottom: 12,
+            }}
+          >
+            <FontAwesome name="exclamation-triangle" size={18} color="#ef4444" />
+            <Text style={{ fontSize: 12, color: "#ef4444", flex: 1 }}>{feed.error}</Text>
+          </View>
+        ) : null}
+      </>
+    ),
+    [feed.error],
+  );
 
-          {!feed.refreshing && feed.posts.length === 0 && !feed.error && (
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                paddingVertical: 64,
-                gap: 12,
-              }}
-            >
-              <View
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 36,
-                  backgroundColor: "#fce7f3",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: 1,
-                  borderColor: "#fbcfe8",
-                }}
-              >
-                <FontAwesome name="heart" size={28} color="#ec4899" />
-              </View>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "bold",
-                  color: "#1e1b20",
-                  textAlign: "center",
-                }}
-              >
-                Belum ada cerita di komunitas
-              </Text>
-              <Text
-                style={{
-                  fontSize: 13,
-                  color: "#94a3b8",
-                  textAlign: "center",
-                  maxWidth: 280,
-                  lineHeight: 19,
-                }}
-              >
-                Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan orang lain.
-              </Text>
-              <TouchableOpacity
-                onPress={() => setComposerOpen(true)}
-                style={{
-                  marginTop: 6,
-                  backgroundColor: "#ec4899",
-                  paddingHorizontal: 20,
-                  paddingVertical: 12,
-                  borderRadius: 18,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "bold",
-                    color: "#fff",
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                  }}
-                >
-                  Tulis Cerita Pertama
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+  const ListEmptyComponent = useMemo(() => {
+    if (feed.refreshing || feed.error) return null;
 
-          {feed.posts.map((p) => (
-            <PostCard
-              key={p.id}
-              post={p}
-              reactions={
-                feed.reactions[p.id] ?? {
-                  counts: { hug: 0, pray: 0, sad: 0, strong: 0, me_too: 0 },
-                  mine: new Set(),
-                }
-              }
-              onReact={(rx) => handleReact(p.id, rx)}
-              onOpenComments={() => handleOpenComments(p.id, p.content)}
-              onReport={() => handleOpenReport(p.id, "post")}
-              onDeleteOwn={() => handleDeleteOwn(p.id)}
-            />
-          ))}
-
-          {feed.loading && feed.posts.length > 0 && (
-            <View style={{ paddingVertical: 16, alignItems: "center" }}>
-              <ActivityIndicator size="small" color="#ec4899" />
-            </View>
-          )}
-
-          {!feed.hasMore && feed.posts.length > 0 && (
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: 11,
-                color: "#cbd5e1",
-                paddingVertical: 16,
-              }}
-            >
-              ✦ Sampai di sini dulu ✦
-            </Text>
-          )}
+    return (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          paddingVertical: 64,
+          gap: 12,
+        }}
+      >
+        <View
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 36,
+            backgroundColor: "#fce7f3",
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: "#fbcfe8",
+          }}
+        >
+          <FontAwesome name="heart" size={28} color="#ec4899" />
         </View>
-      </ScrollView>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "bold",
+            color: "#1e1b20",
+            textAlign: "center",
+          }}
+        >
+          Belum ada cerita di komunitas
+        </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            color: "#94a3b8",
+            textAlign: "center",
+            maxWidth: 280,
+            lineHeight: 19,
+          }}
+        >
+          Jadilah yang pertama berbagi. Cerita kamu mungkin yang dibutuhkan orang lain.
+        </Text>
+        <TouchableOpacity
+          onPress={() => setComposerOpen(true)}
+          style={{
+            marginTop: 6,
+            backgroundColor: "#ec4899",
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 18,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "bold",
+              color: "#fff",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Tulis Cerita Pertama
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }, [feed.refreshing, feed.error]);
+
+  const ListFooterComponent = useMemo(() => {
+    if (feed.loading && feed.posts.length > 0) {
+      return (
+        <View style={{ paddingVertical: 16, alignItems: "center" }}>
+          <ActivityIndicator size="small" color="#ec4899" />
+        </View>
+      );
+    }
+
+    if (!feed.hasMore && feed.posts.length > 0) {
+      return (
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 11,
+            color: "#cbd5e1",
+            paddingVertical: 16,
+          }}
+        >
+          ✦ Sampai di sini dulu ✦
+        </Text>
+      );
+    }
+
+    return null;
+  }, [feed.loading, feed.posts.length, feed.hasMore]);
+
+  const ItemSeparatorComponent = useCallback(
+    () => <View style={{ height: 12 }} />,
+    [],
+  );
+
+  return (
+    <SafeAreaView
+      style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
+      className="bg-background"
+    >
+      <FlatList
+        data={feed.posts}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={ListEmptyComponent}
+        ListFooterComponent={ListFooterComponent}
+        ItemSeparatorComponent={ItemSeparatorComponent}
+        contentContainerStyle={{
+          padding: 24,
+          paddingBottom: 100,
+          flexGrow: 1,
+        }}
+        refreshControl={
+          <RefreshControl
+            refreshing={feed.refreshing}
+            onRefresh={feed.refresh}
+            tintColor="#ec4899"
+            colors={["#ec4899"]}
+          />
+        }
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.2}
+      />
 
       <ComposerModal
         visible={composerOpen}

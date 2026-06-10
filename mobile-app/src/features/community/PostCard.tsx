@@ -23,7 +23,7 @@ interface PostCardProps {
   onDeleteOwn: () => void;
 }
 
-export function PostCard({
+export const PostCard = React.memo(function PostCard({
   post,
   reactions,
   onReact,
@@ -239,4 +239,4 @@ export function PostCard({
       </View>
     </View>
   );
-}
+});

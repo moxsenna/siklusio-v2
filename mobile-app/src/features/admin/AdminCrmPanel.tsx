@@ -127,6 +127,21 @@ function formatDateTime(value?: string | null) {
   }
 }
 
+function formatDateTimeCompact(value?: string | null) {
+  if (!value) return "-";
+  try {
+    const d = new Date(value);
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${day} ${month} ${hours}:${minutes}`;
+  } catch {
+    return value;
+  }
+}
+
 function buildWhatsappFollowUp(lead: CrmLead) {
   const name = lead.name || "Bunda";
   const status = lead.payment_status;
@@ -148,12 +163,13 @@ export default function AdminCrmPanel() {
   const [savingId, setSavingId] = useState<string | null>(null);
 
   // Pagination & Search States
-  const [limit] = useState(50);
+  const [limit] = useState(25);
   const [offset, setOffset] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "all">("all");
+  const [leadStatusFilter, setLeadStatusFilter] = useState<LeadStatus | "all">("all");
 
   // Selection
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -169,6 +185,16 @@ export default function AdminCrmPanel() {
     return leads.find((lead) => lead.id === selectedId) || null;
   }, [leads, selectedId]);
 
+  // Reset selected ID if the lead is no longer in current leads array
+  useEffect(() => {
+    if (selectedId && leads.length > 0) {
+      const exists = leads.some((l) => l.id === selectedId);
+      if (!exists) {
+        setSelectedId(null);
+      }
+    }
+  }, [leads, selectedId]);
+
   // Search Debouncer
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -177,6 +203,11 @@ export default function AdminCrmPanel() {
     }, 450);
     return () => clearTimeout(handler);
   }, [searchQuery]);
+
+  // Reset selected detail when changing page/search/filter context.
+  useEffect(() => {
+    setSelectedId(null);
+  }, [offset, debouncedSearch, paymentFilter, leadStatusFilter]);
 
   // Load leads from backend
   const loadLeads = useCallback(async () => {
@@ -187,6 +218,7 @@ export default function AdminCrmPanel() {
       params.set("offset", String(offset));
       if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
       if (paymentFilter !== "all") params.set("payment", paymentFilter);
+      if (leadStatusFilter !== "all") params.set("status", leadStatusFilter);
 
       const data = await apiGetJson<CrmResponse>(`/api/admin/crm/leads?${params.toString()}`);
       setLeads(data.leads || []);
@@ -197,11 +229,28 @@ export default function AdminCrmPanel() {
     } finally {
       setLoading(false);
     }
-  }, [limit, offset, debouncedSearch, paymentFilter]);
+  }, [limit, offset, debouncedSearch, paymentFilter, leadStatusFilter]);
 
   useEffect(() => {
     loadLeads();
   }, [loadLeads]);
+
+  // Confirmation Alert Wrapper (Cross-platform)
+  const confirmAction = (title: string, message: string): Promise<boolean> => {
+    if (Platform.OS === "web") {
+      return Promise.resolve(window.confirm(`${title}\n\n${message}`));
+    }
+    return new Promise<boolean>((resolve) => {
+      Alert.alert(
+        title,
+        message,
+        [
+          { text: "Batal", onPress: () => resolve(false), style: "cancel" },
+          { text: "Lanjutkan", onPress: () => resolve(true) }
+        ]
+      );
+    });
+  };
 
   // Quick Payment Status Dropdown Update (Optimistic with rollback)
   const handleQuickPaymentStatus = async (lead: CrmLead, newStatus: PaymentStatus) => {
@@ -229,8 +278,13 @@ export default function AdminCrmPanel() {
   // Quick Lead Status Dropdown Update (Optimistic with rollback)
   const handleQuickLeadStatus = async (lead: CrmLead, newStatus: LeadStatus) => {
     const oldStatus = lead.lead_status;
+    const contactedAt = newStatus === "contacted" ? new Date().toISOString() : lead.last_contacted_at;
     setLeads((prev) =>
-      prev.map((item) => (item.id === lead.id ? { ...item, lead_status: newStatus } : item))
+      prev.map((item) =>
+        item.id === lead.id
+          ? { ...item, lead_status: newStatus, last_contacted_at: contactedAt }
+          : item
+      )
     );
 
     try {
@@ -240,7 +294,11 @@ export default function AdminCrmPanel() {
     } catch (err: any) {
       // Rollback
       setLeads((prev) =>
-        prev.map((item) => (item.id === lead.id ? { ...item, lead_status: oldStatus } : item))
+        prev.map((item) =>
+          item.id === lead.id
+            ? { ...item, lead_status: oldStatus, last_contacted_at: lead.last_contacted_at }
+            : item
+        )
       );
       Alert.alert("Gagal", err.message || "Gagal memperbarui status lead.");
     }
@@ -259,7 +317,9 @@ export default function AdminCrmPanel() {
     );
 
     try {
-      await apiPostJson(`/api/admin/crm/leads/${lead.id}/contacted`, {});
+      await apiPatchJson(`/api/admin/crm/leads/${lead.id}`, {
+        lead_status: "contacted",
+      });
     } catch (err: any) {
       // Rollback
       setLeads((prev) =>
@@ -349,133 +409,243 @@ export default function AdminCrmPanel() {
     }
   };
 
+  // Quick Payment status change trigger with validations
+  const onPaymentStatusChange = async (lead: CrmLead, newStatus: PaymentStatus) => {
+    if (newStatus === "paid_manual") {
+      Alert.alert("Ditolak", "Status Lunas Manual (paid_manual) hanya dapat diubah melalui formulir Payment Override di Detail.");
+      return;
+    }
+
+    if (newStatus === "paid") {
+      const proceed = await confirmAction(
+        "Konfirmasi Perubahan Status",
+        "Status paid lewat quick update tidak akan mengaktifkan akun user, memberikan kredit AI, atau mencatat komisi affiliate. Untuk aktivasi penuh, gunakan Payment Override di Detail.\n\nApakah Anda ingin melanjutkan mengubah status ke paid?"
+      );
+      if (!proceed) return;
+    }
+
+    await handleQuickPaymentStatus(lead, newStatus);
+  };
+
   // Render quick selector component for status (Platform adapted)
-  const renderQuickStatusDropdowns = (lead: CrmLead) => {
+  const renderQuickPaymentSelect = (lead: CrmLead) => {
     if (Platform.OS === "web") {
       return (
-        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-          <select
-            value={lead.payment_status}
-            onChange={(e) => handleQuickPaymentStatus(lead, e.target.value as PaymentStatus)}
-            style={{
-              padding: 6,
-              borderRadius: 8,
-              backgroundColor: "#fff",
-              border: "1px solid #e2e8f0",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#334155",
-            }}
-          >
-            {paymentOptions.map((opt) => (
+        <select
+          value={lead.payment_status}
+          onChange={(e) => onPaymentStatusChange(lead, e.target.value as PaymentStatus)}
+          style={{
+            padding: 4,
+            borderRadius: 6,
+            backgroundColor: "#fff",
+            border: "1px solid #cbd5e1",
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#334155",
+            width: "100%",
+          }}
+        >
+          {lead.payment_status === "paid_manual" && (
+            <option value="paid_manual" disabled>
+              Lunas Manual (Override)
+            </option>
+          )}
+          {paymentOptions
+            .filter((opt) => opt.value !== "paid_manual")
+            .map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
             ))}
-          </select>
-          <select
-            value={lead.lead_status}
-            onChange={(e) => handleQuickLeadStatus(lead, e.target.value as LeadStatus)}
-            style={{
-              padding: 6,
-              borderRadius: 8,
-              backgroundColor: "#fff",
-              border: "1px solid #e2e8f0",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#334155",
-            }}
-          >
-            {leadOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </View>
+        </select>
       );
     }
 
     return (
-      <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-        <TouchableOpacity
-          style={styles.pillButton}
-          onPress={() => {
-            const buttons: AlertButton[] = paymentOptions
-              .filter((o) => o.value !== "paid_manual") // Must use override form for paid_manual
-              .map((o) => ({
-                text: o.label,
-                onPress: () => { handleQuickPaymentStatus(lead, o.value); },
-              }));
-            Alert.alert(
-              "Status Pembayaran Cepat",
-              "Pilih status pembayaran lead ini:",
-              buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
-            );
-          }}
-        >
-          <Text style={styles.pillButtonText}>Status Bayar: {lead.payment_status}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.pillButton}
-          onPress={() => {
-            const buttons: AlertButton[] = leadOptions.map((o) => ({
+      <TouchableOpacity
+        style={styles.pillButton}
+        onPress={() => {
+          const buttons: AlertButton[] = paymentOptions
+            .filter((o) => o.value !== "paid_manual")
+            .map((o) => ({
               text: o.label,
-              onPress: () => { handleQuickLeadStatus(lead, o.value); },
+              onPress: () => {
+                if (o.value === "paid") {
+                  confirmAction(
+                    "Konfirmasi Perubahan Status",
+                    "Status paid lewat quick update tidak akan mengaktifkan akun user, memberikan kredit AI, atau mencatat komisi affiliate. Untuk aktivasi penuh, gunakan Payment Override di Detail."
+                  ).then((proceed) => {
+                    if (proceed) handleQuickPaymentStatus(lead, "paid");
+                  });
+                } else {
+                  handleQuickPaymentStatus(lead, o.value);
+                }
+              },
             }));
-            Alert.alert(
-              "Status Lead Cepat",
-              "Pilih status follow-up lead ini:",
-              buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
-            );
+          Alert.alert(
+            "Status Pembayaran Cepat",
+            "Pilih status pembayaran:",
+            buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
+          );
+        }}
+      >
+        <Text style={styles.pillButtonText} numberOfLines={1}>
+          {paymentOptions.find((o) => o.value === lead.payment_status)?.label || lead.payment_status}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderQuickLeadSelect = (lead: CrmLead) => {
+    if (Platform.OS === "web") {
+      return (
+        <select
+          value={lead.lead_status}
+          onChange={(e) => handleQuickLeadStatus(lead, e.target.value as LeadStatus)}
+          style={{
+            padding: 4,
+            borderRadius: 6,
+            backgroundColor: "#fff",
+            border: "1px solid #cbd5e1",
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#334155",
+            width: "100%",
           }}
         >
-          <Text style={styles.pillButtonText}>Status Lead: {lead.lead_status}</Text>
-        </TouchableOpacity>
+          {leadOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.pillButton}
+        onPress={() => {
+          const buttons: AlertButton[] = leadOptions.map((o) => ({
+            text: o.label,
+            onPress: () => { handleQuickLeadStatus(lead, o.value); },
+          }));
+          Alert.alert(
+            "Status Lead Cepat",
+            "Pilih status lead:",
+            buttons.concat([{ text: "Batal", style: "cancel", onPress: () => {} }])
+          );
+        }}
+      >
+        <Text style={styles.pillButtonText} numberOfLines={1}>
+          {leadOptions.find((o) => o.value === lead.lead_status)?.label || lead.lead_status}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Dense row for desktop web List view
+  const renderLeadRowWeb = (lead: CrmLead) => {
+    return (
+      <View key={lead.id} style={styles.leadRowWeb}>
+        <View style={[styles.rowCol, { flex: 2 }]}>
+          <Text style={styles.rowTextBold} numberOfLines={1}>{lead.name || "Tanpa Nama"}</Text>
+          <Text style={styles.rowTextSmall} numberOfLines={1}>{lead.source || "checkout"}</Text>
+        </View>
+
+        <View style={[styles.rowCol, { flex: 2 }]}>
+          <Text style={styles.rowText} numberOfLines={1}>{lead.whatsapp || "-"}</Text>
+          <Text style={styles.rowTextSmall} numberOfLines={1}>{lead.email || "-"}</Text>
+        </View>
+
+        <View style={[styles.rowCol, { flex: 2 }]}>
+          {renderQuickPaymentSelect(lead)}
+        </View>
+
+        <View style={[styles.rowCol, { flex: 2 }]}>
+          {renderQuickLeadSelect(lead)}
+        </View>
+
+        <View style={[styles.rowCol, { flex: 1.5, alignItems: "flex-end", paddingRight: 8 }]}>
+          <Text style={styles.rowTextBold}>{formatRupiah(lead.amount)}</Text>
+        </View>
+
+        <View style={[styles.rowCol, { flex: 1.5, alignItems: "flex-end", paddingRight: 8 }]}>
+          <Text style={styles.rowTextSmall}>{formatDateTimeCompact(lead.created_at)}</Text>
+        </View>
+
+        <View style={[styles.rowCol, { flex: 1, alignItems: "center" }]}>
+          <TouchableOpacity
+            style={styles.btnDetailCompact}
+            onPress={() => {
+              setSelectedId(lead.id);
+              setViewMode("detail");
+            }}
+          >
+            <Text style={styles.btnDetailCompactText}>Detail</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
 
-  const renderLeadCard = (lead: CrmLead, compact = false) => (
+  // Stacked compact card for mobile List view
+  const renderLeadRowMobile = (lead: CrmLead) => {
+    return (
+      <TouchableOpacity
+        key={lead.id}
+        style={[styles.leadRowMobile, selectedId === lead.id && styles.leadRowMobileActive]}
+        onPress={() => {
+          setSelectedId(lead.id);
+          setViewMode("detail");
+        }}
+      >
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.rowTextBold} numberOfLines={1}>{lead.name || "Tanpa Nama"}</Text>
+            <Text style={styles.rowTextSmall} numberOfLines={1}>
+              {lead.whatsapp || lead.email || "-"} • {formatDateTimeCompact(lead.created_at)}
+            </Text>
+          </View>
+          <View style={{ alignItems: "flex-end", gap: 3 }}>
+            <Text style={styles.rowTextBold}>{formatRupiah(lead.amount)}</Text>
+            <View style={{ flexDirection: "row", gap: 4 }}>
+              <Text style={[styles.badgeTextMini, { backgroundColor: "#fdf2f8", color: "#be185d" }]}>
+                {paymentOptions.find((o) => o.value === lead.payment_status)?.label || lead.payment_status}
+              </Text>
+              <Text style={[styles.badgeTextMini, { backgroundColor: "#f0fdfa", color: "#0f766e" }]}>
+                {leadOptions.find((o) => o.value === lead.lead_status)?.label || lead.lead_status}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // Kanban card layout
+  const renderKanbanCard = (lead: CrmLead) => (
     <View
       key={lead.id}
       style={[
-        styles.leadCard,
-        selectedId === lead.id && styles.leadCardActive,
-        compact && { marginBottom: 8 },
+        styles.kanbanCard,
+        selectedId === lead.id && styles.kanbanCardActive,
       ]}
     >
+      <Text style={styles.kanbanCardName} numberOfLines={1}>{lead.name || "Tanpa Nama"}</Text>
+      <Text style={styles.kanbanCardText} numberOfLines={1}>{lead.whatsapp || "-"}</Text>
+      <Text style={styles.kanbanCardTextBold}>{formatRupiah(lead.amount)}</Text>
+      <Text style={styles.kanbanCardSmall}>{formatDateTimeCompact(lead.created_at)}</Text>
+
       <TouchableOpacity
+        style={styles.kanbanCardBtn}
         onPress={() => {
           setSelectedId(lead.id);
-          if (viewMode !== "detail" && !compact) setViewMode("detail");
+          setViewMode("detail");
         }}
-        style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
       >
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={styles.leadName}>{lead.name || "Tanpa Nama"}</Text>
-          <Text style={styles.leadMeta}>
-            {lead.email || "-"} • {lead.whatsapp || "-"}
-          </Text>
-          <Text style={styles.leadSmall}>
-            Sumber: {lead.source || "checkout"} • {formatDateTime(lead.created_at)}
-          </Text>
-        </View>
-        <FontAwesome name="chevron-right" size={12} color="#cbd5e1" />
+        <Text style={styles.kanbanCardBtnText}>Detail</Text>
       </TouchableOpacity>
-
-      <View style={styles.badgeRow}>
-        <Text style={[styles.badge, styles.pinkBadge]}>
-          {paymentOptions.find((o) => o.value === lead.payment_status)?.label || lead.payment_status}
-        </Text>
-        <Text style={[styles.badge, styles.tealBadge]}>
-          {leadOptions.find((o) => o.value === lead.lead_status)?.label || lead.lead_status}
-        </Text>
-        <Text style={[styles.badge, styles.purpleBadge]}>{formatRupiah(lead.amount)}</Text>
-      </View>
-
-      {!compact && renderQuickStatusDropdowns(lead)}
     </View>
   );
 
@@ -501,8 +671,9 @@ export default function AdminCrmPanel() {
       <View style={styles.statsGrid}>
         {[
           ["Total Lead", String(stats.total || totalCount), "#ec4899"],
-          ["Pending", String(stats.pending_payment || 0), "#f59e0b"],
+          ["Pending Bayar", String(stats.pending_payment || 0), "#f59e0b"],
           ["Lunas", String((stats.paid || 0) + (stats.paid_manual || 0)), "#10b981"],
+          ["Perlu Follow-up", String(stats.new_lead || 0), "#a855f7"],
           ["Revenue", formatRupiah(stats.revenue || 0), "#06b6d4"],
         ].map(([label, value, color]) => (
           <View key={label} style={styles.statCard}>
@@ -545,65 +716,104 @@ export default function AdminCrmPanel() {
         ))}
       </View>
 
-      {/* Status Filtering Pills */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersRow}>
-        {([{ value: "all", label: "Semua" }, ...paymentOptions] as any).map((opt: any) => (
-          <TouchableOpacity
-            key={opt.value}
-            style={[styles.filterPill, paymentFilter === opt.value && styles.filterPillActive]}
-            onPress={() => {
-              setPaymentFilter(opt.value);
-              setOffset(0);
-            }}
-          >
-            <Text
-              style={[
-                styles.filterPillText,
-                paymentFilter === opt.value && styles.filterPillTextActive,
-              ]}
+      {/* Filters (Payment & Lead status) */}
+      <View style={{ gap: 6 }}>
+        {/* Payment Status Filtering Pills */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersRow}>
+            {([{ value: "all", label: "Semua Pembayaran" }, ...paymentOptions] as any).map((opt: any) => (
+              <TouchableOpacity
+                key={opt.value}
+                style={[styles.filterPill, paymentFilter === opt.value && styles.filterPillActive]}
+                onPress={() => {
+                  setPaymentFilter(opt.value);
+                  setOffset(0);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.filterPillText,
+                    paymentFilter === opt.value && styles.filterPillTextActive,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          {paymentFilter !== "all" && (
+            <TouchableOpacity
+              style={[styles.filterPill, { borderColor: "#ef4444", backgroundColor: "#fef2f2" }]}
+              onPress={() => {
+                setPaymentFilter("all");
+                setOffset(0);
+              }}
             >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={[styles.filterPillText, { color: "#ef4444" }]}>Hapus</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Lead Status Filtering Pills */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersRow}>
+            {([{ value: "all", label: "Semua Status Lead" }, ...leadOptions] as any).map((opt: any) => (
+              <TouchableOpacity
+                key={opt.value}
+                style={[styles.filterPill, leadStatusFilter === opt.value && styles.filterPillActive]}
+                onPress={() => {
+                  setLeadStatusFilter(opt.value);
+                  setOffset(0);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.filterPillText,
+                    leadStatusFilter === opt.value && styles.filterPillTextActive,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          {leadStatusFilter !== "all" && (
+            <TouchableOpacity
+              style={[styles.filterPill, { borderColor: "#ef4444", backgroundColor: "#fef2f2" }]}
+              onPress={() => {
+                setLeadStatusFilter("all");
+                setOffset(0);
+              }}
+            >
+              <Text style={[styles.filterPillText, { color: "#ef4444" }]}>Hapus</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
 
       {loading && <ActivityIndicator color="#ec4899" style={{ marginVertical: 12 }} />}
 
       {/* List Mode */}
       {viewMode === "list" && (
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 4 }}>
           {leads.length === 0 ? (
             <Text style={styles.emptyText}>Tidak ada leads yang cocok.</Text>
+          ) : Platform.OS === "web" ? (
+            <View style={styles.tableBorder}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderCol, { flex: 2 }]}>Nama</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 2 }]}>Kontak</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 2 }]}>Status Bayar</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 2 }]}>Lead Status</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 1.5, textAlign: "right", paddingRight: 8 }]}>Nominal</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 1.5, textAlign: "right", paddingRight: 8 }]}>Dibuat</Text>
+                <Text style={[styles.tableHeaderCol, { flex: 1, textAlign: "center" }]}>Aksi</Text>
+              </View>
+              {leads.map((l) => renderLeadRowWeb(l))}
+            </View>
           ) : (
-            leads.map((l) => renderLeadCard(l))
+            leads.map((l) => renderLeadRowMobile(l))
           )}
-
-          {/* Pagination Controls */}
-          <View style={styles.paginationRow}>
-            <TouchableOpacity
-              disabled={offset === 0}
-              style={[styles.pageBtn, offset === 0 && { opacity: 0.4 }]}
-              onPress={() => setOffset((prev) => Math.max(0, prev - limit))}
-            >
-              <FontAwesome name="chevron-left" size={12} color="#475569" />
-              <Text style={styles.pageBtnText}>Prev</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.pageLabel}>
-              {Math.min(totalCount, offset + 1)} - {Math.min(totalCount, offset + limit)} dari{" "}
-              {totalCount}
-            </Text>
-
-            <TouchableOpacity
-              disabled={offset + limit >= totalCount}
-              style={[styles.pageBtn, offset + limit >= totalCount && { opacity: 0.4 }]}
-              onPress={() => setOffset((prev) => prev + limit)}
-            >
-              <Text style={styles.pageBtnText}>Next</Text>
-              <FontAwesome name="chevron-right" size={12} color="#475569" />
-            </TouchableOpacity>
-          </View>
         </View>
       )}
 
@@ -619,7 +829,7 @@ export default function AdminCrmPanel() {
                   <Text style={styles.kanbanCount}>{list.length}</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  {list.map((l) => renderLeadCard(l, true))}
+                  {list.map((l) => renderKanbanCard(l))}
                   {list.length === 0 && <Text style={styles.kanbanEmpty}>Kosong</Text>}
                 </ScrollView>
               </View>
@@ -628,17 +838,82 @@ export default function AdminCrmPanel() {
         </ScrollView>
       )}
 
+      {/* Unconditional Pagination Controls (List and Kanban View Modes) */}
+      {(viewMode === "list" || viewMode === "kanban") && (
+        <View style={styles.paginationRow}>
+          <TouchableOpacity
+            disabled={offset === 0}
+            style={[styles.pageBtn, offset === 0 && { opacity: 0.4 }]}
+            onPress={() => setOffset((prev) => Math.max(0, prev - limit))}
+          >
+            <FontAwesome name="chevron-left" size={12} color="#475569" />
+            <Text style={styles.pageBtnText}>Prev</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.pageLabel}>
+            Menampilkan {Math.min(totalCount, offset + 1)}-{Math.min(totalCount, offset + limit)} dari {totalCount} lead
+          </Text>
+
+          <TouchableOpacity
+            disabled={offset + limit >= totalCount}
+            style={[styles.pageBtn, offset + limit >= totalCount && { opacity: 0.4 }]}
+            onPress={() => setOffset((prev) => prev + limit)}
+          >
+            <Text style={styles.pageBtnText}>Next</Text>
+            <FontAwesome name="chevron-right" size={12} color="#475569" />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Detail Mode */}
       {viewMode === "detail" && (
         <View style={{ gap: 12 }}>
           {selectedLead ? (
             <View style={styles.detailWrap}>
-              {renderLeadCard(selectedLead, true)}
+              {/* Full Contact Info Panel */}
+              <View style={styles.detailInfoCard}>
+                <Text style={styles.detailName}>{selectedLead.name || "Tanpa Nama"}</Text>
+                <View style={styles.detailInfoGrid}>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="envelope" size={12} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>{selectedLead.email || "-"}</Text>
+                  </View>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="whatsapp" size={14} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>{selectedLead.whatsapp || "-"}</Text>
+                  </View>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="tag" size={12} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>Sumber: {selectedLead.source || "checkout"}</Text>
+                  </View>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="gift" size={12} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>Referral: {selectedLead.referral_code || "-"}</Text>
+                  </View>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="money" size={12} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>Nominal: {formatRupiah(selectedLead.amount)}</Text>
+                  </View>
+                  <View style={styles.detailInfoRow}>
+                    <FontAwesome name="calendar" size={12} color="#94a3b8" />
+                    <Text style={styles.detailInfoText}>Dibuat: {formatDateTime(selectedLead.created_at)}</Text>
+                  </View>
+                </View>
+              </View>
 
               {/* Status Selectors */}
               <View style={styles.detailSection}>
-                <Text style={styles.detailSectionTitle}>Ubah Status Cepat</Text>
-                {renderQuickStatusDropdowns(selectedLead)}
+                <Text style={styles.detailSectionTitle}>Ubah Status</Text>
+                <View style={{ flexDirection: "row", gap: 12, flexWrap: "wrap" }}>
+                  <View style={{ flex: 1, minWidth: 150 }}>
+                    <Text style={styles.selectLabel}>Status Pembayaran</Text>
+                    {renderQuickPaymentSelect(selectedLead)}
+                  </View>
+                  <View style={{ flex: 1, minWidth: 150 }}>
+                    <Text style={styles.selectLabel}>Status Lead</Text>
+                    {renderQuickLeadSelect(selectedLead)}
+                  </View>
+                </View>
               </View>
 
               {/* Action Buttons */}
@@ -663,7 +938,7 @@ export default function AdminCrmPanel() {
                 </View>
               </View>
 
-              {/* Manual Override Form */}
+              {/* Manual Payment Override Form (Exclusively in Detail View) */}
               <View style={styles.overrideSection}>
                 <Text style={styles.overrideTitle}>Manual Payment Override 🛡️</Text>
                 <Text style={styles.overrideSub}>
@@ -731,7 +1006,7 @@ export default function AdminCrmPanel() {
                 />
                 <TouchableOpacity
                   disabled={savingId === selectedLead.id || !noteText.trim()}
-                  style={[styles.btnPink, !noteText.trim() && { backgroundColor: "#cbd5e1" }]}
+                  style={[styles.btnPink, !noteText.trim() && { backgroundColor: "#cbd5e1" }, { marginTop: 8 }]}
                   onPress={addNote}
                 >
                   <Text style={styles.btnPinkText}>Simpan Catatan</Text>
@@ -750,7 +1025,7 @@ export default function AdminCrmPanel() {
               </View>
             </View>
           ) : (
-            <Text style={styles.emptyText}>Pilih salah satu lead dari list untuk melihat detail.</Text>
+            <Text style={styles.emptyText}>Pilih salah satu lead dari list atau kanban untuk melihat detail.</Text>
           )}
         </View>
       )}
@@ -836,29 +1111,81 @@ const styles: Record<string, any> = {
     fontWeight: "bold",
     marginVertical: 24,
   },
-  leadCard: {
+  leadRowMobile: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  leadCardActive: { borderColor: "#ec4899" },
-  leadName: { fontSize: 15, fontWeight: "800", color: "#1e293b" },
-  leadMeta: { fontSize: 12, color: "#64748b", marginTop: 2 },
-  leadSmall: { fontSize: 11, color: "#94a3b8", marginTop: 2 },
-  badgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
-  badge: {
-    fontSize: 10,
-    fontWeight: "bold",
     borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    marginBottom: 8,
+  },
+  leadRowMobileActive: {
+    borderColor: "#ec4899",
+  },
+  badgeTextMini: {
+    fontSize: 9,
+    fontWeight: "bold",
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     overflow: "hidden",
   },
-  pinkBadge: { backgroundColor: "#fdf2f8", color: "#be185d" },
-  tealBadge: { backgroundColor: "#f0fdfa", color: "#0f766e" },
-  purpleBadge: { backgroundColor: "#faf5ff", color: "#7e22ce" },
+  tableBorder: {
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#f8fafc",
+    borderBottomWidth: 1,
+    borderBottomColor: "#cbd5e1",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  tableHeaderCol: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#64748b",
+  },
+  leadRowWeb: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#cbd5e1",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minHeight: 56,
+  },
+  rowCol: {
+    justifyContent: "center",
+  },
+  rowText: {
+    fontSize: 12,
+    color: "#334155",
+  },
+  rowTextBold: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  rowTextSmall: {
+    fontSize: 11,
+    color: "#94a3b8",
+  },
+  btnDetailCompact: {
+    backgroundColor: "#ec4899",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  btnDetailCompactText: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#fff",
+  },
   pillButton: {
     backgroundColor: "#f1f5f9",
     borderRadius: 8,
@@ -891,12 +1218,86 @@ const styles: Record<string, any> = {
     backgroundColor: "#f8fafc",
     borderRadius: 16,
     padding: 10,
-    maxHeight: 450,
+    maxHeight: 500,
   },
   kanbanHeader: { fontSize: 13, fontWeight: "800" },
   kanbanCount: { fontSize: 11, fontWeight: "bold", color: "#94a3b8" },
   kanbanEmpty: { textAlign: "center", color: "#cbd5e1", fontSize: 11, paddingVertical: 32 },
+  kanbanCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    marginBottom: 8,
+    gap: 4,
+  },
+  kanbanCardActive: {
+    borderColor: "#ec4899",
+  },
+  kanbanCardName: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  kanbanCardText: {
+    fontSize: 11,
+    color: "#64748b",
+  },
+  kanbanCardTextBold: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  kanbanCardSmall: {
+    fontSize: 10,
+    color: "#94a3b8",
+  },
+  kanbanCardBtn: {
+    alignSelf: "flex-start",
+    backgroundColor: "#9333ea",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 4,
+  },
+  kanbanCardBtnText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#fff",
+  },
   detailWrap: { gap: 14 },
+  detailInfoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  detailName: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#1e293b",
+    marginBottom: 12,
+  },
+  detailInfoGrid: {
+    gap: 8,
+  },
+  detailInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  detailInfoText: {
+    fontSize: 12,
+    color: "#475569",
+  },
+  selectLabel: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#64748b",
+    marginBottom: 4,
+  },
   detailSection: { borderTopWidth: 1, borderTopColor: "#f1f5f9", paddingTop: 12 },
   detailSectionTitle: { fontSize: 13, fontWeight: "800", color: "#1e293b", marginBottom: 6 },
   tealActionBtn: {

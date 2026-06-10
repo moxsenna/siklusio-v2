@@ -109,6 +109,8 @@ mobile-app/src/hooks/useCycleSelectors.ts  (7 selector hooks)
 
 ## Manual QA Checklist
 
+**Sign-off template (fill per run):** [`SPRINT_3_MOBILE_QA_SIGNOFF.md`](./SPRINT_3_MOBILE_QA_SIGNOFF.md)
+
 Run on **web** (`npx expo start --web`) and/or **device** before Sprint 4 or provider split. Mark each: ✅ pass / ❌ fail / ⏭ skip.
 
 ### Dashboard
@@ -216,7 +218,7 @@ npm run check              # PASS
 - [x] All Sprint 3A–3H commits on `main`
 - [x] Selector hooks complete; no direct `useCycle()` in screens
 - [x] Provider split explicitly deferred
-- [ ] Manual QA checklist executed (assign owner + date below)
+- [ ] Manual QA checklist executed — see [`SPRINT_3_MOBILE_QA_SIGNOFF.md`](./SPRINT_3_MOBILE_QA_SIGNOFF.md)
 
 | Role | Name | Date | QA result |
 |------|------|------|-----------|

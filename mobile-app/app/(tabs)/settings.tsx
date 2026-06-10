@@ -2,23 +2,17 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   SafeAreaView,
   Alert,
-  Modal,
-  Image,
   Platform,
   Animated,
 } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useCycle } from "@/src/context/CycleContext";
 import { useAuth } from "@/src/context/AuthContext";
 import { format } from "date-fns";
 import { router, useLocalSearchParams } from "expo-router";
 import { supabase } from "@/src/lib/supabase";
-import { AvatarPicker } from "@/src/shared/components/AvatarPicker";
 import { useUserAvatar } from "@/src/hooks/useUserAvatar";
 import { storage } from "@/src/lib/storage";
 import { stampDailyRecord } from "@/src/lib/activityHistorySync";
@@ -31,14 +25,23 @@ import {
   readDailyReminderEnabled,
 } from "@/src/lib/dailyReminder";
 import { expoDailyReminderNotifications } from "@/src/lib/expoDailyReminderNotifications";
+import { CycleDataSection } from "@/src/features/settings/CycleDataSection";
+import { SavingsSection } from "@/src/features/settings/SavingsSection";
+import { ReminderSection } from "@/src/features/settings/ReminderSection";
+import { AffiliateSection } from "@/src/features/settings/AffiliateSection";
+import { AccountSection } from "@/src/features/settings/AccountSection";
+import { ProfilePartnerSection } from "@/src/features/settings/ProfilePartnerSection";
+import { HphtDatePickerModal } from "@/src/features/settings/HphtDatePickerModal";
+import { CycleOverrideWarningModal } from "@/src/features/settings/CycleOverrideWarningModal";
+import { SettingsTabToggle, SettingsViewTab } from "@/src/features/settings/SettingsTabToggle";
+import { SettingsToast } from "@/src/features/settings/SettingsToast";
 
 export default function SettingsScreen() {
   const { signOut, user } = useAuth();
   const { avatarUrl, avatarKind, updateAvatar } = useUserAvatar();
 
-  // Detect active tab from route search parameters
   const { tab } = useLocalSearchParams<{ tab?: string }>();
-  const [activeViewTab, setActiveViewTab] = useState<"profile" | "cycle">("profile");
+  const [activeViewTab, setActiveViewTab] = useState<SettingsViewTab>("profile");
 
   useEffect(() => {
     if (tab === "profile") {
@@ -58,7 +61,6 @@ export default function SettingsScreen() {
   const showToast = (message: string, type: "success" | "info" | "error" = "success") => {
     setToast({ message, type });
 
-    // Reset values first
     toastOpacity.setValue(0);
     toastTranslateY.setValue(-20);
 
@@ -75,7 +77,6 @@ export default function SettingsScreen() {
       }),
     ]).start();
 
-    // Fade out after 3 seconds
     setTimeout(() => {
       Animated.parallel([
         Animated.timing(toastOpacity, {
@@ -122,10 +123,8 @@ export default function SettingsScreen() {
     effectiveLastPeriod,
   } = useCycle();
 
-  // Local notification state is persisted by the reminder helper.
   const [dailyReminder, setDailyReminder] = useState(() => readDailyReminderEnabled(storage));
 
-  // Warning state for overrides
   const [showOverrideWarning, setShowOverrideWarning] = useState(false);
   const [pendingChanges, setPendingChanges] = useState<{
     lastDate?: Date;
@@ -152,7 +151,6 @@ export default function SettingsScreen() {
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
-  // Local inputs for cycle settings to avoid premature calculation updates
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [selectedDay, setSelectedDay] = useState(
     lastPeriodDate ? lastPeriodDate.getDate() : new Date().getDate(),
@@ -166,7 +164,6 @@ export default function SettingsScreen() {
   const [cycleInput, setCycleInput] = useState(cycleLength > 0 ? cycleLength.toString() : "28");
   const [periodInput, setPeriodInput] = useState(periodLength > 0 ? periodLength.toString() : "5");
 
-  // Local inputs for savings
   const [currentSavingInput, setCurrentSavingInput] = useState(
     currentSaving > 0 ? currentSaving.toString() : "",
   );
@@ -174,7 +171,6 @@ export default function SettingsScreen() {
     targetSaving > 0 ? targetSaving.toString() : "",
   );
 
-  // Synchronize local states when values change in the shared CycleContext (e.g., via Dashboard modal)
   useEffect(() => {
     setCurrentSavingInput(currentSaving > 0 ? currentSaving.toString() : "");
   }, [currentSaving]);
@@ -183,7 +179,6 @@ export default function SettingsScreen() {
     setTargetSavingInput(targetSaving > 0 ? targetSaving.toString() : "");
   }, [targetSaving]);
 
-  // Phone error validation state
   const [errorPhone, setErrorPhone] = useState("");
 
   useEffect(() => {
@@ -200,7 +195,6 @@ export default function SettingsScreen() {
     }
   }, [husbandNumber]);
 
-  // Sync back local inputs when props load/change (using effectiveLastPeriod to stay in sync with calendar manual logs)
   useEffect(() => {
     if (effectiveLastPeriod) {
       setSelectedDay(effectiveLastPeriod.getDate());
@@ -270,20 +264,16 @@ export default function SettingsScreen() {
   };
 
   const applyCycleChanges = (changes: { lastDate: Date; cycle: number; period: number }) => {
-    // Set local sync time to current timestamp to indicate local edits are newer
     storage.setItem("hs_v3_last_sync_time", String(Date.now()));
 
     setLastPeriodDate(changes.lastDate);
     setCycleLength(changes.cycle);
     setPeriodLength(changes.period);
 
-    // Set this date as manually logged period to make it priority
     const dateStr = format(changes.lastDate, "yyyy-MM-dd");
     setActivityHistory((prev) => {
       const updated = { ...prev };
 
-      // Hapus status isPeriod untuk semua tanggal setelah HPHT baru
-      // agar tidak me-override perhitungan di cycleUtils (yang mengambil latestManual)
       Object.keys(updated).forEach((key) => {
         const d = new Date(key);
         if (d > changes.lastDate && updated[key]) {
@@ -415,65 +405,53 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleAvatarChange = async (next: Parameters<typeof updateAvatar>[0]) => {
+    try {
+      await updateAvatar(next);
+      showToast("Foto profil Bunda berhasil diubah! ✨", "success");
+    } catch (e: any) {
+      showToast(e?.message || "Tidak bisa menyimpan avatar.", "error");
+    }
+  };
+
+  const handleHusbandNumberChange = (val: string) => {
+    const digits = val.replace(/[^0-9]/g, "");
+    setHusbandNumber(digits);
+  };
+
+  const handleOverrideCancel = () => {
+    setShowOverrideWarning(false);
+    setPendingChanges(null);
+  };
+
+  const handleOverrideConfirm = () => {
+    if (pendingChanges) {
+      applyCycleChanges(
+        pendingChanges as { lastDate: Date; cycle: number; period: number },
+      );
+    }
+  };
+
   const reminderTimeLabel = `${String(DAILY_REMINDER_HOUR).padStart(2, "0")}.${String(DAILY_REMINDER_MINUTE).padStart(2, "0")}`;
+  const hphtLabel = formatToLongIndonesianDate(
+    new Date(selectedYear, selectedMonth - 1, selectedDay),
+  );
 
   return (
     <SafeAreaView
       style={{ flex: 1, minHeight: Platform.OS === "web" ? "100%" : undefined }}
       className="bg-background"
     >
-      {/* Dynamic Toast Notification Banner */}
       {toast && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            top: Platform.OS === "ios" ? 60 : 30,
-            left: 24,
-            right: 24,
-            zIndex: 9999,
-            opacity: toastOpacity,
-            transform: [{ translateY: toastTranslateY }],
-          }}
-        >
-          <View
-            className={`flex-row items-center gap-3 p-4 rounded-2xl border shadow-lg ${
-              toast.type === "success"
-                ? "bg-emerald-50 border-emerald-200"
-                : toast.type === "error"
-                  ? "bg-red-50 border-red-200"
-                  : "bg-indigo-50 border-indigo-200"
-            }`}
-          >
-            <View
-              className={`w-8 h-8 rounded-full items-center justify-center shrink-0 ${
-                toast.type === "success"
-                  ? "bg-emerald-100"
-                  : toast.type === "error"
-                    ? "bg-red-100"
-                    : "bg-indigo-100"
-              }`}
-            >
-              <Text className="text-sm font-bold">
-                {toast.type === "success" ? "✨" : toast.type === "error" ? "⚠️" : "ℹ️"}
-              </Text>
-            </View>
-            <Text
-              className={`text-xs font-bold flex-1 leading-relaxed ${
-                toast.type === "success"
-                  ? "text-emerald-800"
-                  : toast.type === "error"
-                    ? "text-red-800"
-                    : "text-indigo-800"
-              }`}
-            >
-              {toast.message}
-            </Text>
-          </View>
-        </Animated.View>
+        <SettingsToast
+          message={toast.message}
+          type={toast.type}
+          opacity={toastOpacity}
+          translateY={toastTranslateY}
+        />
       )}
 
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }} style={{ flex: 1 }}>
-        {/* Header */}
         <View className="mb-6 pt-4 flex-row justify-between items-end border-b border-primary/20 pb-4">
           <View className="flex-1 pr-2">
             <Text className="text-3xl font-bold text-on-background">Pengaturan</Text>
@@ -488,548 +466,74 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Tab Toggle: Edit Profil vs Pengaturan Siklus */}
-        <View className="flex-row bg-surface-variant p-1 rounded-2xl mb-6 shadow-inner">
-          <TouchableOpacity
-            onPress={() => setActiveViewTab("profile")}
-            className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === "profile" ? "bg-surface shadow-sm" : ""
-            }`}
-          >
-            <FontAwesome
-              name="user"
-              size={14}
-              color={activeViewTab === "profile" ? "#ec4899" : "#94a3b8"}
-            />
-            <Text
-              className={`text-sm font-bold ${
-                activeViewTab === "profile" ? "text-primary" : "text-on-surface-variant/70"
-              }`}
-            >
-              Profil & Pasangan
-            </Text>
-          </TouchableOpacity>
+        <SettingsTabToggle activeTab={activeViewTab} onTabChange={setActiveViewTab} />
 
-          <TouchableOpacity
-            onPress={() => setActiveViewTab("cycle")}
-            className={`flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2 ${
-              activeViewTab === "cycle" ? "bg-surface shadow-sm" : ""
-            }`}
-          >
-            <FontAwesome
-              name="cog"
-              size={14}
-              color={activeViewTab === "cycle" ? "#ec4899" : "#94a3b8"}
-            />
-            <Text
-              className={`text-sm font-bold ${
-                activeViewTab === "cycle" ? "text-primary" : "text-on-surface-variant/70"
-              }`}
-            >
-              Siklus & Tabungan
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Content Area */}
         <View className="gap-6">
           {activeViewTab === "cycle" && (
             <>
-              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="calendar" size={18} color="#ec4899"/><Text className="text-base font-bold text-on-surface">Data Siklus Bunda</Text></View>
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-                  <View className="mb-4">
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                      HPHT (Hari Pertama Haid Terakhir)
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setIsDatePickerVisible(true)}
-                      className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 flex-row justify-between items-center"
-                    >
-                      <Text className="text-sm text-on-surface font-semibold">
-                        {formatToLongIndonesianDate(
-                          new Date(selectedYear, selectedMonth - 1, selectedDay),
-                        )}
-                      </Text>
-                      <FontAwesome name="calendar" size={16} color="#ec4899" />
-                    </TouchableOpacity>
-                  </View>
-
-                  <View className="flex-row gap-4">
-                    <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                        Siklus
-                      </Text>
-                      <View className="relative justify-center">
-                        <TextInput
-                          value={cycleInput}
-                          onChangeText={setCycleInput}
-                          keyboardType="number-pad"
-                          placeholderTextColor="#ec489950"
-                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
-                        />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">
-                          Hari
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View className="flex-1">
-                      <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                        Haid
-                      </Text>
-                      <View className="relative justify-center">
-                        <TextInput
-                          value={periodInput}
-                          onChangeText={setPeriodInput}
-                          keyboardType="number-pad"
-                          placeholderTextColor="#ec489950"
-                          className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-4 pr-12 py-3 text-sm text-on-surface"
-                        />
-                        <Text className="absolute right-3 text-xs text-on-surface-variant/70 font-bold">
-                          Hari
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <Text className="text-xs text-on-surface-variant mt-1">
-                    Data ini membantu Siklusio memperkirakan fase tubuh dan masa subur Bunda.
-                  </Text>
-
-                  <TouchableOpacity
-                    onPress={handleCycleSubmit}
-                    className="w-full py-3 bg-primary rounded-2xl items-center justify-center shadow-sm mt-2"
-                  >
-                    <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
-                      Simpan Siklus
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-              {/* Card 2: Pengaturan Tabungan */}
-              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="money" size={18} color="#0d9488"/><Text className="text-base font-bold text-on-surface">Persiapan Promil</Text></View>
-              <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-                <View className="flex-row items-center gap-3 mb-4">
-                  <FontAwesome name="money" size={18} color="#0d9488" />
-                  <Text className="text-base font-bold text-on-surface">Tabungan Promil</Text>
-                </View>
-
-                <View className="gap-4">
-                  <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                      Total Tabungan Terkumpul
-                    </Text>
-                    <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">
-                        Rp
-                      </Text>
-                      <TextInput
-                        value={currentSavingInput}
-                        onChangeText={setCurrentSavingInput}
-                        keyboardType="number-pad"
-                        placeholder="0"
-                        placeholderTextColor="#ec489950"
-                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
-                      />
-                    </View>
-                  </View>
-
-                  <View>
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                      Target Tabungan
-                    </Text>
-                    <View className="relative justify-center">
-                      <Text className="absolute left-4 text-sm font-bold text-on-surface-variant/70">
-                        Rp
-                      </Text>
-                      <TextInput
-                        value={targetSavingInput}
-                        onChangeText={setTargetSavingInput}
-                        keyboardType="number-pad"
-                        placeholder="0"
-                        placeholderTextColor="#ec489950"
-                        className="w-full bg-surface-variant border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-sm text-on-surface"
-                      />
-                    </View>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={handleSavingsSubmit}
-                    className="w-full py-3 bg-teal-600 rounded-2xl items-center justify-center shadow-sm mt-2"
-                  >
-                    <Text className="text-white font-bold text-sm uppercase tracking-wider">
-                      Simpan Tabungan
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Reminder Section Header */}
-              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="bell" size={18} color="#ec4899"/><Text className="text-base font-bold text-on-surface">Pengingat</Text></View>
-              {Platform.OS !== "web" && (
-                <TouchableOpacity
-                  onPress={handleReminderToggle}
-                  className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant flex-row items-center justify-between"
-                >
-                  <View className="flex-row items-center gap-4 flex-1 pr-4">
-                    <View
-                      className={`w-10 h-10 rounded-full items-center justify-center ${dailyReminder ? "bg-primary/20 text-primary" : "bg-surface-variant text-on-surface-variant"}`}
-                    >
-                      <FontAwesome name="bell" size={18} color={dailyReminder ? "#ec4899" : "#888"} />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-on-surface">
-                        Pengingat Harian & Promil
-                      </Text>
-                      <Text className="text-[10px] font-mono opacity-50 mt-1 leading-relaxed">
-                        {dailyReminder
-                          ? `Notifikasi lokal terjadwal setiap pukul ${reminderTimeLabel}.`
-                          : "Aktifkan untuk menjadwalkan notifikasi lokal harian di aplikasi mobile."}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Custom Toggle Switch */}
-                  <View
-                    className={`w-[44px] h-[24px] rounded-full p-[2px] justify-center ${dailyReminder ? "bg-primary" : "bg-surface-variant"}`}
-                  >
-                    <View
-                      className={`w-[20px] h-[20px] rounded-full bg-white shadow-sm ${dailyReminder ? "self-end" : "self-start"}`}
-                    />
-                  </View>
-                </TouchableOpacity>
-              )}
-
-              {/* Card 5: Program Afiliasi */}
-              <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="gift" size={18} color="#db2777"/><Text className="text-base font-bold text-on-surface">Referral</Text></View>
-              <TouchableOpacity
-                onPress={() => router.push("/affiliate")}
-                className="bg-pink-50 rounded-[32px] p-6 shadow-sm border border-pink-100 flex-row items-center justify-between"
-              >
-                <View className="flex-row items-center gap-4 flex-1 pr-4">
-                  <View className="w-10 h-10 rounded-full bg-pink-100 items-center justify-center">
-                    <FontAwesome name="gift" size={18} color="#db2777" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-[10px] font-mono font-bold uppercase tracking-widest text-pink-900">
-                      Program Afiliasi 🌸
-                    </Text>
-                    <Text className="text-[10px] font-mono text-pink-700 opacity-80 mt-1 leading-relaxed">
-                      Dapatkan komisi untuk setiap bunda yang bergabung lewat referal Anda.
-                    </Text>
-                  </View>
-                </View>
-                <View className="w-8 h-8 rounded-full bg-pink-100 items-center justify-center">
-                  <FontAwesome name="chevron-right" size={12} color="#ec4899" />
-                </View>
-              </TouchableOpacity>
+              <CycleDataSection
+                hphtLabel={hphtLabel}
+                cycleInput={cycleInput}
+                periodInput={periodInput}
+                onOpenDatePicker={() => setIsDatePickerVisible(true)}
+                onCycleInputChange={setCycleInput}
+                onPeriodInputChange={setPeriodInput}
+                onSubmit={handleCycleSubmit}
+              />
+              <SavingsSection
+                currentSavingInput={currentSavingInput}
+                targetSavingInput={targetSavingInput}
+                onCurrentSavingChange={setCurrentSavingInput}
+                onTargetSavingChange={setTargetSavingInput}
+                onSubmit={handleSavingsSubmit}
+              />
+              <ReminderSection
+                dailyReminder={dailyReminder}
+                reminderTimeLabel={reminderTimeLabel}
+                onToggle={handleReminderToggle}
+              />
+              <AffiliateSection />
             </>
           )}
 
           {activeViewTab === "profile" && (
-            <View className="bg-surface rounded-[32px] p-6 shadow-sm border border-outline-variant">
-              <View className="flex-row items-center gap-3 mb-2">
-                <FontAwesome name="heart" size={18} color="#ec4899" />
-                <Text className="text-base font-bold text-on-surface">Profil & Pasangan</Text>
-              </View>
-              <Text className="text-[10px] font-mono text-on-surface-variant opacity-60 mb-4">
-                Atur foto profil, nama panggilan Anda, dan kontak WhatsApp suami.
-              </Text>
-
-              {/* Avatar Picker moved here inside the card */}
-              <View className="items-center justify-center mb-6 mt-2 pb-5 border-b border-purple-100">
-                <AvatarPicker
-                  value={avatarUrl}
-                  kind={avatarKind}
-                  onChange={async (next) => {
-                    try {
-                      await updateAvatar(next);
-                      showToast("Foto profil Bunda berhasil diubah! ✨", "success");
-                    } catch (e: any) {
-                      showToast(e?.message || "Tidak bisa menyimpan avatar.", "error");
-                    }
-                  }}
-                  size={80}
-                />
-                <Text className="text-[10px] text-primary/80 font-bold uppercase tracking-wider mt-2.5">
-                  Ketuk untuk Mengubah Foto Profil
-                </Text>
-              </View>
-
-              <View className="gap-4">
-                <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                    Nama Panggilan Anda
-                  </Text>
-                  <TextInput
-                    value={userNickname}
-                    onChangeText={setUserNickname}
-                    placeholder="Cth: Bunda, Sayang"
-                    placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                  />
-                </View>
-
-                <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                    Nama Suami
-                  </Text>
-                  <TextInput
-                    value={husbandName}
-                    onChangeText={setHusbandName}
-                    placeholder="Cth: Budi Susanto"
-                    placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                  />
-                </View>
-
-                <View>
-                  <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">
-                    Nama Panggilan Suami
-                  </Text>
-                  <TextInput
-                    value={husbandNickname}
-                    onChangeText={setHusbandNickname}
-                    placeholder="Cth: Mas, Sayang, Koko"
-                    placeholderTextColor="#ec489950"
-                    className="w-full bg-surface-variant border border-outline-variant rounded-xl p-3 text-sm text-on-surface"
-                  />
-                </View>
-
-                <View>
-                  <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-                      Nomor WhatsApp Suami
-                    </Text>
-                    {errorPhone ? (
-                      <Text className="text-[10px] text-error font-medium">{errorPhone}</Text>
-                    ) : null}
-                  </View>
-                  <TextInput
-                    value={husbandNumber}
-                    onChangeText={(val) => {
-                      const digits = val.replace(/[^0-9]/g, "");
-                      setHusbandNumber(digits);
-                    }}
-                    placeholder="Cth: 6281234567890"
-                    keyboardType="phone-pad"
-                    placeholderTextColor="#ec489950"
-                    className={`w-full bg-surface-variant border rounded-xl p-3 text-sm ${errorPhone ? "border-error text-error" : "border-outline-variant text-on-surface"}`}
-                  />
-                </View>
-
-                <TouchableOpacity
-                  onPress={handleProfileSubmit}
-                  disabled={!!errorPhone}
-                  className={`w-full py-3 rounded-2xl items-center justify-center shadow-sm mt-2 active:scale-95 ${
-                    errorPhone ? "bg-primary/50" : "bg-primary"
-                  }`}
-                >
-                  <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
-                    Simpan Profil & Pasangan
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            <ProfilePartnerSection
+              avatarUrl={avatarUrl}
+              avatarKind={avatarKind}
+              userNickname={userNickname}
+              husbandName={husbandName}
+              husbandNickname={husbandNickname}
+              husbandNumber={husbandNumber}
+              errorPhone={errorPhone}
+              onAvatarChange={handleAvatarChange}
+              onUserNicknameChange={setUserNickname}
+              onHusbandNameChange={setHusbandName}
+              onHusbandNicknameChange={setHusbandNickname}
+              onHusbandNumberChange={handleHusbandNumberChange}
+              onSubmit={handleProfileSubmit}
+            />
           )}
 
-          {/* Akun Section */}
-          <View className="flex-row items-center gap-2 mb-2"><FontAwesome name="user" size={18} color="#ef4444"/><Text className="text-base font-bold text-on-surface">Akun</Text></View>
-          <TouchableOpacity
-            onPress={confirmSignOut}
-            className="w-full mt-4 flex-row items-center justify-center gap-2 py-4 bg-error/10 rounded-2xl border border-error/20"
-          >
-            <FontAwesome name="sign-out" size={18} color="#ef4444" />
-            <Text className="text-error font-bold tracking-widest text-sm uppercase">
-              Keluar (Log Out)
-            </Text>
-          </TouchableOpacity>
+          <AccountSection onSignOut={confirmSignOut} />
         </View>
       </ScrollView>
 
-      {/* Override Warning Modal */}
-      <Modal
+      <CycleOverrideWarningModal
         visible={showOverrideWarning}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {
-          setShowOverrideWarning(false);
-          setPendingChanges(null);
-        }}
-      >
-        <View className="flex-1 items-center justify-center p-6 bg-black/45">
-          <View className="bg-surface rounded-3xl p-6 w-full max-w-[320px] shadow-xl border border-outline-variant">
-            <View className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4 mx-auto">
-              <FontAwesome name="exclamation-circle" size={24} color="#ef4444" />
-            </View>
-            <Text className="text-xl font-bold text-center mb-2 text-on-surface">
-              Ubah Data Siklus?
-            </Text>
-            <Text className="text-sm text-on-surface-variant/80 text-center mb-6 leading-relaxed">
-              Mengubah data siklus secara manual akan memengaruhi prediksi menstruasi dan masa subur
-              yang sudah dihitung. Apakah kamu yakin?
-            </Text>
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                onPress={() => {
-                  setShowOverrideWarning(false);
-                  setPendingChanges(null);
-                }}
-                className="flex-1 py-3 rounded-xl items-center justify-center bg-surface-variant border border-outline-variant"
-              >
-                <Text className="text-on-surface font-bold text-sm">Batal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  if (pendingChanges) {
-                    applyCycleChanges(
-                      pendingChanges as { lastDate: Date; cycle: number; period: number },
-                    );
-                  }
-                }}
-                className="flex-1 py-3 rounded-xl items-center justify-center bg-primary shadow-sm"
-              >
-                <Text className="text-on-primary font-bold text-sm">Ya, Ubah</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onCancel={handleOverrideCancel}
+        onConfirm={handleOverrideConfirm}
+      />
 
-      {/* Custom Date Picker Modal */}
-      <Modal
+      <HphtDatePickerModal
         visible={isDatePickerVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsDatePickerVisible(false)}
-      >
-        <View className="flex-1 items-center justify-center p-6 bg-black/45">
-          <View className="bg-surface rounded-3xl p-6 w-full max-w-[340px] max-h-[80%] shadow-xl border border-outline-variant flex-col">
-            <View className="flex-row justify-between items-center border-b border-outline-variant pb-3 mb-4">
-              <Text className="text-lg font-bold text-on-surface">Pilih Tanggal HPHT</Text>
-              <TouchableOpacity onPress={() => setIsDatePickerVisible(false)}>
-                <FontAwesome name="times" size={18} color="#ec4899" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Three scrollable columns side-by-side */}
-            <View className="flex-row flex-1 h-[220px] gap-2 mb-6">
-              {/* Day Column */}
-              <View className="flex-1 bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
-                  HARI
-                </Text>
-                <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-                  <View className="p-1">
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-                      const isSelected = selectedDay === day;
-                      return (
-                        <TouchableOpacity
-                          key={day}
-                          onPress={() => setSelectedDay(day)}
-                          className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
-                        >
-                          <Text
-                            className={`text-sm ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
-                          >
-                            {day}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Month Column */}
-              <View className="flex-[1.5] bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
-                  BULAN
-                </Text>
-                <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-                  <View className="p-1">
-                    {[
-                      "Januari",
-                      "Februari",
-                      "Maret",
-                      "April",
-                      "Mei",
-                      "Juni",
-                      "Juli",
-                      "Agustus",
-                      "September",
-                      "Oktober",
-                      "November",
-                      "Desember",
-                    ].map((month, index) => {
-                      const monthVal = index + 1;
-                      const isSelected = selectedMonth === monthVal;
-                      return (
-                        <TouchableOpacity
-                          key={monthVal}
-                          onPress={() => setSelectedMonth(monthVal)}
-                          className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
-                        >
-                          <Text
-                            className={`text-xs ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
-                          >
-                            {month}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Year Column */}
-              <View className="flex-1 bg-surface-variant/40 rounded-2xl overflow-hidden">
-                <Text className="text-center text-[10px] font-bold text-primary py-1 border-b border-outline-variant/30">
-                  TAHUN
-                </Text>
-                <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-                  <View className="p-1">
-                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 3 + i).map(
-                      (year) => {
-                        const isSelected = selectedYear === year;
-                        return (
-                          <TouchableOpacity
-                            key={year}
-                            onPress={() => setSelectedYear(year)}
-                            className={`py-2 rounded-lg items-center ${isSelected ? "bg-primary" : "active:bg-surface-variant"}`}
-                          >
-                            <Text
-                              className={`text-sm ${isSelected ? "text-on-primary font-bold" : "text-on-surface"}`}
-                            >
-                              {year}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      },
-                    )}
-                  </View>
-                </ScrollView>
-              </View>
-            </View>
-
-            {/* Confirm Button */}
-            <TouchableOpacity
-              onPress={() => {
-                const testDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
-                if (testDate.getDate() !== selectedDay) {
-                  Alert.alert("Eror", "Tanggal yang dipilih tidak valid untuk bulan tersebut.");
-                  return;
-                }
-                setIsDatePickerVisible(false);
-              }}
-              className="w-full py-3.5 bg-primary rounded-2xl items-center justify-center shadow-md active:scale-95"
-            >
-              <Text className="text-on-primary font-bold text-sm uppercase tracking-wider">
-                Konfirmasi
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        selectedDay={selectedDay}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onClose={() => setIsDatePickerVisible(false)}
+        onDayChange={setSelectedDay}
+        onMonthChange={setSelectedMonth}
+        onYearChange={setSelectedYear}
+      />
     </SafeAreaView>
   );
 }

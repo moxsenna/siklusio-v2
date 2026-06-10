@@ -218,9 +218,9 @@ npm run check              # PASS
 - [x] All Sprint 3A–3H commits on `main`
 - [x] Selector hooks complete; no direct `useCycle()` in screens
 - [x] Provider split explicitly deferred
-- [ ] Manual QA checklist executed — see [`SPRINT_3_MOBILE_QA_SIGNOFF.md`](./SPRINT_3_MOBILE_QA_SIGNOFF.md)
+- [x] Web smoke QA executed — see [`SPRINT_3_MOBILE_QA_SIGNOFF.md`](./SPRINT_3_MOBILE_QA_SIGNOFF.md) (**PARTIAL** — native/interaksi manual pending)
 
 | Role | Name | Date | QA result |
 |------|------|------|-----------|
-| Dev | | | |
-| QA / Product | | | |
+| Dev | Agent (Playwright) | 2026-06-10 | PARTIAL — web smoke PASS |
+| QA / Product | _(pending)_ | | Native + interaksi manual |

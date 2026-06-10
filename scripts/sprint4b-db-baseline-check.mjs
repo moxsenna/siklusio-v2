@@ -227,10 +227,7 @@ export function checkGeneratedTypes() {
 /** @returns {{ pass: boolean, findings: string[] }} */
 export function checkSqlSecrets() {
   const findings = [];
-  const sqlPaths = [
-    ...gitLsFiles("supabase/*.sql"),
-    ...gitLsFiles("supabase/migrations/*.sql"),
-  ];
+  const sqlPaths = [...gitLsFiles("supabase/*.sql"), ...gitLsFiles("supabase/migrations/*.sql")];
 
   for (const relPath of sqlPaths) {
     const content = readFileSync(join(ROOT, relPath), "utf8");

@@ -59,6 +59,38 @@ export type CycleSyncStateSlice = Pick<
 
 export type CycleActionsSlice = Pick<CycleContextType, "getDayInfo">;
 
+export type CycleParamsSlice = Pick<
+  CycleContextType,
+  | "lastPeriodDate"
+  | "setLastPeriodDate"
+  | "cycleLength"
+  | "setCycleLength"
+  | "periodLength"
+  | "setPeriodLength"
+>;
+
+export function useCycleParams(): CycleParamsSlice {
+  const ctx = useCycle();
+  return useMemo(
+    () => ({
+      lastPeriodDate: ctx.lastPeriodDate,
+      setLastPeriodDate: ctx.setLastPeriodDate,
+      cycleLength: ctx.cycleLength,
+      setCycleLength: ctx.setCycleLength,
+      periodLength: ctx.periodLength,
+      setPeriodLength: ctx.setPeriodLength,
+    }),
+    [
+      ctx.lastPeriodDate,
+      ctx.setLastPeriodDate,
+      ctx.cycleLength,
+      ctx.setCycleLength,
+      ctx.periodLength,
+      ctx.setPeriodLength,
+    ],
+  );
+}
+
 export function useCycleProfile(): CycleProfileSlice {
   const ctx = useCycle();
   return useMemo(

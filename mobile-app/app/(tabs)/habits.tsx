@@ -9,7 +9,12 @@ import {
   Platform,
 } from "react-native";
 import { addDays, differenceInDays, format, startOfDay } from "date-fns";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActions,
+  useCycleActivityHistory,
+  useCyclePrediction,
+  useCycleProfile,
+} from "@/src/hooks/useCycleSelectors";
 import { HeaderProfileButton } from "@/src/shared/components/HeaderProfileButton";
 import { analytics } from "@/src/lib/analytics";
 import { useTodayKey } from "@/src/hooks/useTodayKey";
@@ -81,14 +86,10 @@ function HistoryViewSafe(props: any) {
 }
 
 export default function HabitsScreen() {
-  const {
-    currentPhase,
-    nextPeriodDate,
-    activityHistory,
-    setActivityHistory,
-    userNickname,
-    getDayInfo,
-  } = useCycle();
+  const { currentPhase, nextPeriodDate } = useCyclePrediction();
+  const { activityHistory, setActivityHistory } = useCycleActivityHistory();
+  const { userNickname } = useCycleProfile();
+  const { getDayInfo } = useCycleActions();
   const [, startTransition] = useTransition();
 
   const [viewMode, setViewMode] = useState<"daily" | "history">("daily");

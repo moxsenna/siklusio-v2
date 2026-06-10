@@ -9,7 +9,12 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useCycle } from "../src/context/CycleContext";
+import {
+  useCycleActivityHistory,
+  useCycleParams,
+  useCycleProfile,
+  useCycleSyncState,
+} from "../src/hooks/useCycleSelectors";
 import { useAuth } from "../src/context/AuthContext";
 import { supabase } from "../src/lib/supabase";
 import { format } from "date-fns";
@@ -110,22 +115,23 @@ export default function OnboardingScreen() {
     setUserBirthDate,
     childrenCount,
     setChildrenCount,
-    lastPeriodDate,
-    setLastPeriodDate,
-    cycleLength,
-    setCycleLength,
-    periodLength,
-    setPeriodLength,
-    setActivityHistory,
     husbandName,
     setHusbandName,
     husbandNickname,
     setHusbandNickname,
     husbandNumber,
     setHusbandNumber,
-    isOnboardingCompleted,
-    setIsOnboardingCompleted,
-  } = useCycle();
+  } = useCycleProfile();
+  const {
+    lastPeriodDate,
+    setLastPeriodDate,
+    cycleLength,
+    setCycleLength,
+    periodLength,
+    setPeriodLength,
+  } = useCycleParams();
+  const { setActivityHistory } = useCycleActivityHistory();
+  const { isOnboardingCompleted, setIsOnboardingCompleted } = useCycleSyncState();
 
   const { session } = useAuth();
   const router = useRouter();

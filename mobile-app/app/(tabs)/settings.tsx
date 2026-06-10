@@ -8,7 +8,13 @@ import {
   Platform,
   Animated,
 } from "react-native";
-import { useCycle } from "@/src/context/CycleContext";
+import {
+  useCycleActivityHistory,
+  useCycleParams,
+  useCyclePrediction,
+  useCycleProfile,
+  useCycleSavings,
+} from "@/src/hooks/useCycleSelectors";
 import { useAuth } from "@/src/context/AuthContext";
 import { format } from "date-fns";
 import { router, useLocalSearchParams } from "expo-router";
@@ -102,8 +108,9 @@ export default function SettingsScreen() {
     setCycleLength,
     periodLength,
     setPeriodLength,
-    activityHistory,
-    setActivityHistory,
+  } = useCycleParams();
+  const { activityHistory, setActivityHistory } = useCycleActivityHistory();
+  const {
     userNickname,
     setUserNickname,
     husbandName,
@@ -112,16 +119,10 @@ export default function SettingsScreen() {
     setHusbandNickname,
     husbandNumber,
     setHusbandNumber,
-    targetSaving,
-    setTargetSaving,
-    currentSaving,
-    setCurrentSaving,
-    hasManualLogs,
-    currentPhase,
-    cycleDay,
-    daysToNextPeriod,
-    effectiveLastPeriod,
-  } = useCycle();
+  } = useCycleProfile();
+  const { targetSaving, setTargetSaving, currentSaving, setCurrentSaving } = useCycleSavings();
+  const { hasManualLogs, currentPhase, cycleDay, daysToNextPeriod, effectiveLastPeriod } =
+    useCyclePrediction();
 
   const [dailyReminder, setDailyReminder] = useState(() => readDailyReminderEnabled(storage));
 

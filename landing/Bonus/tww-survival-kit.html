@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TWW Survival Kit | Siklusio</title>
+  <meta name="description" content="Panduan menenangkan hati saat dua minggu menanti setelah ovulasi. Bonus digital Siklusio untuk Bunda pejuang garis dua." />
+  <meta name="theme-color" content="#ec4899" />
+  <meta property="og:title" content="TWW Survival Kit | Siklusio" />
+  <meta property="og:description" content="Panduan mobile-friendly untuk merawat hati, mengurangi overthinking, dan melewati dua minggu menanti dengan lebih lembut." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --pink:#ec4899;
+      --pink-dark:#db2777;
+      --violet:#9333ea;
+      --teal:#14b8a6;
+      --amber:#f59e0b;
+      --ink:#0f172a;
+      --text:#334155;
+      --muted:#64748b;
+      --line:rgba(236,72,153,.15);
+      --soft:#fdf2f8;
+      --soft-violet:#faf5ff;
+      --soft-teal:#f0fdfa;
+      --card:#ffffff;
+      --shadow:0 10px 28px rgba(15,23,42,.07);
+      --radius:20px;
+      --radius-sm:14px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    body{
+      margin:0;
+      font-family:"Plus Jakarta Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#fff7fb 0%,#fff 36%,#fdf2f8 100%);
+      font-size:16px;
+      line-height:1.72;
+    }
+    a{color:inherit;text-decoration:none}
+    h1,h2,h3,h4{font-family:Outfit,sans-serif;color:var(--ink);letter-spacing:-.025em;line-height:1.18;margin:0}
+    p{margin:0;color:var(--text)}
+    ul,ol{margin:0;padding-left:1.15rem}
+    li{margin:.45rem 0}
+    strong{color:var(--ink)}
+    .container{width:min(100% - 28px,760px);margin:0 auto}
+
+    .nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .nav-inner{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{display:flex;align-items:center;gap:9px;font-family:Outfit,sans-serif;font-weight:800;color:var(--ink);font-size:18px}
+    .brand-mark{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--pink),var(--violet));display:grid;place-items:center;color:#fff;box-shadow:0 8px 18px rgba(236,72,153,.22)}
+    .nav-title{font-size:12px;font-weight:900;color:var(--pink-dark);background:#fce7f3;border:1px solid rgba(236,72,153,.17);padding:7px 10px;border-radius:999px;white-space:nowrap}
+    .desktop-link{display:none}
+
+    .top{padding:18px 0 8px}
+    .cover-card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+    .eyebrow{display:inline-flex;align-items:center;gap:6px;color:var(--pink-dark);font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+    h1{font-size:30px;margin-bottom:9px}
+    .lead{font-size:15.5px;line-height:1.78;color:var(--text);margin-bottom:12px}
+    .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;border:1px solid rgba(236,72,153,.17);background:#fff;color:var(--text)}
+    .pill.pink{background:#fce7f3;color:#9d174d}.pill.teal{background:#ccfbf1;color:#115e59}.pill.violet{background:#ede9fe;color:#5b21b6}
+
+    .section{padding:22px 0;scroll-margin-top:76px}
+    .section-head{margin-bottom:14px}
+    .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink-dark);font-weight:900;margin-bottom:6px}
+    h2{font-size:25px}.sub{font-size:14.8px;color:var(--muted);margin-top:8px;line-height:1.75}
+    .card,.note,.quote,.practice,.day,.worksheet,.disclaimer,details{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card{padding:16px}.card h3{font-size:20px;margin-bottom:7px}.card p,.card li{font-size:14.5px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .toc{display:grid;grid-template-columns:1fr;gap:10px}
+    .toc a{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;font-weight:900;color:var(--text);box-shadow:var(--shadow);line-height:1.35}
+    .toc span{display:block;color:var(--pink-dark);font-size:11px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+
+    .note{padding:15px;border-left:5px solid var(--teal);box-shadow:none;background:#fff;font-size:14px;color:var(--text)}
+    .quote{padding:18px;background:linear-gradient(135deg,#fdf2f8,#faf5ff);box-shadow:none;color:#7e2252;font-size:16px;font-weight:700;line-height:1.7}
+    .quote small{display:block;color:var(--muted);font-weight:700;margin-top:8px;font-size:12px}
+    .icon{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;font-size:21px;margin-bottom:10px;background:linear-gradient(135deg,#fce7f3,#ede9fe)}
+
+    .phase-card{padding:15px;border-radius:18px;border:1px solid rgba(236,72,153,.13);background:#fff;box-shadow:var(--shadow)}
+    .phase-top{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}.phase-num{width:32px;height:32px;border-radius:12px;background:#fce7f3;color:var(--pink-dark);font-family:Outfit,sans-serif;font-weight:800;display:grid;place-items:center;flex:none}.phase-card h3{font-size:19px}.phase-card p{font-size:14.3px;color:var(--muted);line-height:1.65}
+
+    .practice{padding:16px;overflow:hidden;position:relative}
+    .practice:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--pink),var(--violet),var(--teal))}
+    .practice h3{font-size:21px;margin-bottom:8px}.practice p{font-size:14.7px;color:var(--text);line-height:1.72}.practice .steps{margin-top:12px;display:grid;gap:9px}.step{display:flex;gap:10px;background:linear-gradient(135deg,#fff,#fdf2f8);border:1px solid rgba(236,72,153,.13);border-radius:15px;padding:11px}.step b{width:28px;height:28px;border-radius:999px;background:#fce7f3;color:var(--pink-dark);display:grid;place-items:center;font-size:12px;flex:none}.step span{font-size:14px;color:var(--text);line-height:1.55}
+
+    .day{position:relative;overflow:hidden;padding:15px;box-shadow:var(--shadow)}
+    .day:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--pink),var(--violet));opacity:.82}
+    .day-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.day-num{font-family:Outfit,sans-serif;font-weight:800;color:var(--pink-dark);background:#fce7f3;border-radius:999px;padding:5px 9px;font-size:12px;white-space:nowrap}.day-time{font-size:11px;color:var(--muted);font-weight:800;white-space:nowrap}.day h3{font-size:20px;margin-bottom:7px}.day p{font-size:14.5px;line-height:1.68}.prompt{margin-top:12px;background:linear-gradient(135deg,#fdf2f8,#faf5ff);border:1px dashed rgba(236,72,153,.3);border-radius:15px;padding:11px 12px;color:#7e2252;font-size:13.5px;line-height:1.6}.prompt b{color:#be185d}
+
+    .worksheet{padding:15px;box-shadow:none}.worksheet label{font-size:13px;font-weight:900;color:var(--pink-dark);display:block;margin-bottom:8px}.fake-line{height:12px;border-bottom:1px dashed rgba(100,116,139,.36);margin-top:8px}
+    .mini-list{display:grid;gap:10px}.mini{background:#fff;border:1px solid rgba(236,72,153,.13);border-radius:16px;padding:13px;box-shadow:var(--shadow)}.mini b{font-family:Outfit,sans-serif;color:var(--ink)}.mini p{font-size:14px;color:var(--muted);line-height:1.62;margin-top:3px}
+
+    details{padding:0;overflow:hidden;box-shadow:none;margin-bottom:10px;background:#fff}summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:900;color:var(--ink);font-family:Outfit,sans-serif;font-size:17px;line-height:1.35}summary::-webkit-details-marker{display:none}details p{padding:0 16px 16px;font-size:14.5px;color:var(--muted);line-height:1.7}
+    .soft-cta{background:linear-gradient(135deg,rgba(236,72,153,.09),rgba(147,51,234,.08),rgba(20,184,166,.08));border:1px solid rgba(236,72,153,.18);border-radius:24px;padding:18px;display:grid;gap:14px;box-shadow:var(--shadow)}.soft-cta h2{font-size:24px}.soft-cta p{font-size:14.5px;color:var(--muted);margin-top:7px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:12px 16px;font-weight:900;text-align:center;line-height:1.2}.btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;box-shadow:0 12px 24px rgba(236,72,153,.22)}
+    .disclaimer{padding:15px;font-size:13px;color:var(--muted);line-height:1.7;box-shadow:none;background:#fff}.footer{padding:26px 0 34px;color:var(--muted);font-size:12px;text-align:center}
+
+    @media (min-width:560px){.container{width:min(100% - 42px,760px)}h1{font-size:38px}.cover-card{padding:24px}.toc{grid-template-columns:repeat(2,1fr)}h2{font-size:31px}.grid.two{grid-template-columns:repeat(2,1fr)}}
+    @media (min-width:820px){.container{width:min(100% - 64px,860px)}.nav-inner{min-height:66px}.desktop-link{display:inline-flex}.top{padding:28px 0 10px}.grid.three{grid-template-columns:repeat(3,1fr)}.grid.days{grid-template-columns:repeat(2,1fr)}.soft-cta{grid-template-columns:1fr auto;align-items:center;padding:22px}.section{padding:32px 0}.footer{padding-bottom:44px}}
+    @media print{.nav{display:none}body{background:#fff}.card,.note,.quote,.practice,.day,.worksheet,.disclaimer,details,.phase-card,.mini,.soft-cta,.cover-card{box-shadow:none}.grid.days{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Siklusio"><span class="brand-mark">🌸</span><span>Siklusio</span></a>
+      <a class="nav-title" href="https://app.siklusio.web.id/auth">Buka App</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="top">
+      <div class="container">
+        <div class="cover-card">
+          <span class="eyebrow">🕊️ Bonus Digital Siklusio</span>
+          <h1>TWW Survival Kit</h1>
+          <p class="lead">Panduan menenangkan hati saat dua minggu menanti setelah ovulasi. Dibuat untuk Bunda yang sering bolak-balik membaca tanda tubuh, takut berharap terlalu tinggi, tapi juga belum bisa berhenti berdoa.</p>
+          <p class="lead">Baca pelan-pelan. Tidak harus selesai sekali duduk. Pilih bagian yang paling Bunda butuhkan hari ini.</p>
+          <div class="meta-row">
+            <span class="pill pink">⏱️ 10–15 menit baca</span>
+            <span class="pill violet">🌙 Cocok untuk malam hari</span>
+            <span class="pill teal">✍️ Ada journaling prompt</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="daftar-isi">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Daftar isi</div>
+          <h2>Bunda bisa mulai dari bagian mana saja.</h2>
+          <p class="sub">Kalau sedang cemas, langsung buka bagian napas atau grounding. Kalau sedang ingin memahami TWW, mulai dari penjelasan awal.</p>
+        </div>
+        <div class="toc">
+          <a href="#memahami"><span>01</span>Memahami TWW tanpa panik</a>
+          <a href="#fase"><span>02</span>Ritme emosi 14 hari menanti</a>
+          <a href="#tenang"><span>03</span>Latihan tenang cepat</a>
+          <a href="#jurnal"><span>04</span>Jurnal 14 hari TWW</a>
+          <a href="#afirmasi"><span>05</span>Afirmasi & kalimat pegangan</a>
+          <a href="#faq"><span>06</span>Pertanyaan yang sering muncul</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="memahami">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Bagian 1</div>
+          <h2>TWW itu bukan cuma menunggu. Kadang rasanya seperti berperang dengan pikiran sendiri.</h2>
+          <p class="sub">TWW adalah masa sekitar dua minggu setelah ovulasi sampai jadwal haid berikutnya atau waktu testpack yang lebih masuk akal. Di fase ini, tubuh bisa terasa berbeda, hormon naik turun, dan hati jadi lebih sensitif.</p>
+        </div>
+        <div class="quote">
+          “Cemas bukan berarti Bunda lemah. Cemas sering muncul karena Bunda sangat berharap, sangat menjaga, dan sangat ingin semuanya berjalan baik.”
+          <small>— Pegangan lembut untuk hari-hari menanti</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="grid three">
+          <div class="card"><div class="icon">🔎</div><h3>Symptom spotting</h3><p>Kebiasaan mengecek setiap rasa di tubuh lalu menghubungkannya dengan tanda hamil. Wajar terjadi, tapi bisa bikin pikiran lelah.</p></div>
+          <div class="card"><div class="icon">🧠</div><h3>Overthinking</h3><p>Pikiran berputar: “Ini tanda apa?”, “Kalau gagal lagi gimana?”, “Aku harus testpack kapan?” Tubuh jadi ikut tegang.</p></div>
+          <div class="card"><div class="icon">🤍</div><h3>Butuh validasi</h3><p>Di fase ini Bunda sering bukan butuh nasihat panjang. Bunda butuh ditemani, ditenangkan, dan diingatkan bahwa perasaan ini wajar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fase">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Bagian 2</div>
+          <h2>Ritme emosi 14 hari menanti</h2>
+          <p class="sub">Tidak semua Bunda mengalami urutan yang sama. Tapi pola ini bisa membantu Bunda merasa lebih paham, bukan merasa “aneh sendiri”.</p>
+        </div>
+        <div class="grid two">
+          <div class="phase-card"><div class="phase-top"><div class="phase-num">1</div><div><h3>Hari 1–3 setelah ovulasi</h3><p>Biasanya masih ada rasa lega karena masa subur sudah dilewati. Fokusnya bukan mencari tanda, tapi mengembalikan tubuh ke ritme tenang.</p></div></div></div>
+          <div class="phase-card"><div class="phase-top"><div class="phase-num">2</div><div><h3>Hari 4–7 setelah ovulasi</h3><p>Pikiran mulai aktif. Sedikit kram, pegal, atau mood berubah bisa terasa “berarti”. Di sini Bunda perlu latihan membedakan observasi dan kesimpulan.</p></div></div></div>
+          <div class="phase-card"><div class="phase-top"><div class="phase-num">3</div><div><h3>Hari 8–10 setelah ovulasi</h3><p>Fase paling menggoda untuk testpack terlalu cepat. Rasa ingin tahu besar, tapi hasil bisa belum jelas dan malah bikin hati makin naik turun.</p></div></div></div>
+          <div class="phase-card"><div class="phase-top"><div class="phase-num">4</div><div><h3>Hari 11–14 setelah ovulasi</h3><p>Harapan dan takut kecewa sering muncul bareng. Bunda boleh berharap, tapi tetap perlu menjaga diri agar tidak habis sebelum tahu hasilnya.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="note"><strong>Kalimat kunci:</strong> Bunda boleh mencatat gejala, tapi jangan memaksa setiap gejala menjadi jawaban. Tubuh bisa memberi sinyal, tetapi tidak semua sinyal harus langsung diartikan sebagai kepastian.</div>
+      </div>
+    </section>
+
+    <section class="section" id="tenang">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Bagian 3</div>
+          <h2>Latihan tenang cepat saat pikiran mulai ramai</h2>
+          <p class="sub">Gunakan bagian ini kapan saja: setelah membaca forum, setelah ingin testpack, saat sulit tidur, atau saat tubuh terasa berbeda lalu pikiran langsung menyimpulkan macam-macam.</p>
+        </div>
+        <div class="grid">
+          <div class="practice">
+            <h3>Latihan napas 4–7–8</h3>
+            <p>Latihan ini membantu tubuh turun dari mode waspada. Bunda bisa lakukan 3–4 putaran saja.</p>
+            <div class="steps">
+              <div class="step"><b>1</b><span>Tarik napas pelan lewat hidung selama 4 hitungan.</span></div>
+              <div class="step"><b>2</b><span>Tahan napas lembut selama 7 hitungan. Jangan dipaksa kalau tidak nyaman.</span></div>
+              <div class="step"><b>3</b><span>Hembuskan perlahan lewat mulut selama 8 hitungan, seperti melepas beban sedikit demi sedikit.</span></div>
+            </div>
+          </div>
+          <div class="practice">
+            <h3>Grounding 5–4–3–2–1</h3>
+            <p>Kalau pikiran Bunda lompat terlalu jauh ke kemungkinan terburuk, ajak diri kembali ke saat ini.</p>
+            <div class="steps">
+              <div class="step"><b>5</b><span>Sebutkan 5 benda yang Bunda lihat.</span></div>
+              <div class="step"><b>4</b><span>Rasakan 4 hal yang menyentuh tubuh, misalnya baju, kasur, lantai, atau tangan sendiri.</span></div>
+              <div class="step"><b>3</b><span>Dengarkan 3 suara di sekitar.</span></div>
+              <div class="step"><b>2</b><span>Cium 2 aroma, atau bayangkan aroma yang menenangkan.</span></div>
+              <div class="step"><b>1</b><span>Sebutkan 1 kalimat lembut: “Saat ini aku aman. Aku sedang menunggu, bukan sedang gagal.”</span></div>
+            </div>
+          </div>
+          <div class="practice">
+            <h3>Aturan “tunda 20 menit”</h3>
+            <p>Saat dorongan untuk testpack terlalu cepat atau mencari gejala di internet muncul, jangan langsung dilawan keras. Tunda dulu 20 menit.</p>
+            <div class="steps">
+              <div class="step"><b>1</b><span>Minum air hangat atau air putih.</span></div>
+              <div class="step"><b>2</b><span>Taruh HP sebentar, lalu lakukan satu aktivitas kecil: mandi, merapikan kasur, atau jalan pelan.</span></div>
+              <div class="step"><b>3</b><span>Setelah 20 menit, tanya diri: “Aku masih perlu melakukan ini, atau tadi aku hanya sedang cemas?”</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="jurnal">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Bagian 4</div>
+          <h2>Jurnal 14 hari TWW</h2>
+          <p class="sub">Ini bukan checklist medis. Ini ruang kecil untuk mengurai isi kepala. Bunda boleh menulis satu kalimat saja per hari.</p>
+        </div>
+        <div class="grid days">
+          <div class="day"><div class="day-top"><span class="day-num">Hari 1</span><span class="day-time">2 menit</span></div><h3>Menutup masa subur dengan lembut</h3><p>Hari ini, cukup akui bahwa Bunda sudah berikhtiar. Tidak semua hal perlu dikontrol setelah ini.</p><div class="prompt"><b>Tulis:</b> Ikhtiar kecil yang sudah aku lakukan adalah...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 2</span><span class="day-time">3 menit</span></div><h3>Bedakan harapan dan kepastian</h3><p>Berharap itu boleh. Yang melelahkan adalah memaksa harapan menjadi kepastian sebelum waktunya.</p><div class="prompt"><b>Tulis:</b> Hari ini aku berharap..., tapi aku belum perlu memastikan semuanya sekarang.</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 3</span><span class="day-time">2 menit</span></div><h3>Cek tubuh tanpa menghakimi</h3><p>Kalau ada gejala, catat sebagai informasi. Bukan sebagai vonis, bukan sebagai ramalan.</p><div class="prompt"><b>Tulis:</b> Yang tubuhku rasakan hari ini adalah...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 4</span><span class="day-time">4 menit</span></div><h3>Kurangi pencarian yang bikin gelisah</h3><p>Internet bisa memberi informasi, tapi juga bisa membuat Bunda makin takut. Pilih batas yang sehat.</p><div class="prompt"><b>Tulis:</b> Hari ini aku ingin mengurangi...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 5</span><span class="day-time">3 menit</span></div><h3>Minta ditemani, bukan dinasihati</h3><p>Kadang suami tidak tahu harus merespons apa. Bunda boleh memberi arahan yang sederhana.</p><div class="prompt"><b>Kirim/ucapkan:</b> “Aku lagi agak cemas. Boleh temani aku sebentar tanpa bahas hasil dulu?”</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 6</span><span class="day-time">2 menit</span></div><h3>Ambil jeda dari angka</h3><p>Hari ke berapa, peluang berapa, gejala apa—semuanya bisa terasa penuh. Hari ini, beri jeda kecil.</p><div class="prompt"><b>Tulis:</b> Satu hal di luar promil yang tetap ingin aku nikmati hari ini...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 7</span><span class="day-time">5 menit</span></div><h3>Setengah jalan, peluk diri sendiri</h3><p>Bunda sudah melewati separuh perjalanan menanti. Itu bukan hal kecil.</p><div class="prompt"><b>Tulis:</b> Terima kasih untuk diriku karena...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 8</span><span class="day-time">3 menit</span></div><h3>Saat ingin testpack terlalu cepat</h3><p>Dorongan itu wajar. Tapi Bunda boleh menunda demi menjaga hati dari hasil yang belum jelas.</p><div class="prompt"><b>Tulis:</b> Kalau aku menunda, aku sedang melindungi hatiku dari...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 9</span><span class="day-time">4 menit</span></div><h3>Beri nama untuk rasa takut</h3><p>Rasa takut sering terasa besar karena tidak diberi nama. Coba sebutkan dengan jujur.</p><div class="prompt"><b>Tulis:</b> Yang paling aku takutkan sebenarnya adalah...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 10</span><span class="day-time">3 menit</span></div><h3>Jangan sendirian dengan pikiran berat</h3><p>Kalau hati mulai terlalu penuh, cari satu orang aman atau ruang aman untuk bercerita.</p><div class="prompt"><b>Tulis:</b> Orang/ruang yang bisa membuatku merasa aman adalah...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 11</span><span class="day-time">2 menit</span></div><h3>Harapan tidak perlu dimatikan</h3><p>Bunda tidak harus pura-pura tidak berharap. Cukup pegang harapan dengan tangan yang lebih lembut.</p><div class="prompt"><b>Tulis:</b> Aku boleh berharap, sambil tetap...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 12</span><span class="day-time">4 menit</span></div><h3>Siapkan dua kemungkinan dengan sayang</h3><p>Kalau hasilnya baik, Bunda bersyukur. Kalau belum, Bunda tetap layak dipeluk dan dijaga.</p><div class="prompt"><b>Tulis:</b> Kalau belum berhasil bulan ini, aku ingin memperlakukan diriku dengan cara...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 13</span><span class="day-time">3 menit</span></div><h3>Malam sebelum tahu jawaban</h3><p>Ini bisa jadi malam yang emosional. Jangan tambah beban dengan menyalahkan diri.</p><div class="prompt"><b>Tulis:</b> Apa pun hasilnya, satu hal yang benar tentang diriku adalah...</div></div>
+          <div class="day"><div class="day-top"><span class="day-num">Hari 14</span><span class="day-time">5 menit</span></div><h3>Hari menerima kabar</h3><p>Bunda boleh bahagia, menangis, kecewa, diam, atau butuh waktu. Semua respons itu manusiawi.</p><div class="prompt"><b>Tulis:</b> Hari ini aku membutuhkan...</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="afirmasi">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Bagian 5</div>
+          <h2>Kalimat pegangan saat hati mulai goyah</h2>
+          <p class="sub">Pilih satu kalimat yang paling terasa dekat. Ulangi pelan-pelan, bukan untuk memaksa diri positif, tapi untuk membuat tubuh merasa lebih aman.</p>
+        </div>
+        <div class="mini-list">
+          <div class="mini"><b>Untuk saat ingin testpack terlalu cepat</b><p>“Aku boleh penasaran, tapi aku juga boleh menunggu waktu yang lebih jelas.”</p></div>
+          <div class="mini"><b>Untuk saat melihat gejala kecil</b><p>“Aku mencatat, tapi aku tidak harus menyimpulkan sekarang.”</p></div>
+          <div class="mini"><b>Untuk saat takut kecewa lagi</b><p>“Aku pernah kecewa, tapi aku tetap layak berharap dengan lembut.”</p></div>
+          <div class="mini"><b>Untuk saat merasa tertinggal dari orang lain</b><p>“Perjalananku tidak harus sama dengan perjalanan siapa pun.”</p></div>
+          <div class="mini"><b>Untuk saat haid datang</b><p>“Aku sedih, dan itu valid. Tubuhku bukan musuhku. Aku boleh istirahat dulu.”</p></div>
+          <div class="mini"><b>Untuk saat hasilnya dua garis</b><p>“Aku boleh bahagia pelan-pelan. Aku boleh menjaga kabar ini dengan tenang.”</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">Worksheet kecil</div>
+          <h2>Isi saat Bunda butuh mengurai pikiran</h2>
+          <p class="sub">Bisa ditulis di buku, notes HP, atau jurnal pribadi. Tidak perlu sempurna.</p>
+        </div>
+        <div class="grid two">
+          <div class="worksheet"><label>Hal yang sedang aku takutkan...</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="worksheet"><label>Bukti bahwa aku sudah berikhtiar...</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="worksheet"><label>Yang bisa aku kontrol hari ini...</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="worksheet"><label>Kalimat yang ingin aku dengar dari suami...</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">FAQ lembut</div>
+          <h2>Pertanyaan yang sering muncul saat TWW</h2>
+        </div>
+        <details><summary>Apakah semua gejala di TWW berarti tanda hamil?</summary><p>Tidak selalu. Beberapa gejala menjelang haid dan awal kehamilan bisa terasa mirip. Catat gejala sebagai informasi, tapi hindari menjadikannya kepastian sebelum waktunya.</p></details>
+        <details><summary>Kenapa aku jadi lebih sensitif dan gampang nangis?</summary><p>Fase menanti bisa memicu campuran hormon, harapan, takut kecewa, dan tekanan sosial. Respons emosional seperti ini wajar. Yang penting, Bunda tidak harus menanggung semuanya sendirian.</p></details>
+        <details><summary>Kalau aku terlalu berharap, apakah nanti lebih sakit kalau gagal?</summary><p>Berharap bukan kesalahan. Yang perlu dijaga adalah cara memegang harapan. Bunda boleh berharap sambil tetap menyiapkan ruang lembut untuk diri sendiri, apa pun hasilnya nanti.</p></details>
+        <details><summary>Kapan aku harus konsultasi ke dokter?</summary><p>Jika Bunda mengalami nyeri hebat, perdarahan tidak biasa, siklus sangat tidak teratur, atau sedang promil cukup lama tanpa hasil sesuai usia dan kondisi, sebaiknya konsultasikan langsung ke dokter kandungan.</p></details>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="soft-cta">
+          <div>
+            <h2>Butuh ruang tenang yang lebih personal?</h2>
+            <p>Di Siklusio, Bunda bisa menggunakan Pojok Tenang TWW, latihan napas, dan Surat Tenang AI untuk menemani hari-hari menanti dengan lebih lembut.</p>
+          </div>
+          <a class="btn btn-primary" href="https://app.siklusio.web.id/auth">Buka Siklusio</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="disclaimer">
+          <strong>Disclaimer medis:</strong> Informasi ini bersifat pendampingan promil harian umum, bukan pengganti diagnosis medis dokter kandungan. Jika Bunda mengalami nyeri hebat, perdarahan tidak wajar, riwayat siklus sangat tidak teratur, atau kekhawatiran medis lain, konsultasikan langsung ke dokter atau tenaga kesehatan tepercaya.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Dibuat dengan lembut oleh Siklusio 🌸<br/>Promil lebih terarah, suami lebih paham, hati lebih tenang.</div>
+  </footer>
+</body>
+</html>

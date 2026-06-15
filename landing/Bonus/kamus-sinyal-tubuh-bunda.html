@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kamus Sinyal Tubuh Bunda — Siklusio</title>
+  <meta name="description" content="Panduan ringan memahami sinyal tubuh selama siklus dan promil tanpa langsung panik." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pink:#ec4899;
+      --pink-dark:#db2777;
+      --violet:#9333ea;
+      --teal:#14b8a6;
+      --bg-1:#fdf2f8;
+      --bg-2:#faf5ff;
+      --bg-3:#f0fdfa;
+      --slate-900:#0f172a;
+      --slate-800:#1e293b;
+      --slate-700:#334155;
+      --slate-600:#475569;
+      --slate-500:#64748b;
+      --line:rgba(148,163,184,.24);
+      --card:rgba(255,255,255,.78);
+      --shadow:0 18px 45px rgba(236,72,153,.13);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      color:var(--slate-800);
+      background:
+        radial-gradient(circle at top left, rgba(236,72,153,.16), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(147,51,234,.13), transparent 28%),
+        radial-gradient(circle at 30% 95%, rgba(20,184,166,.14), transparent 32%),
+        linear-gradient(135deg,var(--bg-1),var(--bg-2) 48%,var(--bg-3));
+      line-height:1.72;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter:blur(16px);
+      background:rgba(255,255,255,.78);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      max-width:760px;
+      margin:0 auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-family:'Outfit',sans-serif;
+      font-weight:800;
+      color:var(--slate-900);
+      letter-spacing:-.02em;
+    }
+    .brand-mark{
+      width:30px;height:30px;border-radius:11px;
+      display:grid;place-items:center;
+      color:white;
+      background:linear-gradient(135deg,var(--pink),var(--violet));
+      box-shadow:0 10px 26px rgba(236,72,153,.25);
+    }
+    .top-pill{
+      font-size:11px;
+      font-weight:700;
+      color:var(--pink-dark);
+      background:#fce7f3;
+      border:1px solid #f9a8d4;
+      border-radius:999px;
+      padding:6px 10px;
+      white-space:nowrap;
+    }
+    .page{
+      max-width:760px;
+      margin:0 auto;
+      padding:18px 16px 46px;
+    }
+    .intro{
+      margin-top:10px;
+      padding:22px 18px;
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(255,255,255,.85);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .intro:before{
+      content:"";
+      position:absolute;right:-60px;top:-70px;
+      width:170px;height:170px;border-radius:50%;
+      background:radial-gradient(circle, rgba(236,72,153,.20), transparent 65%);
+    }
+    .eyebrow{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:800;
+      color:var(--pink-dark);
+      margin:0 0 8px;
+    }
+    h1,h2,h3{
+      font-family:'Outfit',sans-serif;
+      letter-spacing:-.035em;
+      color:var(--slate-900);
+      line-height:1.15;
+    }
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(30px,9vw,48px);
+    }
+    h2{
+      margin:30px 0 13px;
+      font-size:clamp(23px,6vw,32px);
+    }
+    h3{
+      margin:0 0 8px;
+      font-size:20px;
+    }
+    p{margin:0 0 14px}
+    .lead{
+      font-size:16px;
+      color:var(--slate-600);
+      margin-bottom:0;
+      max-width:62ch;
+    }
+    .notice{
+      margin-top:16px;
+      border-radius:20px;
+      padding:14px;
+      background:linear-gradient(135deg,rgba(240,253,250,.82),rgba(250,245,255,.88));
+      border:1px solid rgba(20,184,166,.18);
+      color:var(--slate-700);
+      font-size:14px;
+    }
+    .toc{
+      display:grid;
+      gap:10px;
+      margin:18px 0 8px;
+    }
+    .toc a{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:13px 14px;
+      background:rgba(255,255,255,.66);
+      border:1px solid var(--line);
+      border-radius:18px;
+      text-decoration:none;
+      font-weight:700;
+      color:var(--slate-700);
+    }
+    .toc span{
+      width:28px;height:28px;border-radius:10px;
+      display:grid;place-items:center;
+      background:#fce7f3;
+      color:var(--pink-dark);
+      flex:0 0 auto;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.88);
+      border-radius:var(--radius);
+      box-shadow:0 14px 36px rgba(15,23,42,.06);
+      padding:18px;
+      margin:12px 0;
+    }
+    .soft-card{
+      background:rgba(255,255,255,.58);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:15px;
+      margin:10px 0;
+    }
+    .grid{display:grid;gap:12px}
+    @media(min-width:720px){
+      .grid.two{grid-template-columns:1fr 1fr}
+      .grid.three{grid-template-columns:repeat(3,1fr)}
+      .page{padding-left:22px;padding-right:22px}
+      .intro{padding:30px}
+      .card{padding:22px}
+    }
+    .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.76);
+      border:1px solid var(--line);
+      font-size:12px;
+      font-weight:800;
+      color:var(--slate-600);
+    }
+    .pill-pink{background:#fce7f3;color:#be185d;border-color:#fbcfe8}
+    .pill-violet{background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff}
+    .pill-teal{background:#ccfbf1;color:#0f766e;border-color:#99f6e4}
+    .symptom{
+      border-radius:24px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.9);
+      background:rgba(255,255,255,.76);
+      box-shadow:0 14px 34px rgba(15,23,42,.06);
+      margin:14px 0;
+    }
+    .symptom-head{
+      padding:16px 18px;
+      background:linear-gradient(135deg,rgba(252,231,243,.95),rgba(250,245,255,.94));
+      border-bottom:1px solid rgba(236,72,153,.12);
+    }
+    .symptom-head .name{
+      display:flex;align-items:center;gap:10px;
+      font-family:'Outfit',sans-serif;
+      font-weight:800;
+      font-size:21px;
+      color:var(--slate-900);
+    }
+    .symptom-head p{font-size:14px;color:var(--slate-600);margin:7px 0 0}
+    .symptom-body{padding:16px 18px}
+    .mini-title{
+      margin:14px 0 7px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      color:var(--pink-dark);
+    }
+    ul,ol{margin:0 0 10px 20px;padding:0}
+    li{margin:6px 0;padding-left:2px}
+    .phase-list{display:grid;gap:9px;margin-top:10px}
+    .phase{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.58);
+      border-radius:18px;
+      font-size:14px;
+    }
+    .phase b{color:var(--slate-900)}
+    .phase .dot{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;background:#fce7f3}
+    .redflag{
+      background:#fff1f2;
+      border:1px solid #fecdd3;
+      color:#881337;
+      border-radius:18px;
+      padding:14px;
+      margin-top:12px;
+      font-size:14px;
+    }
+    .greenbox{
+      background:#ecfdf5;
+      border:1px solid #a7f3d0;
+      color:#065f46;
+      border-radius:18px;
+      padding:14px;
+      margin-top:12px;
+      font-size:14px;
+    }
+    .worksheet{
+      border:1.5px dashed rgba(236,72,153,.35);
+      background:rgba(255,255,255,.72);
+      border-radius:20px;
+      padding:15px;
+      margin:12px 0;
+    }
+    .line-box{
+      min-height:42px;
+      border-bottom:1px solid rgba(100,116,139,.3);
+      margin:7px 0 14px;
+      color:var(--slate-500);
+      font-size:13px;
+      padding-top:8px;
+    }
+    .tracker{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0 8px;
+      font-size:12px;
+    }
+    .tracker th{text-align:left;color:var(--slate-500);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:0 6px}
+    .tracker td{background:rgba(255,255,255,.72);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 6px;vertical-align:top}
+    .tracker td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px;font-weight:800;color:var(--pink-dark)}
+    .tracker td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+    .checkbox{font-family:'Outfit',sans-serif;color:var(--slate-500)}
+    .quote{
+      margin:16px 0;
+      padding:18px;
+      border-radius:22px;
+      color:white;
+      background:linear-gradient(135deg,var(--pink),var(--violet));
+      box-shadow:0 18px 42px rgba(147,51,234,.18);
+      font-family:'Outfit',sans-serif;
+      font-size:20px;
+      line-height:1.35;
+      letter-spacing:-.02em;
+    }
+    .cta{
+      margin:32px 0 0;
+      padding:22px 18px;
+      border-radius:28px;
+      background:linear-gradient(135deg,rgba(236,72,153,.94),rgba(147,51,234,.92));
+      color:white;
+      box-shadow:0 20px 50px rgba(236,72,153,.22);
+    }
+    .cta h2{color:white;margin:0 0 8px}
+    .cta p{color:rgba(255,255,255,.9)}
+    .button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      border-radius:999px;
+      padding:0 18px;
+      background:white;
+      color:var(--pink-dark);
+      font-weight:900;
+      text-decoration:none;
+      margin-top:5px;
+    }
+    .footer{
+      margin:28px 0 0;
+      color:var(--slate-500);
+      font-size:12px;
+      text-align:center;
+    }
+    .small{font-size:13px;color:var(--slate-600)}
+    .callout-title{font-weight:900;color:var(--slate-900);margin-bottom:4px}
+    .divider{height:1px;background:var(--line);margin:16px 0}
+    .print-note{display:none}
+    @media print{
+      body{background:#fff;color:#111}
+      .topbar,.cta{display:none}
+      .page{max-width:100%;padding:0}
+      .card,.intro,.symptom{box-shadow:none;break-inside:avoid;background:#fff;border:1px solid #ddd}
+      .print-note{display:block}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark">🌸</span><span>Siklusio</span></div>
+      <div class="top-pill">Bonus Eksklusif</div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="intro">
+      <p class="eyebrow">Kamus Sinyal Tubuh Bunda</p>
+      <h1>Panduan memahami gejala siklus tanpa langsung panik.</h1>
+      <p class="lead">Tubuh sering memberi tanda. Kadang tandanya bikin lega, kadang bikin overthinking. Panduan ini membantu Bunda mengenali pola umum, mencatat dengan lebih rapi, dan tahu kapan sebaiknya mencari bantuan tenaga medis.</p>
+      <div class="badge-row">
+        <span class="badge pill-pink">🩸 Gejala siklus</span>
+        <span class="badge pill-violet">🌙 TWW & luteal</span>
+        <span class="badge pill-teal">📝 Mini tracker</span>
+      </div>
+      <div class="notice"><b>Penting:</b> panduan ini bersifat edukasi umum dan pendampingan promil harian. Ini bukan alat diagnosis, bukan pengganti konsultasi dokter, dan tidak bisa memastikan hamil atau tidaknya Bunda.</div>
+    </section>
+
+    <nav class="toc" aria-label="Daftar isi">
+      <a href="#cara-pakai"><span>1</span> Cara pakai kamus ini</a>
+      <a href="#fase"><span>2</span> Kenali fase tubuh Bunda</a>
+      <a href="#kamus"><span>3</span> Kamus sinyal tubuh</a>
+      <a href="#redflag"><span>4</span> Tanda yang perlu diperhatikan</a>
+      <a href="#tracker"><span>5</span> Tracker gejala 14 hari</a>
+      <a href="#worksheet"><span>6</span> Worksheet pola tubuh</a>
+    </nav>
+
+    <section id="cara-pakai" class="card">
+      <h2>Cara pakai kamus ini</h2>
+      <p>Kamus ini dibuat supaya Bunda tidak langsung menebak-nebak berlebihan setiap muncul rasa tidak nyaman. Cara terbaik memakainya adalah: baca sinyalnya, catat waktunya, lihat polanya, lalu ambil langkah yang tenang.</p>
+      <div class="grid two">
+        <div class="soft-card">
+          <div class="callout-title">1. Catat, jangan langsung menyimpulkan</div>
+          <p class="small">Satu gejala saja biasanya belum cukup untuk menyimpulkan apa pun. Catat hari siklus, gejala, intensitas, dan situasinya.</p>
+        </div>
+        <div class="soft-card">
+          <div class="callout-title">2. Lihat polanya berulang atau tidak</div>
+          <p class="small">Gejala yang muncul di fase yang sama setiap bulan bisa jadi bagian dari pola tubuh Bunda.</p>
+        </div>
+        <div class="soft-card">
+          <div class="callout-title">3. Bedakan “umum” dan “mengganggu”</div>
+          <p class="small">Yang umum tetap perlu dicatat. Yang berat, mendadak, atau mengganggu aktivitas sebaiknya dikonsultasikan.</p>
+        </div>
+        <div class="soft-card">
+          <div class="callout-title">4. Gunakan sebagai bahan ngobrol</div>
+          <p class="small">Catatan gejala bisa membantu Bunda lebih jelas saat bercerita ke suami atau dokter.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="fase" class="card">
+      <h2>Kenali fase tubuh Bunda</h2>
+      <p>Gejala sering terasa berbeda karena hormon tubuh berubah sepanjang siklus. Ini gambaran sederhananya.</p>
+      <div class="phase-list">
+        <div class="phase"><span class="dot">🩸</span><div><b>Menstruasi</b><br>Energi bisa menurun. Kram, lelah, pegal, atau mood sensitif cukup sering dirasakan.</div></div>
+        <div class="phase"><span class="dot">🌱</span><div><b>Folikular</b><br>Setelah haid, tubuh mulai bersiap menuju masa subur. Sebagian Bunda merasa lebih ringan dan energinya membaik.</div></div>
+        <div class="phase"><span class="dot">🌸</span><div><b>Masa subur / ovulasi</b><br>Keputihan bisa lebih bening dan licin. Sebagian Bunda merasa perut bawah nyeri ringan di satu sisi.</div></div>
+        <div class="phase"><span class="dot">🌙</span><div><b>Luteal / TWW</b><br>Progesteron meningkat. Payudara sensitif, mood berubah, kembung, dan overthinking sering muncul di fase menanti.</div></div>
+      </div>
+    </section>
+
+    <div class="quote">“Bunda tidak perlu langsung panik. Tubuh sedang berbicara. Tugas kita adalah mendengarkan dengan lembut dan mencatatnya dengan rapi.”</div>
+
+    <section id="kamus">
+      <h2>Kamus sinyal tubuh</h2>
+      <p class="small">Gunakan bagian ini sebagai referensi ringan. Fokusnya bukan menebak hasil, tapi mengenali pola tubuh Bunda.</p>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🩹 Kram perut</div><p>Rasa nyeri, mulas, tertarik, atau tidak nyaman di perut bawah.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Hari-hari menstruasi.</li><li>Sekitar ovulasi pada sebagian Bunda.</li><li>Fase luteal karena tubuh terasa lebih sensitif.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Lokasinya: tengah, kiri, kanan, atau menyebar.</li><li>Intensitasnya: ringan, sedang, berat.</li><li>Apakah mengganggu jalan, kerja, tidur, atau ibadah.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> kompres hangat, cukup minum, istirahat, dan kurangi aktivitas berat bila tubuh meminta pelan.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🤍 Keputihan</div><p>Cairan vagina bisa berubah tekstur dan jumlahnya sepanjang siklus.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Pola yang sering diperhatikan</div>
+          <ul><li>Menjelang ovulasi: bisa lebih bening, licin, elastis, seperti putih telur.</li><li>Setelah ovulasi: bisa lebih kental atau terasa lebih kering.</li><li>Menjelang haid: sebagian Bunda merasa lebih lembap.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Warna, tekstur, bau, dan apakah disertai gatal atau perih.</li><li>Hari siklus saat keputihan berubah.</li><li>Apakah terjadi setelah aktivitas tertentu.</li></ul>
+          <div class="redflag"><b>Perlu diperhatikan:</b> keputihan berbau menyengat, kehijauan/keabu-abuan, disertai gatal hebat, nyeri, atau perih sebaiknya dikonsultasikan ke tenaga medis.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">💗 Payudara sensitif</div><p>Rasa nyeri, tegang, penuh, atau lebih sensitif saat tersentuh.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Fase luteal atau menjelang haid.</li><li>Saat tubuh lebih sensitif terhadap perubahan hormon.</li><li>Pada sebagian Bunda, muncul berulang di pola yang mirip tiap siklus.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Kapan mulai terasa dan kapan mereda.</li><li>Apakah kanan/kiri atau keduanya.</li><li>Apakah ada benjolan baru, keluar cairan, atau nyeri tajam.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> pakai bra yang nyaman, kurangi tekanan, dan catat apakah gejala selalu muncul sebelum haid.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🌫️ Kembung & begah</div><p>Perut terasa penuh, banyak gas, atau baju terasa lebih sempit dari biasanya.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Menjelang haid.</li><li>Fase luteal/TWW.</li><li>Saat pola makan, tidur, atau stres sedang berubah.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Makanan/minuman yang dikonsumsi hari itu.</li><li>Apakah disertai sembelit, diare, atau nyeri.</li><li>Apakah terjadi berulang di fase yang sama.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> makan pelan, cukup cairan, jalan santai, dan hindari membandingkan bentuk perut dari jam ke jam.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">😴 Kelelahan</div><p>Rasa cepat capek, mengantuk, lemas, atau ingin rebahan lebih sering.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Hari pertama menstruasi.</li><li>Menjelang haid.</li><li>Saat tidur kurang, stres tinggi, atau aktivitas menumpuk.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Jam tidur dan kualitas tidur.</li><li>Aktivitas fisik dan beban pikiran hari itu.</li><li>Apakah lelahnya ringan atau sampai sulit beraktivitas.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> turunkan target hari itu, makan cukup, minum cukup, dan izinkan tubuh mengambil jeda.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🌧️ Mood swing</div><p>Perasaan cepat berubah: mudah sedih, sensitif, kesal, cemas, atau ingin menangis.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Menjelang haid.</li><li>Fase luteal/TWW ketika pikiran mudah mencari kepastian.</li><li>Saat Bunda merasa sendirian menjalani promil.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Pemicu emosi hari itu.</li><li>Skala emosi 1–10.</li><li>Apa yang membantu Bunda lebih tenang.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> beri nama emosinya. Contoh: “Aku sedang cemas, bukan lemah.” Lalu lakukan napas pelan 3 kali.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🪶 Flek ringan</div><p>Bercak darah sedikit di luar jadwal haid.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa terjadi karena banyak kemungkinan</div>
+          <ul><li>Perubahan hormon.</li><li>Sekitar ovulasi pada sebagian Bunda.</li><li>Menjelang haid.</li><li>Iritasi atau faktor lain yang perlu dinilai sesuai kondisi.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Warna: merah muda, cokelat, merah terang.</li><li>Jumlah dan durasi.</li><li>Disertai nyeri hebat atau tidak.</li></ul>
+          <div class="redflag"><b>Jangan ditebak sendiri:</b> flek tidak otomatis berarti hamil. Bila berulang, banyak, disertai nyeri hebat, bau, demam, atau membuat Bunda khawatir, lebih aman konsultasi.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🤕 Sakit kepala</div><p>Kepala terasa berat, nyeri, tegang, atau berdenyut.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa dipengaruhi oleh</div>
+          <ul><li>Perubahan hormon menjelang haid.</li><li>Kurang tidur, kurang minum, telat makan.</li><li>Stres dan screen time berlebihan.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Kapan muncul dan berapa lama.</li><li>Apakah disertai mual, pandangan kabur, atau leher kaku.</li><li>Kebiasaan makan, minum, dan tidur hari itu.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> minum air, istirahat mata, makan bila telat, dan kurangi aktivitas yang memicu tegang.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🔥 Jerawat & kulit berubah</div><p>Kulit lebih berminyak, muncul jerawat, atau terasa lebih sensitif.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa sering muncul saat</div>
+          <ul><li>Menjelang haid.</li><li>Saat pola tidur dan stres berubah.</li><li>Saat produk skincare atau makanan tertentu memicu reaksi.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Lokasi jerawat dan kapan muncul.</li><li>Apakah berulang menjelang haid.</li><li>Produk baru atau makanan yang berubah.</li></ul>
+          <div class="greenbox"><b>Langkah lembut:</b> jangan buru-buru ganti banyak produk sekaligus. Catat dulu polanya agar tidak makin bingung.</div>
+        </div>
+      </article>
+
+      <article class="symptom">
+        <div class="symptom-head"><div class="name">🕰️ Telat haid</div><p>Haid belum datang sesuai perkiraan.</p></div>
+        <div class="symptom-body">
+          <div class="mini-title">Bisa dipengaruhi oleh</div>
+          <ul><li>Variasi siklus bulanan.</li><li>Stres, perubahan berat badan, kurang tidur, aktivitas berat.</li><li>Siklus yang memang tidak selalu sama tiap bulan.</li></ul>
+          <div class="mini-title">Yang bisa Bunda catat</div>
+          <ul><li>Tanggal HPHT dan rata-rata panjang siklus.</li><li>Apakah bulan ini ada perubahan besar: stres, sakit, perjalanan, pola tidur.</li><li>Gejala lain yang muncul dan kapan mulai terasa.</li></ul>
+          <div class="redflag"><b>Catatan jujur:</b> telat haid bisa membuat berharap, tapi tetap perlu dikonfirmasi dengan cara yang tepat. Jika siklus sering sangat tidak teratur, konsultasi bisa membantu Bunda lebih tenang.</div>
+        </div>
+      </article>
+    </section>
+
+    <section id="redflag" class="card">
+      <h2>Kapan sebaiknya Bunda konsultasi?</h2>
+      <p>Beberapa sinyal tubuh sebaiknya tidak ditahan sendirian. Konsultasi bukan berarti ada hal buruk; sering kali justru membantu Bunda mendapatkan kejelasan.</p>
+      <div class="redflag">
+        <b>Segera cari bantuan medis bila Bunda mengalami:</b>
+        <ul>
+          <li>Nyeri perut sangat hebat atau tiba-tiba.</li>
+          <li>Perdarahan sangat banyak, menggumpal besar, atau membuat lemas.</li>
+          <li>Demam, pusing berat, pingsan, atau nyeri disertai muntah hebat.</li>
+          <li>Keputihan berbau menyengat, gatal/perih berat, atau berubah warna mencolok.</li>
+          <li>Flek/perdarahan di luar haid yang berulang atau membuat khawatir.</li>
+          <li>Siklus sangat tidak teratur dalam beberapa bulan berturut-turut.</li>
+        </ul>
+      </div>
+      <div class="soft-card">
+        <div class="callout-title">Kalimat bantu saat ke dokter</div>
+        <p class="small">“Dok, saya sedang promil. Saya mencatat gejala ini muncul di hari siklus ke-__ selama __ hari, intensitasnya __/10, dan terjadi berulang sebanyak __ siklus.”</p>
+      </div>
+    </section>
+
+    <section id="tracker" class="card">
+      <h2>Tracker gejala 14 hari</h2>
+      <p>Pakai tracker ini saat fase menanti, menjelang haid, atau kapan pun Bunda ingin mengenali pola tubuh. Tidak perlu sempurna. Cukup isi yang terasa.</p>
+      <div class="worksheet">
+        <table class="tracker" aria-label="Tracker gejala 14 hari">
+          <thead><tr><th>Hari</th><th>Gejala</th><th>Skala</th><th>Catatan</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>2</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>3</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>4</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>5</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>6</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>7</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>8</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>9</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>10</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>11</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>12</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>13</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+            <tr><td>14</td><td class="checkbox">□ Kram □ Keputihan □ Mood □ Lelah</td><td>__/10</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="worksheet" class="card">
+      <h2>Worksheet pola tubuh Bunda</h2>
+      <p>Isi bagian ini setelah Bunda mencatat beberapa hari. Tujuannya agar Bunda punya peta kecil tentang tubuh sendiri.</p>
+      <div class="worksheet">
+        <div class="mini-title">Siklusku biasanya</div>
+        <div class="line-box">Contoh: 29–32 hari, kadang maju 2 hari</div>
+        <div class="mini-title">Gejala yang paling sering muncul</div>
+        <div class="line-box">Contoh: payudara sensitif dan kembung menjelang haid</div>
+        <div class="mini-title">Gejala yang paling bikin aku overthinking</div>
+        <div class="line-box">Contoh: flek ringan, kram samar, telat 1 hari</div>
+        <div class="mini-title">Hal yang biasanya membantuku lebih tenang</div>
+        <div class="line-box">Contoh: catat di aplikasi, ngobrol dengan suami, napas pelan</div>
+        <div class="mini-title">Pertanyaan yang ingin kutanyakan ke dokter bila diperlukan</div>
+        <div class="line-box"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Template catatan harian singkat</h2>
+      <p>Bunda bisa pakai format ini setiap malam. Cukup 1 menit.</p>
+      <div class="soft-card">
+        <p><b>Hari siklus:</b> __</p>
+        <p><b>Gejala utama:</b> __</p>
+        <p><b>Skala rasa tidak nyaman:</b> __/10</p>
+        <p><b>Mood hari ini:</b> __</p>
+        <p><b>Yang mungkin memengaruhi:</b> tidur / makan / stres / aktivitas / lainnya</p>
+        <p><b>Kalimat untuk diriku:</b> “Hari ini tubuhku sedang memberi tanda. Aku akan mendengarkannya dengan lembut.”</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Penutup kecil untuk Bunda</h2>
+      <p>Dalam promil, wajar sekali kalau Bunda ingin membaca setiap tanda. Tapi tubuh tidak selalu bicara dengan bahasa yang pasti. Yang bisa Bunda lakukan adalah mencatat, menjaga diri, berkomunikasi dengan pasangan, dan mencari bantuan saat tubuh memberi sinyal yang tidak biasa.</p>
+      <p>Bunda tidak sendirian. Pelan-pelan, pola tubuh akan terasa lebih mudah dipahami.</p>
+    </section>
+
+    <section class="cta">
+      <h2>Catat sinyal tubuh lebih rapi di Siklusio</h2>
+      <p>Siklusio membantu Bunda mencatat siklus, gejala, kebiasaan harian, masa subur, dan fase menanti dalam satu tempat yang lebih terarah.</p>
+      <a class="button" href="https://app.siklusio.web.id/auth">Buka Siklusio</a>
+    </section>
+
+    <footer class="footer">
+      <p><b>Disclaimer:</b> Informasi ini bersifat edukasi umum dan pendampingan promil harian, bukan pengganti diagnosis atau saran medis dari dokter. Jika Bunda mengalami nyeri hebat, perdarahan tidak wajar, demam, pingsan, atau gejala yang membuat khawatir, konsultasikan langsung ke tenaga medis.</p>
+      <p>© Siklusio — Sahabat Terbaik di Setiap Fase Kewanitaanmu.</p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalender Promil 30 Hari | Siklusio</title>
+  <meta name="description" content="Starter kit 30 hari untuk membantu Bunda memahami tubuh, mengenali fase siklus, dan menyiapkan rutinitas promil yang lebih tenang bersama Siklusio." />
+  <meta name="theme-color" content="#ec4899" />
+  <meta property="og:title" content="Kalender Promil 30 Hari | Siklusio" />
+  <meta property="og:description" content="Bukan checklist kaku. Ini panduan hangat 30 hari untuk memahami tubuh, menyiapkan rutinitas promil, dan menjaga hati tetap tenang." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --pink:#ec4899;
+      --pink-dark:#db2777;
+      --violet:#9333ea;
+      --teal:#14b8a6;
+      --slate-900:#0f172a;
+      --slate-800:#1e293b;
+      --slate-700:#334155;
+      --slate-600:#475569;
+      --slate-500:#64748b;
+      --slate-100:#f1f5f9;
+      --white:#fff;
+      --cream:#fff7fb;
+      --surface:rgba(255,255,255,.78);
+      --border:rgba(236,72,153,.18);
+      --shadow:0 22px 70px rgba(236,72,153,.14);
+      --shadow-sm:0 14px 42px rgba(15,23,42,.08);
+      --radius-xl:34px;
+      --radius-lg:24px;
+      --radius-md:18px;
+      --radius-sm:14px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Plus Jakarta Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--slate-800);
+      background:
+        radial-gradient(circle at top left, rgba(236,72,153,.22), transparent 30%),
+        radial-gradient(circle at top right, rgba(147,51,234,.16), transparent 34%),
+        radial-gradient(circle at 20% 35%, rgba(20,184,166,.12), transparent 30%),
+        linear-gradient(135deg,#fdf2f8 0%,#faf5ff 48%,#f0fdfa 100%);
+      min-height:100vh;
+      line-height:1.7;
+    }
+    a{color:inherit;text-decoration:none}
+    .noise{position:fixed;inset:0;pointer-events:none;opacity:.36;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E")}
+    .container{width:min(1120px,calc(100% - 32px));margin:0 auto}
+    .nav{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:blur(18px);
+      background:rgba(255,255,255,.72);
+      border-bottom:1px solid rgba(236,72,153,.12);
+    }
+    .nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:10px;font-family:Outfit,sans-serif;font-weight:800;color:var(--slate-900);font-size:20px;letter-spacing:-.02em}
+    .brand-mark{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--violet));display:grid;place-items:center;color:#fff;box-shadow:0 12px 26px rgba(236,72,153,.28)}
+    .nav-links{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--slate-600);font-weight:700}
+    .nav-links a{padding:8px 12px;border-radius:999px}
+    .nav-links a:hover{background:#fff;color:var(--pink-dark)}
+    .nav-cta{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff!important;box-shadow:0 10px 24px rgba(236,72,153,.22)}
+    .hero{padding:58px 0 30px}
+    .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:30px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(236,72,153,.18);background:rgba(255,255,255,.68);padding:8px 12px;border-radius:999px;color:var(--pink-dark);font-size:13px;font-weight:800;box-shadow:var(--shadow-sm)}
+    h1,h2,h3{font-family:Outfit,sans-serif;color:var(--slate-900);line-height:1.08;margin:0;letter-spacing:-.035em}
+    h1{font-size:clamp(42px,7vw,76px);margin-top:18px}
+    .grad{background:linear-gradient(135deg,var(--pink),var(--violet),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:clamp(17px,2vw,21px);color:var(--slate-600);max-width:680px;margin:22px 0 0;line-height:1.8}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 20px;font-weight:800;border:1px solid transparent;transition:.2s ease;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;box-shadow:0 18px 36px rgba(236,72,153,.26)}
+    .btn-secondary{background:rgba(255,255,255,.72);color:var(--slate-800);border-color:rgba(236,72,153,.18);box-shadow:var(--shadow-sm)}
+    .btn:hover{transform:translateY(-2px)}
+    .hero-card{position:relative;background:var(--surface);border:1px solid rgba(255,255,255,.78);border-radius:var(--radius-xl);padding:22px;box-shadow:var(--shadow);overflow:hidden}
+    .hero-card:before{content:"";position:absolute;inset:-2px;background:radial-gradient(circle at top right,rgba(236,72,153,.18),transparent 42%);pointer-events:none}
+    .phone{position:relative;border-radius:34px;background:#fff;border:1px solid rgba(236,72,153,.14);padding:16px;box-shadow:inset 0 0 0 8px #fff,0 28px 70px rgba(15,23,42,.12)}
+    .phone-top{height:28px;display:flex;align-items:center;justify-content:center}.notch{width:82px;height:8px;background:#f1f5f9;border-radius:999px}
+    .screen{background:linear-gradient(180deg,#fff7fb,#fff);border-radius:26px;padding:18px;border:1px solid rgba(236,72,153,.12)}
+    .mini-label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--pink-dark);font-weight:900}
+    .big-date{font-family:Outfit,sans-serif;font-size:40px;font-weight:800;color:var(--slate-900);line-height:1;margin:8px 0}
+    .phase-pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fce7f3;color:#be185d;font-size:12px;font-weight:800}
+    .mini-card{background:#fff;border:1px solid rgba(236,72,153,.12);border-radius:18px;padding:13px;margin-top:12px;box-shadow:0 10px 24px rgba(236,72,153,.07)}
+    .mini-card strong{color:var(--slate-900)}
+    .progress{height:9px;background:#fce7f3;border-radius:999px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;width:62%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:999px}
+    .section{padding:54px 0}.section-head{max-width:780px;margin-bottom:24px}.section-kicker{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--pink-dark);font-weight:900;margin-bottom:10px}.section h2{font-size:clamp(30px,4.6vw,48px)}.section p.sub{font-size:17px;color:var(--slate-600);margin:14px 0 0;line-height:1.8}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .card{background:var(--surface);border:1px solid rgba(255,255,255,.78);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm)}
+    .card h3{font-size:22px;margin-bottom:8px}.card p{color:var(--slate-600);margin:0}.icon{width:46px;height:46px;border-radius:18px;display:grid;place-items:center;font-size:22px;margin-bottom:14px;background:linear-gradient(135deg,#fce7f3,#ede9fe)}
+    .toc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.toc a{background:rgba(255,255,255,.72);border:1px solid rgba(236,72,153,.14);border-radius:18px;padding:14px;font-weight:800;color:var(--slate-700);box-shadow:var(--shadow-sm)}.toc span{display:block;color:var(--pink);font-size:12px;margin-bottom:2px}
+    .week{margin-top:28px}.week-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:16px}.week-title{display:flex;align-items:center;gap:12px}.week-badge{width:54px;height:54px;border-radius:20px;background:linear-gradient(135deg,var(--pink),var(--violet));color:#fff;display:grid;place-items:center;font-family:Outfit,sans-serif;font-weight:800;font-size:20px;box-shadow:0 16px 30px rgba(236,72,153,.22)}.week h3{font-size:30px}.week-desc{color:var(--slate-600);margin-top:4px}.week-chip{font-size:12px;font-weight:900;color:var(--pink-dark);background:#fce7f3;padding:8px 12px;border-radius:999px;white-space:nowrap}
+    .days{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.day{background:rgba(255,255,255,.82);border:1px solid rgba(236,72,153,.13);border-radius:24px;padding:18px;box-shadow:0 12px 34px rgba(15,23,42,.06);position:relative;overflow:hidden}.day:before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--pink),var(--violet),var(--teal));opacity:.78}.day-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.day-num{font-family:Outfit,sans-serif;font-weight:800;color:var(--pink-dark);background:#fce7f3;border-radius:999px;padding:6px 10px;font-size:13px}.day-time{font-size:12px;color:var(--slate-500);font-weight:800}.day h4{font-family:Outfit,sans-serif;font-size:21px;color:var(--slate-900);margin:0 0 8px;line-height:1.2}.day p{margin:0;color:var(--slate-600);font-size:14.5px;line-height:1.7}.prompt{margin-top:12px;background:linear-gradient(135deg,#fff7fb,#f8fafc);border:1px dashed rgba(236,72,153,.28);border-radius:16px;padding:12px;font-size:13.5px;color:var(--slate-700)}.prompt b{color:var(--pink-dark)}
+    .soft-cta{background:linear-gradient(135deg,rgba(236,72,153,.1),rgba(147,51,234,.09),rgba(20,184,166,.09));border:1px solid rgba(236,72,153,.18);border-radius:var(--radius-xl);padding:30px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;box-shadow:var(--shadow)}.soft-cta h2{font-size:34px}.soft-cta p{color:var(--slate-600);margin:10px 0 0}.note{background:rgba(255,255,255,.75);border:1px solid rgba(20,184,166,.18);border-left:5px solid var(--teal);border-radius:20px;padding:18px;color:var(--slate-700)}
+    .worksheet{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.line-box{background:#fff;border:1px solid rgba(236,72,153,.14);border-radius:20px;padding:16px}.line-box label{font-size:13px;font-weight:900;color:var(--pink-dark);display:block;margin-bottom:10px}.fake-line{height:13px;border-bottom:1px dashed rgba(100,116,139,.35);margin-top:8px}
+    .faq details{background:rgba(255,255,255,.8);border:1px solid rgba(236,72,153,.12);border-radius:20px;padding:16px 18px;margin-bottom:10px;box-shadow:0 10px 26px rgba(15,23,42,.05)}.faq summary{font-weight:900;color:var(--slate-900);cursor:pointer}.faq p{color:var(--slate-600);margin:10px 0 0}
+    .disclaimer{font-size:13px;color:var(--slate-600);background:rgba(255,255,255,.68);border:1px solid rgba(236,72,153,.12);border-radius:20px;padding:18px}.footer{padding:38px 0 50px;color:var(--slate-500);font-size:13px;text-align:center}.floating{position:fixed;right:18px;bottom:18px;z-index:30;box-shadow:0 18px 36px rgba(236,72,153,.3)}
+    @media (max-width:900px){.hero-grid,.grid-3,.grid-2,.days,.worksheet{grid-template-columns:1fr}.toc{grid-template-columns:repeat(2,1fr)}.soft-cta{grid-template-columns:1fr}.nav-links a:not(.nav-cta){display:none}.hero{padding-top:34px}.week-head{align-items:flex-start;flex-direction:column}.floating{left:16px;right:16px}.floating .btn{width:100%}}
+    @media (max-width:520px){.container{width:min(100% - 22px,1120px)}.nav-inner{height:64px}.brand{font-size:18px}.hero-card{padding:14px;border-radius:26px}.screen{padding:14px}.toc{grid-template-columns:1fr}.card,.day{padding:17px;border-radius:21px}.soft-cta{padding:21px}.hero-actions .btn{width:100%}.section{padding:40px 0}.week h3{font-size:26px}.week-badge{width:48px;height:48px}.floating{display:none}}
+    @media print{.nav,.floating,.hero-actions{display:none}body{background:#fff}.card,.day,.hero-card,.soft-cta{box-shadow:none}.section{padding:20px 0}.days{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Siklusio">
+        <span class="brand-mark">🌸</span><span>Siklusio</span>
+      </a>
+      <div class="nav-links">
+        <a href="#cara-pakai">Cara Pakai</a>
+        <a href="#kalender">Kalender</a>
+        <a href="#worksheet">Worksheet</a>
+        <a class="nav-cta" href="https://app.siklusio.web.id/auth">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">🌷 Bonus Digital Siklusio • Starter Kit Promil</span>
+          <h1>Kalender Promil <span class="grad">30 Hari</span></h1>
+          <p class="lead">Bukan ebook yang kaku, Bunda. Ini panduan ringan untuk memahami tubuh, mengenali ritme siklus, mengajak suami lebih peka, dan menyiapkan rutinitas promil yang lebih tenang.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#kalender">Mulai dari Hari 1</a>
+            <a class="btn btn-secondary" href="#cara-pakai">Baca cara pakainya</a>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Preview Kalender Promil 30 Hari">
+          <div class="phone">
+            <div class="phone-top"><span class="notch"></span></div>
+            <div class="screen">
+              <div class="mini-label">Hari ini</div>
+              <div class="big-date">Hari 01</div>
+              <span class="phase-pill">Kenali tubuh dulu</span>
+              <div class="mini-card"><strong>Fokus Bunda:</strong><br />Tulis Hari Pertama Haid Terakhir, panjang siklus rata-rata, dan 1 gejala yang paling sering muncul.</div>
+              <div class="mini-card"><strong>Kalimat pengingat:</strong><br />“Tubuhku bukan mesin. Aku sedang belajar membacanya pelan-pelan.”</div>
+              <div class="progress"><span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cara-pakai">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Sebelum mulai</div>
+          <h2>Gunakan ini sebagai peta besar, bukan pengganti aplikasi.</h2>
+          <p class="sub">Kalender ini sengaja dibuat tidak terlalu teknis supaya tidak tabrakan dengan Habit Coach di Siklusio. Di sini Bunda belajar memahami pola. Di aplikasi, Bunda bisa tracking lebih personal sesuai data tubuh sendiri.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card"><div class="icon">🩸</div><h3>Kenali pola</h3><p>Mulai dari HPHT, panjang siklus, gejala, mood, dan kebiasaan yang paling sering terlewat.</p></div>
+          <div class="card"><div class="icon">💞</div><h3>Libatkan suami</h3><p>Ada prompt komunikasi ringan supaya promil terasa kompak, bukan seperti jadwal yang dingin.</p></div>
+          <div class="card"><div class="icon">🕊️</div><h3>Jaga hati</h3><p>Di bagian TWW, Bunda akan dipandu untuk mengurangi overthinking dan memberi ruang untuk tenang.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="note">
+          <strong>Catatan kecil:</strong> Kalau Bunda sedang punya riwayat siklus sangat tidak teratur, nyeri hebat, perdarahan berlebihan, atau sedang menjalani program dokter, jadikan panduan ini sebagai pendamping edukasi umum saja. Keputusan medis tetap mengikuti arahan dokter kandungan atau tenaga kesehatan tepercaya.
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Isi panduan</div>
+          <h2>30 hari dibagi menjadi 4 minggu yang mudah diikuti.</h2>
+        </div>
+        <div class="toc">
+          <a href="#minggu-1"><span>Minggu 1</span>Kenali Tubuh Bunda</a>
+          <a href="#minggu-2"><span>Minggu 2</span>Pahami Masa Subur</a>
+          <a href="#minggu-3"><span>Minggu 3</span>Bangun Rutinitas</a>
+          <a href="#minggu-4"><span>Minggu 4</span>Tenang & Evaluasi</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="kalender">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Kalender 30 Hari</div>
+          <h2>Ambil satu langkah kecil setiap hari.</h2>
+          <p class="sub">Tidak perlu sempurna. Tujuan 30 hari ini adalah membuat Bunda lebih sadar pola tubuh, lebih siap berkomunikasi, dan lebih tenang menjalani ikhtiar.</p>
+        </div>
+
+        <div class="week" id="minggu-1">
+          <div class="week-head">
+            <div class="week-title"><div class="week-badge">1</div><div><h3>Minggu 1 — Kenali Tubuh Bunda</h3><div class="week-desc">Fokus: HPHT, panjang siklus, gejala, mood, dan pola haid.</div></div></div>
+            <span class="week-chip">Fondasi tracking</span>
+          </div>
+          <div class="days">
+            <article class="day"><div class="day-top"><span class="day-num">Hari 01</span><span class="day-time">5 menit</span></div><h4>Tulis titik awal siklus</h4><p>Catat Hari Pertama Haid Terakhir, rata-rata panjang siklus, dan lama haid biasanya. Jangan menebak-nebak terlalu keras; tulis yang paling Bunda ingat.</p><div class="prompt"><b>Refleksi:</b> “Siklusku biasanya terasa paling berat di hari ke...”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 02</span><span class="day-time">4 menit</span></div><h4>Amati 3 gejala yang sering muncul</h4><p>Pilih tiga gejala yang paling sering Bunda rasakan: kram, sakit kepala, mood berubah, keputihan, lelah, atau nyeri payudara.</p><div class="prompt"><b>Catatan:</b> Gejala bukan untuk panik, tapi untuk mengenal pola.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 03</span><span class="day-time">6 menit</span></div><h4>Kenali energi tubuh</h4><p>Tulis kapan Bunda biasanya merasa paling lemas, paling semangat, dan paling sensitif. Ini membantu Bunda memahami ritme, bukan menyalahkan diri.</p><div class="prompt"><b>Isi cepat:</b> Energi rendahku biasanya muncul saat...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 04</span><span class="day-time">5 menit</span></div><h4>Cek kebiasaan yang sering terlewat</h4><p>Pilih satu kebiasaan kecil yang paling sering lupa: minum air, tidur cukup, vitamin, jalan santai, atau mencatat gejala.</p><div class="prompt"><b>Fokus:</b> Satu kebiasaan dulu. Jangan semua sekaligus.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 05</span><span class="day-time">7 menit</span></div><h4>Buat “peta rasa” saat haid</h4><p>Tulis apa yang biasanya Bunda butuhkan saat haid: istirahat, kompres hangat, makanan tertentu, ditemani, atau diberi ruang.</p><div class="prompt"><b>Kalimat untuk diri:</b> “Saat haid, tubuhku sedang meminta...”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 06</span><span class="day-time">5 menit</span></div><h4>Ngobrol ringan dengan suami</h4><p>Bukan obrolan berat. Cukup bilang bahwa Bunda sedang belajar membaca siklus agar promil lebih terarah.</p><div class="prompt"><b>Contoh chat:</b> “Mas, aku lagi coba rapiin catatan siklus ya. Nanti bantu ingetin aku pelan-pelan.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 07</span><span class="day-time">8 menit</span></div><h4>Review minggu pertama</h4><p>Lihat kembali catatan 6 hari terakhir. Pola apa yang mulai kelihatan? Apa yang bikin Bunda merasa lebih tenang?</p><div class="prompt"><b>Review:</b> Minggu ini aku belajar bahwa tubuhku...</div></article>
+          </div>
+        </div>
+
+        <div class="week" id="minggu-2">
+          <div class="week-head">
+            <div class="week-title"><div class="week-badge">2</div><div><h3>Minggu 2 — Pahami Masa Subur</h3><div class="week-desc">Fokus: ovulasi, tanda tubuh, dan komunikasi pasangan.</div></div></div>
+            <span class="week-chip">Momentum emas</span>
+          </div>
+          <div class="days">
+            <article class="day"><div class="day-top"><span class="day-num">Hari 08</span><span class="day-time">6 menit</span></div><h4>Pahami bahwa siklus tiap Bunda bisa beda</h4><p>Tidak semua tubuh mengikuti siklus 28 hari. Karena itu, mencatat pola sendiri jauh lebih membantu daripada membandingkan diri dengan orang lain.</p><div class="prompt"><b>Ingat:</b> Berbeda bukan berarti rusak.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 09</span><span class="day-time">5 menit</span></div><h4>Kenali tanda mendekati masa subur</h4><p>Amati perubahan keputihan, energi, mood, dan rasa tubuh secara umum. Tulis dengan bahasa sederhana yang Bunda pahami.</p><div class="prompt"><b>Catatan:</b> Hari ini tubuhku terasa...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 10</span><span class="day-time">7 menit</span></div><h4>Rapikan ekspektasi</h4><p>Masa subur adalah peluang, bukan jaminan. Tujuannya bukan membuat Bunda tertekan, tapi membantu ikhtiar terasa lebih terarah.</p><div class="prompt"><b>Afirmasi:</b> “Aku boleh berharap tanpa harus memaksa tubuhku.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 11</span><span class="day-time">5 menit</span></div><h4>Buat ajakan yang tidak kaku</h4><p>Latih satu kalimat sederhana untuk mengajak suami lebih terlibat tanpa terasa seperti instruksi.</p><div class="prompt"><b>Contoh:</b> “Minggu ini kayaknya fase penting nih, Mas. Kita bikin suasananya santai aja ya.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 12</span><span class="day-time">6 menit</span></div><h4>Siapkan suasana, bukan hanya jadwal</h4><p>Promil sering terasa berat kalau hanya jadi checklist. Hari ini, pikirkan satu hal kecil yang membuat suasana rumah lebih nyaman.</p><div class="prompt"><b>Ide:</b> Jalan sore, makan bareng, ngobrol tanpa HP, atau tidur lebih awal.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 13</span><span class="day-time">5 menit</span></div><h4>Catat perubahan tubuh hari ini</h4><p>Apakah ada keputihan berbeda, nyeri ringan, libido berubah, atau mood lebih cerah? Tulis tanpa menghakimi.</p><div class="prompt"><b>Format:</b> Tubuh — Mood — Energi — Catatan kecil.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 14</span><span class="day-time">8 menit</span></div><h4>Review masa subur</h4><p>Periksa catatan seminggu ini. Bagian mana yang membuat Bunda lebih paham? Bagian mana yang masih membingungkan?</p><div class="prompt"><b>CTA halus:</b> Untuk prediksi yang lebih personal, masukkan data siklus Bunda di aplikasi Siklusio.</div></article>
+          </div>
+        </div>
+
+        <div class="soft-cta" style="margin-top:26px">
+          <div><h2>Butuh panduan yang menyesuaikan fase tubuh Bunda?</h2><p>Gunakan Siklusio untuk melihat fase siklus, mencatat gejala, dan mendapatkan arahan harian yang lebih personal.</p></div>
+          <a class="btn btn-primary" href="https://app.siklusio.web.id/auth">Buka Siklusio</a>
+        </div>
+
+        <div class="week" id="minggu-3">
+          <div class="week-head">
+            <div class="week-title"><div class="week-badge">3</div><div><h3>Minggu 3 — Bangun Rutinitas Promil</h3><div class="week-desc">Fokus: kebiasaan ringan yang realistis, bukan daftar tugas yang bikin capek.</div></div></div>
+            <span class="week-chip">Konsisten lembut</span>
+          </div>
+          <div class="days">
+            <article class="day"><div class="day-top"><span class="day-num">Hari 15</span><span class="day-time">5 menit</span></div><h4>Pilih 1 kebiasaan utama</h4><p>Pilih satu saja: minum air cukup, tidur lebih rapi, minum vitamin sesuai anjuran, jalan santai, atau catat gejala.</p><div class="prompt"><b>Prinsip:</b> Kecil tapi jalan lebih baik daripada besar tapi berhenti.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 16</span><span class="day-time">6 menit</span></div><h4>Buat pengingat yang manusiawi</h4><p>Tentukan kapan kebiasaan itu paling mudah dilakukan. Setelah sarapan? Sebelum tidur? Setelah mandi?</p><div class="prompt"><b>Isi:</b> Aku akan melakukan kebiasaan ini setelah...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 17</span><span class="day-time">5 menit</span></div><h4>Rapikan nutrisi tanpa ekstrem</h4><p>Hari ini cukup tambahkan satu pilihan lebih baik: protein, sayur, buah, atau air putih. Tidak perlu diet yang menyiksa.</p><div class="prompt"><b>Catatan:</b> Satu pilihan baikku hari ini adalah...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 18</span><span class="day-time">5 menit</span></div><h4>Gerak ringan untuk tubuh</h4><p>Pilih gerakan nyaman: jalan 10 menit, peregangan ringan, atau beres-beres kecil. Tujuannya membuat tubuh terasa hidup.</p><div class="prompt"><b>Skala energi:</b> Sebelum gerak __/10, setelah gerak __/10.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 19</span><span class="day-time">7 menit</span></div><h4>Bangun support system mini</h4><p>Tulis siapa yang bisa membuat Bunda merasa aman: suami, sahabat, saudara, komunitas, atau ruang privat untuk journaling.</p><div class="prompt"><b>Kalimat:</b> Saat aku cemas, aku bisa menghubungi...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 20</span><span class="day-time">6 menit</span></div><h4>Evaluasi tanpa menyalahkan diri</h4><p>Apa kebiasaan yang berhasil? Apa yang sulit? Ubah strategi, bukan menyalahkan diri.</p><div class="prompt"><b>Reframe:</b> “Aku gagal” diganti jadi “Aku butuh cara yang lebih cocok.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 21</span><span class="day-time">8 menit</span></div><h4>Buat rencana 7 hari berikutnya</h4><p>Pilih satu fokus untuk minggu depan. Kalau ingin lebih personal, biarkan Habit Coach di Siklusio bantu menyusun rencana 7 hari sesuai kondisi Bunda.</p><div class="prompt"><b>Fokusku:</b> Minggu depan aku ingin lebih konsisten dalam...</div></article>
+          </div>
+        </div>
+
+        <div class="week" id="minggu-4">
+          <div class="week-head">
+            <div class="week-title"><div class="week-badge">4</div><div><h3>Minggu 4 — Tenang Saat Menanti & Evaluasi</h3><div class="week-desc">Fokus: mengurangi overthinking, journaling, dan menutup siklus dengan lembut.</div></div></div>
+            <span class="week-chip">TWW & hati</span>
+          </div>
+          <div class="days">
+            <article class="day"><div class="day-top"><span class="day-num">Hari 22</span><span class="day-time">5 menit</span></div><h4>Kenali fase menanti</h4><p>Setelah masa subur, wajar kalau pikiran jadi lebih ramai. Hari ini cukup sadari: cemas itu manusiawi, tapi tidak harus menguasai hari Bunda.</p><div class="prompt"><b>Afirmasi:</b> “Aku boleh menunggu dengan lebih lembut.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 23</span><span class="day-time">4 menit</span></div><h4>Kurangi symptom spotting</h4><p>Pilih satu jam tertentu untuk mencatat gejala, lalu setelah itu kembali ke aktivitas. Ini membantu Bunda tidak mengecek tubuh terus-menerus.</p><div class="prompt"><b>Batas sehat:</b> Aku akan mencatat gejala pada pukul...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 24</span><span class="day-time">6 menit</span></div><h4>Latihan napas sederhana</h4><p>Tarik napas pelan, tahan sebentar, lalu embuskan lebih panjang. Ulangi 3–5 kali. Fokus pada rasa kaki menyentuh lantai.</p><div class="prompt"><b>Grounding:</b> Sebutkan 3 hal yang Bunda lihat, 2 hal yang Bunda dengar, 1 hal yang Bunda syukuri.</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 25</span><span class="day-time">7 menit</span></div><h4>Tulis surat untuk diri sendiri</h4><p>Buat surat pendek untuk Bunda yang sedang berharap. Tidak perlu indah. Yang penting jujur dan memeluk.</p><div class="prompt"><b>Awalan:</b> “Dear aku, aku tahu akhir-akhir ini kamu...”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 26</span><span class="day-time">5 menit</span></div><h4>Minta dukungan yang jelas</h4><p>Orang terdekat kadang tidak tahu harus membantu bagaimana. Hari ini, latih satu permintaan spesifik.</p><div class="prompt"><b>Contoh:</b> “Mas, kalau aku mulai overthinking, tolong peluk aku dulu ya, jangan langsung dinasihati.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 27</span><span class="day-time">6 menit</span></div><h4>Siapkan dua kemungkinan dengan lembut</h4><p>Bunda boleh berharap hasil baik. Bunda juga boleh menyiapkan hati jika hasil belum sesuai harapan. Keduanya bisa hidup berdampingan.</p><div class="prompt"><b>Kalimat tenang:</b> “Apa pun hasilnya, aku tetap berharga.”</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 28</span><span class="day-time">8 menit</span></div><h4>Review seluruh catatan</h4><p>Lihat kembali pola 4 minggu. Apa gejala yang berulang? Kapan mood berubah? Kebiasaan apa yang paling membantu?</p><div class="prompt"><b>Temuan:</b> Pola tubuhku yang mulai terlihat adalah...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 29</span><span class="day-time">6 menit</span></div><h4>Tentukan langkah berikutnya</h4><p>Apakah Bunda ingin lebih rapi tracking, lebih tenang saat TWW, atau lebih konsisten habits? Pilih satu prioritas untuk bulan depan.</p><div class="prompt"><b>Prioritas:</b> Bulan depan aku ingin fokus pada...</div></article>
+            <article class="day"><div class="day-top"><span class="day-num">Hari 30</span><span class="day-time">10 menit</span></div><h4>Rayakan progres kecil</h4><p>Selama 30 hari ini Bunda sudah belajar memperhatikan tubuh dan hati. Itu bukan hal kecil. Tutup dengan satu kalimat apresiasi untuk diri sendiri.</p><div class="prompt"><b>Apresiasi:</b> “Terima kasih tubuhku, karena...”</div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="worksheet">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Worksheet cepat</div>
+          <h2>Isi bagian ini kalau Bunda ingin lebih rapi.</h2>
+          <p class="sub">Bisa dicatat di buku, notes HP, atau langsung di aplikasi Siklusio.</p>
+        </div>
+        <div class="worksheet">
+          <div class="line-box"><label>HPHT / Hari Pertama Haid Terakhir</label><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="line-box"><label>Panjang siklus rata-rata</label><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="line-box"><label>Gejala yang paling sering muncul</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="line-box"><label>Kebiasaan promil yang ingin dibangun</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="line-box"><label>Dukungan yang ingin diminta dari suami</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+          <div class="line-box"><label>Hal yang membuat Bunda lebih tenang</label><div class="fake-line"></div><div class="fake-line"></div><div class="fake-line"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container soft-cta">
+        <div>
+          <h2>Lanjutkan tracking yang lebih personal di Siklusio.</h2>
+          <p>Kalender ini membantu Bunda memahami peta besarnya. Di aplikasi, Bunda bisa mencatat siklus, gejala, kebiasaan, masa subur, tabungan promil, dan mendapatkan panduan yang lebih sesuai fase tubuh.</p>
+        </div>
+        <a class="btn btn-primary" href="https://app.siklusio.web.id/auth">Masuk ke Aplikasi</a>
+      </div>
+    </section>
+
+    <section class="section faq">
+      <div class="container">
+        <div class="section-head"><div class="section-kicker">Pertanyaan Bunda</div><h2>Yang sering bikin ragu.</h2></div>
+        <details open><summary>Apakah harus mulai dari hari pertama haid?</summary><p>Tidak harus. Bunda bisa mulai dari hari apa pun. Kalau sedang tidak tahu posisi siklus, mulai dari Hari 1 sebagai fase mengenal tubuh, lalu masukkan data HPHT ketika sudah ingat atau ketika siklus berikutnya datang.</p></details>
+        <details><summary>Kalau siklusku tidak 28 hari, masih bisa pakai?</summary><p>Bisa. Panduan ini tidak menganggap semua Bunda punya siklus yang sama. Justru tujuannya membantu Bunda berhenti membandingkan diri dan mulai membaca pola tubuh sendiri.</p></details>
+        <details><summary>Apakah ini sama dengan Habit Coach di aplikasi?</summary><p>Tidak. Kalender ini adalah starter kit edukasi dan refleksi. Habit Coach di aplikasi lebih personal karena bisa diarahkan menjadi rencana 7 hari sesuai kondisi dan progres Bunda.</p></details>
+        <details><summary>Apakah panduan ini menjamin hamil?</summary><p>Tidak. Panduan ini membantu Bunda lebih terarah, lebih sadar pola tubuh, dan lebih tenang menjalani ikhtiar. Kehamilan dipengaruhi banyak faktor dan tetap perlu konsultasi medis bila ada keluhan atau riwayat tertentu.</p></details>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container disclaimer">
+        <strong>Disclaimer medis:</strong> Informasi ini bersifat pendampingan promil harian umum dan edukasi personal, bukan pengganti diagnosis atau konsultasi medis dengan dokter kandungan. Jika Bunda mengalami nyeri hebat, perdarahan tidak wajar, siklus sangat tidak teratur, riwayat keguguran berulang, atau sedang menjalani terapi kesuburan, konsultasikan langsung dengan tenaga kesehatan tepercaya.
+      </div>
+    </section>
+  </main>
+
+  <div class="floating"><a class="btn btn-primary" href="https://app.siklusio.web.id/auth">Buka Siklusio 🌸</a></div>
+  <footer class="footer">
+    <div class="container">© Siklusio — Sahabat Terbaik di Setiap Fase Kewanitaanmu.</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Promil Hemat Planner | Siklusio</title>
+  <meta name="description" content="Planner aplikatif untuk membantu Bunda dan suami menyiapkan anggaran promil, konsultasi, vitamin, testpack, pemeriksaan, dan tabungan kehamilan dengan lebih tenang." />
+  <meta name="theme-color" content="#ec4899" />
+  <meta property="og:title" content="Promil Hemat Planner | Siklusio" />
+  <meta property="og:description" content="Bonus digital aplikatif: susun target, hitung kebutuhan, kurangi bocor halus, dan ngobrol finansial promil bersama suami tanpa tegang." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --pink:#ec4899; --pink-dark:#db2777; --violet:#9333ea; --teal:#14b8a6;
+      --amber:#f59e0b; --green:#10b981; --red:#ef4444;
+      --slate-950:#020617; --slate-900:#0f172a; --slate-800:#1e293b; --slate-700:#334155;
+      --slate-600:#475569; --slate-500:#64748b; --slate-300:#cbd5e1; --slate-200:#e2e8f0; --slate-100:#f1f5f9; --slate-50:#f8fafc;
+      --surface:rgba(255,255,255,.82); --surface-strong:#fff; --border:rgba(236,72,153,.18);
+      --shadow:0 20px 58px rgba(236,72,153,.13); --shadow-sm:0 10px 30px rgba(15,23,42,.07);
+      --radius-xl:30px; --radius-lg:23px; --radius-md:17px; --radius-sm:13px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:"Plus Jakarta Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--slate-800); line-height:1.72; min-height:100vh;
+      background:
+        radial-gradient(circle at 5% 0%, rgba(236,72,153,.20), transparent 31%),
+        radial-gradient(circle at 100% 5%, rgba(147,51,234,.13), transparent 34%),
+        radial-gradient(circle at 14% 40%, rgba(20,184,166,.11), transparent 30%),
+        linear-gradient(135deg,#fdf2f8 0%,#faf5ff 50%,#f0fdfa 100%);
+    }
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E")}
+    a{color:inherit;text-decoration:none}
+    .container{width:min(760px,calc(100% - 28px));margin:0 auto;position:relative;z-index:1}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.78);backdrop-filter:blur(18px);border-bottom:1px solid rgba(236,72,153,.12)}
+    .topbar-inner{height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-family:Outfit,sans-serif;font-weight:800;color:var(--slate-900);letter-spacing:-.02em}
+    .brand-mark{width:34px;height:34px;border-radius:13px;background:linear-gradient(135deg,var(--pink),var(--violet));display:grid;place-items:center;color:white;box-shadow:0 12px 24px rgba(236,72,153,.26)}
+    .top-link{font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--pink),var(--pink-dark));padding:9px 12px;border-radius:999px;box-shadow:0 12px 22px rgba(236,72,153,.22);white-space:nowrap}
+    main{padding:24px 0 70px}
+    .cover{background:var(--surface);border:1px solid rgba(255,255,255,.78);box-shadow:var(--shadow);border-radius:var(--radius-xl);padding:22px;overflow:hidden;position:relative;margin-bottom:14px}
+    .cover:after{content:"";position:absolute;right:-44px;top:-56px;width:160px;height:160px;border-radius:999px;background:radial-gradient(circle,rgba(236,72,153,.21),transparent 70%)}
+    .eyebrow{display:inline-flex;align-items:center;gap:7px;color:var(--pink-dark);font-weight:800;font-size:12px;background:rgba(253,242,248,.92);border:1px solid rgba(236,72,153,.16);padding:7px 11px;border-radius:999px;position:relative;z-index:1}
+    h1,h2,h3{font-family:Outfit,sans-serif;color:var(--slate-900);line-height:1.12;margin:0;letter-spacing:-.03em}
+    h1{font-size:clamp(32px,9vw,52px);margin-top:14px;position:relative;z-index:1}
+    .grad{background:linear-gradient(135deg,var(--pink),var(--violet),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:15.5px;color:var(--slate-600);margin:14px 0 0;position:relative;z-index:1}
+    .mini-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;position:relative;z-index:1}
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;border-radius:999px;padding:7px 10px;background:white;border:1px solid rgba(236,72,153,.12);color:var(--slate-700);box-shadow:var(--shadow-sm)}
+    .toc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 24px}
+    .toc a{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.68);border:1px solid rgba(236,72,153,.12);border-radius:16px;padding:10px 11px;font-size:12.5px;font-weight:800;color:var(--slate-700);box-shadow:var(--shadow-sm)}
+    .section{margin:26px 0 0}
+    .section-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:12px}
+    .num{width:34px;height:34px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--violet));color:white;font-family:Outfit,sans-serif;font-weight:800;box-shadow:0 13px 25px rgba(236,72,153,.24);flex:0 0 auto}
+    h2{font-size:24px}.section-sub{font-size:13.5px;color:var(--slate-600);margin:5px 0 0}
+    .card{background:var(--surface);border:1px solid rgba(255,255,255,.78);box-shadow:var(--shadow-sm);border-radius:var(--radius-lg);padding:17px;margin:10px 0;overflow:hidden}
+    .card strong{color:var(--slate-900)}
+    .soft{background:linear-gradient(135deg,rgba(253,242,248,.9),rgba(250,245,255,.82));border-color:rgba(236,72,153,.14)}
+    .teal{background:linear-gradient(135deg,rgba(240,253,250,.92),rgba(255,255,255,.72));border-color:rgba(20,184,166,.16)}
+    .amber{background:linear-gradient(135deg,rgba(255,251,235,.9),rgba(255,255,255,.75));border-color:rgba(245,158,11,.18)}
+    .violet{background:linear-gradient(135deg,rgba(250,245,255,.95),rgba(255,255,255,.75));border-color:rgba(147,51,234,.15)}
+    h3{font-size:19px;margin-bottom:7px}.small{font-size:13px;color:var(--slate-600)}
+    .note{font-size:13px;color:var(--slate-600);background:rgba(255,255,255,.7);border:1px dashed rgba(236,72,153,.23);padding:12px;border-radius:16px;margin-top:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .metric{background:#fff;border:1px solid rgba(236,72,153,.12);border-radius:18px;padding:13px;box-shadow:0 8px 20px rgba(15,23,42,.04)}
+    .metric .label{font-size:11px;color:var(--slate-500);font-weight:800;text-transform:uppercase;letter-spacing:.05em}.metric .value{font-family:Outfit,sans-serif;font-size:23px;font-weight:800;color:var(--slate-900);margin-top:2px}.metric .desc{font-size:12px;color:var(--slate-600);margin-top:3px}
+    .list{display:grid;gap:9px;margin-top:10px}.item{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.7);border:1px solid rgba(236,72,153,.10);border-radius:16px;padding:11px}.check{width:24px;height:24px;border-radius:999px;background:#fff;display:grid;place-items:center;flex:0 0 auto;color:var(--pink);font-weight:900;border:1px solid rgba(236,72,153,.2)}
+    .table-wrap{overflow:auto;border-radius:18px;border:1px solid rgba(236,72,153,.12);background:white;margin-top:10px}table{width:100%;border-collapse:collapse;min-width:520px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--slate-100);font-size:13px;vertical-align:top}th{background:#fdf2f8;color:var(--slate-700);font-size:12px;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border-bottom:0}.right{text-align:right}.tag{display:inline-flex;font-size:11px;font-weight:800;border-radius:999px;padding:4px 8px;background:#fdf2f8;color:var(--pink-dark);white-space:nowrap}
+    .input-grid{display:grid;gap:10px;margin-top:12px}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:800;color:var(--slate-700)}input,select,textarea{width:100%;border:1px solid rgba(236,72,153,.16);border-radius:15px;background:rgba(255,255,255,.85);padding:12px 13px;font:inherit;font-size:14px;color:var(--slate-800);outline:none}input:focus,textarea:focus,select:focus{border-color:var(--pink);box-shadow:0 0 0 4px rgba(236,72,153,.10)}textarea{min-height:98px;resize:vertical}.calc-result{display:grid;gap:9px;margin-top:14px}.result-row{display:flex;justify-content:space-between;gap:12px;background:#fff;border:1px solid rgba(20,184,166,.13);padding:12px;border-radius:16px}.result-row span:first-child{font-size:12px;color:var(--slate-600);font-weight:800}.result-row span:last-child{font-family:Outfit,sans-serif;font-size:18px;color:var(--slate-900);font-weight:800;text-align:right}.progress{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:12px}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--pink),var(--teal));border-radius:999px;transition:.25s ease}.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{border:0;border-radius:999px;padding:12px 15px;font-weight:900;cursor:pointer;font:inherit;font-size:13px}.btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:white;box-shadow:0 12px 24px rgba(236,72,153,.22)}.btn-light{background:white;color:var(--slate-700);border:1px solid rgba(236,72,153,.14)}
+    .checkbox-list{display:grid;gap:8px;margin-top:10px}.cb{display:flex;gap:10px;background:rgba(255,255,255,.76);border:1px solid rgba(236,72,153,.10);border-radius:15px;padding:11px;font-size:13.5px}.cb input{width:18px;height:18px;margin-top:3px;accent-color:var(--pink);flex:0 0 auto}.quote{font-family:Outfit,sans-serif;font-size:20px;line-height:1.35;color:var(--slate-900);padding:18px;border-radius:22px;background:#fff;border:1px solid rgba(236,72,153,.14);box-shadow:var(--shadow-sm)}
+    .script{background:#fff;border:1px solid rgba(236,72,153,.14);border-radius:18px;padding:14px;font-size:13.5px;color:var(--slate-700);white-space:pre-wrap}.script b{color:var(--pink-dark)}
+    .footer{margin-top:30px;text-align:center;color:var(--slate-500);font-size:12px}.cta-box{text-align:center;background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(147,51,234,.10),rgba(20,184,166,.10));border:1px solid rgba(236,72,153,.16);border-radius:26px;padding:20px;margin-top:22px}.cta-box h3{font-size:22px}.cta-box p{margin:8px 0 0;color:var(--slate-600);font-size:14px}
+    .print-hint{display:none}
+    @media (max-width:640px){
+      .container{width:min(100% - 24px,760px)} main{padding-top:16px}.topbar-inner{height:58px}.brand{font-size:15px}.brand-mark{width:31px;height:31px;border-radius:12px}.top-link{font-size:11px;padding:8px 10px}.cover{padding:18px;border-radius:25px}h1{font-size:34px}.lead{font-size:14.5px}.toc{grid-template-columns:1fr}.toc a{padding:10px}.section{margin-top:24px}.section-head{gap:9px}.num{width:31px;height:31px;border-radius:12px}h2{font-size:22px}.card{padding:15px;border-radius:21px}.grid,.grid3{grid-template-columns:1fr}.metric .value{font-size:22px}table{min-width:620px}th,td{padding:10px}.result-row span:last-child{font-size:16px}.btn{width:100%;justify-content:center}.btn-row{display:grid}.quote{font-size:18px}
+    }
+    @media print{body{background:#fff}.topbar,.toc,.btn-row,.cta-box{display:none}.container{width:100%;max-width:760px}.card,.cover{box-shadow:none;border:1px solid #e5e7eb;background:#fff}.section{break-inside:avoid}.print-hint{display:block}.container{position:static}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#top"><span class="brand-mark">🌸</span><span>Siklusio</span></a>
+      <a class="top-link" href="https://app.siklusio.web.id/auth">Buka Aplikasi</a>
+    </div>
+  </div>
+
+  <main id="top">
+    <div class="container">
+      <section class="cover">
+        <span class="eyebrow">💰 Bonus Eksklusif Siklusio</span>
+        <h1>Promil <span class="grad">Hemat Planner</span></h1>
+        <p class="lead">Panduan praktis untuk membantu Bunda dan suami menyiapkan biaya promil, mengurangi bocor halus, dan membuat tabungan kehamilan terasa lebih mungkin dicapai.</p>
+        <div class="mini-meta">
+          <span class="pill">📱 Mobile friendly</span>
+          <span class="pill">🧾 Bisa langsung diisi</span>
+          <span class="pill">🤝 Cocok dibahas berdua</span>
+        </div>
+      </section>
+
+      <nav class="toc" aria-label="Daftar isi">
+        <a href="#mulai">1. Mulai dari angka aman</a>
+        <a href="#peta">2. Peta biaya promil</a>
+        <a href="#kalkulator">3. Kalkulator tabungan</a>
+        <a href="#prioritas">4. Prioritas 30 hari</a>
+        <a href="#bocor">5. Tutup bocor halus</a>
+        <a href="#suami">6. Ngobrol dengan suami</a>
+        <a href="#template">7. Template worksheet</a>
+        <a href="#disclaimer">8. Catatan aman</a>
+      </nav>
+
+      <section class="section" id="mulai">
+        <div class="section-head"><div class="num">1</div><div><h2>Mulai dari angka aman, bukan angka sempurna</h2><p class="section-sub">Tujuan planner ini bukan bikin Bunda pelit. Tujuannya agar promil tidak terasa seperti beban mendadak setiap bulan.</p></div></div>
+        <div class="card soft">
+          <h3>Prinsip 3 kantong promil</h3>
+          <div class="list">
+            <div class="item"><div class="check">1</div><div><strong>Kantong rutin</strong><br><span class="small">Biaya yang hampir pasti berulang: vitamin, testpack, transport kontrol, paket data, atau kebutuhan kecil lain.</span></div></div>
+            <div class="item"><div class="check">2</div><div><strong>Kantong medis</strong><br><span class="small">Biaya yang mungkin muncul: konsultasi, USG, pemeriksaan lab, obat dari dokter, atau evaluasi lanjutan.</span></div></div>
+            <div class="item"><div class="check">3</div><div><strong>Kantong tenang</strong><br><span class="small">Dana cadangan agar Bunda tidak panik saat butuh kontrol lebih cepat, beli kebutuhan tambahan, atau mengatur jadwal ulang.</span></div></div>
+          </div>
+          <div class="note">Mulai dari angka kecil boleh. Konsisten Rp10.000–Rp20.000 per hari sering terasa lebih ringan daripada menunggu “nanti kalau ada sisa”.</div>
+        </div>
+      </section>
+
+      <section class="section" id="peta">
+        <div class="section-head"><div class="num">2</div><div><h2>Peta biaya promil yang realistis</h2><p class="section-sub">Isi dengan angka Bunda sendiri. Tabel ini sengaja dibuat fleksibel karena biaya setiap kota, klinik, dan kondisi pasangan bisa berbeda.</p></div></div>
+        <div class="card">
+          <h3>Checklist kategori biaya</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Kategori</th><th>Contoh kebutuhan</th><th>Prioritas</th><th>Catatan Bunda</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Vitamin & nutrisi</strong></td><td>Asam folat, vitamin dari dokter, makanan bergizi</td><td><span class="tag">Rutin</span></td><td>Isi sesuai kebiasaan bulanan</td></tr>
+                <tr><td><strong>Tracking promil</strong></td><td>Testpack, kalender siklus, OPK bila dipakai</td><td><span class="tag">Opsional</span></td><td>Jangan boros testpack saat belum waktunya</td></tr>
+                <tr><td><strong>Konsultasi</strong></td><td>Dokter umum / bidan / Sp.OG sesuai kebutuhan</td><td><span class="tag">Penting</span></td><td>Prioritaskan jika siklus sangat tidak teratur / keluhan berat</td></tr>
+                <tr><td><strong>Pemeriksaan</strong></td><td>USG, lab, analisis sperma, cek lanjutan sesuai arahan medis</td><td><span class="tag">Situasional</span></td><td>Ikuti rekomendasi tenaga kesehatan</td></tr>
+                <tr><td><strong>Transport & waktu</strong></td><td>Ongkos, parkir, izin kerja, makan saat kontrol</td><td><span class="tag">Sering lupa</span></td><td>Ini sering jadi bocor kecil</td></tr>
+                <tr><td><strong>Dana tenang</strong></td><td>Cadangan mendadak, kontrol ulang, kebutuhan tak terduga</td><td><span class="tag">Wajib kecil</span></td><td>Mulai 5–10% dari budget promil</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card teal">
+          <h3>Aturan sederhana</h3>
+          <p class="small">Kalau budget terbatas, jangan mulai dari “semua harus dibeli”. Mulai dari <strong>yang paling berdampak dan paling aman</strong>: catat siklus dengan rapi, perbaiki kebiasaan dasar, siapkan dana kontrol, lalu baru tambah alat/produk lain sesuai kebutuhan.</p>
+        </div>
+      </section>
+
+      <section class="section" id="kalkulator">
+        <div class="section-head"><div class="num">3</div><div><h2>Kalkulator tabungan promil</h2><p class="section-sub">Isi angka kasar dulu. Hasilnya bisa dipakai untuk menentukan target harian atau mingguan.</p></div></div>
+        <div class="card soft">
+          <h3>Hitung target Bunda</h3>
+          <div class="input-grid">
+            <div class="field"><label for="target">Target dana promil / kehamilan</label><input id="target" inputmode="numeric" value="2000000" /></div>
+            <div class="grid">
+              <div class="field"><label for="current">Tabungan saat ini</label><input id="current" inputmode="numeric" value="250000" /></div>
+              <div class="field"><label for="months">Mau dicapai dalam berapa bulan?</label><input id="months" inputmode="numeric" value="6" /></div>
+            </div>
+            <div class="grid">
+              <div class="field"><label for="monthly">Kemampuan menabung per bulan</label><input id="monthly" inputmode="numeric" value="250000" /></div>
+              <div class="field"><label for="buffer">Dana tenang tambahan (%)</label><input id="buffer" inputmode="numeric" value="10" /></div>
+            </div>
+          </div>
+          <div class="btn-row"><button class="btn btn-primary" onclick="calculate()">Hitung Planner</button><button class="btn btn-light" onclick="window.print()">Cetak / Simpan PDF</button></div>
+          <div class="calc-result" aria-live="polite">
+            <div class="result-row"><span>Total target + dana tenang</span><span id="totalNeed">Rp0</span></div>
+            <div class="result-row"><span>Sisa yang perlu disiapkan</span><span id="remaining">Rp0</span></div>
+            <div class="result-row"><span>Perlu ditabung per bulan</span><span id="perMonth">Rp0</span></div>
+            <div class="result-row"><span>Perlu ditabung per hari</span><span id="perDay">Rp0</span></div>
+            <div class="result-row"><span>Status kemampuan saat ini</span><span id="statusText">-</span></div>
+          </div>
+          <div class="progress"><div class="bar" id="progressBar"></div></div>
+          <p class="note" id="calcNote">Tips akan muncul setelah dihitung.</p>
+        </div>
+      </section>
+
+      <section class="section" id="prioritas">
+        <div class="section-head"><div class="num">4</div><div><h2>Prioritas 30 hari: jangan beli semua sekaligus</h2><p class="section-sub">Ini bukan tantangan belanja. Ini peta keputusan agar uang promil lebih terarah.</p></div></div>
+        <div class="grid">
+          <div class="card"><h3>Minggu 1<br><span class="grad">Rapikan data</span></h3><p class="small">Catat HPHT, panjang siklus, gejala yang sering muncul, dan kebiasaan yang paling sering bolong.</p><div class="checkbox-list"><label class="cb"><input type="checkbox"> Aku tahu tanggal haid terakhir</label><label class="cb"><input type="checkbox"> Aku tahu kisaran panjang siklusku</label><label class="cb"><input type="checkbox"> Aku mencatat gejala utama</label></div></div>
+          <div class="card"><h3>Minggu 2<br><span class="grad">Tentukan budget rutin</span></h3><p class="small">Tentukan batas vitamin, testpack, transport, dan kebutuhan kecil bulanan agar tidak bocor diam-diam.</p><div class="checkbox-list"><label class="cb"><input type="checkbox"> Budget rutin bulanan sudah ditulis</label><label class="cb"><input type="checkbox"> Batas testpack sudah ditentukan</label><label class="cb"><input type="checkbox"> Ongkos kontrol sudah masuk hitungan</label></div></div>
+          <div class="card"><h3>Minggu 3<br><span class="grad">Siapkan dana medis</span></h3><p class="small">Buat amplop khusus untuk kontrol atau pemeriksaan jika memang dibutuhkan. Jangan tunggu panik dulu.</p><div class="checkbox-list"><label class="cb"><input type="checkbox"> Dana kontrol mulai dipisah</label><label class="cb"><input type="checkbox"> Pilihan klinik/tenaga kesehatan dicatat</label><label class="cb"><input type="checkbox"> Suami tahu rencana biaya</label></div></div>
+          <div class="card"><h3>Minggu 4<br><span class="grad">Review & tenangkan hati</span></h3><p class="small">Lihat mana yang realistis, mana yang harus ditunda, dan mana yang perlu jadi prioritas bulan depan.</p><div class="checkbox-list"><label class="cb"><input type="checkbox"> Pengeluaran promil direview</label><label class="cb"><input type="checkbox"> Target bulan depan ditentukan</label><label class="cb"><input type="checkbox"> Ada dana kecil untuk ketenangan</label></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="bocor">
+        <div class="section-head"><div class="num">5</div><div><h2>Tutup bocor halus yang sering tidak terasa</h2><p class="section-sub">Bunda tidak harus menghilangkan semua hal menyenangkan. Cukup cari 2–3 pos yang bisa dialihkan pelan-pelan.</p></div></div>
+        <div class="card amber">
+          <h3>Audit 7 hari</h3>
+          <p class="small">Selama 7 hari, catat pengeluaran kecil yang biasanya “nggak terasa”. Setelah itu pilih mana yang mau dikurangi, bukan dihapus total.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Pos bocor</th><th>Contoh</th><th>Kurangi berapa?</th><th>Dialihkan ke</th></tr></thead>
+              <tbody>
+                <tr><td>Jajan impulsif</td><td>Minuman manis, snack checkout</td><td>Rp10.000/hari</td><td>Dana vitamin / kontrol</td></tr>
+                <tr><td>Ongkir kecil</td><td>Checkout satuan berkali-kali</td><td>Rp20.000/minggu</td><td>Dana testpack bijak</td></tr>
+                <tr><td>Langganan jarang dipakai</td><td>Apps, streaming, membership</td><td>Rp30.000/bulan</td><td>Dana tenang</td></tr>
+                <tr><td>Belanja karena cemas</td><td>Produk promil random tanpa arahan</td><td>Sesuai kondisi</td><td>Konsultasi yang lebih tepat</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note">Kalimat pengingat: <strong>“Aku bukan sedang membatasi rezeki. Aku sedang memberi arah untuk ikhtiarku.”</strong></div>
+        </div>
+      </section>
+
+      <section class="section" id="suami">
+        <div class="section-head"><div class="num">6</div><div><h2>Ngobrol finansial promil dengan suami tanpa tegang</h2><p class="section-sub">Topik uang bisa sensitif. Pakai bahasa “kita”, bukan “kamu kurang” atau “aku sendirian”.</p></div></div>
+        <div class="card violet">
+          <h3>Template chat lembut</h3>
+          <div class="script"><b>Bunda:</b> Mas, aku pengin kita punya catatan kecil buat biaya promil, bukan karena mau bikin berat, tapi biar kita lebih tenang. Bulan ini kita coba sisihkan sedikit dulu ya?
+
+<b>Suami:</b> Buat apa aja kira-kira?
+
+<b>Bunda:</b> Yang utama buat kebutuhan rutin, dana kontrol kalau perlu, sama dana tenang kecil. Nggak harus besar, yang penting kita kompak dan nggak dadakan terus.</div>
+        </div>
+        <div class="card">
+          <h3>Agenda ngobrol 15 menit</h3>
+          <div class="checkbox-list">
+            <label class="cb"><input type="checkbox"> Sepakati target kecil yang tidak memberatkan.</label>
+            <label class="cb"><input type="checkbox"> Pilih rekening/amplop khusus promil.</label>
+            <label class="cb"><input type="checkbox"> Tentukan batas belanja testpack atau produk promil.</label>
+            <label class="cb"><input type="checkbox"> Tentukan kapan perlu konsultasi, bukan hanya menebak-nebak.</label>
+            <label class="cb"><input type="checkbox"> Akhiri dengan kalimat saling menguatkan, bukan menyalahkan.</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="template">
+        <div class="section-head"><div class="num">7</div><div><h2>Worksheet yang bisa Bunda pakai bulan ini</h2><p class="section-sub">Screenshot bagian ini atau cetak halaman. Isi pelan-pelan bersama suami.</p></div></div>
+        <div class="card soft">
+          <h3>Rencana budget bulan ini</h3>
+          <div class="input-grid">
+            <div class="field"><label>Target tabungan bulan ini</label><input placeholder="Contoh: Rp300.000" /></div>
+            <div class="field"><label>Biaya rutin promil</label><input placeholder="Vitamin, testpack, transport, dll." /></div>
+            <div class="field"><label>Biaya yang bisa dikurangi</label><input placeholder="Contoh: jajan minuman 3x seminggu" /></div>
+            <div class="field"><label>Hal yang perlu ditunda dulu</label><input placeholder="Contoh: beli alat tambahan yang belum urgent" /></div>
+            <div class="field"><label>Kalimat penyemangat bulan ini</label><textarea placeholder="Contoh: Pelan-pelan, yang penting kita tetap kompak."></textarea></div>
+          </div>
+        </div>
+        <div class="card teal">
+          <h3>Review akhir bulan</h3>
+          <div class="grid3">
+            <div class="metric"><div class="label">Terkumpul</div><div class="value">Rp____</div><div class="desc">Berapa pun tetap progres.</div></div>
+            <div class="metric"><div class="label">Bocor</div><div class="value">Rp____</div><div class="desc">Bukan untuk disalahkan, tapi dipahami.</div></div>
+            <div class="metric"><div class="label">Target depan</div><div class="value">Rp____</div><div class="desc">Buat lebih realistis.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="disclaimer">
+        <div class="section-head"><div class="num">8</div><div><h2>Catatan aman untuk Bunda</h2><p class="section-sub">Planner ini membantu mengatur ikhtiar, bukan menggantikan arahan medis atau keputusan keluarga.</p></div></div>
+        <div class="card amber">
+          <p class="small"><strong>Disclaimer:</strong> Informasi di halaman ini bersifat edukasi umum dan perencanaan finansial sederhana, bukan diagnosis medis, bukan nasihat investasi, dan bukan pengganti konsultasi dengan dokter kandungan, bidan, tenaga kesehatan, atau penasihat keuangan. Jika Bunda mengalami nyeri hebat, perdarahan tidak wajar, siklus sangat tidak teratur, atau promil sudah berjalan lama tanpa hasil, pertimbangkan konsultasi langsung ke tenaga kesehatan tepercaya.</p>
+        </div>
+        <div class="cta-box">
+          <h3>Ingin tracking promil lebih rapi?</h3>
+          <p>Gunakan Siklusio untuk mencatat siklus, gejala, habits harian, masa subur, dan tabungan promil dalam satu tempat.</p>
+          <div class="btn-row" style="justify-content:center"><a class="btn btn-primary" href="https://app.siklusio.web.id/auth">Buka Siklusio</a></div>
+        </div>
+      </section>
+
+      <p class="footer">© Siklusio — Sahabat Terbaik di Setiap Fase Kewanitaanmu.</p>
+    </div>
+  </main>
+
+  <script>
+    const rupiah = (n) => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Math.max(0, Math.round(n || 0)));
+    const clean = (v) => Number(String(v || '').replace(/[^0-9]/g,'')) || 0;
+    function calculate(){
+      const target = clean(document.getElementById('target').value);
+      const current = clean(document.getElementById('current').value);
+      const months = Math.max(1, clean(document.getElementById('months').value));
+      const monthly = clean(document.getElementById('monthly').value);
+      const bufferPct = clean(document.getElementById('buffer').value);
+      const totalNeed = target * (1 + bufferPct / 100);
+      const remaining = Math.max(0, totalNeed - current);
+      const perMonth = remaining / months;
+      const perDay = perMonth / 30;
+      const progress = totalNeed ? Math.min(100, (current / totalNeed) * 100) : 0;
+      let status = 'Aman';
+      let note = 'Bagus, Bunda. Target ini terlihat masih masuk akal dengan kemampuan menabung saat ini.';
+      if(monthly < perMonth){
+        status = 'Perlu disesuaikan';
+        const gap = perMonth - monthly;
+        note = `Agar lebih ringan, Bunda bisa menambah waktu target, menurunkan target awal, atau mencari penghematan sekitar ${rupiah(gap)} per bulan.`;
+      }
+      if(remaining === 0){
+        status = 'Target tercapai';
+        note = 'Alhamdulillah, target sudah terpenuhi. Berikutnya fokus menjaga dana tenang agar tidak terpakai untuk hal yang kurang prioritas.';
+      }
+      document.getElementById('totalNeed').textContent = rupiah(totalNeed);
+      document.getElementById('remaining').textContent = rupiah(remaining);
+      document.getElementById('perMonth').textContent = rupiah(perMonth);
+      document.getElementById('perDay').textContent = rupiah(perDay);
+      document.getElementById('statusText').textContent = status;
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('calcNote').textContent = note;
+    }
+    ['target','current','months','monthly','buffer'].forEach(id=>{
+      const el = document.getElementById(id);
+      el.addEventListener('input', calculate);
+      el.addEventListener('blur', () => { if(id !== 'months' && id !== 'buffer') el.value = clean(el.value).toLocaleString('id-ID'); });
+      if(id !== 'months' && id !== 'buffer') el.value = clean(el.value).toLocaleString('id-ID');
+    });
+    calculate();
+  </script>
+</body>
+</html>

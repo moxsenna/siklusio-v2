@@ -63,3 +63,8 @@ test-api.js
 backend/index_restored.ts
 metadata.json
 siklusio_documentation.html
+
+# Local agent run logs and terminals
+.agent-logs/
+agent-tools/
+terminals/

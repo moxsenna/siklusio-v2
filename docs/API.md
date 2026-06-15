@@ -178,7 +178,8 @@ Authorization: Bearer <supabase_jwt_session_token>
 - **File Rute**: `backend/src/routes/webhook.mayar.route.ts`
 - **File Controller**: `backend/src/controllers/webhook.mayar.controller.ts`
 - **Autentikasi**: Khusus (`verifyWebhookToken`)
-- **Deskripsi**: Dipanggil otomatis oleh server Mayar saat status transaksi pengguna menjadi sukses untuk mengaktifkan akun atau menambahkan kredit AI secara instan.
+- **Deskripsi**: Dipanggil otomatis oleh server Mayar saat status transaksi pengguna menjadi sukses untuk mengaktifkan akun atau menambahkan kredit AI secara instan. Bila `MAYAR_MULTI_APP_ROUTER_ENABLED=true`, payload VibeNovel (`extraData.app=vibenovel`, `flow=credit_topup`) diteruskan ke VibeNovel webhook tanpa memproses logika Siklusio.
+- **Env router**: `MAYAR_MULTI_APP_ROUTER_ENABLED` (default `false`), `VIBENOVEL_MAYAR_WEBHOOK_URL`, opsional `VIBENOVEL_MAYAR_FORWARD_TOKEN`.
 
 ---
 

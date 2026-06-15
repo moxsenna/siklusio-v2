@@ -49,7 +49,7 @@ test("landing frames price with immediate outcome before the primary hero CTA", 
   const heroHtml = getLandingHeroHtml();
   const outcome = "Dalam 5 menit setelah login";
   const cta = "Mulai Promil Lebih Rapi Hari Ini";
-  const priceNote = "Premium Lifetime Rp37.000";
+  const priceNote = "Premium Lifetime Rp67.000";
 
   const outcomeIndex = heroHtml.indexOf(outcome);
   const ctaIndex = heroHtml.indexOf(cta);
@@ -90,7 +90,7 @@ test("checkout form explains payment method and redirect before submit", () => {
 
   const formHtml = checkoutHtml.slice(formStart, formEnd);
   const submitLocalIndex = formHtml.indexOf("id=\"btnSubmit\"");
-  const totalIndex = formHtml.indexOf("Total hari ini Rp 37.000");
+  const totalIndex = formHtml.indexOf("Total hari ini Rp 67.000");
   const paymentMethodIndex = formHtml.indexOf(
     "Mayar akan menampilkan metode pembayaran yang tersedia",
   );
@@ -122,6 +122,6 @@ test("checkout tracks submit attempts, validation errors, and Mayar redirect sta
   assert.ok(redirectEventIndex < redirectHrefIndex);
   assert.match(redirectEventBlock, /initiate_checkout_event_id:\s*initiateCheckoutEventId/);
   assert.match(redirectEventBlock, /transaction_id:\s*result\.transactionId\s*\|\|\s*''/);
-  assert.match(redirectEventBlock, /value:\s*result\.finalAmount\s*\|\|\s*37000/);
+  assert.match(redirectEventBlock, /value:\s*result\.finalAmount\s*\|\|\s*67000/);
   assert.match(redirectEventBlock, /currency:\s*'IDR'/);
 });

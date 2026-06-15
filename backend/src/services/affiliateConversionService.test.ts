@@ -19,18 +19,18 @@ test("calculateAffiliateCommission returns zero for zero-amount orders when affi
 });
 
 test("calculateAffiliateCommission applies percentage commission", () => {
-  const commission = calculateAffiliateCommission(37000, {
+  const commission = calculateAffiliateCommission(67000, {
     id: "aff-1",
     commission_type: "percentage",
     commission_value: 10,
     allow_zero_order_commission: false,
   });
 
-  assert.equal(commission, 3700);
+  assert.equal(commission, 6700);
 });
 
 test("calculateAffiliateCommission applies flat commission", () => {
-  const commission = calculateAffiliateCommission(37000, {
+  const commission = calculateAffiliateCommission(67000, {
     id: "aff-1",
     commission_type: "flat",
     commission_value: 15000,
@@ -135,17 +135,17 @@ test("recordWebhookAffiliateConversion creates conversion once for paid checkout
     },
     session: {
       id: "session-1",
-      final_amount: 37000,
+      final_amount: 67000,
       mayar_transaction_id: "tx-1",
     },
     mayarTransactionId: "tx-1",
   });
 
   assert.equal(result.created, true);
-  assert.equal(result.commissionAmount, 3700);
+  assert.equal(result.commissionAmount, 6700);
   assert.equal(inserts.length, 1);
   assert.equal(inserts[0].affiliate_id, "aff-1");
-  assert.equal(inserts[0].commission_amount, 3700);
+  assert.equal(inserts[0].commission_amount, 6700);
   assert.equal(inserts[0].mayar_transaction_id, "tx-1");
 });
 
@@ -192,7 +192,7 @@ test("duplicate webhook affiliate conversion is idempotent", async () => {
     buyer: {
       email: "buyer@example.com",
     },
-    session: { id: "session-1", final_amount: 37000 },
+    session: { id: "session-1", final_amount: 67000 },
     mayarTransactionId: "tx-dup",
   });
 
@@ -236,7 +236,7 @@ test("recordWebhookAffiliateConversion skips insert when affiliate code is unkno
     supabaseAdmin: supabaseAdmin as any,
     affiliateCode: "UNKNOWN",
     buyer: { email: "buyer@example.com" },
-    session: { id: "session-1", final_amount: 37000 },
+    session: { id: "session-1", final_amount: 67000 },
     mayarTransactionId: "tx-1",
   });
 
@@ -265,7 +265,7 @@ test("recordAdminManualAffiliateConversion does not duplicate conversion for sam
             return {
               data: {
                 id: "session-1",
-                final_amount: 37000,
+                final_amount: 67000,
                 mayar_transaction_id: null,
               },
               error: null,
@@ -323,7 +323,7 @@ test("recordAdminManualAffiliateConversion does not duplicate conversion for sam
     email: "buyer@example.com",
     buyerName: "Buyer",
     buyerWhatsapp: "08123456789",
-    amount: 37000,
+    amount: 67000,
   });
 
   assert.equal(result.created, false);
@@ -355,7 +355,7 @@ test("recordAdminManualAffiliateConversion creates conversion with existing comm
             return {
               data: {
                 id: "session-1",
-                final_amount: 37000,
+                final_amount: 67000,
                 mayar_transaction_id: "tx-manual",
               },
               error: null,
@@ -417,8 +417,8 @@ test("recordAdminManualAffiliateConversion creates conversion with existing comm
   });
 
   assert.equal(result.created, true);
-  assert.equal(result.commissionAmount, 3700);
+  assert.equal(result.commissionAmount, 6700);
   assert.equal(inserts.length, 1);
-  assert.equal(inserts[0].commission_amount, 3700);
-  assert.equal(inserts[0].amount_paid, 37000);
+  assert.equal(inserts[0].commission_amount, 6700);
+  assert.equal(inserts[0].amount_paid, 67000);
 });

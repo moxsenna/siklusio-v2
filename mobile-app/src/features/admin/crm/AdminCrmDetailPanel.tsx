@@ -139,7 +139,7 @@ export function AdminCrmDetailPanel({
         <TextInput
           value={overrideAmount}
           onChangeText={onOverrideAmountChange}
-          placeholder="Nominal rupiah (default: 37000)"
+          placeholder="Nominal rupiah (default: 67000)"
           keyboardType="numeric"
           style={styles.formInput}
         />

@@ -60,7 +60,7 @@ export async function sendWebhookPurchaseMetaCapi(params: {
   };
   const customData = {
     currency: "IDR",
-    value: Number(session?.final_amount) || Number(fallbackAmount) || 37000,
+    value: Number(session?.final_amount) || Number(fallbackAmount) || 67000,
     content_name: "Siklusio Premium Lifetime",
     content_type: "product",
     content_ids: ["siklusio_premium_lifetime"],

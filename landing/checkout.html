@@ -12,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Aktivasi Siklusio Premium Lifetime — sekali bayar untuk pendamping promil yang lebih terarah, tenang, dan privat.">
   <meta name="theme-color" content="#ec4899">
-  <title>Aktivasi Siklusio Premium Lifetime — Rp 37.000 Sekali Bayar</title>
+  <title>Aktivasi Siklusio Premium Lifetime — Rp 67.000 Sekali Bayar</title>
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,7 +281,7 @@
 
       <section class="hero-card">
         <div class="eyebrow">Aktivasi Premium Siklusio</div>
-        <h1 class="hero-title">Premium Lifetime Rp 37.000 untuk promil yang <span class="grad-text">lebih rapi dan tenang.</span></h1>
+        <h1 class="hero-title">Premium Lifetime Rp 67.000 untuk promil yang <span class="grad-text">lebih rapi dan tenang.</span></h1>
         <p class="hero-sub">
           Isi akun, lanjut bayar aman via Mayar, lalu login memakai email dan kata sandi yang Bunda buat di sini.
         </p>
@@ -353,7 +353,7 @@
             </details>
 
             <div class="payment-method-note">
-              <strong>Total hari ini Rp 37.000 - sekali bayar.</strong>
+              <strong>Total hari ini Rp 67.000 - sekali bayar.</strong>
               Bunda akan diarahkan ke halaman pembayaran Mayar. Mayar akan menampilkan metode pembayaran yang tersedia sebelum Bunda menyelesaikan pembayaran.
             </div>
 
@@ -388,7 +388,7 @@
 
           <div class="price-card">
             <div class="price-label">Total aktivasi hari ini</div>
-            <div class="price-value">Rp 37.000</div>
+            <div class="price-value">Rp 67.000</div>
             <p class="price-meta">Sekali bayar untuk akses penuh. Tidak ada langganan bulanan.</p>
             <div id="summaryReferralConfirm" style="display:none; font-size:12px; color:#0f766e; font-weight:bold; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(236,72,153,.15);">
               Rekomendasi dari <span id="summaryReferralCode" style="font-weight:900;text-transform:uppercase;"></span> sudah aktif.
@@ -523,7 +523,7 @@
         event: 'siklusio_initiate_checkout',
         initiate_checkout_event_id: initiateCheckoutEventId,
         content_name: 'Siklusio Premium Lifetime Access',
-        value: 37000,
+        value: 67000,
         currency: 'IDR'
       });
       console.log('--> GTM Event: siklusio_initiate_checkout with event_id:', initiateCheckoutEventId);
@@ -539,10 +539,10 @@
       fbc: fbc,
       ecommerce: {
         currency: 'IDR',
-        value: 37000,
+        value: 67000,
         items: [{
           item_name: 'Siklusio Premium Lifetime Access',
-          price: 37000,
+          price: 67000,
           quantity: 1
         }]
       }
@@ -659,7 +659,7 @@
       pushCheckoutEvent({
         event: 'checkout_form_submit_attempt',
         initiate_checkout_event_id: initiateCheckoutEventId,
-        value: 37000,
+        value: 67000,
         currency: 'IDR'
       });
 
@@ -753,7 +753,7 @@
           event: 'siklusio_lead',
           lead_event_id: leadEventId,
           content_name: 'Siklusio Premium Lifetime Access',
-          value: result.finalAmount || 37000,
+          value: result.finalAmount || 67000,
           currency: 'IDR'
         });
         console.log('--> GTM Event: siklusio_lead with event_id:', leadEventId);
@@ -764,12 +764,12 @@
           coupon_applied: couponCode || '',
           ecommerce: {
             transaction_id: result.transactionId || 'TXN_' + Date.now(),
-            value: result.finalAmount || 37000,
+            value: result.finalAmount || 67000,
             currency: 'IDR',
             coupon: couponCode || '',
             items: [{
               item_name: 'Siklusio Premium Lifetime Access',
-              price: 37000,
+              price: 67000,
               quantity: 1
             }]
           }
@@ -780,7 +780,7 @@
           event: 'checkout_mayar_redirect_start',
           initiate_checkout_event_id: initiateCheckoutEventId,
           transaction_id: result.transactionId || '',
-          value: result.finalAmount || 37000,
+          value: result.finalAmount || 67000,
           currency: 'IDR'
         });
 

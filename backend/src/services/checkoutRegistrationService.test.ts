@@ -54,7 +54,7 @@ test("applyCouponDiscount applies nominal and percentage discounts from base che
       discount_type: "nominal",
       discount_value: 7000,
     }),
-    30000,
+    60000,
   );
   assert.equal(
     applyCouponDiscount(BASE_CHECKOUT_AMOUNT, {

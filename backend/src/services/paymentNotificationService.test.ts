@@ -66,7 +66,7 @@ test("sendWebhookPurchaseMetaCapi sends Purchase event and marks checkout sessio
     supabaseAdmin: supabaseAdmin as any,
     session: {
       id: "session-1",
-      final_amount: 37000,
+      final_amount: 67000,
       hashed_email: "hashed-email",
       hashed_phone: "hashed-phone",
       meta_test_event_code: "TESTCODE",
@@ -122,7 +122,7 @@ test("sendWebhookPurchaseMetaCapi marks session done when Meta env is missing", 
       executionCtx: { waitUntil() {} },
     } as any,
     supabaseAdmin: supabaseAdmin as any,
-    session: { id: "session-1", final_amount: 37000 },
+    session: { id: "session-1", final_amount: 67000 },
     email: "buyer@example.com",
     pending: { id: "pending-1", email: "buyer@example.com" },
     mayarTransactionId: "tx-1",
@@ -172,7 +172,7 @@ test("retryPaidSessionPurchaseMetaCapi retries Purchase for paid session without
     supabaseAdmin: supabaseAdmin as any,
     session: {
       id: "session-paid",
-      final_amount: 37000,
+      final_amount: 67000,
       mayar_transaction_id: "tx-dup-1",
       hashed_email: "hashed-email",
       meta_test_event_code: "TESTCODE",
@@ -194,7 +194,7 @@ test("scheduleMayarWebhookPaymentAutoresponder uses waitUntil for background exe
       id: "session-1",
       email: "buyer@example.com",
       whatsapp: "08123456789",
-      final_amount: 37000,
+      final_amount: 67000,
       mayar_transaction_id: "tx-1",
     },
     pending: {
@@ -221,7 +221,7 @@ test("scheduleAdminManualPaymentAutoresponder uses waitUntil for background exec
     },
     overrideId: "override-1",
     finalReference: "REF-1",
-    amount: 37000,
+    amount: 67000,
   });
 
   assert.equal(waitUntilCalls.length, 1);

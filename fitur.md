@@ -164,7 +164,7 @@ Ruang berbagi keluh kesah promil antar sesama pejuang garis dua di Indonesia yan
 
 ## 11. Sistem Afiliasi & Mayar Checkout Integration
 
-Model monetisasi premium satu kali bayar (_Lifetime Premium_ seharga Rp 37.000) yang terintegrasi secara mulus dengan sistem pemasaran afiliasi untuk menciptakan siklus pertumbuhan organik.
+Model monetisasi premium satu kali bayar (_Lifetime Premium_ seharga Rp 67.000) yang terintegrasi secara mulus dengan sistem pemasaran afiliasi untuk menciptakan siklus pertumbuhan organik.
 
 - **Mayar Checkout Integration:** Landing page (`landing/checkout.html`) menggunakan integrasi API dinamis _payment gateway_ Mayar untuk menerima pembayaran otomatis (E-Wallet, QRIS, Transfer Bank).
 - **Pendaftaran Afiliasi Mandiri (Self-Serve Affiliate):** Pengguna Premium dapat mendaftar sebagai mitra afiliasi secara gratis dari tab pengaturan. Mitra membuat kode referal unik (misalnya: `BUNDALINA`) yang otomatis bertindak sebagai kupon diskon 10% untuk pembeli baru. Sebagai gantinya, mitra afiliasi berhak atas komisi penjualan sebesar 20%.

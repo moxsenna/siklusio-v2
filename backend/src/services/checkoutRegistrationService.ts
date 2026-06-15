@@ -11,7 +11,7 @@ import { getSupabaseAdmin } from "./supabaseAdmin";
 
 export type BindingsContext = Context<{ Bindings: Env }>;
 
-export const BASE_CHECKOUT_AMOUNT = 37000;
+export const BASE_CHECKOUT_AMOUNT = 67000;
 export const MIN_PAID_CHECKOUT_AMOUNT = 10000;
 
 export type CheckoutRegisterInput = {

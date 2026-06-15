@@ -154,14 +154,14 @@ test("syncWebhookPaymentCrmLead upserts paid CRM lead for webhook payment", asyn
       affiliate_code: "AFF10",
     },
     mayarTransactionId: "tx-1",
-    fallbackAmount: 37000,
+    fallbackAmount: 67000,
   });
 
   assert.equal(rpcCalls.length, 1);
   assert.equal(rpcCalls[0].p_payment_status, "paid");
   assert.equal(rpcCalls[0].p_lead_status, "paid");
   assert.equal(rpcCalls[0].p_mayar_transaction_id, "tx-1");
-  assert.equal(rpcCalls[0].p_amount, 37000);
+  assert.equal(rpcCalls[0].p_amount, 67000);
 });
 
 test("syncWebhookPaymentCrmLead fails soft when CRM upsert errors", async () => {

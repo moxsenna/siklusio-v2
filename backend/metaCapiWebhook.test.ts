@@ -51,7 +51,7 @@ test("Paid webhook with no affiliate still sends Purchase", async (t) => {
               id: "session-123",
               email: "buyer@example.com",
               whatsapp: "08123456789",
-              final_amount: 37000,
+              final_amount: 67000,
               mayar_transaction_id: "tx-123",
               status: "pending",
               hashed_email: "hashed-email-val",
@@ -160,7 +160,7 @@ test("Paid webhook with no affiliate still sends Purchase", async (t) => {
   assert.equal(event.event_id, "purchase_tx-123");
   assert.equal(event.action_source, "website");
   assert.equal(event.custom_data.currency, "IDR");
-  assert.equal(event.custom_data.value, 37000);
+  assert.equal(event.custom_data.value, 67000);
   assert.deepEqual(event.custom_data.content_ids, ["siklusio_premium_lifetime"]);
   assert.equal(event.custom_data.order_id, "tx-123");
   assert.deepEqual(event.user_data.em, ["hashed-email-val"]);
@@ -258,7 +258,7 @@ test("Paid webhook duplicate with paid session but null purchase_capi_sent_at re
               id: "session-123",
               email: "buyer@example.com",
               whatsapp: "08123456789",
-              final_amount: 37000,
+              final_amount: 67000,
               mayar_transaction_id: "tx-123",
               status: "paid",
               hashed_email: "hashed-email-val",
@@ -372,7 +372,7 @@ test("Meta env missing should not break paid activation", async (t) => {
               id: "session-123",
               email: "buyer@example.com",
               whatsapp: "08123456789",
-              final_amount: 37000,
+              final_amount: 67000,
               mayar_transaction_id: "tx-123",
               status: "pending",
               hashed_email: "hashed-email-val",
@@ -497,7 +497,7 @@ test("Paid webhook updates only matched checkout session when same email has mul
                 id: "session-paid",
                 email: "buyer@example.com",
                 whatsapp: "08123456789",
-                final_amount: 37000,
+                final_amount: 67000,
                 mayar_transaction_id: "tx-paid",
                 status: "pending",
                 hashed_email: "hashed-email-val",

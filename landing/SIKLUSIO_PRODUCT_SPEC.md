@@ -105,7 +105,7 @@ Siklusio beroperasi dengan paradigma **"Kemandirian Server Gotong-Royong"**. Kam
 - Akses Ruang Komunitas umum (Tanpa opsi privasi tingkat lanjut).
 - _Call of Action:_ Mulai Akses Dasar.
 
-### 🌟 Premium Lifetime (Rp 37.000 - Sekali Bayar Selamanya)
+### 🌟 Premium Lifetime (Rp 67.000 - Sekali Bayar Selamanya)
 
 Ini adalah penawaran utama gotong-royong sekali seumur hidup untuk menjaga server web, AI, dan database Siklusio tetap independen.
 

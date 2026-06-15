@@ -14,7 +14,7 @@ const dummyContext = {
   email: "rani@example.com",
   no_hp: "081234567890",
   link_pembayaran: "https://imayar.link/contoh",
-  jumlah_pembayaran: "Rp 37.000",
+  jumlah_pembayaran: "Rp 67.000",
   status_pembayaran: "Berhasil",
   kode_kupon: "PROMIL10",
   kode_affiliate: "BUNDAJASMINE",

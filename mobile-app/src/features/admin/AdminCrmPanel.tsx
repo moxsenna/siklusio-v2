@@ -42,7 +42,7 @@ export default function AdminCrmPanel() {
 
   const [overrideReason, setOverrideReason] = useState("");
   const [overrideReference, setOverrideReference] = useState("");
-  const [overrideAmount, setOverrideAmount] = useState("37000");
+  const [overrideAmount, setOverrideAmount] = useState("67000");
   const [shouldActivate, setShouldActivate] = useState(true);
   const [noteText, setNoteText] = useState("");
 

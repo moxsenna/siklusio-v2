@@ -90,6 +90,8 @@ function RootLayoutNav() {
             <Stack.Screen name="payment-pending" options={{ headerShown: false }} />
             <Stack.Screen name="admin" options={{ headerShown: false }} />
             <Stack.Screen name="bonus" options={{ headerShown: false }} />
+            <Stack.Screen name="sanctuary" options={{ headerShown: false }} />
+            <Stack.Screen name="recipes" options={{ headerShown: false }} />
           </Stack>
         </SafeAreaProvider>
       </CycleProvider>

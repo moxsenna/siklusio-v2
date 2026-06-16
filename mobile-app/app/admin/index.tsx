@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Alert, Platform } from "react-native";
-import { router } from "expo-router";
-import { supabase } from "../src/lib/supabase";
-import { getSupabaseClientStatus } from "../src/lib/supabaseAccess";
+import { router, useLocalSearchParams } from "expo-router";
+import { supabase } from "../../src/lib/supabase";
+import { getSupabaseClientStatus } from "../../src/lib/supabaseAccess";
 import AdminAffiliatePanel from "@/src/features/admin/AdminAffiliatePanel";
 import AdminCrmPanel from "@/src/features/admin/AdminCrmPanel";
 import AdminWhatsappAutoresponderPanel from "@/src/features/admin/AdminWhatsappAutoresponderPanel";
@@ -13,11 +13,21 @@ import { AdminHeader } from "@/src/features/admin/AdminHeader";
 import { AdminTabs } from "@/src/features/admin/AdminTabs";
 import type { AdminTab } from "@/src/features/admin/adminTypes";
 
+const VALID_TABS: AdminTab[] = ["users", "crm", "moderation", "coupons", "affiliates", "whatsapp"];
+
 export default function AdminDashboard() {
+  const params = useLocalSearchParams<{ tab?: string }>();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
   const [userCount, setUserCount] = useState(0);
   const [modPendingCount, setModPendingCount] = useState(0);
+
+  // Read initial tab from query param (e.g. /admin?tab=affiliates)
+  useEffect(() => {
+    if (params.tab && VALID_TABS.includes(params.tab as AdminTab)) {
+      setActiveTab(params.tab as AdminTab);
+    }
+  }, [params.tab]);
 
   const handleUserCountChange = useCallback((count: number) => {
     setUserCount(count);

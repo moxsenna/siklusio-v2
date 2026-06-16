@@ -420,11 +420,9 @@ export function useCommunityFeed(currentUserId: string | null): UseCommunityFeed
       });
       if (!status.ready) throw new Error(status.error);
 
-      const { error: delErr } = await status.client
-        .from("community_posts")
-        .delete()
-        .eq("id", postId)
-        .eq("user_id", status.userId);
+      const { error: delErr } = await status.client.rpc("delete_own_community_post", {
+        p_post_id: postId,
+      });
       if (delErr) throw delErr;
       setPosts((prev) => prev.filter((p) => p.id !== postId));
       setReactions((prev) => {

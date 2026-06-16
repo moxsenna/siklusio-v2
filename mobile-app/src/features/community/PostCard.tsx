@@ -126,7 +126,7 @@ export const PostCard = React.memo(function PostCard({
 
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e1b20" }}>
-            {post.display_name}
+            {post.is_anonymous ? "Anonim" : post.display_name}
           </Text>
           <Text style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
             {dateLabel}
@@ -134,22 +134,24 @@ export const PostCard = React.memo(function PostCard({
           </Text>
         </View>
 
-        {post.is_own ? (
-          <TouchableOpacity
-            onPress={handleDelete}
-            accessibilityLabel="Hapus postingan"
-            style={{ padding: 6 }}
-          >
-            <FontAwesome name="trash-o" size={16} color="#94a3b8" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={onReport}
-            accessibilityLabel="Laporkan postingan"
-            style={{ padding: 6 }}
-          >
-            <FontAwesome name="flag-o" size={16} color="#94a3b8" />
-          </TouchableOpacity>
+        {!post.is_anonymous && (
+          post.is_own ? (
+            <TouchableOpacity
+              onPress={handleDelete}
+              accessibilityLabel="Hapus postingan"
+              style={{ padding: 6 }}
+            >
+              <FontAwesome name="trash-o" size={16} color="#94a3b8" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={onReport}
+              accessibilityLabel="Laporkan postingan"
+              style={{ padding: 6 }}
+            >
+              <FontAwesome name="flag-o" size={16} color="#94a3b8" />
+            </TouchableOpacity>
+          )
         )}
       </View>
 
